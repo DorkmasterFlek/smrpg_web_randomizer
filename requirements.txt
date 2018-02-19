@@ -1,0 +1,7 @@
+Django==2.0.2
+django-cdnjs==2017.10.20.post2
+nlzss==0.1.2
+Pillow==5.0.0
+pycrypto==2.6.1
+pytz==2018.3
+Wii.py==0.1
