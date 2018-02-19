@@ -1,7 +1,12 @@
+certifi==2018.1.18
+chardet==3.0.4
 Django==2.0.2
 django-cdnjs==2017.10.20.post2
+idna==2.6
 nlzss==0.1.2
 Pillow==5.0.0
 pycrypto==2.6.1
 pytz==2018.3
+requests==2.18.4
+urllib3==1.22
 Wii.py==0.1
