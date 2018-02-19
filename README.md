@@ -18,6 +18,10 @@ If you came here just looking to use the randomizer to generate games, head to [
 
 1. Change `local_settings.py` as needed.  Generally the only thing that would be different in your deployment is the database settings.  The default is a local SQLite file, but I recommend something more robust, ex. PostgreSQL.
 
+1. Run all migrations for your database:
+
+   ```> python manage.py migrate```
+
 1. Collect all the static files as per standard Django deployment:
 
    ```> python manage.py collectstatic```
