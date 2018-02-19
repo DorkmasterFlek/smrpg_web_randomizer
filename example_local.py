@@ -35,11 +35,3 @@ SECRET_KEY = 'IHaveNoIdeaWhatThisIsOrWhatItDoes'
 
 STATIC_URL = "/static/" + SITE_PREFIX
 STATIC_ROOT = os.path.join(BASE_DIR, 'static', SITE_PREFIX)
-
-# EMAIL_HOST = 'mail.somwhere.com'
-# EMAIL_PORT = 465
-# EMAIL_HOST_USER = 'dude@somewhere.com'
-# EMAIL_HOST_PASSWORD = '1234567878'
-# SERVER_EMAIL = 'someone_else@somewhere.com'
-
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
