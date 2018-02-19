@@ -99,3 +99,8 @@ ENV/
 
 # mypy
 .mypy_cache/
+
+# Project-specific excludes
+.idea
+db.sqlite*
+static
