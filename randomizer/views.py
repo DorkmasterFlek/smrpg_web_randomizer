@@ -154,6 +154,10 @@ class GenerateView(FormView):
 class GenerateFromHashView(View):
     def get(self, request, hash, region):
         """Get a previously generated patch via hash value."""
+        # EU patch is actually the US one.
+        if region == 'EU':
+            region = 'US'
+
         try:
             s = Seed.objects.get(hash=hash)
         except Seed.DoesNotExist:
