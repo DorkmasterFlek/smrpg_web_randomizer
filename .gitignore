@@ -103,4 +103,4 @@ ENV/
 # Project-specific excludes
 .idea
 db.sqlite*
-static
+/static
