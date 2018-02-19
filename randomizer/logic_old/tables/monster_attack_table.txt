@@ -1,0 +1,4 @@
+misc_multiplier,1
+hitrate,1
+ailments,bit:mute sleep poison fear unk_ailment mushroom scarecrow invincibility
+buffs,bit:bu0 bu1 bu2 magic_attack attack magic_defense defense bu7

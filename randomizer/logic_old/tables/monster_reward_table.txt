@@ -1,0 +1,5 @@
+xp,2
+coins,1
+yoshi_cookie,1
+drop,1
+rare_drop,1

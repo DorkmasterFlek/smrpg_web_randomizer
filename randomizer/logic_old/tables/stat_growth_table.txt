@@ -1,0 +1,3 @@
+max_hp,1
+physical,1
+magical,1

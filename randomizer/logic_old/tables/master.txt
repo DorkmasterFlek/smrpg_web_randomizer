@@ -1,0 +1,2 @@
+SMRPG_NA    d0b68d68d9efc0558242f5476d1c5b81    tables_list.txt
+SMRPG_JP    59483feb9eb20207e3241e005fbdde7e    tables_list_jp.txt

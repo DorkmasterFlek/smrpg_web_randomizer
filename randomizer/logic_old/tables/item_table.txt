@@ -1,0 +1,18 @@
+useable_itemtype,1
+status_cursor,bit:status_protection status_infliction status_nullification su3 su4 cursor_to_fp if_fp_not_max if_hp_not_max
+equippable,bit:mario toadstool bowser geno mallow qu5 qu6 qu7
+targetting,bit:tu0 single_ally single_enemy tu3 all wounded party allies
+elements,bit:mute sleep poison fear ice thunder fire earth
+resistances,bit:mute sleep poison fear ice thunder fire earth
+weaknesses,bit:mute sleep poison fear ice thunder fire earth
+ailments,bit:mute sleep poison fear unk_ailment mushroom scarecrow invincibility
+buffs,bit:bu0 bu1 bu2 magic_attack attack magic_defense defense bu7
+speed,1
+attack,1
+defense,1
+magic_attack,1
+magic_defense,1
+variance,1
+power,1
+misc_attack,1
+hide_digits,1

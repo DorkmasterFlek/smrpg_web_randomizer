@@ -1,0 +1,12 @@
+misc1,bit:read_attack_defense ignore_defense u12 u13 u14 death_protect u16 usable_overworld
+misc2,bit:heal inflict nullify damage_9999 u24 u25 u26 u27
+fp,1
+targetting,1
+elements,bit:mute sleep poison fear ice thunder fire earth
+power,1
+hitrate,1
+ailments,bit:mute sleep poison fear unk_ailment mushroom scarecrow invincibility
+buffs,bit:bu0 bu1 bu2 magic_attack attack magic_defense defense bu7
+unk,1
+special_function,1
+hide_digits,1

@@ -1,0 +1,44 @@
+<div class="col-md-6">
+    <div>Randomization Mode: <span class="mode"></span></div>
+    <div id="info-custom">Custom Mode Settings:
+        <ul>
+            <li>Character stats: <span id="info-custom-character-stats"></span></li>
+            <li>Drops: <span id="info-custom-drops"></span></li>
+            <li>Enemy formations: <span id="info-custom-enemy-formations"></span></li>
+            <li>Monsters: <span id="info-custom-monsters"></span></li>
+            <li>Shops: <span id="info-custom-shops"></span></li>
+            <li>Equipment stats and allowed characters: <span id="info-custom-equipment"></span></li>
+            <li>Character spell stats: <span id="info-custom-spell-stats"></span></li>
+            <li>Character spell lists: <span id="info-custom-spell-lists"></span></li>
+        </ul>
+    </div>
+    <div>Seed: <span class="seed"></span></div>
+</div>
+
+<script>
+    function parseInfoFromPatch(patch) {
+        var seed = $('.info .seed');
+        seed.html(patch.seed + " [<a href='/h/" + patch.hash + "' target='_blank'>permalink</a>]");
+
+        // If seed is not provided in the response, just show the hash instead (i.e. on the patch-from-hash screen).
+        if (!patch.seed && patch.hash) {
+            seed.html(patch.hash);
+        }
+
+        $(".info .mode").html(patch.mode);
+        if (patch.mode === "custom") {
+            $("#info-custom-character-stats").html(patch.custom_flags.randomize_character_stats ? "Yes" : "No");
+            $("#info-custom-drops").html(patch.custom_flags.randomize_drops ? "Yes" : "No");
+            $("#info-custom-enemy-formations").html(patch.custom_flags.randomize_enemy_formations ? "Yes" : "No");
+            $("#info-custom-monsters").html(patch.custom_flags.randomize_monsters ? "Yes" : "No");
+            $("#info-custom-shops").html(patch.custom_flags.randomize_shops ? "Yes" : "No");
+            $("#info-custom-equipment").html(patch.custom_flags.randomize_equipment ? "Yes" : "No");
+            $("#info-custom-spell-stats").html(patch.custom_flags.randomize_spell_stats ? "Yes" : "No");
+            $("#info-custom-spell-lists").html(patch.custom_flags.randomize_spell_lists ? "Yes" : "No");
+            $("#info-custom").show();
+        } else {
+            $("#info-custom").hide();
+        }
+        $(".info").show();
+    }
+</script>

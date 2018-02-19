@@ -1,0 +1,35 @@
+<div class="panel panel-info panel-collapse collapse" id="rom-settings">
+    <div class="panel-heading">
+        <h4 class="panel-title">ROM Settings</h4>
+    </div>
+    <div class="panel-body">
+        <div class="col-md-6">
+            <input id="cutscene-skip" type="checkbox" value="true" data-toggle="toggle" data-on="Yes"
+                   data-off="No" data-size="small">
+            <label for="cutscene-skip">Cutscene Skip (beta)<sup><strong>*</strong></sup></label>
+        </div>
+        <div class="clearfix"></div>
+    </div>
+    <div class="panel-footer">
+        <div><strong>*</strong> NOTE: Cutscene skip patch is experimental and only applicable to US and EU versions! See
+            Help section for more details!
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        // Cutscene skip
+        $("#cutscene-skip").change(function () {
+            if (rom) {
+                rom.setCutsceneSkip($(this).prop('checked'));
+            }
+            localforage.setItem("rom.cutscene_skip", $(this).prop("checked"));
+            $("#form_cutscene_skip").val($(this).prop("checked"));
+        });
+        localforage.getItem("rom.cutscene_skip").then(function (value) {
+            if (value === null) return;
+            $("#cutscene-skip").prop("checked", value).change();
+        });
+    });
+</script>

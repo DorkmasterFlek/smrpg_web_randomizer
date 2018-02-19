@@ -1,0 +1,26 @@
+# objname tablefile address count grouped
+EnemSpriteObject    enem_sprite_table.txt       250400  256
+AnimSeqPTRObject    anim_seq_ptr_table.txt      252000  444
+MonsterObject       monster_table.txt           390026  256     point1  390000  2
+MonsterAttackObject monster_attack_table.txt    391226  129
+MonsterRewardObject monster_reward_table.txt    39142a  256     point1  390000  2
+#MonsterAIObject     monster_ai_table.txt        3930aa  256
+PackObject          pack_table.txt              39222a  248
+MonsterNameObject   monster_name_table.txt      3992d1  256
+#PsychopathObject    psychopath_table.txt        399fd1  256     pointed 390000  2
+FlowerBonusObject   flower_bonus_table.txt      39bb44  256
+FormationObject     formation_table.txt         39c000  512
+FormMetaObject      form_meta_table.txt         392aaa  512
+CharacterObject     character_table.txt         3a002c  5
+ItemObject          item_table.txt              3a014d  256
+PriceObject         price_table.txt             3a40f2  256
+SpellNameObject     spell_name_table.txt        3a137f  128
+LevelUpXPObject     level_up_xp_table.txt       3a1aff  29
+StatGrowthObject    stat_growth_table.txt       3a1b39  145
+StatBonusObject     stat_bonus_table.txt        3a1cec  145
+SpellObject         spell_table.txt             3a20f1  128
+LearnObject         learn_table.txt             3a42f5  145
+WeaponTimingObject  weapon_timing_table.txt     3a438a  37
+ShopObject          shop_table.txt              3a44df  25
+ItemNameObject      spell_name_table.txt        3a46ef  256
+WorldMapObject      world_map_table.txt         3ef830  55

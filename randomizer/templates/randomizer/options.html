@@ -1,0 +1,52 @@
+{% extends 'randomizer/layouts/default.html' %}
+
+{% block content %}
+    <h1>Game Options</h1>
+    <div class="well">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Randomization Modes</h3>
+            </div>
+            <div class="panel-body">
+                <h4>Full</h4>
+                <p>This is the default full shuffle mode. This is the most common mode when we race, and it's the same
+                    as doing a custom mode with all the flags enabled. See the next section for a description of
+                    flags.</p>
+                <h4>Custom</h4>
+                <p>This mode lets you pick and choose exactly what flags you want to use. The available flags are as
+                    follows:</p>
+                <ul>
+                    <li>Character stats - Shuffles the starting stats for each character, as well as how much each stat
+                        grows by when levelling up, and how much the level-up bonuses are worth.
+                    </li>
+                    <li>Drops - Shuffles the item reward received from battles.</li>
+                    <li>Enemy formations - Shuffles the potential enemies that can be encountered in normal battles.</li>
+                    <li>Monsters - Shuffles the stats of monsters, as well as potential status effects of their attacks.</li>
+                    <li>Shops - Shuffles the items available in shops and their prices (including frog coin shops).</li>
+                    <li>Equipment stats and allowed characters - Shuffles the stats granted by equipment (could be positive or negative) and which characters can equip them.</li>
+                    <li>Character spell stats - Shuffles the FP cost, attack power, and hit rate of spells.</li>
+                    <li>Character spell lists - Shuffles which spells each character learns, and at what level they learn them.</li>
+                </ul>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Seed</h3>
+            </div>
+            <div class="panel-body">
+                <p>Seed is a number used to randomize the game. If you want to generate the same game as somebody else
+                    for racing, you can enter an exact seed here. If you just want a fresh experience, leave this blank
+                    and the site will generate it automatically.</p>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">ROM Settings</h3>
+            </div>
+            <div class="panel-body">
+                <h4>Cutscene Skip (US/EU only)</h4>
+                <p>Applies a patch which skips some cutscenes and events in the game. This doesn't skip everything (yet...) but it skips some of the longest ones such as the ABC cutscene, and most of the cutscenes in Nimbus Land (a.k.a Cutscene Land).  This patch currently only works on the US or EU version, since the EU version is based on the US one.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
