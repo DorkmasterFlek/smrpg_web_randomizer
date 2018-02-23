@@ -6,7 +6,13 @@ This web version is a Django-powered site.  It is assumed you know how to deploy
 
 If you came here just looking to use the randomizer to generate games, head to [the official community website](http://randomizer.smrpgspeedruns.com) where we host this for everyone.  This repository is only needed if you want to contribute to the development of the randomizer.
 
+## Install Python
+
+This app is written in Python 3, which is sort of implied by the requirements since Django 2.0 and beyond don't support Python 2 any longer.  You should install the latest version of Python 3, which is 3.6.4 at the time of this writing.
+
 ## Installing required packages
+
+I would recommend making a virtual environment using something like virtualenv, or Pipenv.  Then install the required packages:
 
 ```> pip install -r requirements.txt```
 
