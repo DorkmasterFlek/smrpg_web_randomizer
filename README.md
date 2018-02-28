@@ -1,6 +1,6 @@
-# smrpg_web_randomizer
+# Super Mario RPG Web Randomizer
 
-New Web-based randomizer for Super Mario RPG based on the [Gentle Beauty and Raw Power](https://github.com/abyssonym/smrpg_gbarp) randomizer by abyssonym.
+New web-based randomizer for Super Mario RPG based on the original command line [Gentle Beauty and Raw Power](https://github.com/abyssonym/smrpg_gbarp) randomizer by abyssonym.
 
 This web version is a Django-powered site.  It is assumed you know how to deploy Django to use this.
 
