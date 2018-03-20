@@ -6,14 +6,12 @@
         <div class="col-md-6">
             <input id="cutscene-skip" type="checkbox" value="true" data-toggle="toggle" data-on="Yes"
                    data-off="No" data-size="small">
-            <label for="cutscene-skip">Cutscene Skip (beta)<sup><strong>*</strong></sup></label>
+            <label for="cutscene-skip">Cutscene Skip (EXPERIMENTAL)<sup><strong>*</strong></sup></label>
         </div>
         <div class="clearfix"></div>
     </div>
     <div class="panel-footer">
-        <div><strong>*</strong> NOTE: Cutscene skip patch is experimental and only applicable to US and EU versions! See
-            Help section for more details!
-        </div>
+        {% include 'randomizer/_cutscene_skip_notes.html' %}
     </div>
 </div>
 
