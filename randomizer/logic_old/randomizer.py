@@ -1501,16 +1501,15 @@ def randomize_for_web(seed, mode, randomize_character_stats=True, randomize_drop
     # Randomize file select the same for both regions.
     file_select_char = random.choice([7, 13, 19, 25])
 
-    for region, addresses in (
-            ('US', [0x34757, 0x3489a, 0x34ee7, 0x340aa, 0x3501e]),
-            ('JP', [0x347d7, 0x3490d, 0x34f59, 0x340fa, 0x35099]),
+    for region, char_addrs, text_addr in (
+            ('US', [0x34757, 0x3489a, 0x34ee7, 0x340aa, 0x3501e], 0x3ef140),
+            ('JP', [0x347d7, 0x3490d, 0x34f59, 0x340fa, 0x35099], 0x3ef109),
     ):
-        for addr, value in zip(addresses, [0, 1, 0, 0, 1]):
+        for addr, value in zip(char_addrs, [0, 1, 0, 0, 1]):
             patches[region].append({addr: file_select_char + value})
 
-        # Add seed display on filename entry for US version.
-        if region == 'US':
-            patches[region].append({0x3EF140: list(str(seed).center(10).encode())})
+        # Add seed display on filename entry.
+        patches[region].append({text_addr: list(str(seed).center(10).encode())})
 
         # Update ROM title.
         title = 'SMRPG-R {}'.format(seed).ljust(20)
