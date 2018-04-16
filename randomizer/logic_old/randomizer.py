@@ -101,10 +101,103 @@ class MonsterObject(TableObject):
             "immunities", "weaknesses_approach",
             #"coin_anim_entrance", (floating + random coordinates = freeze?)
         ]
-    banned_indexes = [
-        0x4e, 0x61, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x8d, 0x8e, 0x96, 0x97, 0x98,
-        0xa0, 0xa1, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb4, 0xb7, 0xb9, 0xba,
-        0xc9, 0xcb, 0xd6, 0xe7, 0xe8, 0xf2, 0xf7, 0xf8, 0xfa, 0xfe]
+
+    # Unused indexes and enemies that cause problems when shuffled outside their groups.
+    banned_indexes = {
+        0x4e, 0x61, 0x6f, 0x73, 0x74, 0x80, 0x81, 0x82, 0x83, 0x84, 0x85, 0x8d, 0x8e, 0x96, 0x97, 0x98,
+        0xa0, 0xa1, 0xab, 0xac, 0xad, 0xae, 0xaf, 0xb0, 0xb4, 0xb7, 0xb9, 0xba,
+        0xc9, 0xcb, 0xd6, 0xe7, 0xe8, 0xf2, 0xf7, 0xf8, 0xfa, 0xfe,
+    }
+
+    # Boss enemies that shouldn't be shuffled to other groups, and also different stat shuffle algorithm.
+    boss_indexes = {
+        0x1b,  # HAMMER BRO
+        0x21,  # MAGIKOOPA
+        0x32,  # CLERK
+        0x33,  # GUNYOLK
+        0x34,  # BOOMER
+        0x38,  # DODO
+        0x39,  # JESTER
+        0x4a,  # FACTORY CHIEF
+        0x4c,  # MANAGER
+        0x57,  # HIDON
+        0x61,  # MERLIN
+        0x62,  # MUCKLE
+        0x72,  # DIRECTOR
+        0x77,  # LUMBLER
+        0x88,  # SUPER SPIKE
+        0x89,  # DODO
+        0x8e,  # TORTE
+        0x95,  # FIRE CRYSTAL
+        0x96,  # WATER CRYSTAL
+        0x97,  # EARTH CRYSTAL
+        0x98,  # WIND CRYSTAL
+        0x9a,  # TOADSTOOL 2
+        0x9f,  # KINKLINK
+        0xa2,  # SMELTER
+        0xb3,  # JAGGER
+        0xb5,  # SMITHY
+        0xb6,  # SMITHY
+        0xbc,  # YARIDOVICH
+        0xbd,  # HELIO
+        0xbe,  # RIGHT EYE
+        0xbf,  # LEFT EYE
+        0xc0,  # KNIFE GUY
+        0xc1,  # GRATE GUY
+        0xc2,  # BUNDT
+        0xc3,  # JINX
+        0xc4,  # JINX
+        0xc5,  # COUNT DOWN
+        0xc6,  # DING}A}LING
+        0xc7,  # BELOME
+        0xc8,  # BELOME
+        0xca,  # SMILAX
+        0xcc,  # MEGASMILAX
+        0xcd,  # BIRDO
+        0xce,  # EGGBERT
+        0xcf,  # AXEM YELLOW
+        0xd0,  # PUNCHINELLO
+        0xd1,  # TENTACLES
+        0xd2,  # AXEM RED
+        0xd3,  # AXEM GREEN
+        0xd4,  # KING BOMB
+        0xd5,  # MEZZO BOMB
+        0xd7,  # RASPBERRY
+        0xd8,  # KING CALAMARI
+        0xd9,  # TENTACLES
+        0xda,  # JINX
+        0xdb,  # ZOMBONE
+        0xdc,  # CZAR DRAGON
+        0xdd,  # CLOAKER
+        0xde,  # DOMINO
+        0xdf,  # MAD ADDER
+        0xe0,  # MACK
+        0xe1,  # BODYGUARD
+        0xe2,  # YARIDOVICH
+        0xe3,  # DRILL BIT
+        0xe4,  # AXEM PINK
+        0xe5,  # AXEM BLACK
+        0xe6,  # BOWYER
+        0xe9,  # EXOR
+        0xea,  # SMITHY
+        0xeb,  # SHYPER
+        0xec,  # SMITHY
+        0xed,  # SMITHY
+        0xee,  # SMITHY
+        0xef,  # SMITHY
+        0xf0,  # CROCO
+        0xf1,  # CROCO
+        0xf3,  # EARTH LINK
+        0xf4,  # BOWSER
+        0xf5,  # AXEM RANGERS
+        0xf6,  # BOOSTER
+        0xf9,  # JOHNNY
+        0xfa,  # JOHNNY (solo vs. Mario)
+        0xfb,  # VALENTINA
+        0xfc,  # CLOAKER
+        0xfd,  # DOMINO
+        0xff,  # CULEX
+    }
 
     def get_similar(self):
         if self.is_boss:
@@ -188,7 +281,7 @@ class MonsterObject(TableObject):
 
     @property
     def is_boss(self):
-        if self.banned or self.event_on_death:
+        if self.index in self.boss_indexes or self.banned or self.event_on_death:
             return True
         return False
 
