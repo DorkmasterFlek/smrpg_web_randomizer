@@ -131,6 +131,7 @@
         <input type="hidden" name="randomize_spell_stats" id="form_randomize_spell_stats" value="true"/>
         <input type="hidden" name="randomize_spell_lists" id="form_randomize_spell_lists" value="true"/>
         <input type="hidden" name="cutscene_skip" id="form_cutscene_skip" value="true"/>
+        <input type="hidden" name="debug_mode" id="form_debug_mode" value="false"/>
     </form>
 
     <script>
@@ -166,6 +167,7 @@
                 parseInfoFromPatch(data.patch);
                 data.rom.logic = data.patch.logic;
                 data.rom.mode = data.patch.mode;
+                data.rom.debug_mode = data.patch.debug_mode;
                 data.rom.seed = data.patch.seed;
                 data.rom.hash = data.patch.hash;
                 resolve(rom);

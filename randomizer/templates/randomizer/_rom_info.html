@@ -1,5 +1,6 @@
 <div class="col-md-6">
     <div>Randomization Mode: <span class="mode"></span></div>
+    <div id="info-debug-mode" class="bg-info">Debug Test Mode: <span>Yes</span></div>
     <div id="info-custom">Custom Mode Settings:
         <ul>
             <li>Character stats: <span id="info-custom-character-stats"></span></li>
@@ -26,6 +27,15 @@
         }
 
         $(".info .mode").html(patch.mode);
+
+        // Debug mode seed?
+        if (patch.debug_mode) {
+            $("#info-debug-mode").show();
+        } else {
+            $("#info-debug-mode").hide();
+        }
+
+        // Custom mode settings.
         if (patch.mode === "custom") {
             $("#info-custom-character-stats").html(patch.custom_flags.randomize_character_stats ? "Yes" : "No");
             $("#info-custom-drops").html(patch.custom_flags.randomize_drops ? "Yes" : "No");
@@ -39,6 +49,7 @@
         } else {
             $("#info-custom").hide();
         }
+
         $(".info").show();
     }
 </script>

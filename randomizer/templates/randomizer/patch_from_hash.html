@@ -50,6 +50,7 @@
                 parseInfoFromPatch(data.patch);
                 data.rom.logic = data.patch.logic;
                 data.rom.mode = data.patch.mode;
+                data.rom.debug_mode = data.patch.debug_mode;
                 data.rom.seed = data.patch.hash;
                 data.rom.hash = data.patch.hash;
                 resolve(rom);

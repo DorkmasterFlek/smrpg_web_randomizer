@@ -789,6 +789,15 @@ class CharacterObject(TableObject):
         else:
             self.xp = LevelUpXPObject.get(self.level-2).xp
 
+        # If we're generating a debug seed for testing, max the starting stats.
+        if self.debug_mode:
+            for attr in LEVEL_STATS + ['speed']:
+                if attr == 'max_hp':
+                    setattr(self, attr, 999)
+                else:
+                    setattr(self, attr, 255)
+            self.current_hp = self.max_hp
+
     def get_stat_at_level(self, attr, level):
         my_growths = [s for s in self.growth_stats
                       if self.level < s.level <= level]
@@ -1534,9 +1543,9 @@ class WorldMapObject(TableObject):
             setattr(self, attr, value)
 
 
-def randomize_for_web(seed, mode, randomize_character_stats=True, randomize_drops=True, randomize_enemy_formations=True,
-                      randomize_monsters=True, randomize_shops=True, randomize_equipment=True,
-                      randomize_spell_stats=True, randomize_spell_lists=True):
+def randomize_for_web(seed, mode, debug_mode=False, randomize_character_stats=True, randomize_drops=True,
+                      randomize_enemy_formations=True, randomize_monsters=True, randomize_shops=True,
+                      randomize_equipment=True, randomize_spell_stats=True, randomize_spell_lists=True):
     """Randomizer for the web and return patch data.
 
     :return: Patch data for each region.
@@ -1582,6 +1591,7 @@ def randomize_for_web(seed, mode, randomize_character_stats=True, randomize_drop
 
         objects = sort_good_order(objects)
         for o in objects:
+            o.debug_mode = debug_mode
             e = o.every
 
         for o in objects:

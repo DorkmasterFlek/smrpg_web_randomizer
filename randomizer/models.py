@@ -13,11 +13,12 @@ REGIONS = (
 
 
 class Seed(models.Model):
-    hash = models.CharField(max_length=10, db_index=True)
+    hash = models.CharField(max_length=10, unique=True)
     seed = models.BigIntegerField()
     version = models.IntegerField()
     generated = models.DateTimeField(auto_now_add=True)
     mode = models.CharField(max_length=16, choices=MODES)
+    debug_mode = models.BooleanField(default=False)
     flags = models.TextField()
 
 

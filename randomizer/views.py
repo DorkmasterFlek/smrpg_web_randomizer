@@ -10,6 +10,7 @@ import shutil
 import Wii
 import nlzss
 
+from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
 from django.utils.decorators import method_decorator
@@ -34,22 +35,25 @@ class UpdatesView(TemplateView):
     template_name = 'randomizer/updates.html'
 
 
-class RandomizeView(TemplateView):
+class GenerateViewBase(TemplateView):
+    """
+    Base class for views that generate a ROM, i.e. randomizer and patch-from-hash views.
+    This gets common context data.
+    """
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['version'] = randomizer.VERSION
+        context['debug_enabled'] = settings.DEBUG
+        return context
+
+
+class RandomizeView(GenerateViewBase):
     template_name = 'randomizer/randomize.html'
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['version'] = randomizer.VERSION
-        return context
 
-
-class HashView(TemplateView):
+class HashView(GenerateViewBase):
     template_name = 'randomizer/patch_from_hash.html'
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['version'] = randomizer.VERSION
-        return context
 
 
 class GenerateView(FormView):
@@ -57,6 +61,10 @@ class GenerateView(FormView):
 
     def form_valid(self, form):
         data = form.cleaned_data
+
+        # Debug mode is only allowed if the server is running in debug mode for development.
+        if not settings.DEBUG:
+            data['debug_mode'] = False
 
         # If seed is provided, use it.  Otherwise generate a random seed (10 digits max).
         seed = data['seed']
@@ -73,12 +81,14 @@ class GenerateView(FormView):
             seed = random.getrandbits(32)
 
         mode = data['mode']
+        debug_mode = data['debug_mode']
 
         # Compute hash based on seed and selected options.  Use first 10 characters for convenience.
         h = hashlib.md5()
         h.update(randomizer.VERSION.to_bytes(1, 'big'))  # This only works up to version 255, then it needs 2 bytes.
         h.update(seed.to_bytes(4, 'big'))
         h.update(mode.encode('utf-8'))
+        h.update(str(debug_mode).encode('utf-8'))
         if mode == 'custom':
             h.update(str(data['randomize_character_stats']).encode('utf-8'))
             h.update(str(data['randomize_drops']).encode('utf-8'))
@@ -106,7 +116,8 @@ class GenerateView(FormView):
             custom_flags[key] = data[key]
 
         # FIXME: Old version of the randomizer!
-        patches = randomizer.randomize_for_web(seed, mode, data['randomize_character_stats'], data['randomize_drops'],
+        patches = randomizer.randomize_for_web(seed, mode, debug_mode,
+                                               data['randomize_character_stats'], data['randomize_drops'],
                                                data['randomize_enemy_formations'], data['randomize_monsters'],
                                                data['randomize_shops'], data['randomize_equipment'],
                                                data['randomize_spell_stats'], data['randomize_spell_lists'])
@@ -117,6 +128,7 @@ class GenerateView(FormView):
             'seed': seed,
             'hash': hash,
             'mode': mode,
+            'debug_mode': debug_mode,
             'custom_flags': custom_flags,
         }
 
@@ -130,7 +142,8 @@ class GenerateView(FormView):
             else:
                 s.delete()
 
-            s = Seed(hash=hash, seed=seed, version=randomizer.VERSION, mode=mode, flags=json.dumps(custom_flags))
+            s = Seed(hash=hash, seed=seed, version=randomizer.VERSION, mode=mode, debug_mode=debug_mode,
+                     flags=json.dumps(custom_flags))
             s.save()
 
             for region, patch in patches.items():
@@ -172,6 +185,7 @@ class GenerateFromHashView(View):
             'logic': s.version,
             'hash': s.hash,
             'mode': s.mode,
+            'debug_mode': s.debug_mode,
             'custom_flags': json.loads(s.flags),
             'patch': json.loads(p.patch),
         }
