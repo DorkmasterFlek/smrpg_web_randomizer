@@ -827,11 +827,35 @@ class ItemObject(TableObject):
     geno - 0xe super hammer (worked with mallow)
     mario - 0xf handgun
     mallow - 0xf handgun
+    mario - 0x14 hurly gloves
     mario - 0x15 double punch (worked with mallow)
     geno - 0x1d super slap (worked with mario)
-    geno - noknok shell
-    geno - frying pan
+    geno - 0x7 noknok shell
+    geno - 0x22 frying pan
     '''
+    softlocks = {
+        # Mario
+        0: {
+            0x0f,  # Handgun
+            0x14,  # Hurly Gloves
+            0x15,  # Double Punch
+        },
+        # Peach
+        1: {},
+        # Bowser
+        2: {},
+        # Geno
+        3: {
+            0x07,  # Noknok Shell
+            0x0e,  # Super Hammer
+            0x1d,  # Super Slep
+            0x22,  # Frying Pan
+        },
+        # Mallow
+        4: {
+            0x0f,  # Handgun
+        },
+    }
 
     @classmethod
     def classify_rare(cls):
@@ -1053,7 +1077,11 @@ class ItemObject(TableObject):
         equippable = self.equippable & 0xE0
         num_equippable = random.randint(1,random.randint(1, 5))
         for _ in range(num_equippable):
-            equippable |= (1 << random.randint(0, 4))
+            # If this weapon softlocks with the chosen character, re-roll until it doesn't.
+            char = random.randint(0, 4)
+            while self.index in self.softlocks[char]:
+                char = random.randint(0, 4)
+            equippable |= (1 << char)
 
         if self.is_weapon:
             equippable = equippable & 0xF7
