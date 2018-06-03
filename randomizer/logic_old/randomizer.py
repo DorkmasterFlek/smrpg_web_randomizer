@@ -821,6 +821,7 @@ class ItemObject(TableObject):
     banned_indexes = set([
         0, 1, 2, 3, 4, 0x24, 0x47, 0x48, 0x49, 0x5f, 0x8b, 0x95, 0xa0, 0xa4,  # Dummy item slots
         0x85,  # Debug Bomb
+        0xa5,  # S. Crow Bomb
     ] + list(range(0xb1, 0x100)))  # Unused slots
 
     ''' KNOWN FREEZES
