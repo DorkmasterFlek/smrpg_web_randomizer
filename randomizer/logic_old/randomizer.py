@@ -1113,15 +1113,15 @@ class LevelUpXPObject(TableObject):
                 if not (hasattr(cls2, "randomized") and cls2.randomized):
                     raise Exception("Randomize order violated.")
         cls.randomized = True
-        xps = sorted([mutate_normal(l.xp, minimum=1, maximum=65535)
+        xps = sorted([mutate_normal(l.xp, minimum=1, maximum=9999)
                       for l in cls.every])
         prev = 0
         assert len(cls.every) == len(xps)
         for i, (l, xp) in enumerate(zip(cls.every, xps)):
             factor = min(i / (len(xps)/2.0), 1.0)
             xp = int(round((xp + (xp * factor))/2))
-            while xp <= prev:
-                xp += 1
+            if xp <= prev and xp < 9999:
+                xp = prev + 1
             l.xp = xp
             prev = xp
 
