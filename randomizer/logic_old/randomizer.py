@@ -1289,6 +1289,15 @@ class SpellObject(TableObject):
     def set_name(self, name):
         SpellNameObject.get(self.index).name = name
 
+    def mutate(self):
+        # Geno Boost - shuffle only FP cost because of special effects of the spell
+        if self.index == 0x11:
+            self.mutate_attributes = {
+                "fp": (1, 99),
+            }
+
+        super().mutate()
+
 
 class SpellNameObject(TableObject): pass
 
