@@ -1,11 +1,11 @@
-certifi==2018.1.18
+certifi==2018.4.16
 chardet==3.0.4
-Django==2.0.3
+Django==2.0.6
 idna==2.6
 nlzss==0.1.2
-Pillow==5.0.0
+Pillow==5.1.0
 pycrypto==2.6.1
-pytz==2018.3
+pytz==2018.4
 requests==2.18.4
 urllib3==1.22
 Wii.py==0.1
