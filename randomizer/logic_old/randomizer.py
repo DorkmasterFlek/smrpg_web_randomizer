@@ -1636,8 +1636,11 @@ def randomize_for_web(seed, mode, debug_mode=False, randomize_character_stats=Tr
 
         objects = sort_good_order(objects)
         for o in objects:
+            # Set debug mode flag and mark all objects as not randomized yet in case of previous seed.
             o.debug_mode = debug_mode
-            e = o.every
+            o.randomized = False
+            for e in o.every:
+                e.randomized = False
 
         for o in objects:
             if not hasattr(o, "flag") or o.flag in flags:
