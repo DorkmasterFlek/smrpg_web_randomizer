@@ -7,7 +7,7 @@ MODES = (
 
 REGIONS = (
     ('US', 'US'),
-    ('JP', 'Japan'),
+    # ('JP', 'Japan'),
     ('EU', 'PAL'),
 )
 

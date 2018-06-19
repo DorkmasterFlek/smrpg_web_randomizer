@@ -11,6 +11,7 @@
             <li>Equipment stats and allowed characters: <span id="info-custom-equipment"></span></li>
             <li>Character spell stats: <span id="info-custom-spell-stats"></span></li>
             <li>Character spell lists: <span id="info-custom-spell-lists"></span></li>
+            <li>Character join order: <span id="info-custom-join-order"></span></li>
         </ul>
     </div>
     <div>Seed: <span class="seed"></span></div>
@@ -45,6 +46,7 @@
             $("#info-custom-equipment").html(patch.custom_flags.randomize_equipment ? "Yes" : "No");
             $("#info-custom-spell-stats").html(patch.custom_flags.randomize_spell_stats ? "Yes" : "No");
             $("#info-custom-spell-lists").html(patch.custom_flags.randomize_spell_lists ? "Yes" : "No");
+            $("#info-custom-join-order").html(patch.custom_flags.randomize_join_order ? "Yes" : "No");
             $("#info-custom").show();
         } else {
             $("#info-custom").hide();

@@ -8,7 +8,7 @@ from .tablereader import TableObject, tblpath, set_global_table_filename, set_ta
     reset_everything
 from .utils import classproperty, mutate_normal, shuffle_bits, utilrandom as random
 
-VERSION = 5
+VERSION = 6
 ALL_OBJECTS = None
 LEVEL_STATS = ["max_hp", "attack", "defense", "magic_attack", "magic_defense"]
 EQUIP_STATS = ["speed", "attack", "defense", "magic_attack", "magic_defense"]
@@ -856,7 +856,7 @@ class ItemObject(TableObject):
         3: {
             0x07,  # Noknok Shell
             0x0e,  # Super Hammer
-            0x1d,  # Super Slep
+            0x1d,  # Super Slap
             0x22,  # Frying Pan
         },
         # Mallow
@@ -1332,6 +1332,7 @@ class LearnObject(CharIndexObject, TableObject):
                 valid = [s for s in range(0x1b) if s not in charspells[4] and s != 7]  # group hug
                 spell = random.choice(valid)
             charspells[chosen].append(spell)
+        # FIXME: Test Group Hug with other characters!
         charspells[1].insert(random.randint(0, 5), 7)
         for l in LearnObject.every:
             l.spell = 0xFF
@@ -1346,7 +1347,7 @@ class LearnObject(CharIndexObject, TableObject):
         cls.randomized = True
 
 
-class WeaponTimingObject(TableObject): pass
+# class WeaponTimingObject(TableObject): pass
 
 
 class ShopObject(TableObject):
@@ -1590,7 +1591,8 @@ class WorldMapObject(TableObject):
 
 def randomize_for_web(seed, mode, debug_mode=False, randomize_character_stats=True, randomize_drops=True,
                       randomize_enemy_formations=True, randomize_monsters=True, randomize_shops=True,
-                      randomize_equipment=True, randomize_spell_stats=True, randomize_spell_lists=True):
+                      randomize_equipment=True, randomize_spell_stats=True, randomize_spell_lists=True,
+                      randomize_join_order=True):
     """Randomizer for the web and return patch data.
 
     :return: Patch data for each region.
@@ -1617,14 +1619,14 @@ def randomize_for_web(seed, mode, debug_mode=False, randomize_character_stats=Tr
 
     flags = ''.join(flags)
     set_flags(flags)
-    set_seed(seed)
 
     patches = {}
 
     for region, table_fname in (
             ('US', 'tables_list.txt'),
-            ('JP', 'tables_list_jp.txt'),
+            # ('JP', 'tables_list_jp.txt'),
     ):
+        patches[region] = []
         objects = [g for g in list(globals().values()) if
                    isinstance(g, type) and issubclass(g, TableObject) and g not in [TableObject]]
 
@@ -1633,6 +1635,9 @@ def randomize_for_web(seed, mode, debug_mode=False, randomize_character_stats=Tr
         TableObject.region = region
         set_global_table_filename(table_fname)
         set_table_specs()
+
+        # Initialize PRNG with seed before we start randomizing everything for this patch.
+        random.seed(seed)
 
         objects = sort_good_order(objects)
         for o in objects:
@@ -1644,17 +1649,64 @@ def randomize_for_web(seed, mode, debug_mode=False, randomize_character_stats=Tr
 
         for o in objects:
             if not hasattr(o, "flag") or o.flag in flags:
-                random.seed(seed)
                 o.full_randomize()
 
-        patches[region] = clean_and_write(objects, seed, verbose=False)
+        # Unlock all world map locations for debug mode (and maybe for open mode in the future...)
+        if debug_mode:
+            for e in WorldMapObject.every:
+                e.unlock_everything()
+
+        # Pick order of characters to join.
+        if randomize_join_order or full:
+            join_order = [1, 2, 3, 4]
+            random.shuffle(join_order)
+
+            # Adjust starting levels according to join order.  Get original levels, then update starting levels based on
+            # join order with Mallow = 4, Geno = 3, Bowser = 2, Peach = 1.
+            orig_levels = {}
+            for c in CharacterObject.every:
+                orig_levels[c.index] = c.level
+
+            for i, index in enumerate(join_order):
+                c = CharacterObject.get(index)
+                c.level = orig_levels[4 - i]
+
+            # Update party join script events for the new order.
+            addresses = [0x1e2155, 0x1fc506, 0x1edf98, 0x1e8b79]
+            for addr, index in zip(addresses, join_order):
+                patches[region].append({addr: [0x80 + index]})
+
+            # Update other battle scripts so Belome eats the first one to join.
+            for addr in (
+                    0x394b4d,
+                    0x394b70,
+                    0x394b74,
+                    0x394b7d,
+                    0x394b7f,
+                    0x394b83,
+                    0x3ab93f,
+                    0x3ab95a,
+            ):
+                patches[region].append({addr: [join_order[0]]})
+
+        patches[region] += clean_and_write(objects, verbose=False)
+
+        # Randomize starting FP if we're randomizing spell stats.
+        if randomize_spell_stats or full:
+            starting_fp = mutate_normal(10)
+            # If we're generating a debug mode seed for testing, set max FP to start.
+            if debug_mode:
+                starting_fp = 99
+
+            for addr in (0x3a00dd, 0x3a00de):
+                patches[region].append({addr: [starting_fp]})
 
     # Randomize file select the same for both regions.
     file_select_char = random.choice([7, 13, 19, 25])
 
     for region, char_addrs, text_addr in (
             ('US', [0x34757, 0x3489a, 0x34ee7, 0x340aa, 0x3501e], 0x3ef140),
-            ('JP', [0x347d7, 0x3490d, 0x34f59, 0x340fa, 0x35099], 0x3ef109),
+            # ('JP', [0x347d7, 0x3490d, 0x34f59, 0x340fa, 0x35099], 0x3ef109),
     ):
         for addr, value in zip(char_addrs, [0, 1, 0, 0, 1]):
             patches[region].append({addr: file_select_char + value})
@@ -1667,7 +1719,7 @@ def randomize_for_web(seed, mode, debug_mode=False, randomize_character_stats=Tr
         if len(title) > 20:
             title = title[:19] + '?'
 
-        patches[region].append({0x7FC0: list(title.encode())})
-        patches[region].append({0X7FDB: list(bytes([VERSION]))})
+        patches[region].append({0x7fc0: list(title.encode())})
+        patches[region].append({0x7fdb: list(bytes([VERSION]))})
 
     return patches

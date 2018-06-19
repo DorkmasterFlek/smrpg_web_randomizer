@@ -16,3 +16,4 @@ class GenerateForm(forms.Form):
     randomize_equipment = forms.BooleanField(required=False, initial=False)
     randomize_spell_stats = forms.BooleanField(required=False, initial=False)
     randomize_spell_lists = forms.BooleanField(required=False, initial=False)
+    randomize_join_order = forms.BooleanField(required=False, initial=False)

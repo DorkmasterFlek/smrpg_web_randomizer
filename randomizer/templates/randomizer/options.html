@@ -29,9 +29,15 @@
                     <li>Equipment stats and allowed characters - Shuffles the stats granted by equipment (could be
                         positive or negative) and which characters can equip them.
                     </li>
-                    <li>Character spell stats - Shuffles the FP cost, attack power, and hit rate of spells.</li>
+                    <li>Character spell stats - Shuffles the FP cost, attack power and hit rate of spells, plus starting
+                        FP.
+                    </li>
                     <li>Character spell lists - Shuffles which spells each character learns, and at what level they
                         learn them.
+                    </li>
+                    <li>Character join order - Shuffles the order in which characters join the part. The spots at which
+                        a new character joins that party are unchanged. The character that joins the party will be the
+                        appropriate starting level for balance.
                     </li>
                 </ul>
             </div>
@@ -48,12 +54,13 @@
         </div>
         <div class="panel panel-info">
             <div class="panel-heading">
-                <h3 class="panel-title">ROM Settings</h3>
+                <h3 class="panel-title">Game Changes</h3>
             </div>
             <div class="panel-body">
-                <h4>Cutscene Skip (US/EU only)</h4>
-                <p>Applies a patch which skips most of the cutscenes and text in the game. This patch only works on the
-                    US or EU version, since the EU version is based on the US one.</p>
+                <h4>Cutscene Skip</h4>
+                <p>The randomizer applies a patch which skips most of the cutscenes and text in the game. This patch
+                    only works on the US or EU version, since the EU version is based on the US one. Only these regions
+                    are supported as a result.</p>
                 {% include 'randomizer/_cutscene_skip_notes.html' %}
             </div>
         </div>

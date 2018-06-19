@@ -98,6 +98,7 @@ class GenerateView(FormView):
             h.update(str(data['randomize_equipment']).encode('utf-8'))
             h.update(str(data['randomize_spell_stats']).encode('utf-8'))
             h.update(str(data['randomize_spell_lists']).encode('utf-8'))
+            h.update(str(data['randomize_join_order']).encode('utf-8'))
 
         hash = base64.b64encode(h.digest()).decode().replace('+', '').replace('/', '')[:10]
 
@@ -112,6 +113,7 @@ class GenerateView(FormView):
                 'randomize_equipment',
                 'randomize_spell_stats',
                 'randomize_spell_lists',
+                'randomize_join_order',
         ):
             custom_flags[key] = data[key]
 
@@ -120,7 +122,8 @@ class GenerateView(FormView):
                                                data['randomize_character_stats'], data['randomize_drops'],
                                                data['randomize_enemy_formations'], data['randomize_monsters'],
                                                data['randomize_shops'], data['randomize_equipment'],
-                                               data['randomize_spell_stats'], data['randomize_spell_lists'])
+                                               data['randomize_spell_stats'], data['randomize_spell_lists'],
+                                               data['randomize_join_order'])
 
         # Send back patch data.
         result = {

@@ -1,4 +1,5 @@
 {% extends 'randomizer/layouts/default.html' %}
+{% load static %}
 
 {% block content %}
     {% include 'randomizer/_rom_base.html' %}
@@ -17,7 +18,7 @@
                 <div class="col-md-6 pb-5">
                     <div class="input-group" role="group">
                         <span class="input-group-addon">Randomization Mode</span>
-                        <select title="" id="mode" class="form-control selectpicker">
+                        <select title="" id="mode" class="form-control">
                             <option value="full">Full</option>
                             <option value="custom">Custom</option>
                         </select>
@@ -79,6 +80,13 @@
                             <label for="randomize-spell-lists">Character spell lists</label>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col-md-6 pb-5">
+                            <input id="randomize-join-order" type="checkbox" value="true" checked data-toggle="toggle"
+                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
+                            <label for="randomize-join-order">Character join order</label>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="row">
@@ -130,6 +138,7 @@
         <input type="hidden" name="randomize_equipment" id="form_randomize_equipment" value="true"/>
         <input type="hidden" name="randomize_spell_stats" id="form_randomize_spell_stats" value="true"/>
         <input type="hidden" name="randomize_spell_lists" id="form_randomize_spell_lists" value="true"/>
+        <input type="hidden" name="randomize_join_order" id="form_randomize_join_order" value="true"/>
         <input type="hidden" name="cutscene_skip" id="form_cutscene_skip" value="true"/>
         <input type="hidden" name="debug_mode" id="form_debug_mode" value="false"/>
     </form>
@@ -140,11 +149,18 @@
                 $("#form_region").val(rom.region);
                 $("#form_seed").val(seed);
                 $.post("{% url 'randomizer:generate' %}", $("#config").serialize(), function (patch) {
-                    rom.parsePatch(patch.patch)
-                        .then(rom.setCutsceneSkip($("#cutscene-skip").prop("checked")))
-                        .then(function (rom) {
-                            resolve({rom: rom, patch: patch});
-                        });
+                    $.getJSON("{% static 'randomizer/patches/us_cutscene_skip_apply.json' %}", {}, function (cutscene_skip) {
+                        rom.parsePatch(cutscene_skip);
+                        rom.parsePatch(patch.patch);
+                        resolve({rom: rom, patch: patch});
+                    });
+
+                    {#rom.setCutsceneSkip(true)#}
+                    {#    .then(rom.parsePatch(patch.patch))#}
+                        {#.then(rom.setCutsceneSkip($("#cutscene-skip").prop("checked")))#}
+                    {#    .then(function (rom) {#}
+                    {#        resolve({rom: rom, patch: patch});#}
+                    {#    });#}
                 }, "json").fail(reject);
             });
         }

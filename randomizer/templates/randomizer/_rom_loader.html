@@ -111,12 +111,16 @@
             if (show_error) {
                 localforage.setItem("rom", rom.getArrayBuffer());
             }
-            if (rom.region) {
+            if (rom.valid) {
                 romOk(rom);
             } else {
                 localforage.removeItem("rom");
                 if (show_error) {
-                    $(".alert .message").html("ROM not recognized. Please try another.");
+                    if (rom.region === 'JP') {
+                        $(".alert .message").html("Only US/EU version is supported.");
+                    } else {
+                        $(".alert .message").html("ROM not recognized. Please try another.");
+                    }
                     $(".alert").show();
                 }
                 $("#rom-select").show();

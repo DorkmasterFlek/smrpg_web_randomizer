@@ -13,7 +13,7 @@
 
     var WAD_CHECKSUMS = {
         "US": "492591e14675b1bf66767c38c4b84c1d",
-        "JP": "b4309cfcb60394bae6eca452be6bb69f",
+        {#"JP": "b4309cfcb60394bae6eca452be6bb69f",#}
         "EU": "6f6862bbc5c5cad8bd44d34ae38b0612"
     };
 
@@ -51,7 +51,7 @@
                     }
                 }
             }
-            if (this.region) {
+            if (this.region && this.region !== 'JP') {
                 this.valid = true;
             }
 
@@ -60,7 +60,10 @@
             }
         }.bind(this);
 
-        fileReader.readAsArrayBuffer(blob);
+        if (blob)
+            fileReader.readAsArrayBuffer(blob);
+        else
+            fileReader.readAsArrayBuffer(new Blob());
 
         this.getArrayBuffer = function () {
             return arrayBuffer;
