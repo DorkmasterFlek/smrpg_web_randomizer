@@ -154,13 +154,6 @@
                         rom.parsePatch(patch.patch);
                         resolve({rom: rom, patch: patch});
                     });
-
-                    {#rom.setCutsceneSkip(true)#}
-                    {#    .then(rom.parsePatch(patch.patch))#}
-                        {#.then(rom.setCutsceneSkip($("#cutscene-skip").prop("checked")))#}
-                    {#    .then(function (rom) {#}
-                    {#        resolve({rom: rom, patch: patch});#}
-                    {#    });#}
                 }, "json").fail(reject);
             });
         }
