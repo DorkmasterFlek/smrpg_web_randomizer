@@ -346,13 +346,14 @@ class MonsterAttackObject(TableObject):
     mutate_attributes = {"hitrate": (1, 100)}
     intershuffle_attributes = ["hitrate", "ailments"]
     restricted_indexes = [
-        98,             # terrapin
-        100,            # bowser
-        3, 16, 124,     # goomba
-        3, 96,          # hammer bro
-        14, 25,         # croco 1
-        13,             # shyster & mack
-        1, 41, 44,      # belome 1
+        0x62,              # terrapin
+        0x64,              # bowser
+        0x3, 0x10, 0x7c,   # goomba
+        0x60,              # hammer bro
+        0xe, 0x19,         # croco 1
+        0xd,               # shyster & mack
+        0x1, 0x29, 0x2c,   # belome 1
+        0x66, 0x67, 0x68,  # Bowyer button lock attacks
         ]
 
     @property
@@ -378,6 +379,9 @@ class MonsterAttackObject(TableObject):
             new_multiplier = random.randint(0, random.randint(
                 0, random.randint(0, random.randint(0, 8))))
             if new_multiplier > self.multiplier:
+                # If new multiplier has bit 3 set, the attack got instant KO.  Hide damage numbers in this case.
+                if new_multiplier & 8:
+                    new_multiplier |= 1 << 5
                 self.misc_multiplier = new_multiplier
         if not self.buffs and random.randint(1, 5) == 5:
             i = random.randint(0, 6)
