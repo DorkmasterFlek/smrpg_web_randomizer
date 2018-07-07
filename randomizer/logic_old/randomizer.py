@@ -760,39 +760,6 @@ class CharacterObject(TableObject):
         self.armor = 0xFF
         self.accessory = 0xFF
 
-        my_learned = [l for l in LearnObject.every if l.level <= self.level
-                      and l.character_id == self.index]
-        for l in my_learned:
-            if l.spell <= 0x1A:
-                self.known_spells |= (1 << l.spell)
-
-        for g in self.growth_stats:
-            if g.level > self.level:
-                continue
-            for attr in LEVEL_STATS:
-                setattr(self, attr, getattr(self, attr) + getattr(g, attr))
-
-        for s in self.bonus_stats:
-            if s.level > self.level:
-                continue
-            attrs = s.best_choice
-            for attr in attrs:
-                setattr(self, attr, getattr(self, attr) + getattr(s, attr))
-
-        # 255 maximum
-        for attr in LEVEL_STATS:
-            while self.get_max_stat_at_level(attr, 30) > 255:
-                ss = [s for s in self.stats if self.level < s.level
-                      and getattr(s, attr) > 0]
-                s = random.choice(ss)
-                value = getattr(s, attr)
-                s.set_stat(attr, value-1)
-
-        if self.level == 1:
-            self.xp = 0
-        else:
-            self.xp = LevelUpXPObject.get(self.level-2).xp
-
         # If we're generating a debug seed for testing, max the starting stats.
         if self.debug_mode:
             for attr in LEVEL_STATS + ['speed']:
@@ -801,6 +768,41 @@ class CharacterObject(TableObject):
                 else:
                     setattr(self, attr, 255)
             self.current_hp = self.max_hp
+            self.level = 30
+
+        my_learned = [l for l in LearnObject.every if l.level <= self.level
+                      and l.character_id == self.index]
+        for l in my_learned:
+            if l.spell <= 0x1A:
+                self.known_spells |= (1 << l.spell)
+
+        if not self.debug_mode:
+            for g in self.growth_stats:
+                if g.level > self.level:
+                    continue
+                for attr in LEVEL_STATS:
+                    setattr(self, attr, getattr(self, attr) + getattr(g, attr))
+
+            for s in self.bonus_stats:
+                if s.level > self.level:
+                    continue
+                attrs = s.best_choice
+                for attr in attrs:
+                    setattr(self, attr, getattr(self, attr) + getattr(s, attr))
+
+            # 255 maximum
+            for attr in LEVEL_STATS:
+                while self.get_max_stat_at_level(attr, 30) > 255:
+                    ss = [s for s in self.stats if self.level < s.level
+                          and getattr(s, attr) > 0]
+                    s = random.choice(ss)
+                    value = getattr(s, attr)
+                    s.set_stat(attr, value-1)
+
+        if self.level == 1:
+            self.xp = 0
+        else:
+            self.xp = LevelUpXPObject.get(self.level-2).xp
 
     def get_stat_at_level(self, attr, level):
         my_growths = [s for s in self.growth_stats
@@ -1322,22 +1324,23 @@ class LearnObject(CharIndexObject, TableObject):
                     raise Exception("Randomize order violated.")
         for c in CharacterObject.every:
             c.known_spells = 0
+
+        # Shuffle all spells.  There are 27 spells, so add an extra 3 random ones to ensure everybody has 6 spells.
         spells = list(range(0x1b))
-        spells.remove(7)  # group hug
+        spells += random.sample(spells, 3)
         random.shuffle(spells)
-        supplemental = [0xFF] * 3
-        spells = spells + supplemental
         charspells = defaultdict(list)
         while spells:
-            valid = [i for i in range(5) if len(charspells[i]) < 5 or (len(charspells[i]) < 6 and i != 1)]
+            valid = [i for i in range(5) if len(charspells[i]) < 6]
             chosen = random.choice(valid)
-            spell = spells.pop(0)
-            if spell == 0xFF:
-                valid = [s for s in range(0x1b) if s not in charspells[4] and s != 7]  # group hug
-                spell = random.choice(valid)
-            charspells[chosen].append(spell)
-        # FIXME: Test Group Hug with other characters!
-        charspells[1].insert(random.randint(0, 5), 7)
+            charspells[chosen].append(spells.pop(0))
+
+        # For anyone who has Group Hug, make sure it's not the final spell learned for balance.
+        for spells in charspells.values():
+            if 7 in spells and spells.index(7) > 4:
+                spells.remove(7)
+                spells.insert(random.randint(0, 4), 7)
+
         for l in LearnObject.every:
             l.spell = 0xFF
         for i in range(5):
