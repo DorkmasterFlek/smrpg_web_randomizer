@@ -825,7 +825,7 @@ class ItemObject(TableObject):
     flag = "q"
     flag_description = "equipment stats and equippability"
     banned_indexes = set([
-        0, 1, 2, 3, 4, 0x24, 0x47, 0x48, 0x49, 0x5f, 0x8b, 0x95, 0xa0, 0xa4,  # Dummy item slots
+        0, 1, 2, 3, 4, 0x23, 0x24, 0x47, 0x48, 0x49, 0x5f, 0x8b, 0x95, 0xa0, 0xa4,  # Dummy item slots
         0x85,  # Debug Bomb
         0x87,  # Bambino Bomb
         0xa5,  # S. Crow Bomb
@@ -838,21 +838,14 @@ class ItemObject(TableObject):
     ] + list(range(0xb1, 0x100)))  # Unused slots
 
     ''' KNOWN FREEZES
-    geno - 0xe super hammer (worked with mallow)
-    mario - 0xf handgun
-    mallow - 0xf handgun
-    mario - 0x14 hurly gloves
-    mario - 0x15 double punch (worked with mallow)
-    geno - 0x1d super slap (worked with mario)
-    geno - 0x7 noknok shell
-    geno - 0x22 frying pan
+    Geno is an island.  He can only use his own stuff, and nobody else can without issue.
+    Mario with Hurly Gloves throws himself and softlocks if there are three characters in the party.
+    Anything else appears to be fine.
     '''
     softlocks = {
         # Mario
         0: {
-            0x0f,  # Handgun
             0x14,  # Hurly Gloves
-            0x15,  # Double Punch
         },
         # Peach
         1: {},
@@ -860,14 +853,9 @@ class ItemObject(TableObject):
         2: {},
         # Geno
         3: {
-            0x07,  # Noknok Shell
-            0x0e,  # Super Hammer
-            0x1d,  # Super Slap
-            0x22,  # Frying Pan
         },
         # Mallow
         4: {
-            0x0f,  # Handgun
         },
     }
 
@@ -1084,6 +1072,7 @@ class ItemObject(TableObject):
             if value:
                 setattr(self, attr, 256 - value)
 
+        # If this is one of Geno's weapons, only he can use it without issue.
         if self.is_weapon and self.get_bit("geno"):
             assert self.equippable == 8
             return
@@ -1097,6 +1086,7 @@ class ItemObject(TableObject):
                 char = random.randint(0, 4)
             equippable |= (1 << char)
 
+        # If this is a non-Geno weapon, Geno can't use it without issue.
         if self.is_weapon:
             equippable = equippable & 0xF7
             assert not equippable & 8
@@ -1326,20 +1316,19 @@ class LearnObject(CharIndexObject, TableObject):
             c.known_spells = 0
 
         # Shuffle all spells.  There are 27 spells, so add an extra 3 random ones to ensure everybody has 6 spells.
+        # Group Hug only works with Peach however, so remove it from the shuffle and give Peach only 5 spells.
         spells = list(range(0x1b))
+        spells.remove(7)
         spells += random.sample(spells, 3)
         random.shuffle(spells)
         charspells = defaultdict(list)
         while spells:
-            valid = [i for i in range(5) if len(charspells[i]) < 6]
+            valid = [i for i in range(5) if len(charspells[i]) < 5 or (len(charspells[i]) < 6 and i != 1)]
             chosen = random.choice(valid)
             charspells[chosen].append(spells.pop(0))
 
-        # For anyone who has Group Hug, make sure it's not the final spell learned for balance.
-        for spells in charspells.values():
-            if 7 in spells and spells.index(7) > 4:
-                spells.remove(7)
-                spells.insert(random.randint(0, 4), 7)
+        # Insert Group Hug for Peach, but make sure it's not the final spell learned for balance.
+        charspells[1].insert(random.randint(0, 4), 7)
 
         for l in LearnObject.every:
             l.spell = 0xFF
