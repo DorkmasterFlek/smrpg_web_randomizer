@@ -1111,7 +1111,7 @@ class LevelUpXPObject(TableObject):
     flag = "c"
 
     @classmethod
-    def full_randomize(cls):
+    def full_randomize_old(cls):
         if hasattr(cls, "after_order"):
             for cls2 in cls.after_order:
                 if not (hasattr(cls2, "randomized") and cls2.randomized):
@@ -1128,6 +1128,47 @@ class LevelUpXPObject(TableObject):
                 xp = prev + 1
             l.xp = xp
             prev = xp
+
+    @classmethod
+    def full_randomize(cls):
+        """New algorithm for exp needed to reach each level by shuffling the difference between each level."""
+        if hasattr(cls, "after_order"):
+            for cls2 in cls.after_order:
+                if not (hasattr(cls2, "randomized") and cls2.randomized):
+                    raise Exception("Randomize order violated.")
+        cls.randomized = True
+
+        gaps = []
+        for i in range(len(cls.every)):
+            if i == 0:
+                xp_to_levelup = cls.get(i).xp
+            else:
+                xp_to_levelup = cls.get(i).xp - cls.get(i - 1).xp
+            gaps.append(mutate_normal(xp_to_levelup, minimum=1, maximum=9999))
+        gaps.sort()
+
+        # Make sure we total 9999 at lvl 30.  If not, divide the difference into 435 "pieces" and add 1 piece to the
+        # first levelup, 2 pieces to the second, etc. to curve it out nicely.
+        total = sum(gaps)
+        if total != 9999:
+            diff = 9999 - total
+            piece = diff / sum(range(1, 30))
+            for i in range(len(gaps)):
+                gaps[i] += round(piece * (i + 1))
+
+        # Check total again for any rounding.  Just alter the final level for that, as it should only be a couple exp.
+        total = sum(gaps)
+        if total != 9999:
+            diff = 9999 - total
+            gaps[-1] += diff
+            gaps.sort()
+
+        # Now set the amount to level up for each level based on the gaps.
+        prev = 0
+        for i, amt in enumerate(gaps):
+            new_val = prev + amt
+            cls.get(i).xp = new_val
+            prev = new_val
 
 
 class StatGrowthObject(StatObject, TableObject):
