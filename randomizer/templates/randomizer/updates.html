@@ -1,6 +1,24 @@
 {% extends 'randomizer/layouts/default.html' %}
 
 {% block content %}
+    <h2>V7 Updates</h2>
+    <div class="well">
+        <h4>Version 7.0</h4>
+        <ul>
+            <li>Full rewrite of backend logic for future feature support, faster patch generation, and smaller patch
+                size
+            </li>
+            <li>Switched to new version numbering with major/minor version</li>
+            <li>Added hash values for names on file select screen to verify seed</li>
+            <li>Updated cutscene skip patch for a few remaining cutscenes and bug fixes</li>
+            <li>Mario can now be swapped out of the active party members</li>
+            <li>Max coin amount has been increased to 9999</li>
+            <li>Because of max coin change, shop prices for items are now allowed to go beyond 999 when shuffled</li>
+            <li>Fixed issue where levels could progress beyond 30 leading to bad things happening</li>
+            <li>Fixed bad enemy battle screen coordinates that could cause softlocks in certain cases</li>
+            <li>Dodo solo fight now ends when Dodo is at 60% of his shuffled HP, not always 600 HP</li>
+        </ul>
+    </div>
     <h2>V6 Updates</h2>
     <div class="well">
         <ul>
