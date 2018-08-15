@@ -21,7 +21,8 @@ from django.views.generic import TemplateView, FormView
 
 from .models import Seed, Patch
 from .forms import GenerateForm
-from .logic_old import randomizer
+from .logic.main import GameWorld, Settings, VERSION
+from .logic.patch import PatchJSONEncoder
 
 
 class AboutView(TemplateView):
@@ -44,7 +45,7 @@ class GenerateViewBase(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['version'] = randomizer.VERSION
+        context['version'] = VERSION
         context['debug_enabled'] = settings.DEBUG
         return context
 
@@ -68,6 +69,7 @@ class GenerateView(FormView):
             data['debug_mode'] = False
 
         # If seed is provided, use it.  Otherwise generate a random seed (10 digits max).
+        # For non-numeric values, take the CRC32 checksum of it.
         seed = data['seed']
         if seed:
             if seed.isdigit():
@@ -77,16 +79,18 @@ class GenerateView(FormView):
             else:
                 seed = binascii.crc32(seed.encode())
 
+        # If seed is not provided, generate a 32 bit seed integer using the CSPRNG.
         if not seed:
-            random.seed()
-            seed = random.getrandbits(32)
+            r = random.SystemRandom()
+            seed = r.getrandbits(32)
+            del r
 
         mode = data['mode']
         debug_mode = data['debug_mode']
 
         # Compute hash based on seed and selected options.  Use first 10 characters for convenience.
         h = hashlib.md5()
-        h.update(randomizer.VERSION.to_bytes(1, 'big'))  # This only works up to version 255, then it needs 2 bytes.
+        h.update(VERSION.encode('utf-8'))
         h.update(seed.to_bytes(4, 'big'))
         h.update(mode.encode('utf-8'))
         h.update(str(debug_mode).encode('utf-8'))
@@ -103,7 +107,7 @@ class GenerateView(FormView):
 
         hash = base64.b64encode(h.digest()).decode().replace('+', '').replace('/', '')[:10]
 
-        # Randomize!
+        # Get custom flags.
         custom_flags = {}
         for key in (
                 'randomize_character_stats',
@@ -118,17 +122,14 @@ class GenerateView(FormView):
         ):
             custom_flags[key] = data[key]
 
-        # FIXME: Old version of the randomizer!
-        patches = randomizer.randomize_for_web(seed, mode, debug_mode,
-                                               data['randomize_character_stats'], data['randomize_drops'],
-                                               data['randomize_enemy_formations'], data['randomize_monsters'],
-                                               data['randomize_shops'], data['randomize_equipment'],
-                                               data['randomize_spell_stats'], data['randomize_spell_lists'],
-                                               data['randomize_join_order'])
+        # Build game world, randomize it, and generate the patch.
+        r = GameWorld(seed, Settings(mode, debug_mode, **custom_flags))
+        r.randomize()
+        patches = {'US': r.build_patch()}
 
         # Send back patch data.
         result = {
-            'logic': randomizer.VERSION,
+            'logic': VERSION,
             'seed': seed,
             'hash': hash,
             'mode': mode,
@@ -146,12 +147,12 @@ class GenerateView(FormView):
             else:
                 s.delete()
 
-            s = Seed(hash=hash, seed=seed, version=randomizer.VERSION, mode=mode, debug_mode=debug_mode,
+            s = Seed(hash=hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
                      flags=json.dumps(custom_flags))
             s.save()
 
             for region, patch in patches.items():
-                patch_dump = json.dumps(patch)
+                patch_dump = json.dumps(patch, cls=PatchJSONEncoder)
                 h = hashlib.sha1()
                 h.update(patch_dump.encode())
                 p = Patch(seed=s, region=region, sha1=h.hexdigest(), patch=patch_dump)
@@ -161,7 +162,7 @@ class GenerateView(FormView):
             result['patch'] = patches['US']  # Patch for EU version is the same as US.
         else:
             result['patch'] = patches[data['region']]
-        return JsonResponse(result)
+        return JsonResponse(result, encoder=PatchJSONEncoder)
 
     def form_invalid(self, form):
         msg = "ERRORS: " + '; '.join(form.errors)
