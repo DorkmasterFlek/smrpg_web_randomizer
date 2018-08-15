@@ -4,7 +4,6 @@ Django==2.1
 idna==2.7
 nlzss==0.1.2
 Pillow==5.2.0
-psycopg2==2.7.5
 pycrypto==2.6.1
 pytz==2018.5
 requests==2.19.1
