@@ -29,6 +29,10 @@ class AboutView(TemplateView):
     template_name = 'randomizer/about.html'
 
 
+class HowToPlayView(TemplateView):
+    template_name = 'randomizer/how_to_play.html'
+
+
 class OptionsView(TemplateView):
     template_name = 'randomizer/options.html'
 

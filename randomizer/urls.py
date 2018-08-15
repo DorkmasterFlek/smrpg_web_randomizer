@@ -10,6 +10,7 @@ urlpatterns = [
     path('randomize', views.RandomizeView.as_view(), name='randomize'),
 
     # Help
+    path('how-to-play', views.HowToPlayView.as_view(), name='how-to-play'),
     path('difficulties', views.AboutView.as_view(), name='difficulties'),
     path('options', views.OptionsView.as_view(), name='options'),
     path('updates', views.UpdatesView.as_view(), name='updates'),

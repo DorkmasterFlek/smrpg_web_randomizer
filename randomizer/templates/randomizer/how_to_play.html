@@ -1,0 +1,69 @@
+{% extends 'randomizer/layouts/default.html' %}
+
+{% block content %}
+    <h1>How To Play</h1>
+    <div class="panel panel-info">
+        <div class="panel-body">
+            <p>First off, head on over to <a href="{% url 'randomizer:how-to-play' %}">Generate Randomize Game</a>
+                and provide your ROM. Once you've got a randomized ROM, you need a way to play. There's a couple
+                options for that...</p>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">Option 1: Use an Emulator</h3>
+        </div>
+        <div class="panel-body">
+            <p>An emulator is a program that closely replicates SNES hardware, allowing you to run SNES games on
+                your computer. Our recommended emulator is Snes9x as it's the easiest to use. You can find it on
+                their website <a href="http://www.snes9x.com" target="_blank">here</a>.</p>
+            <p>Another good emulator you might want to use is bsnes/higan. This is more complicated to set up, but
+                bsnes/higan is very accurate, and the higan project supports multiple systems. You can find it on
+                their website <a href="https://byuu.org/emulation/higan/" target="_blank">here</a>.</p>
+            <p>While you can play using only your keyboard, a controller makes for a better experience. While most
+                USB controllers will work, the most recommended ones include the
+                <a href="https://www.amazon.com/dp/B002B9XB0E" target="_blank">iBuffalo Classic USB Gamepad</a> or
+                the <a href="https://www.amazon.com/dp/B00Y0LUQFE" target="_blank">8Bitdo SFC30 Wireless Bluetooth
+                    Controller</a>.</p>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">Option 2: Play on Original Hardware (BETA)</h3>
+        </div>
+        <div class="panel-body">
+            <p>Yes, you read that right! You can actually play this on your original SNES console now. Playing a
+                randomizer on original hardware requires a "flash cart", which is a special cartridge designed for that
+                hardware that allows you to put the randomized ROM on some kind of portable flash memory (usually an SD
+                or MicroSD card) which is inserted into the flash cart, which then goes in the original console.</p>
+            <p>The best SNES flash cart on the market right now (and the only one that currently supports Super Mario
+                RPG) is the SD2SNES.  You can learn more about it, download the firmware, and find a shop to buy one on
+                their website <a href="https://sd2snes.de/blog/about" target="_blank">here</a>.</p>
+            <p>Until very recently, no SNES flash cart on the market (including the SD2SNES) supported the SA-1
+                enhancement chip that SMRPG uses.  However thanks to the insane work of
+                <a href="https://github.com/RedGuyyyy/" target="_blank">RedGuy</a>, SA-1 support is being added to the
+                firmware!  This firmware is unofficial and currently in public beta.  However it appears to be mostly
+                complete and running very well so far, and RedGuy is making fast progress with new releases.</p>
+            <p>In order to use this firmware, you need a clean install of the current official SD2SNES firmware
+                downloaded from the official website above.  Once you have this, you can download the current public
+                beta from RedGuy's GitHub page
+                <a href="https://github.com/RedGuyyyy/sd2snes/releases" target="_blank">here</a>.</p>
+        </div>
+    </div>
+    <div class="panel panel-info">
+        <div class="panel-heading">
+            <h3 class="panel-title">Option 3: Play on Wii Virtual Console</h3>
+        </div>
+        <div class="panel-body">
+            <p>If you don't have an SD2SNES and don't want to play on emulator, it is possible to play this on the Wii
+                Virtual Console.  Prior to RedGuy's recent work, this was the preferred way to play as close to original
+                hardware as possible.  This requires locating a WAD file of the North American release of SMRPG on the
+                Wii VC.  The randomizer can pack the generated ROM into the WAD file for you automatically.</p>
+            <p>Once you have the packed WAD file, you can install it on your Wii using the Homebrew Channel.  Setting
+                this up is beyong the scope of this site, but we do have some instructions on the community wiki that
+                can be found
+                <a href="https://sites.google.com/site/supermariorpgspeedruns/home/randomizer" target="_blank">here</a>.
+            </p>
+        </div>
+    </div>
+{% endblock %}
