@@ -1,2 +1,0 @@
-misc,bit:frog_coins_limited frog_coins buy_only buy_only2 discount6 discount12 discount25 discount50
-items,15,list

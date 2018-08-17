@@ -1,3 +1,0 @@
-bowser_intro,1
-event,1
-misc,1
