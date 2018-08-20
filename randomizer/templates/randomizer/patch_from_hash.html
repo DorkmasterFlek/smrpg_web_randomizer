@@ -7,7 +7,7 @@
 
     <div id="seed-details" class="info panel panel-success" style="display:none">
         <div class="panel-heading panel-heading-btn">
-            <h3 class="panel-title pull-left">Game Details: <span class="seed"></span></h3>
+            <h3 class="panel-title pull-left">Game Details: <span class="hash"></span></h3>
             <div class="btn-toolbar pull-right">
                 {% include 'randomizer/_rom_settings_button.html' %}
             </div>
@@ -52,7 +52,7 @@
                 data.rom.logic = data.patch.logic;
                 data.rom.mode = data.patch.mode;
                 data.rom.debug_mode = data.patch.debug_mode;
-                data.rom.seed = data.patch.hash;
+                data.rom.seed = data.patch.seed;
                 data.rom.hash = data.patch.hash;
                 resolve(rom);
             });

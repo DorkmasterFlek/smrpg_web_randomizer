@@ -127,9 +127,9 @@ class GenerateView(FormView):
             custom_flags[key] = data[key]
 
         # Build game world, randomize it, and generate the patch.
-        r = GameWorld(seed, Settings(mode, debug_mode, **custom_flags))
-        r.randomize()
-        patches = {'US': r.build_patch()}
+        world = GameWorld(seed, Settings(mode, debug_mode, **custom_flags))
+        world.randomize()
+        patches = {'US': world.build_patch()}
 
         # Send back patch data.
         result = {
@@ -192,6 +192,7 @@ class GenerateFromHashView(View):
 
         result = {
             'logic': s.version,
+            'seed': s.seed,
             'hash': s.hash,
             'mode': s.mode,
             'debug_mode': s.debug_mode,
