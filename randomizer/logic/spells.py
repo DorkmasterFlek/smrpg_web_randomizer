@@ -11,31 +11,40 @@ class Spell:
     BASE_ADDRESS = 0x3a20f1
     BASE_NAME_ADDRESS = 0x3a137f
 
-    def __init__(self, index, name, fp, power, hitrate):
+    def __init__(self, index, name, fp, power, hitrate, instant_ko):
         """
         :type index: int
         :type name: str
         :type fp: int
         :type power: int
         :type hitrate: int
+        :type instant_ko: bool
         """
         self.index = index
         self.name = name
-        self.fp = utils.Stat(fp, 1, 99)
-        self.power = utils.Stat(power)
-        self.hitrate = utils.Stat(hitrate, 1, 100)
+        self.fp = fp
+        self.power = power
+        self.hitrate = hitrate
+        self.instant_ko = instant_ko
 
     def randomize(self):
         """Perform randomization for this spell."""
-        self.fp.shuffle()
+        self.fp = utils.mutate_normal(self.fp, minimum=1, maximum=99)
 
         # Don't shuffle power or hitrate for Geno Boost, it causes problems if it deals damage.
         if self.index == 0x11:
-            self.power.value = 0
-            self.hitrate.value = 100
+            self.power = 0
+            self.hitrate = 100
         else:
-            self.power.shuffle()
-            self.hitrate.shuffle()
+            self.power = utils.mutate_normal(self.power)
+
+            # If the spell is instant death, cap hit rate at 99% so items that protect from this actually work.
+            # Protection forces the attack to miss, but 100% hit rate can't "miss" so it hits anyway.
+            if self.instant_ko:
+                max_hit_rate = 99
+            else:
+                max_hit_rate = 100
+            self.hitrate = utils.mutate_normal(self.hitrate, minimum=1, maximum=max_hit_rate)
 
     def get_patch(self):
         """Get patch for this spell.
@@ -47,9 +56,10 @@ class Spell:
 
         # FP is byte 3, power is byte 6, hit rate is byte 7.  Each spell is 12 bytes.
         base_addr = self.BASE_ADDRESS + (self.index * 12)
-        patch.add_data(base_addr + 2, self.fp.as_bytes())
-        patch.add_data(base_addr + 5, self.power.as_bytes())
-        patch.add_data(base_addr + 6, self.hitrate.as_bytes())
+        patch.add_data(base_addr + 2, utils.ByteField(self.fp).as_bytes())
+        data = utils.ByteField(self.power).as_bytes()
+        data += utils.ByteField(self.hitrate).as_bytes()
+        patch.add_data(base_addr + 5, data)
 
         return patch
 
