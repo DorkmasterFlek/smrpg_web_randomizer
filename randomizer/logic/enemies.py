@@ -54,8 +54,13 @@ class EnemyAttack:
         if self.buffs and random.randint(1, 2) == 2:
             self.buffs.append(random.randint(3, 6))
 
-        # Shuffle hit rate.
-        self.hit_rate = utils.mutate_normal(self.hit_rate, minimum=1, maximum=100)
+        # Shuffle hit rate.  If the attack is instant death, cap hit rate at 99% so items that protect from this
+        # actually work.  Protection forces the attack to miss, but 100% hit rate can't miss so it hits anyway.
+        if 3 in self.damage_types:
+            max_hit_rate = 99
+        else:
+            max_hit_rate = 100
+        self.hit_rate = utils.mutate_normal(self.hit_rate, minimum=1, maximum=max_hit_rate)
 
     def get_patch(self):
         """Get patch for this item.
@@ -178,6 +183,9 @@ class Enemy:
         self.palette = palette
         self.flower_bonus_type = flower_bonus_type
         self.flower_bonus_chance = flower_bonus_chance
+
+        # Flying enemies
+        self.flying = self.index in (2, 9, 10, 12, 13, 28, 44, 66, 73, 77, 92, 108)
 
         # "High flying" enemies are Goby and Mr. Kipper
         self.high_flying = self.index in (9, 73)
@@ -513,6 +521,9 @@ class EnemyFormation:
                     # High flying units with an x coord of 119-124 cannot have a y coordinate of 138 or higher, or the
                     # game will softlock after they finish attacking.  Reroll if we hit this scenario.
                     if enemy.high_flying and 119 <= x <= 124 and y >= 138:
+                        continue
+                    # Regular flying enemies will softlock in the range x 116-153, y 150-168
+                    elif enemy.flying and 116 <= x <= 153 and 150 <= y <= 168:
                         continue
 
                     done_coordinates.append((x, y))
