@@ -1,5 +1,9 @@
-import math
+# Common utilities for outputting binary data for the patches, and shuffling stat values.
+
 import random
+
+# Amount to boost very small values when shuffling to give a bit more range for very small values.
+SMALL_BOOST_AMOUNT = 2.0
 
 
 class BitMapSet(set):
@@ -61,68 +65,9 @@ class ByteField:
         return "ByteField(current value: {}, number of bytes: {}".format(self.value, self._num_bytes)
 
 
-class Stat(ByteField):
-    """Base class for a character/enemy stat value."""
-
-    def __init__(self, base, minimum=0x00, maximum=0xff):
-        """
-        :type base: int
-        :type minimum: int
-        :type maximum: int
-        """
-        # Number of bytes this value occupies based on max value.
-        if maximum > 0:
-            num_bytes = int(math.ceil(math.log2(maximum) / 8))
-        else:
-            num_bytes = 1
-
-        super().__init__(base, num_bytes)
-        self._base = base
-        self._min = minimum
-        self._max = maximum
-
-    @property
-    def base(self):
-        """:rtype: int"""
-        return self._base
-
-    @property
-    def value(self):
-        """:rtype: int"""
-        return self._value
-
-    @value.setter
-    def value(self, value):
-        """
-        :type value: int
-        """
-        value = int(value)
-        if value < self.min:
-            raise ValueError("Provided value {} less than min value {}".format(value, self.min))
-        elif value > self.max:
-            raise ValueError("Provided value {} greater than max value {}".format(value, self.max))
-        self._value = value
-
-    @property
-    def min(self):
-        """:rtype: int"""
-        return self._min
-
-    @property
-    def max(self):
-        """:rtype: int"""
-        return self._max
-
-    def shuffle(self):
-        """Randomize stat value based on base value, and restricting to min/max values."""
-        self.value = mutate_normal(self.base, self.min, self.max)
-
-    def __str__(self):
-        return "Stat(current value: {}, min: {}, max: {}".format(self.value, self.min, self.max)
-
-
 class Mutator:
     """Mutator class that shuffles stat attributes based on min/max values and a difficulty setting."""
+
     def __init__(self, difficulty=None):
         # Placeholder for future difficulty option.
         self.difficulty = difficulty
@@ -131,8 +76,8 @@ class Mutator:
         """Mutate a value with a given range.
         This is roughly simulating a normal distribution with mean <value>, std deviation approx 1/5 <value>.
         """
-        BOOST_AMOUNT = 2.0
-
+        # The actual value we're shuffling is the difference between the default value and the minimum or maximum,
+        # whichever is smaller.  Shuffle this distance value, then recompute the new actual value below.
         value = max(minimum, min(value, maximum))
         if value > (minimum + maximum) / 2:
             reverse = True
@@ -144,22 +89,26 @@ class Mutator:
         else:
             value = value - minimum
 
-        BOOST_FLAG = False
-        if value < BOOST_AMOUNT:
-            value += BOOST_AMOUNT
+        # For very small values, give a small boost amount to allow for a bit more variance.  Subtract this later.
+        boosted = False
+        if value < SMALL_BOOST_AMOUNT:
+            value += SMALL_BOOST_AMOUNT
             if value > 0:
-                BOOST_FLAG = True
+                boosted = True
             else:
                 value = 0
 
+        # Make new random value.
         if value > 0:
             half = value / 2.0
             a, b = random.random(), random.random()
             value = half + (half * a) + (half * b)
 
-        if BOOST_FLAG:
-            value -= BOOST_AMOUNT
+        # If we boosted the value, bring it back down now.
+        if boosted:
+            value -= SMALL_BOOST_AMOUNT
 
+        # Compute actual final value with new distance from minimum/maximum.
         if reverse:
             value = maximum - value
         else:
@@ -195,3 +144,24 @@ def mutate_normal(value, minimum=0, maximum=0xff):
 def set_difficulty(difficulty):
     """Set the difficulty level for the global mutator that shuffles stats."""
     _GlobalMutator.set_difficulty(difficulty)
+
+
+def coin_flip(odds=0.5):
+    """Weighted coin flip with odds."""
+    return random.random() < odds
+
+
+def add_desc_fields(fields):
+    d = ''
+    for chars, flag, attr in fields:
+        if isinstance(attr, (list, tuple)):
+            if flag in attr:
+                d += chars
+            else:
+                d += '\x20'
+        elif isinstance(attr, bool):
+            if attr:
+                d += chars
+            else:
+                d += '\x20'
+    return d

@@ -64,7 +64,7 @@ class Patch:
         if isinstance(data, int) and data <= 0xff:
             data = data.to_bytes(1, 'little')
         elif isinstance(data, str):
-            data = data.encode()
+            data = data.encode('latin1')
         self._data[addr] = data
 
     def remove_data(self, addr):

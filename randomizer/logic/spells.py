@@ -61,6 +61,11 @@ class Spell:
         data += utils.ByteField(self.hitrate).as_bytes()
         patch.add_data(base_addr + 5, data)
 
+        # Add updated name.
+        base_addr = self.BASE_NAME_ADDRESS + (self.index * 15)
+        name = self.name.ljust(15)
+        patch.add_data(base_addr, name)
+
         return patch
 
 

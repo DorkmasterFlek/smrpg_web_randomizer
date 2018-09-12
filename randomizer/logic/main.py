@@ -10,9 +10,10 @@ from . import map
 from . import spells
 from . import utils
 from .patch import Patch
+from randomizer.forms import FLAGS
 
 # Current version number
-VERSION = '7.0.2'
+VERSION = '7.1.0'
 
 # Possible names we can use for the hash values on the file select screen.  Needs to be 6 characters or less.
 FILE_ENTRY_NAMES = (
@@ -28,38 +29,26 @@ FILE_ENTRY_NAMES = tuple(sorted(set(FILE_ENTRY_NAMES)))
 
 
 class Settings:
-    def __init__(self, mode='full', debug_mode=False, randomize_character_stats=True, randomize_drops=True,
-                 randomize_enemy_formations=True, randomize_monsters=True, randomize_shops=True,
-                 randomize_equipment=True, randomize_spell_stats=True, randomize_spell_lists=True,
-                 randomize_join_order=True):
+    def __init__(self, mode='full', debug_mode=False, custom_flags=None):
+        """
+        :type mode: str
+        :type debug_mode: bool
+        :type custom_flags: dict[bool]
+        """
         self._mode = mode
         self._debug_mode = debug_mode
-        self._randomize_character_stats = randomize_character_stats
-        self._randomize_drops = randomize_drops
-        self._randomize_enemy_formations = randomize_enemy_formations
-        self._randomize_monsters = randomize_monsters
-        self._randomize_shops = randomize_shops
-        self._randomize_equipment = randomize_equipment
-        self._randomize_spell_stats = randomize_spell_stats
-        self._randomize_spell_lists = randomize_spell_lists
-        self._randomize_join_order = randomize_join_order
+        self._custom_flags = {}
+        if custom_flags is not None:
+            self._custom_flags.update(custom_flags)
+        for flag in FLAGS:
+            self._custom_flags.setdefault(flag[0], False)
 
     def custom_flags_to_json(self):
         """Return JSON serialization of custom flags.
 
         :rtype: list[bool]
         """
-        return [
-            self.randomize_character_stats,
-            self.randomize_drops,
-            self.randomize_enemy_formations,
-            self.randomize_monsters,
-            self.randomize_shops,
-            self.randomize_equipment,
-            self.randomize_spell_stats,
-            self.randomize_spell_lists,
-            self.randomize_join_order,
-        ]
+        return [self._custom_flags[flag[0]] for flag in FLAGS]
 
     @property
     def mode(self):
@@ -71,50 +60,23 @@ class Settings:
         """:rtype: bool"""
         return self._debug_mode
 
-    @property
-    def randomize_character_stats(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_character_stats
+    def get_flag(self, flag):
+        """Get a specific custom flag.
 
-    @property
-    def randomize_drops(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_drops
+        :param flag:
+        :return:
+        """
+        return self._custom_flags.get(flag, False)
 
-    @property
-    def randomize_enemy_formations(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_enemy_formations
+    def __getattr__(self, item):
+        """Fall-back to get the custom flags as if they were class attributes.
 
-    @property
-    def randomize_monsters(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_monsters
-
-    @property
-    def randomize_shops(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_shops
-
-    @property
-    def randomize_equipment(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_equipment
-
-    @property
-    def randomize_spell_stats(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_spell_stats
-
-    @property
-    def randomize_spell_lists(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_spell_lists
-
-    @property
-    def randomize_join_order(self):
-        """:rtype: bool"""
-        return self._mode == 'full' or self._randomize_join_order
+        :type item: str
+        :rtype: bool
+        """
+        if item in self._custom_flags:
+            return self._custom_flags[item]
+        raise AttributeError(item)
 
 
 class GameWorld:
@@ -292,13 +254,15 @@ class GameWorld:
         # Starting FP (twice for starting/max FP)
         patch.add_data(0x3a00dd, utils.ByteField(self.starting_fp).as_bytes() * 2)
 
-        # For debug mode, start with 999 coins.
+        # For debug mode, start with 9999 coins and 99 frog coins.
         if self.settings.debug_mode:
-            patch.add_data(0x3a00db, utils.ByteField(999, num_bytes=2).as_bytes())
+            patch.add_data(0x3a00db, utils.ByteField(9999, num_bytes=2).as_bytes())
+            patch.add_data(0x3a00df, utils.ByteField(99, num_bytes=2).as_bytes())
 
         # Items
         for item in self.items:
             patch += item.get_patch()
+        patch += items.Item.build_descriptions_patch(self)
 
         # Shops
         for shop in self.shops:
@@ -307,6 +271,7 @@ class GameWorld:
         # Enemies
         for enemy in self.enemies:
             patch += enemy.get_patch()
+        patch += enemies.Enemy.build_psychopath_patch(self)
 
         # Enemy attacks
         for attack in self.enemy_attacks:

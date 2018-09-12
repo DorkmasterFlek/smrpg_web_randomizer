@@ -6,6 +6,9 @@ from functools import reduce
 from . import utils
 from .patch import Patch
 
+# Number of enemies
+NUM_ENEMIES = 256
+
 
 class EnemyAttack:
     """Class representing an enemy attack."""
@@ -89,6 +92,7 @@ class EnemyAttack:
 
 class EnemyReward:
     """Class representing enemy reward parameters (exp, coins, items)."""
+
     def __init__(self, index, address, xp, coins, yoshi_cookie_item, normal_item, rare_item):
         """
         :type index: int
@@ -129,6 +133,9 @@ class EnemyReward:
 class Enemy:
     """Class representing an enemy in the game."""
     FLOWER_BONUS_BASE_ADDRESS = 0x39bb44
+    BASE_PSYCHOPATH_POINTER_ADDRESS = 0x399fd1
+    PSYCHOPATH_DATA_POINTER_OFFSET = 0x390000
+    BASE_PSYCHOPATH_DATA_ADDRESS = 0x39a1d1
 
     def __init__(self, index, address, name, boss, hp, speed, attack, defense, magic_attack, magic_defense, fp, evade,
                  magic_evade, invincible, death_immune, morph_chance, sound_on_hit, sound_on_approach, resistances,
@@ -198,6 +205,59 @@ class Enemy:
         """
         hp = self.hp if self.hp >= 10 else 100
         return hp * max(self.attack, self.magic_attack, 1)
+
+    @property
+    def psychopath_text(self):
+        """Make Psychopath text to show elemental weaknesses and immunities.
+
+        :rtype: str
+        """
+        desc = ''
+
+        # Elemental immunities.
+        if self.resistances:
+            desc += '\x7C'
+            desc += utils.add_desc_fields((
+                ('\x7E', 6, self.resistances),
+                ('\x7D', 4, self.resistances),
+                ('\x7F', 5, self.resistances),
+                ('\x85', 7, self.resistances),
+            ))
+        else:
+            desc += '\x20' * 5
+
+        desc += '\x20'
+
+        # Elemental weaknesses.
+        if self.weaknesses:
+            desc += '\x7B'
+            desc += utils.add_desc_fields((
+                ('\x7E', 6, self.weaknesses),
+                ('\x7D', 4, self.weaknesses),
+                ('\x7F', 5, self.weaknesses),
+                ('\x85', 7, self.weaknesses),
+            ))
+        else:
+            desc += '\x20' * 5
+
+        desc += '\x20\x20'
+
+        # Status vulnerabilities.
+        vulnerabilities = [i for i in range(4) if i not in self.status_immunities]
+        if vulnerabilities:
+            desc += utils.add_desc_fields((
+                ('\x82', 0, vulnerabilities),
+                ('\x80', 1, vulnerabilities),
+                ('\x83', 2, vulnerabilities),
+                ('\x81', 3, vulnerabilities),
+                ('\x84\x84', True, not self.death_immune),
+            ))
+        else:
+            desc += '\x20' * 6
+
+        desc += '\x02'
+
+        return desc
 
     def get_similar(self, world):
         """Get a similar enemy to this one for formation shuffling based on rank.
@@ -272,6 +332,10 @@ class Enemy:
                     if weak in self.weaknesses:
                         self.weaknesses.remove(weak)
 
+            # For bosses, allow a small 1/255 chance to be vulnerable to Geno Whirl.
+            if utils.coin_flip(1 / 255):
+                self.death_immune = False
+
         # For regular enemies, shuffle them instead.
         else:
             self.resistances = random.sample(range(4, 8), len(self.resistances))
@@ -284,6 +348,14 @@ class Enemy:
 
             # Randomize morph item chance of success.
             self.morph_chance = random.randint(0, 3)
+
+        # Make a 50/50 chance to prioritize elemental immunities over weaknesses or vice versa.
+        # Allow earth (jump) to be in both however, because they can be weak to jump while immune to it.
+        # Jump Shoes bypass the immunity and they'll take double damage.
+        if utils.coin_flip():
+            self.weaknesses = [i for i in self.weaknesses if i == 7 or i not in self.resistances]
+        else:
+            self.resistances = [i for i in self.resistances if i == 7 or i not in self.weaknesses]
 
         # Randomize flower bonus type and chance for this enemy.
         self.flower_bonus_type = random.randint(1, 5)
@@ -346,9 +418,58 @@ class Enemy:
 
         return patch
 
+    @classmethod
+    def build_psychopath_patch(cls, world):
+        """Build patch data for Psychopath text.  These use pointers, so we need to do them all together.
+
+        :type world: randomizer.logic.main.GameWorld
+        :return: Patch data.
+        :rtype: randomizer.logic.patch.Patch
+        """
+        patch = Patch()
+
+        # Begin text data with a single null byte to use for all empty text to save space.
+        pointer_data = bytearray()
+        text_data = bytearray()
+        text_data.append(0x00)
+
+        for i in range(NUM_ENEMIES):
+            try:
+                enemy = world.get_enemy_by_index(i)
+            except KeyError:
+                desc = ''
+            else:
+                desc = enemy.psychopath_text
+
+            # If the description is empty, just use the null byte at the very beginning.
+            if not desc:
+                pointer = cls.BASE_PSYCHOPATH_DATA_ADDRESS - cls.PSYCHOPATH_DATA_POINTER_OFFSET
+                pointer_data += utils.ByteField(pointer, num_bytes=2).as_bytes()
+                continue
+
+            # Compute pointer from base address and current data length.
+            pointer = cls.BASE_PSYCHOPATH_DATA_ADDRESS + len(text_data) - cls.PSYCHOPATH_DATA_POINTER_OFFSET
+            pointer_data += utils.ByteField(pointer, num_bytes=2).as_bytes()
+
+            # Add null byte to terminate the text string.
+            desc = desc.encode('latin1')
+            desc += bytes([0x00])
+            text_data += desc
+
+        # Sanity check that pointer data has the correct number of items.
+        if len(pointer_data) != NUM_ENEMIES * 2:
+            raise ValueError("Wrong length for pointer data, something went wrong...")
+
+        # Add pointer data, then add text data.
+        patch.add_data(cls.BASE_PSYCHOPATH_POINTER_ADDRESS, pointer_data)
+        patch.add_data(cls.BASE_PSYCHOPATH_DATA_ADDRESS, text_data)
+
+        return patch
+
 
 class FormationMember:
     """Class representing a single enemy in a formation with meta data."""
+
     def __init__(self, index, hidden_at_start, enemy, x_pos, y_pos):
         """
         :type index: int

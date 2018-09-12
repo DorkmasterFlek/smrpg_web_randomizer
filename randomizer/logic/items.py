@@ -2,23 +2,36 @@
 
 import random
 
+from . import data
 from . import utils
 from .patch import Patch
 
 # Stats used during equipment randomization.
 EQUIP_STATS = ["speed", "attack", "defense", "magic_attack", "magic_defense"]
 
+# Total number of items in the data.
+NUM_ITEMS = 256
+
 
 class Item:
     """Class representing an item."""
     BASE_ADDRESS = 0x3a014d
     BASE_PRICE_ADDRESS = 0x3a40f2
+    BASE_NAME_ADDRESS = 0x3a46ef
+    BASE_DESC_POINTER_ADDRESS = 0x3a2f20
+    DESC_DATA_POINTER_OFFSET = 0x3a0000
+    BASE_DESC_DATA_ADDRESSES = (
+        (0x3a3120, 0x3a40f1),
+        (0x3a55f0, 0x3a5fff),
+    )
 
-    def __init__(self, index, name, order, item_type, consumable, reuseable, equip_chars, speed, attack, defense,
-                 magic_attack, magic_defense, variance, price, frog_coin_item, rare, basic):
+    def __init__(self, index, name, tier, order, item_type, consumable, reuseable, equip_chars, speed, attack, defense,
+                 magic_attack, magic_defense, variance, prevent_ko, elemental_immunities, elemental_resistances,
+                 status_immunities, status_buffs, price, frog_coin_item, rare, basic):
         """
         :type index: int
         :type name: str
+        :type tier: int
         :type order: int
         :type item_type: int
         :type consumable: bool
@@ -30,6 +43,11 @@ class Item:
         :type magic_attack: int
         :type magic_defense: int
         :type variance: int
+        :type prevent_ko: bool
+        :type elemental_immunities: list[int]
+        :type elemental_resistances: list[int]
+        :type status_immunities: list[int]
+        :type status_buffs: list[int]
         :type price: int
         :type frog_coin_item: bool
         :type rare: bool
@@ -37,6 +55,7 @@ class Item:
         """
         self.index = index
         self.name = name
+        self.tier = tier
         self.order = order
         self.item_type = item_type
         self.consumable = consumable
@@ -48,6 +67,11 @@ class Item:
         self.magic_attack = magic_attack
         self.magic_defense = magic_defense
         self.variance = variance
+        self.prevent_ko = prevent_ko
+        self.elemental_immunities = elemental_immunities
+        self.elemental_resistances = elemental_resistances
+        self.status_immunities = status_immunities
+        self.status_buffs = status_buffs
         self.price = price
         self.frog_coin_item = frog_coin_item
         self.rare = rare
@@ -205,109 +229,236 @@ class Item:
         index = utils.mutate_normal(index, maximum=len(candidates) - 1)
         return candidates[index]
 
-    def randomize(self):
-        """Perform randomization for equipment.  Other items will not be shuffled (price is done in the shop logic)."""
+    @property
+    def equipment_description(self):
+        """Generate shop/menu description text for the item based on shuffled stats.
+
+        :rtype: str
+        """
+        if not self.is_equipment:
+            return ''
+
+        desc = ''
+
+        # Elemental immunities and resistances.
+        if self.elemental_immunities:
+            desc += '\x96\x98'
+            desc += utils.add_desc_fields((
+                ('\x80\x98', 6, self.elemental_immunities),
+                ('\x81', 4, self.elemental_immunities),
+                ('\x82', 5, self.elemental_immunities),
+            ))
+        else:
+            desc += '\x99' * 4
+        desc += '\x99'
+
+        if self.elemental_resistances:
+            desc += '\x97\x98'
+            desc += utils.add_desc_fields((
+                ('\x80\x98', 6, self.elemental_resistances),
+                ('\x81', 4, self.elemental_resistances),
+                ('\x82', 5, self.elemental_resistances),
+            ))
+        else:
+            desc += '\x99' * 4
+        desc += '\x01'
+
+        # Speed
+        desc += ['\x93', '\x94'][self.speed < 0]
+        desc += str(abs(self.speed)).ljust(3, '\x99') + '\x99'
+
+        # Status immunities
+        desc += utils.add_desc_fields((
+            ('\x83', 0, self.status_immunities),
+            ('\x84', 1, self.status_immunities),
+            ('\x85', 2, self.status_immunities),
+            ('\x86', 3, self.status_immunities),
+            ('\x98\x87', 5, self.status_immunities),
+            ('\x88', 6, self.status_immunities),
+            ('\x89', True, self.prevent_ko),
+            ('\x8A', 4, self.status_immunities),
+        ))
+        desc += '\x01'
+
+        # Physical attack/defense
+        desc += ['\x8B', '\x8C'][self.attack < 0]
+        desc += ['\x20', '\x95'][4 in self.status_buffs]
+        desc += str(abs(self.attack)).ljust(3, '\x99')
+        desc += '\x99'
+        desc += ['\x8F', '\x90'][self.defense < 0]
+        desc += ['\x20', '\x95'][6 in self.status_buffs]
+        desc += str(abs(self.defense)).ljust(3, '\x99')
+        desc += '\x01'
+
+        # Magic attack/defense
+        desc += ['\x8D', '\x8E'][self.magic_attack < 0]
+        desc += ['\x20', '\x95'][3 in self.status_buffs]
+        desc += str(abs(self.magic_attack)).ljust(3, '\x99')
+        desc += '\x99'
+        desc += ['\x91', '\x92'][self.magic_defense < 0]
+        desc += ['\x20', '\x95'][5 in self.status_buffs]
+        desc += str(abs(self.magic_defense)).ljust(3, '\x99')
+
+        return desc
+
+    def randomize(self, world):
+        """Perform randomization for equipment.  Other items will not be shuffled (price is done in the shop logic).
+
+        :type world: randomizer.logic.main.GameWorld
+        """
         if not self.is_equipment:
             return
 
-        # Randomize number of attributes to go up or down. Guarantee >= 1 attribute will go up, but none could go down.
-        # For each set, 1/3 chance all non-zero ones go up/down.  Otherwise, weighted random number centered around 2-3.
-        # ...attributes going up
-        ups = []
-        if random.randint(1, 3) == 1:
-            ups = [attr for attr in EQUIP_STATS if getattr(self, attr) > 0]
+        if world.settings.randomize_equipment:
+            # Randomize number of attributes to go up or down. Guarantee >= 1 attribute will go up, but none could go down.
+            # For each set, 1/3 chance all non-zero ones go up/down.  Otherwise, weighted random number centered around 2-3.
+            # ...attributes going up
+            ups = []
+            if random.randint(1, 3) == 1:
+                ups = [attr for attr in EQUIP_STATS if getattr(self, attr) > 0]
 
-        if not ups:
-            num_up = random.choices([1, 2, 3, 4, 5], weights=[5, 10, 10, 5, 1])[0]
-            while True:
-                ups = random.sample(EQUIP_STATS, num_up)
-                if set(ups) & set(self.primary_stats):
-                    break
+            if not ups:
+                num_up = random.choices([1, 2, 3, 4, 5], weights=[5, 10, 10, 5, 1])[0]
+                while True:
+                    ups = random.sample(EQUIP_STATS, num_up)
+                    if set(ups) & set(self.primary_stats):
+                        break
 
-        # ...attributes going down
-        if random.randint(1, 3) == 1:
-            downs = [attr for attr in EQUIP_STATS if getattr(self, attr) >= 128]
-        else:
-            num_down = random.choices([0, 1, 2, 3, 4, 5], weights=[1, 5, 10, 10, 5, 1])[0]
-            downs = random.sample(EQUIP_STATS, num_down)
-
-        # Give priority to going up if a stat was picked to go up.
-        downs = [d for d in downs if d not in ups]
-
-        # Track increases and decreases for each stat.
-        score = self.stat_point_value
-        up_vals = dict([(u, 0) for u in ups])
-        down_vals = dict([(d, 0) for d in downs])
-
-        # For attributes going down, randomize a number of points to decrease based on the total item score.
-        # Distribution is weighted towards the lower half of the range.
-        if downs:
-            if score != 0:
-                down_points = random.randint(0, random.randint(0, score))
+            # ...attributes going down
+            if random.randint(1, 3) == 1:
+                downs = [attr for attr in EQUIP_STATS if getattr(self, attr) >= 128]
             else:
-                down_points = random.randint(0, random.randint(0, random.randint(0, 100)))
+                num_down = random.choices([0, 1, 2, 3, 4, 5], weights=[1, 5, 10, 10, 5, 1])[0]
+                downs = random.sample(EQUIP_STATS, num_down)
 
-            # Spread number of "down points" randomly across stats being decreased.  Add this number of points to the
-            # "score" of the item so we add stat increases to compensate.
-            score += down_points
-            for _ in range(down_points):
-                attr = random.choice(downs)
-                down_vals[attr] += 1
+            # Give priority to going up if a stat was picked to go up.
+            downs = [d for d in downs if d not in ups]
 
-        # Spread number of "up points" randomly across stats being increased.  Treat non-primary stat increase as two
-        # points to match the item score calculation.
-        while score > 0:
-            attr = random.choice(ups)
-            up_vals[attr] += 1
-            if attr in self.primary_stats:
-                score -= 1
+            # Track increases and decreases for each stat.
+            score = self.stat_point_value
+            up_vals = dict([(u, 0) for u in ups])
+            down_vals = dict([(d, 0) for d in downs])
+
+            # For attributes going down, randomize a number of points to decrease based on the total item score.
+            # Distribution is weighted towards the lower half of the range.
+            if downs:
+                if score != 0:
+                    down_points = random.randint(0, random.randint(0, score))
+                else:
+                    down_points = random.randint(0, random.randint(0, random.randint(0, 100)))
+
+                # Spread number of "down points" randomly across stats being decreased.  Add this number of points to the
+                # "score" of the item so we add stat increases to compensate.
+                score += down_points
+                for _ in range(down_points):
+                    attr = random.choice(downs)
+                    down_vals[attr] += 1
+
+            # Spread number of "up points" randomly across stats being increased.  Treat non-primary stat increase as two
+            # points to match the item score calculation.
+            while score > 0:
+                attr = random.choice(ups)
+                up_vals[attr] += 1
+                if attr in self.primary_stats:
+                    score -= 1
+                else:
+                    score -= 2
+
+            # Zero all stats.
+            for attr in EQUIP_STATS:
+                setattr(self, attr, 0)
+
+            # Perform standard mutation on new non-zero stats.
+            for attr in up_vals:
+                setattr(self, attr, utils.mutate_normal(up_vals[attr], minimum=1, maximum=127))
+
+            for attr in down_vals:
+                value = utils.mutate_normal(down_vals[attr], minimum=1, maximum=127)
+                setattr(self, attr, -value)
+
+            # If this is a weapon with a variance value, shuffle that too.
+            if self.variance:
+                self.variance = utils.mutate_normal(self.variance, minimum=1, maximum=127)
+
+            # Randomize which characters can equip this item.
+            # Geno can only equip his own weapons, and nobody else can equip his due to softlocks.
+            if not self.is_weapon or 3 not in self.equip_chars:
+                # Pick random number of characters with lower numbers weighted heavier.
+                new_chars = set()
+                num_equippable = random.randint(1, random.randint(1, 5))
+
+                for _ in range(num_equippable):
+                    char_choices = set(range(5)) - new_chars
+
+                    # Mario cannot equip Hurly Gloves due to softlock when he throws himself.
+                    if self.index == 0x14 and 0 in char_choices:
+                        char_choices.remove(0)
+
+                    # Geno can only equip his own weapons (we checked if this was one of his above).
+                    if self.is_weapon and 3 in char_choices:
+                        char_choices.remove(3)
+
+                    if not char_choices:
+                        break
+
+                    # Now choose a random character to be equipable.
+                    char_choices = sorted(char_choices)
+                    new_chars.add(random.choice(char_choices))
+
+                self.equip_chars = list(new_chars)
+
+        # Shuffle special properties.
+        if world.settings.randomize_buffs:
+            if self.tier == 1:
+                odds = 2 / 3
+            elif self.tier == 2:
+                odds = 1 / 2
+            elif self.tier == 3:
+                odds = 1 / 4
+            elif self.tier == 4:
+                odds = 1 / 8
+            elif self.tier == 5:
+                odds = 1 / 16
             else:
-                score -= 2
+                odds = 0
 
-        # Zero all stats.
-        for attr in EQUIP_STATS:
-            setattr(self, attr, 0)
+            if odds > 0:
+                # Instant KO protection.
+                self.prevent_ko = utils.coin_flip(odds)
 
-        # Perform standard mutation on new non-zero stats.
-        for attr in up_vals:
-            setattr(self, attr, utils.mutate_normal(up_vals[attr], minimum=1, maximum=127))
+                # Elemental immunities.
+                self.elemental_immunities = []
+                for i in range(4, 7):
+                    if utils.coin_flip(odds):
+                        self.elemental_immunities.append(i)
 
-        for attr in down_vals:
-            value = utils.mutate_normal(down_vals[attr], minimum=1, maximum=127)
-            setattr(self, attr, -value)
+                # Elemental resistances (don't add if we're already immune).
+                self.elemental_resistances = []
+                for i in range(4, 7):
+                    if i not in self.elemental_immunities and utils.coin_flip(odds):
+                        self.elemental_resistances.append(i)
 
-        # If this is a weapon with a variance value, shuffle that too.
-        if self.variance:
-            self.variance = utils.mutate_normal(self.variance, minimum=1, maximum=127)
+                # Status immunities.
+                self.status_immunities = []
+                for i in range(0, 7):
+                    if utils.coin_flip(odds):
+                        self.status_immunities.append(i)
 
-        # Randomize which characters can equip this item.
-        # Geno can only equip his own weapons, and nobody else can equip his due to softlocks.
-        if self.is_weapon and 3 in self.equip_chars:
-            return
+                # Weight weapons more towards the status buffs, and weight armor/accessories towards immunities.
+                # For a special set of accessories, keep status buff odds the same as tier:
+                # Jinx Belt, Attack Scarf, Quartz Charm, Troopa Pin, Feather, Ghost Medal, Jump Shoes, Zoom Shoes
+                if self.index in (74, 76, 81, 89, 90, 91, 92, 94):
+                    buff_odds = 1
+                elif self.is_weapon:
+                    buff_odds = 1 / 2
+                else:
+                    buff_odds = 1 / 5
 
-        # Pick random number of characters with lower numbers weighted heavier.
-        new_chars = set()
-        num_equippable = random.randint(1, random.randint(1, 5))
-
-        for _ in range(num_equippable):
-            char_choices = set(range(5)) - new_chars
-
-            # Mario cannot equip Hurly Gloves due to softlock when he throws himself.
-            if self.index == 0x14 and 0 in char_choices:
-                char_choices.remove(0)
-
-            # Geno can only equip his own weapons (we checked if this was one of his above).
-            if self.is_weapon and 3 in char_choices:
-                char_choices.remove(3)
-
-            if not char_choices:
-                break
-
-            # Now choose a random character to be equipable.
-            char_choices = sorted(char_choices)
-            new_chars.add(random.choice(char_choices))
-
-        self.equip_chars = list(new_chars)
+                # Status buffs.
+                self.status_buffs = []
+                for i in range(3, 7):
+                    if utils.coin_flip(odds * buff_odds):
+                        self.status_buffs.append(i)
 
     def get_patch(self):
         """Get patch for this item.
@@ -322,22 +473,122 @@ class Item:
         if not self.price:
             return patch
 
-        # Which characters can equip
-        patch.add_data(base_addr + 2, utils.BitMapSet(1, self.equip_chars).as_bytes())
+        # Only modify equipment properties.
+        if self.is_equipment:
+            data = bytearray()
 
-        # Stat data
-        data = bytearray()
-        data += utils.ByteField(self.speed).as_bytes()
-        data += utils.ByteField(self.attack).as_bytes()
-        data += utils.ByteField(self.defense).as_bytes()
-        data += utils.ByteField(self.magic_attack).as_bytes()
-        data += utils.ByteField(self.magic_defense).as_bytes()
-        data += utils.ByteField(self.variance).as_bytes()
-        patch.add_data(base_addr + 9, data)
+            # Item type and instant KO protection.
+            flags = self.item_type
+            if self.prevent_ko:
+                flags |= 1 << 7
+            data += utils.ByteField(flags).as_bytes()
+
+            # Inflict/protect flags for status ailments/buffs.
+            flags = 0
+            if self.status_immunities:
+                flags += 1 << 0
+            if self.status_buffs:
+                flags += 1 << 1
+            data += utils.ByteField(flags).as_bytes()
+
+            # Which characters can equip
+            data += utils.BitMapSet(1, self.equip_chars).as_bytes()
+
+            patch.add_data(base_addr, data)
+
+            # Stats and special properties.
+            data = bytearray()
+            data += utils.BitMapSet(1, self.elemental_immunities).as_bytes()
+            data += utils.BitMapSet(1, self.elemental_resistances).as_bytes()
+            data += utils.BitMapSet(1, self.status_immunities).as_bytes()
+            data += utils.BitMapSet(1, self.status_buffs).as_bytes()
+            data += utils.ByteField(self.speed).as_bytes()
+            data += utils.ByteField(self.attack).as_bytes()
+            data += utils.ByteField(self.defense).as_bytes()
+            data += utils.ByteField(self.magic_attack).as_bytes()
+            data += utils.ByteField(self.magic_defense).as_bytes()
+            data += utils.ByteField(self.variance).as_bytes()
+            patch.add_data(base_addr + 5, data)
 
         # Price
         price_addr = self.BASE_PRICE_ADDRESS + (self.index * 2)
         patch.add_data(price_addr, utils.ByteField(self.price, num_bytes=2).as_bytes())
+
+        # Add updated name.
+        base_addr = self.BASE_NAME_ADDRESS + (self.index * 15)
+        name = self.name.ljust(15)
+        patch.add_data(base_addr, name)
+
+        return patch
+
+    @classmethod
+    def build_descriptions_patch(cls, world):
+        """Build patch data for item descriptions.  These use pointers, so we need to do them all together.
+
+        :type world: randomizer.logic.main.GameWorld
+        :return: Patch data.
+        :rtype: randomizer.logic.patch.Patch
+        """
+        patch = Patch()
+
+        # Begin text data with a single null byte to use for all empty descriptions to save space.
+        pointer_data = bytearray()
+        text_data = []
+        for i in range(len(cls.BASE_DESC_DATA_ADDRESSES)):
+            text_data.append(bytearray())
+        text_data[0].append(0x00)
+
+        # Track current base address for the text.  We have multiple banks to split the text across.
+        current_bank = 0
+
+        for i in range(NUM_ITEMS):
+            try:
+                item = world.get_item_by_index(i)
+            except KeyError:
+                desc = ''
+            else:
+                # If this isn't an equipment we actually shuffled, use the vanilla description, if any.
+                if item.is_equipment:
+                    desc = item.equipment_description
+                else:
+                    desc = data.ITEM_DESCRIPTIONS.get(i, '')
+
+            # If the description is empty, just use the null byte at the very beginning.
+            if not desc:
+                pointer = cls.BASE_DESC_DATA_ADDRESSES[0][0] - cls.DESC_DATA_POINTER_OFFSET
+                pointer_data += utils.ByteField(pointer, num_bytes=2).as_bytes()
+                continue
+
+            # Compute pointer from base address and current data length.  If we exceed the ending address of the current
+            # data bank, move to the next one.  If we run out, it's an error.
+            while True:
+                pointer = cls.BASE_DESC_DATA_ADDRESSES[current_bank][0] + len(text_data[current_bank])
+                if (pointer + len(desc) + 1) > cls.BASE_DESC_DATA_ADDRESSES[current_bank][1]:
+                    current_bank += 1
+                    if current_bank >= len(cls.BASE_DESC_DATA_ADDRESSES):
+                        raise ValueError("Text descriptions too long")
+                    continue
+
+                # Subtract base pointer offset from computed final address.
+                pointer -= cls.DESC_DATA_POINTER_OFFSET
+                pointer_data += utils.ByteField(pointer, num_bytes=2).as_bytes()
+                break
+
+            # Add null byte to terminate the text string.
+            desc = desc.encode('latin1')
+            desc += bytes([0x00])
+            text_data[current_bank] += desc
+
+        # Sanity check that pointer data has the correct number of items.
+        if len(pointer_data) != NUM_ITEMS * 2:
+            raise ValueError("Wrong length for pointer data, something went wrong...")
+
+        # Sanity check that text data doesn't exceed size of each bank.
+        for i, bank in enumerate(cls.BASE_DESC_DATA_ADDRESSES):
+            data_len = len(text_data[i])
+            bank_len = bank[1] - bank[0] + 1
+            if data_len > bank_len:
+                raise ValueError("Item description data bank {} too long: {} > max {}".format(i, data_len, bank_len))
 
         return patch
 
@@ -383,11 +634,11 @@ class Shop:
 
         data = bytearray()
         for item in self.items:
-            data += utils.Stat(item.index).as_bytes()
+            data += utils.ByteField(item.index).as_bytes()
 
         # Fill out extra shop fields with no item value.
         while len(data) < 15:
-            data += utils.Stat(255).as_bytes()
+            data += utils.ByteField(255).as_bytes()
 
         # First byte is shop flags, don't change those.  Put items one byte later.
         patch.add_data(base_addr + 1, data)
@@ -401,9 +652,8 @@ def randomize_items(world):
     :type world: randomizer.logic.main.GameWorld
     """
     # Shuffle equipment stats and equip characters.
-    if world.settings.randomize_equipment:
-        for item in world.items:
-            item.randomize()
+    for item in world.items:
+        item.randomize(world)
 
     # Shuffle shop contents and prices.
     if world.settings.randomize_shops:
