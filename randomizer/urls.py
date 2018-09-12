@@ -13,6 +13,7 @@ urlpatterns = [
     path('how-to-play', views.HowToPlayView.as_view(), name='how-to-play'),
     path('difficulties', views.AboutView.as_view(), name='difficulties'),
     path('options', views.OptionsView.as_view(), name='options'),
+    path('resources', views.ResourcesView.as_view(), name='resources'),
     path('updates', views.UpdatesView.as_view(), name='updates'),
 
     # Generation

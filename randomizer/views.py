@@ -20,28 +20,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, FormView
 
 from .models import Seed, Patch
-from .forms import GenerateForm
+from .forms import GenerateForm, FLAGS
 from .logic.main import GameWorld, Settings, VERSION
 from .logic.patch import PatchJSONEncoder
 
 
-class AboutView(TemplateView):
-    template_name = 'randomizer/about.html'
-
-
-class HowToPlayView(TemplateView):
-    template_name = 'randomizer/how_to_play.html'
-
-
-class OptionsView(TemplateView):
-    template_name = 'randomizer/options.html'
-
-
-class UpdatesView(TemplateView):
-    template_name = 'randomizer/updates.html'
-
-
-class GenerateViewBase(TemplateView):
+class RandomizerView(TemplateView):
     """
     Base class for views that generate a ROM, i.e. randomizer and patch-from-hash views.
     This gets common context data.
@@ -51,14 +35,35 @@ class GenerateViewBase(TemplateView):
         context = super().get_context_data(**kwargs)
         context['version'] = VERSION
         context['debug_enabled'] = settings.DEBUG
+        context['flags'] = FLAGS
         return context
 
 
-class RandomizeView(GenerateViewBase):
+class AboutView(RandomizerView):
+    template_name = 'randomizer/about.html'
+
+
+class HowToPlayView(RandomizerView):
+    template_name = 'randomizer/how_to_play.html'
+
+
+class OptionsView(RandomizerView):
+    template_name = 'randomizer/options.html'
+
+
+class ResourcesView(RandomizerView):
+    template_name = 'randomizer/resources.html'
+
+
+class UpdatesView(RandomizerView):
+    template_name = 'randomizer/updates.html'
+
+
+class RandomizeView(RandomizerView):
     template_name = 'randomizer/randomize.html'
 
 
-class HashView(GenerateViewBase):
+class HashView(RandomizerView):
     template_name = 'randomizer/patch_from_hash.html'
 
 
@@ -99,35 +104,18 @@ class GenerateView(FormView):
         h.update(mode.encode('utf-8'))
         h.update(str(debug_mode).encode('utf-8'))
         if mode == 'custom':
-            h.update(str(data['randomize_character_stats']).encode('utf-8'))
-            h.update(str(data['randomize_drops']).encode('utf-8'))
-            h.update(str(data['randomize_enemy_formations']).encode('utf-8'))
-            h.update(str(data['randomize_monsters']).encode('utf-8'))
-            h.update(str(data['randomize_shops']).encode('utf-8'))
-            h.update(str(data['randomize_equipment']).encode('utf-8'))
-            h.update(str(data['randomize_spell_stats']).encode('utf-8'))
-            h.update(str(data['randomize_spell_lists']).encode('utf-8'))
-            h.update(str(data['randomize_join_order']).encode('utf-8'))
+            for flag in FLAGS:
+                h.update(str(data[flag[0]]).encode('utf-8'))
 
         hash = base64.b64encode(h.digest()).decode().replace('+', '').replace('/', '')[:10]
 
         # Get custom flags.
         custom_flags = {}
-        for key in (
-                'randomize_character_stats',
-                'randomize_drops',
-                'randomize_enemy_formations',
-                'randomize_monsters',
-                'randomize_shops',
-                'randomize_equipment',
-                'randomize_spell_stats',
-                'randomize_spell_lists',
-                'randomize_join_order',
-        ):
-            custom_flags[key] = data[key]
+        for flag in FLAGS:
+            custom_flags[flag[0]] = data[flag[0]]
 
         # Build game world, randomize it, and generate the patch.
-        world = GameWorld(seed, Settings(mode, debug_mode, **custom_flags))
+        world = GameWorld(seed, Settings(mode, debug_mode, custom_flags))
         world.randomize()
         patches = {'US': world.build_patch()}
 

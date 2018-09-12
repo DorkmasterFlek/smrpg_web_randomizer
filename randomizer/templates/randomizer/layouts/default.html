@@ -41,6 +41,7 @@
                 <li class="dropdown">
                     <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Help <span class="caret"></span></a>
                     <ul class="dropdown-menu">
+                        {# <li class="{% if 'resources' in request.path %}active{% endif %}"><a href="{% url 'randomizer:resources' %}">Resources</a></li> #}
                         <li class="{% if 'options' in request.path %}active{% endif %}"><a href="{% url 'randomizer:options' %}">Game Options</a></li>
                         <li><a href="http://discord.smrpgspeedruns.com" target="_blank">Join the Discord</a></li>
                         <li class="{% if 'updates' in request.path %}active{% endif %}"><a href="{% url 'randomizer:updates' %}">Updates</a></li>

@@ -16,29 +16,9 @@
                 <p>This mode lets you pick and choose exactly what flags you want to use. The available flags are as
                     follows:</p>
                 <ul>
-                    <li>Character stats - Shuffles the starting stats for each character, as well as how much each stat
-                        grows by when levelling up, and how much the level-up bonuses are worth.
-                    </li>
-                    <li>Drops - Shuffles the item reward received from battles.</li>
-                    <li>Enemy formations - Shuffles the potential enemies that can be encountered in normal battles.
-                    </li>
-                    <li>Monsters - Shuffles the stats of monsters, as well as potential status effects of their
-                        attacks.
-                    </li>
-                    <li>Shops - Shuffles the items available in shops and their prices (including frog coin shops).</li>
-                    <li>Equipment stats and allowed characters - Shuffles the stats granted by equipment (could be
-                        positive or negative) and which characters can equip them.
-                    </li>
-                    <li>Character spell stats - Shuffles the FP cost, attack power and hit rate of spells, plus starting
-                        FP.
-                    </li>
-                    <li>Character spell lists - Shuffles which spells each character learns, and at what level they
-                        learn them.
-                    </li>
-                    <li>Character join order - Shuffles the order in which characters join the part. The spots at which
-                        a new character joins that party are unchanged. The character that joins the party will be the
-                        appropriate starting level for balance.
-                    </li>
+                    {% for flag in flags %}
+                        <li>{{ flag.1 }} - {{ flag.2 }}</li>
+                    {% endfor %}
                 </ul>
             </div>
         </div>

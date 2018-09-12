@@ -30,63 +30,19 @@
                     <h4 class="panel-title">Custom Mode Settings</h4>
                 </div>
                 <div class="panel-body">
-                    <div class="row">
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-character-stats" type="checkbox" value="true" checked
-                                   data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-character-stats">Character stats</label>
+                    {% for flag in flags %}
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <input id="{{ flag.0 }}" type="checkbox" value="true" checked
+                                       data-toggle="toggle"
+                                       data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
+                                <label for="{{ flag.0 }}">{{ flag.1 }}</label>
+                            </div>
+                            <div class="panel-body">
+                                <p>{{ flag.2 }}</p>
+                            </div>
                         </div>
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-drops" type="checkbox" value="true" checked data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-drops">Drops</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-enemy-formations" type="checkbox" value="true" checked
-                                   data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-enemy-formations">Enemy formations</label>
-                        </div>
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-monsters" type="checkbox" value="true" checked data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-monsters">Monsters</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-shops" type="checkbox" value="true" checked data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-shops">Shops</label>
-                        </div>
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-equipment" type="checkbox" value="true" checked data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-equipment">Equipment stats and allowed characters</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-spell-stats" type="checkbox" value="true" checked data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-spell-stats">Character spell stats</label>
-                        </div>
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-spell-lists" type="checkbox" value="true" checked data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-spell-lists">Character spell lists</label>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 pb-5">
-                            <input id="randomize-join-order" type="checkbox" value="true" checked data-toggle="toggle"
-                                   data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                            <label for="randomize-join-order">Character join order</label>
-                        </div>
-                    </div>
+                    {% endfor %}
                 </div>
             </div>
             <div class="row">
@@ -130,16 +86,9 @@
         <input type="hidden" name="region" id="form_region" value=""/>
         <input type="hidden" name="seed" id="form_seed" value=""/>
         <input type="hidden" name="mode" id="form_mode" value="full"/>
-        <input type="hidden" name="randomize_character_stats" id="form_randomize_character_stats" value="true"/>
-        <input type="hidden" name="randomize_drops" id="form_randomize_drops" value="true"/>
-        <input type="hidden" name="randomize_enemy_formations" id="form_randomize_enemy_formations" value="true"/>
-        <input type="hidden" name="randomize_monsters" id="form_randomize_monsters" value="true"/>
-        <input type="hidden" name="randomize_shops" id="form_randomize_shops" value="true"/>
-        <input type="hidden" name="randomize_equipment" id="form_randomize_equipment" value="true"/>
-        <input type="hidden" name="randomize_spell_stats" id="form_randomize_spell_stats" value="true"/>
-        <input type="hidden" name="randomize_spell_lists" id="form_randomize_spell_lists" value="true"/>
-        <input type="hidden" name="randomize_join_order" id="form_randomize_join_order" value="true"/>
-        <input type="hidden" name="cutscene_skip" id="form_cutscene_skip" value="true"/>
+        {% for flag in flags %}
+            <input type="hidden" name="{{ flag.0 }}" id="form_{{ flag.0 }}" value="true"/>
+        {% endfor %}
         <input type="hidden" name="debug_mode" id="form_debug_mode" value="false"/>
     </form>
 

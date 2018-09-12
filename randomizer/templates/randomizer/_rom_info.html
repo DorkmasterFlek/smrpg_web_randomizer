@@ -3,15 +3,9 @@
     <div id="info-debug-mode" class="bg-info">Debug Test Mode: <span>Yes</span></div>
     <div id="info-custom">Custom Mode Settings:
         <ul>
-            <li>Character stats: <span id="info-custom-character-stats"></span></li>
-            <li>Drops: <span id="info-custom-drops"></span></li>
-            <li>Enemy formations: <span id="info-custom-enemy-formations"></span></li>
-            <li>Monsters: <span id="info-custom-monsters"></span></li>
-            <li>Shops: <span id="info-custom-shops"></span></li>
-            <li>Equipment stats and allowed characters: <span id="info-custom-equipment"></span></li>
-            <li>Character spell stats: <span id="info-custom-spell-stats"></span></li>
-            <li>Character spell lists: <span id="info-custom-spell-lists"></span></li>
-            <li>Character join order: <span id="info-custom-join-order"></span></li>
+            {% for flag in flags %}
+                <li>{{ flag.1 }}: <span id="info-{{ flag.0 }}"></span></li>
+            {% endfor %}
         </ul>
     </div>
     <div>Seed: <span class="seed"></span></div>
@@ -39,15 +33,9 @@
 
         // Custom mode settings.
         if (patch.mode === "custom") {
-            $("#info-custom-character-stats").html(patch.custom_flags.randomize_character_stats ? "Yes" : "No");
-            $("#info-custom-drops").html(patch.custom_flags.randomize_drops ? "Yes" : "No");
-            $("#info-custom-enemy-formations").html(patch.custom_flags.randomize_enemy_formations ? "Yes" : "No");
-            $("#info-custom-monsters").html(patch.custom_flags.randomize_monsters ? "Yes" : "No");
-            $("#info-custom-shops").html(patch.custom_flags.randomize_shops ? "Yes" : "No");
-            $("#info-custom-equipment").html(patch.custom_flags.randomize_equipment ? "Yes" : "No");
-            $("#info-custom-spell-stats").html(patch.custom_flags.randomize_spell_stats ? "Yes" : "No");
-            $("#info-custom-spell-lists").html(patch.custom_flags.randomize_spell_lists ? "Yes" : "No");
-            $("#info-custom-join-order").html(patch.custom_flags.randomize_join_order ? "Yes" : "No");
+            {% for flag in flags %}
+                $("#info-{{ flag.0 }}").html(patch.custom_flags.{{ flag.0 }} ? "Yes" : "No");
+            {% endfor %}
             $("#info-custom").show();
         } else {
             $("#info-custom").hide();
