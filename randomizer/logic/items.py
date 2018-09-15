@@ -545,6 +545,7 @@ class Item:
             try:
                 item = world.get_item_by_index(i)
             except KeyError:
+                # Item slot isn't used, just make it blank.
                 desc = ''
             else:
                 # If this isn't an equipment we actually shuffled, use the vanilla description, if any.
@@ -589,6 +590,11 @@ class Item:
             bank_len = bank[1] - bank[0] + 1
             if data_len > bank_len:
                 raise ValueError("Item description data bank {} too long: {} > max {}".format(i, data_len, bank_len))
+
+        # Add item description data to the patch data.
+        patch.add_data(cls.BASE_DESC_POINTER_ADDRESS, pointer_data)
+        for i, bank in enumerate(cls.BASE_DESC_DATA_ADDRESSES):
+            patch.add_data(bank[0], text_data[i])
 
         return patch
 

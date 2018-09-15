@@ -13,7 +13,7 @@ from .patch import Patch
 from randomizer.forms import FLAGS
 
 # Current version number
-VERSION = '7.1.0'
+VERSION = '7.1.1'
 
 # Possible names we can use for the hash values on the file select screen.  Needs to be 6 characters or less.
 FILE_ENTRY_NAMES = (
