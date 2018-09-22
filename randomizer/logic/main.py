@@ -13,7 +13,7 @@ from .patch import Patch
 from randomizer.forms import FLAGS
 
 # Current version number
-VERSION = '7.1.1'
+VERSION = '7.1.2'
 
 # Possible names we can use for the hash values on the file select screen.  Needs to be 6 characters or less.
 FILE_ENTRY_NAMES = (
@@ -41,7 +41,11 @@ class Settings:
         if custom_flags is not None:
             self._custom_flags.update(custom_flags)
         for flag in FLAGS:
-            self._custom_flags.setdefault(flag[0], False)
+            # If we're in full randomize mode, override all the flags to on.
+            if mode == 'full':
+                self._custom_flags[flag[0]] = True
+            else:
+                self._custom_flags.setdefault(flag[0], False)
 
     def custom_flags_to_json(self):
         """Return JSON serialization of custom flags.
