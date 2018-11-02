@@ -422,6 +422,9 @@ class Item:
             else:
                 odds = 0
 
+            # 7.1.3 update: trying lower odds for special properties and buffs, they're too frequent...
+            odds /= 2
+
             if odds > 0:
                 # Instant KO protection.
                 self.prevent_ko = utils.coin_flip(odds)
