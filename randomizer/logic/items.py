@@ -380,6 +380,7 @@ class Item:
             if self.variance:
                 self.variance = utils.mutate_normal(self.variance, minimum=1, maximum=127)
 
+        if world.settings.randomize_allowed_equips:
             # Randomize which characters can equip this item.
             # Geno can only equip his own weapons, and nobody else can equip his due to softlocks.
             if not self.is_weapon or 3 not in self.equip_chars:

@@ -20,8 +20,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import TemplateView, FormView
 
 from .models import Seed, Patch
-from .forms import GenerateForm, FLAGS
-from .logic.main import GameWorld, Settings, VERSION
+from .forms import GenerateForm
+from .logic.main import GameWorld, Settings, VERSION, FLAGS
 from .logic.patch import PatchJSONEncoder
 
 

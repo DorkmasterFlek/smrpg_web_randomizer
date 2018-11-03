@@ -10,10 +10,9 @@ from . import map
 from . import spells
 from . import utils
 from .patch import Patch
-from randomizer.forms import FLAGS
 
 # Current version number
-VERSION = '7.1.3'
+VERSION = '7.1.4'
 
 # Possible names we can use for the hash values on the file select screen.  Needs to be 6 characters or less.
 FILE_ENTRY_NAMES = (
@@ -26,6 +25,21 @@ FILE_ENTRY_NAMES = (
 # Also use enemy names, if they're 6 characters or less.
 FILE_ENTRY_NAMES += tuple(e[2].upper() for e in data.ENEMY_DATA if 1 <= len(e[2]) <= 6)
 FILE_ENTRY_NAMES = tuple(sorted(set(FILE_ENTRY_NAMES)))
+
+# List of option checkbox fields for dynamic page generation.
+FLAGS = (
+    ('randomize_character_stats', 'Character Stats', 'Shuffles the starting stats for each character, as well as how much each stat grows by when levelling up, and how much the level-up bonuses are worth.'),
+    ('randomize_drops', 'Drops', 'Shuffles the item reward received from battles.'),
+    ('randomize_enemy_formations', 'Enemy Formations', 'Shuffles the potential enemies that can be encountered in normal battles.'),
+    ('randomize_monsters', 'Monsters', 'Shuffles the stats of monsters, as well as potential status effects of their attacks.'),
+    ('randomize_shops', 'Shops', 'Shuffles the items available in shops and their prices (including frog coin shops).'),
+    ('randomize_equipment', 'Equipment Stats ', 'Shuffles the stats granted by equipment (could be positive or negative).'),
+    ('randomize_allowed_equips', 'Equipment Allowed Characters', 'Shuffles which characters can equip different equipment.'),
+    ('randomize_buffs', 'Equipment Buffs', 'Shuffles special protections (elemental and status immunities) and attack/defense buffs for equipment.'),
+    ('randomize_spell_stats', 'Character Spell Stats', 'Shuffles the FP cost, attack power and hit rate of spells, plus starting FP.'),
+    ('randomize_spell_lists', 'Character Spell Lists', 'Shuffles which spells each character learns, and at what level they learn them.'),
+    ('randomize_join_order', 'Character Join Order', 'Shuffles the order in which characters join the part. The spots at which a new character joins that party are unchanged.The character that joins the party will be the appropriate starting level for balance.'),
+)
 
 
 class Settings:
