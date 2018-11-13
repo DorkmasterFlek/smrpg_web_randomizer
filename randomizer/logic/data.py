@@ -156,7 +156,6 @@ ITEM_DATA = (
     (162, '\x7fDryBonesFlag', 999, 139, 3, False, False, [], 0, 0, 0, 0, 0, 0, False, [], [], [], [], 0, False, True, False),
     (163, '\x7fGreaper Flag', 999, 143, 3, False, False, [], 0, 0, 0, 0, 0, 0, False, [], [], [], [], 0, False, True, False),
     (166, '\x7fCricket Jam', 999, 137, 3, False, False, [], 0, 0, 0, 0, 0, 0, False, [], [], [], [], 0, False, True, False),
-    (172, '\x7fFireworks', 999, 142, 3, False, False, [], 0, 0, 0, 0, 0, 0, False, [], [], [], [], 500, False, True, False),
     (174, '\x7fBright Card', 999, 133, 3, False, False, [], 0, 0, 0, 0, 0, 0, False, [], [], [], [], 1554, False, True, False),
     (175, '-Mushroom', 999, 16, 3, True, False, [], 0, 0, 0, 0, 0, 0, False, [], [], [5], [], 4, False, False, True),
     (176, ';Star Egg', 999, 33, 3, True, True, [], 0, 0, 0, 0, 0, 0, False, [], [], [], [], 2, False, True, False),
