@@ -32,7 +32,10 @@
     </div>
     <h1>Sweet! How do I play this thing?</h1>
     <div class="well">
-        <p>Click the "How To Play" link above to see more details about how to actually play the randomized game!</p>
+        <p>Click the "<a href="{% url 'randomizer:how-to-play' %}">How To Play</a>" link above to see more details about
+            how to actually play the randomized game! Check out the
+            "<a href="{% url 'randomizer:resources' %}">Resources</a>" link for more details about the changes to the
+            game!</p>
     </div>
     <h1>Awesome! Can I play with others?</h1>
     <div class="well">

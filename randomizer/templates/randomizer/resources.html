@@ -1,0 +1,98 @@
+{% extends 'randomizer/layouts/default.html' %}
+{% load static %}
+
+{% block content %}
+    <h1>Resources</h1>
+    <div class="well">
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Discord</h3>
+            </div>
+            <div class="panel-body">
+                <div style="text-align:center;">
+                    <a class="btn btn-primary btn-lg btn-xl" href="http://discord.smrpgspeedruns.com" rel="noopener noreferrer" role="button" target="_blank">Join our Discord</a>
+                </div>
+                <p>Join our Discord community to race with other people, and see news and discussion about upcoming
+                    features for the randomizer!</p>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Mechanical Changes</h3>
+            </div>
+            <div class="panel-body">
+                <h4>General Gameplay Changes</h4>
+                <ul>
+                    <li>Mario is now swappable with other characters in the party.</li>
+                    <li>The maximum number of coins you can hold is increased to 9999.</li>
+                </ul>
+                <h4>Cutscene Skip</h4>
+                <p>The randomizer applies a patch which skips most of the cutscenes and text in the game. This patch
+                    only works on the US or EU version, since the EU version is based on the US one. Only these regions
+                    are supported as a result.</p>
+                {% include 'randomizer/_cutscene_skip_notes.html' %}
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">
+                <h3 class="panel-title">Equipment</h3>
+            </div>
+            <div class="panel-body">
+                <p>All menu descriptions for weapons, armor, and accessories will look like something like this:</p>
+                <p>
+                    <img alt="menu1" src="{% static 'randomizer/img/menu1.png' %}"/>
+                    <img alt="menu2" src="{% static 'randomizer/img/menu2.png' %}"/>
+                </p>
+                <h4>First Row</h4>
+                <p>Lists elements that the equip makes you immune (<span class="icon x0"></span>) to, and elements that
+                    you will take half damage (<span class="icon x12"></span>) from. If this row is blank, that means
+                    the equipment does not offer any fire/ice/lightning protections.</p>
+                <ul>
+
+                    <li><span class="icon fire"></span>- Fire</li>
+
+                    <li><span class="icon ice"></span>- Ice</li>
+
+                    <li><span class="icon lightning"></span>- Lightning</li>
+                </ul>
+                <h4>Second Row</h4>
+                <p>Lists the amount by which your agility increases (<span class="icon agiup"></span>) or decreases
+                    (<span class="icon agidown"></span>), and status effects that the equip provides immunity to. If
+                    this row only shows the agility stat, that means the equipment does not offer any status immunities.
+                </p>
+                <ul>
+
+                    <li><span class="icon mute"></span> - Mute</li>
+
+                    <li><span class="icon sleep"></span> - Sleep</li>
+
+                    <li><span class="icon poison"></span> - Poison</li>
+
+                    <li><span class="icon fear"></span> - Fear</li>
+
+                    <li><span class="icon mushroom"></span> - Mushroom</li>
+
+                    <li><span class="icon scarecrow"></span> - Scarecrow</li>
+
+                    <li><span class="icon ko"></span> - Instant Death</li>
+
+                    <li><span class="icon berserk"></span> - Berserk (exists but unused in the original game code, is
+                        used in the randomizer)
+                    </li>
+                </ul>
+                <h4>Third Row</h4>
+                <p>Physical attack increase (<span class="icon atkup"></span>) or decrease (<span
+                        class="icon atkdown"></span>), and physical defense increase (<span class="icon defup"></span>)
+                    or decrease (<span class="icon defdown"></span>).</p>
+                <p>(<span class="icon boost"></span>) indicates that the stat is also given a 1.5x boost multiplier
+                    (like what Geno Boost gives you).</p>
+                <h4>Fourth Row</h4>
+                <p>Magic attack increase (<span class="icon matkup"></span>) or decrease (<span
+                        class="icon matkdown"></span>), and magic defense increase (<span class="icon mdefup"></span>)
+                    or decrease (<span class="icon mdefdown"></span>).</p>
+                <p>Like with the third row, (<span class="icon boost"></span>) indicates that the stat is also given a
+                    1.5x boost multiplier.</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}

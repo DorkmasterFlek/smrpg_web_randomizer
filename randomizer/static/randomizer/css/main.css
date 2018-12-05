@@ -16,3 +16,158 @@ label {
 .pb-5 {
     padding-bottom: 15px;
 }
+
+.icon {
+    width: 20px;
+    height: 20px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.picon {
+    width: 18px;
+    height: 16px;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.icon.fire {
+    background: url('../img/fontTableDescription.png') 0 0;
+}
+
+.icon.ice {
+    background: url('../img/fontTableDescription.png') -32px 0;
+}
+
+.icon.lightning {
+    background: url('../img/fontTableDescription.png') -64px 0;
+}
+
+.icon.mute {
+    background: url('../img/fontTableDescription.png') -96px 0;
+}
+
+.icon.sleep {
+    background: url('../img/fontTableDescription.png') -128px 0;
+}
+
+.icon.poison {
+    background: url('../img/fontTableDescription.png') -160px 0;
+}
+
+.icon.fear {
+    background: url('../img/fontTableDescription.png') -192px 0;
+}
+
+.icon.mushroom {
+    background: url('../img/fontTableDescription.png') -224px 0;
+}
+
+.icon.scarecrow {
+    background: url('../img/fontTableDescription.png') 0 -24px;
+}
+
+.icon.ko {
+    background: url('../img/fontTableDescription.png') -32px -24px;
+}
+
+.icon.berserk {
+    background: url('../img/fontTableDescription.png') -64px -24px;
+}
+
+.icon.atkup {
+    background: url('../img/fontTableDescription.png') -96px -24px;
+}
+
+.icon.atkdown {
+    background: url('../img/fontTableDescription.png') -128px -24px;
+}
+
+.icon.matkup {
+    background: url('../img/fontTableDescription.png') -160px -24px;
+}
+
+.icon.matkdown {
+    background: url('../img/fontTableDescription.png') -192px -24px;
+}
+
+.icon.defup {
+    background: url('../img/fontTableDescription.png') -224px -24px;
+}
+
+.icon.defdown {
+    background: url('../img/fontTableDescription.png') 0 -48px;
+}
+
+.icon.mdefup {
+    background: url('../img/fontTableDescription.png') -32px -48px;
+}
+
+.icon.mdefdown {
+    background: url('../img/fontTableDescription.png') -64px -48px;
+}
+
+.icon.agiup {
+    background: url('../img/fontTableDescription.png') -96px -48px;
+}
+
+.icon.agidown {
+    background: url('../img/fontTableDescription.png') -128px -48px;
+}
+
+.icon.boost {
+    background: url('../img/fontTableDescription.png') -160px -48px;
+}
+
+.icon.x0 {
+    background: url('../img/fontTableDescription.png') -192px -48px;
+}
+
+.icon.x12 {
+    background: url('../img/fontTableDescription.png') -224px -48px;
+}
+
+.picon._2x {
+    background: url('../img/fontTableDialogue.png') 0 0;
+}
+
+.picon._0x {
+    background: url('../img/fontTableDialogue.png') -18px 0;
+}
+
+.picon.ice {
+    background: url('../img/fontTableDialogue.png') -36px 0;
+}
+
+.picon.fire {
+    background: url('../img/fontTableDialogue.png') -54px 0;
+}
+
+.picon.lightning {
+    background: url('../img/fontTableDialogue.png') -72px 0;
+}
+
+.picon.sleep {
+    background: url('../img/fontTableDialogue.png') 0 -16px;
+}
+
+.picon.fear {
+    background: url('../img/fontTableDialogue.png') -18px -16px;
+}
+
+.picon.mute {
+    background: url('../img/fontTableDialogue.png') -36px -16px;
+}
+
+.picon.poison {
+    background: url('../img/fontTableDialogue.png') -54px -16px;
+}
+
+.picon.ko {
+    background: url('../img/fontTableDialogue.png') -73px -16px;
+    width: 15px;
+}
+
+.picon.jump {
+    background: url('../img/fontTableDialogue.png') -90px -16px;
+}
