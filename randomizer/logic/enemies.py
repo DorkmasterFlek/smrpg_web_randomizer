@@ -317,45 +317,35 @@ class Enemy:
                 if getattr(self, attr) < old_val:
                     setattr(self, attr, old_val)
 
-        # For bosses, randomly add resistances, immunities, and remove weaknesses.
         if self.boss:
-            while True:
-                chance = random.randint(0, 3)
-                if chance == 0:
-                    break
-                elif chance == 1:
-                    self.resistances.append(random.randint(4, 7))
-                elif chance == 2:
-                    self.status_immunities.append(random.randint(0, 3))
-                elif chance == 3:
-                    weak = random.randint(4, 7)
-                    if weak in self.weaknesses:
-                        self.weaknesses.remove(weak)
-
             # For bosses, allow a small 1/255 chance to be vulnerable to Geno Whirl.
             if utils.coin_flip(1 / 255):
                 self.death_immune = False
 
-        # For regular enemies, shuffle them instead.
         else:
-            self.resistances = random.sample(range(4, 8), len(self.resistances))
-            self.status_immunities = random.sample(range(0, 4), len(self.status_immunities))
-            self.weaknesses = random.sample(range(4, 8), len(self.weaknesses))
-
-            # Have a 1/3 chance of reversing instant death immunity.
+            # Have a 1/3 chance of reversing instant death immunity for normal enemies.
             if random.randint(1, 3) == 3:
                 self.death_immune = not self.death_immune
 
             # Randomize morph item chance of success.
             self.morph_chance = random.randint(0, 3)
 
+        # Shuffle elemental resistances and status immunities.  Keep the same number but randomize them for now.
+        self.status_immunities = random.sample(range(0, 4), len(self.status_immunities))
+
         # Make a 50/50 chance to prioritize elemental immunities over weaknesses or vice versa.
         # Allow earth (jump) to be in both however, because they can be weak to jump while immune to it.
         # Jump Shoes bypass the immunity and they'll take double damage.
         if utils.coin_flip():
-            self.weaknesses = [i for i in self.weaknesses if i == 7 or i not in self.resistances]
+            self.resistances = random.sample(range(4, 8), len(self.resistances))
+            potential_weaknesses = set(range(4, 8)) - set(self.resistances)
+            potential_weaknesses.add(7)
+            self.weaknesses = random.sample(potential_weaknesses, min(len(self.weaknesses), len(potential_weaknesses)))
         else:
-            self.resistances = [i for i in self.resistances if i == 7 or i not in self.weaknesses]
+            self.weaknesses = random.sample(range(4, 8), len(self.weaknesses))
+            potential_resistances = set(range(4, 8)) - set(self.weaknesses)
+            potential_resistances.add(7)
+            self.resistances = random.sample(potential_resistances, min(len(self.resistances), len(potential_resistances)))
 
         # Randomize flower bonus type and chance for this enemy.
         self.flower_bonus_type = random.randint(1, 5)
