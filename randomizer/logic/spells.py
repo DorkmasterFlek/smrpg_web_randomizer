@@ -31,13 +31,13 @@ class Spell:
         """Perform randomization for this spell."""
         self.fp = utils.mutate_normal(self.fp, minimum=1, maximum=99)
 
-        # Don't shuffle power or hitrate for Geno Boost, it causes problems if it deals damage.
-        if self.index == 0x11:
-            self.power = 0
-            self.hitrate = 100
-        else:
+        # Don't shuffle power for Geno Boost, it causes problems if it deals damage.
+        if self.index not in (0x11, ):
             self.power = utils.mutate_normal(self.power)
 
+        # Don't shuffle hitrate for healing spells or Geno Boost.  We don't want those to ever be able to miss.
+        # ie. Geno Boost, Therapy, Group Hug, HP Rain, Recover, Mega Recover
+        if self.index not in (0x06, 0x07, 0x11, 0x16, 0x4f, 0x50):
             # If the spell is instant death, cap hit rate at 99% so items that protect from this actually work.
             # Protection forces the attack to miss, but 100% hit rate can't "miss" so it hits anyway.
             if self.instant_ko:
