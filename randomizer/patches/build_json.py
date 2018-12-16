@@ -42,6 +42,7 @@ if not os.path.exists(static_dir):
     os.makedirs(static_dir)
 
 for f in files:
+    print("Building patch for: {}".format(f))
     patch = parse_ips(os.path.join(thisdir, f))
     json_file = os.path.join(static_dir, os.path.splitext(f)[0] + '.json')
     with open(json_file, 'w') as file_obj:

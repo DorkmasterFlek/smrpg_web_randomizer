@@ -2,144 +2,176 @@
 
 {% block content %}
     <h1>Update History</h1>
-    <h2>7.1 Updates</h2>
-    <div class="well">
-        <h4>Version 7.1.7</h4>
-        <ul>
-            <li>Healing spells no longer miss due to spell hitrate shuffling.</li>
-        </ul>
-        <h4>Version 7.1.6</h4>
-        <ul>
-            <li>Adjusted boss immunities and weaknesses to allow elemental attacks to be more useful in general.</li>
-        </ul>
-        <h4>Version 7.1.5</h4>
-        <ul>
-            <li>Removed Fireworks item from the shop shuffle because it doesn't do anything in a normal shop.</li>
-        </ul>
-        <h4>Version 7.1.4</h4>
-        <ul>
-            <li>Split equipment shuffle flag into separate flags for stats and which characters can equip them.</li>
-        </ul>
-        <h4>Version 7.1.3</h4>
-        <ul>
-            <li>Adjusted chances of special properties on equipment lower for balance.</li>
-        </ul>
-        <h4>Version 7.1.2</h4>
-        <ul>
-            <li>Fixed issue with custom flags being used in full randomize mode by mistake</li>
-        </ul>
-        <h4>Version 7.1.1</h4>
-        <ul>
-            <li>Fixed special property item descriptions still showing vanilla text</li>
-        </ul>
-        <h4>Version 7.1.0</h4>
-        <ul>
-            <li>Added option to shuffle elemental protections and status immunities of equipment</li>
-            <li>Updated descriptions of equipment to show special propery and stats info with custom icons</li>
-            <li>Enemy shuffle now allows a tiny (1/255) chance for bosses to be vulnerable to instant KO</li>
-            <li>Psychopath now reveals shuffled enemy immunities and weaknesses when perfectly timed</li>
-        </ul>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h2 class="card-title">7.1 Updates</h2>
+        </div>
+        <div class="card-body">
+            <h4>Version 7.1.7</h4>
+            <ul>
+                <li>Healing spells no longer miss due to spell hitrate shuffling.</li>
+            </ul>
+            <h4>Version 7.1.6</h4>
+            <ul>
+                <li>Adjusted boss immunities and weaknesses to allow elemental attacks to be more useful in general.</li>
+            </ul>
+            <h4>Version 7.1.5</h4>
+            <ul>
+                <li>Removed Fireworks item from the shop shuffle because it doesn't do anything in a normal shop.</li>
+            </ul>
+            <h4>Version 7.1.4</h4>
+            <ul>
+                <li>Split equipment shuffle flag into separate flags for stats and which characters can equip them.</li>
+            </ul>
+            <h4>Version 7.1.3</h4>
+            <ul>
+                <li>Adjusted chances of special properties on equipment lower for balance.</li>
+            </ul>
+            <h4>Version 7.1.2</h4>
+            <ul>
+                <li>Fixed issue with custom flags being used in full randomize mode by mistake</li>
+            </ul>
+            <h4>Version 7.1.1</h4>
+            <ul>
+                <li>Fixed special property item descriptions still showing vanilla text</li>
+            </ul>
+            <h4>Version 7.1.0</h4>
+            <ul>
+                <li>Added option to shuffle elemental protections and status immunities of equipment</li>
+                <li>Updated descriptions of equipment to show special propery and stats info with custom icons</li>
+                <li>Enemy shuffle now allows a tiny (1/255) chance for bosses to be vulnerable to instant KO</li>
+                <li>Psychopath now reveals shuffled enemy immunities and weaknesses when perfectly timed</li>
+            </ul>
+        </div>
     </div>
-    <h2>7.0 Updates</h2>
-    <div class="well">
-        <h4>Version 7.0.2</h4>
-        <ul>
-            <li>Fixed issue with coins still being capped at 999 when getting coins from a chest outside of battle</li>
-        </ul>
-        <h4>Version 7.0.1</h4>
-        <ul>
-            <li>Fixed a bug where instant KO attacks could bypass instant KO protection from equipment</li>
-            <li>Fixed softlock with some flying enemies on certain screen coordinates in battle</li>
-        </ul>
-        <h4>Version 7.0.0</h4>
-        <ul>
-            <li>Full rewrite of backend logic for future feature support, faster patch generation, and smaller patch
-                size
-            </li>
-            <li>Switched to new version numbering with major/minor version</li>
-            <li>Added hash values for names on file select screen to verify seed</li>
-            <li>Updated cutscene skip patch for a few remaining cutscenes and bug fixes</li>
-            <li>Mario can now be swapped out of the active party members</li>
-            <li>Max coin amount has been increased to 9999</li>
-            <li>Because of max coin change, shop prices for items are now allowed to go beyond 999 when shuffled</li>
-            <li>Fixed issue where levels could progress beyond 30 leading to bad things happening</li>
-            <li>Fixed bad enemy battle screen coordinates that could cause softlocks in certain cases</li>
-            <li>Dodo solo fight now ends when Dodo is at 60% of his shuffled HP, not always 600 HP</li>
-        </ul>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h2 class="card-title">7.0 Updates</h2>
+        </div>
+        <div class="card-body">
+            <h4>Version 7.0.2</h4>
+            <ul>
+                <li>Fixed issue with coins still being capped at 999 when getting coins from a chest outside of battle</li>
+            </ul>
+            <h4>Version 7.0.1</h4>
+            <ul>
+                <li>Fixed a bug where instant KO attacks could bypass instant KO protection from equipment</li>
+                <li>Fixed softlock with some flying enemies on certain screen coordinates in battle</li>
+            </ul>
+            <h4>Version 7.0.0</h4>
+            <ul>
+                <li>Full rewrite of backend logic for future feature support, faster patch generation, and smaller patch
+                    size
+                </li>
+                <li>Switched to new version numbering with major/minor version</li>
+                <li>Added hash values for names on file select screen to verify seed</li>
+                <li>Updated cutscene skip patch for a few remaining cutscenes and bug fixes</li>
+                <li>Mario can now be swapped out of the active party members</li>
+                <li>Max coin amount has been increased to 9999</li>
+                <li>Because of max coin change, shop prices for items are now allowed to go beyond 999 when shuffled</li>
+                <li>Fixed issue where levels could progress beyond 30 leading to bad things happening</li>
+                <li>Fixed bad enemy battle screen coordinates that could cause softlocks in certain cases</li>
+                <li>Dodo solo fight now ends when Dodo is at 60% of his shuffled HP, not always 600 HP</li>
+            </ul>
+        </div>
     </div>
-    <h2>V6 Updates</h2>
-    <div class="well">
-        <ul>
-            <li>Channel Title and Title ID are now changed for Wii Virtual Console WAD files when packing so the title
-                includes the seed number to tell them apart, and the channel and save data will not conflict with other
-                seeds or commercial VC games
-            </li>
-            <li>Added new option to randomize the order characters join the party (points at which they join are still
-                the same)
-            </li>
-            <li>Cutscene skip patch is now mandatory due to party join shuffle (and other future features)</li>
-            <li>Dropped support for JP version due to cutscene skip patch modifications being mandatory</li>
-            <li>Starting FP is now shuffled as well when randomizing spell stats</li>
-            <li>Fixed issue with Bowyer's button lock attack doing damage or applying status effects</li>
-            <li>Removed damage numbers from attacks which have the instant death flag</li>
-            <li>Group Hug now guaranteed not to be the final spell learned by Peach</li>
-            <li>New algorithm for exp required to level up to smooth out progression curve</li>
-        </ul>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h2 class="card-title">V6 Updates</h2>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Channel Title and Title ID are now changed for Wii Virtual Console WAD files when packing so the title
+                    includes the seed number to tell them apart, and the channel and save data will not conflict with other
+                    seeds or commercial VC games
+                </li>
+                <li>Added new option to randomize the order characters join the party (points at which they join are still
+                    the same)
+                </li>
+                <li>Cutscene skip patch is now mandatory due to party join shuffle (and other future features)</li>
+                <li>Dropped support for JP version due to cutscene skip patch modifications being mandatory</li>
+                <li>Starting FP is now shuffled as well when randomizing spell stats</li>
+                <li>Fixed issue with Bowyer's button lock attack doing damage or applying status effects</li>
+                <li>Removed damage numbers from attacks which have the instant death flag</li>
+                <li>Group Hug now guaranteed not to be the final spell learned by Peach</li>
+                <li>New algorithm for exp required to level up to smooth out progression curve</li>
+            </ul>
+        </div>
     </div>
-    <h2>V5 Updates</h2>
-    <div class="well">
-        <ul>
-            <li>Move to new web-based front end</li>
-            <li>Added cutscene skip patch for US/EU ROM (thanks Alanim!)</li>
-            <li>Added ability to pack randomized ROM in corresponding Virtual Console WAD file to play on Wii VC</li>
-            <li>Seed number now appears on name entry screen in JP version as well</li>
-            <li>Debug Bomb no longer appears in shops</li>
-            <li>Excluded Apprentice enemy from formation shuffle to avoid battle event script problems</li>
-            <li>Fixed issue with some boss enemies mistakenly being shuffled with normal enemy groups</li>
-            <li>Exclude certain characters from equipping certain weapons that cause softlocks when used by them</li>
-            <li>Cap exp required for level up at 9999 for max level</li>
-            <li>Other debug status bombs no longer appear in shops</li>
-            <li>Fixed randomization of Geno Boost stats so it doesn't break the spell</li>
-        </ul>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h2 class="card-title">V5 Updates</h2>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Move to new web-based front end</li>
+                <li>Added cutscene skip patch for US/EU ROM (thanks Alanim!)</li>
+                <li>Added ability to pack randomized ROM in corresponding Virtual Console WAD file to play on Wii VC</li>
+                <li>Seed number now appears on name entry screen in JP version as well</li>
+                <li>Debug Bomb no longer appears in shops</li>
+                <li>Excluded Apprentice enemy from formation shuffle to avoid battle event script problems</li>
+                <li>Fixed issue with some boss enemies mistakenly being shuffled with normal enemy groups</li>
+                <li>Exclude certain characters from equipping certain weapons that cause softlocks when used by them</li>
+                <li>Cap exp required for level up at 9999 for max level</li>
+                <li>Other debug status bombs no longer appear in shops</li>
+                <li>Fixed randomization of Geno Boost stats so it doesn't break the spell</li>
+            </ul>
+        </div>
     </div>
-    <h2>V4 Updates</h2>
-    <div class="well">
-        <ul>
-            <li>Lower rate of high multiplier physical attacks</li>
-            <li>Disciple's shop only has 10 items</li>
-            <li>Change file select on Japanese version</li>
-            <li>Peach always gets Group Hug</li>
-        </ul>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h2 class="card-title">V4 Updates</h2>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Lower rate of high multiplier physical attacks</li>
+                <li>Disciple's shop only has 10 items</li>
+                <li>Change file select on Japanese version</li>
+                <li>Peach always gets Group Hug</li>
+            </ul>
+        </div>
     </div>
-    <h2>V3 Updates</h2>
-    <div class="well">
-        <ul>
-            <li>Limit number of enemies to 6 (issues with spell animation/targeting)</li>
-            <li>Add Snifit to the list of boss enemies</li>
-            <li>Add Hangin' Shy to boss enemies</li>
-            <li>Yoshi's Cookie items can only be consumables</li>
-            <li>Don't randomize equippability of Geno's weapons (game freezes)</li>
-            <li>Don't randomize enemy attacks for early game mandatory battles</li>
-            <li>Misc tweaks to enemy attack randomization</li>
-        </ul>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h2 class="card-title">V3 Updates</h2>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Limit number of enemies to 6 (issues with spell animation/targeting)</li>
+                <li>Add Snifit to the list of boss enemies</li>
+                <li>Add Hangin' Shy to boss enemies</li>
+                <li>Yoshi's Cookie items can only be consumables</li>
+                <li>Don't randomize equippability of Geno's weapons (game freezes)</li>
+                <li>Don't randomize enemy attacks for early game mandatory battles</li>
+                <li>Misc tweaks to enemy attack randomization</li>
+            </ul>
+        </div>
     </div>
-    <h2>V2 Updates</h2>
-    <div class="well">
-        <ul>
-            <li>Remove glitchy enemies from the intro</li>
-            <li>Limit randomization of monster exp</li>
-            <li>Ban a few more enemies from being shuffled</li>
-            <li>Make the experience curve a little more friendly early on</li>
-            <li>Don't randomize equippability of certain buggy weapons</li>
-            <li>Sanity checks for selecting frog coin items</li>
-            <li>More conservative buff randomization</li>
-            <li>Don't intershuffle attack and magic attack</li>
-        </ul>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h2 class="card-title">V2 Updates</h2>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Remove glitchy enemies from the intro</li>
+                <li>Limit randomization of monster exp</li>
+                <li>Ban a few more enemies from being shuffled</li>
+                <li>Make the experience curve a little more friendly early on</li>
+                <li>Don't randomize equippability of certain buggy weapons</li>
+                <li>Sanity checks for selecting frog coin items</li>
+                <li>More conservative buff randomization</li>
+                <li>Don't intershuffle attack and magic attack</li>
+            </ul>
+        </div>
     </div>
-    <h2>V1 Updates</h2>
-    <div class="well">
-        <ul>
-            <li>Initial version</li>
-        </ul>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h2 class="card-title">V1 Updates</h2>
+        </div>
+        <div class="card-body">
+            <ul>
+                <li>Initial version</li>
+            </ul>
+        </div>
     </div>
 {% endblock %}

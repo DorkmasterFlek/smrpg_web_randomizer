@@ -35,6 +35,7 @@ class RandomizerView(TemplateView):
         context = super().get_context_data(**kwargs)
         context['version'] = VERSION
         context['debug_enabled'] = settings.DEBUG
+        context['beta_site'] = settings.BETA
         context['flags'] = FLAGS
         return context
 

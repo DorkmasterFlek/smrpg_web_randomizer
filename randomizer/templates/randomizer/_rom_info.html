@@ -1,5 +1,5 @@
 <div class="col-md-6">
-    <div>Randomization Mode: <span class="mode"></span></div>
+    <div>Randomization Mode: <span id="info-mode"></span></div>
     <div id="info-debug-mode" class="bg-info">Debug Test Mode: <span>Yes</span></div>
     <div id="info-custom">Custom Mode Settings:
         <ul>
@@ -8,21 +8,26 @@
             {% endfor %}
         </ul>
     </div>
-    <div>Seed: <span class="seed"></span></div>
+    <div>Seed: <span id="info-seed"></span></div>
+    {% if show_permalink %}
+        <div>Permalink: <a id="info-permalink" href="" target="_blank">Link</a></div>
+    {% endif %}
 </div>
 
 <script>
     function parseInfoFromPatch(patch) {
-        var seed = $('.info .seed');
-        seed.html(patch.seed + " [<a href='/h/" + patch.hash + "' target='_blank'>permalink</a>]");
+        let seed = $('#info-seed');
+        seed.text(patch.seed);
+
+        let permalink_url = "/h/" + patch.hash;
+        $("#info-permalink").attr("href", permalink_url);
 
         // If seed is not provided in the response, just show the hash instead (i.e. on the patch-from-hash screen).
         if (!patch.seed && patch.hash) {
             seed.html(patch.hash);
         }
 
-        $(".hash").html(patch.hash);
-        $(".info .mode").html(patch.mode);
+        $("#info-mode").html(patch.mode);
 
         // Debug mode seed?
         if (patch.debug_mode) {
@@ -41,6 +46,7 @@
             $("#info-custom").hide();
         }
 
-        $(".info").show();
+        $("#generate-container").hide();
+        $("#seed-details").show();
     }
 </script>

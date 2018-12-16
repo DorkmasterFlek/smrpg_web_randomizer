@@ -2,35 +2,33 @@
 
 {% block content %}
     <h1>Game Options</h1>
-    <div class="well">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">Randomization Modes</h3>
-            </div>
-            <div class="panel-body">
-                <h4>Full</h4>
-                <p>This is the default full shuffle mode. This is the most common mode when we race, and it's the same
-                    as doing a custom mode with all the flags enabled. See the next section for a description of
-                    flags.</p>
-                <h4>Custom</h4>
-                <p>This mode lets you pick and choose exactly what flags you want to use. The available flags are as
-                    follows:</p>
-                <ul>
-                    {% for flag in flags %}
-                        <li>{{ flag.1 }} - {{ flag.2 }}</li>
-                    {% endfor %}
-                </ul>
-            </div>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h3 class="card-title">Randomization Modes</h3>
         </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">Seed</h3>
-            </div>
-            <div class="panel-body">
-                <p>Seed is a number used to randomize the game. If you want to generate the same game as somebody else
-                    for racing, you can enter an exact seed here. If you just want a fresh experience, leave this blank
-                    and the site will generate it automatically.</p>
-            </div>
+        <div class="card-body">
+            <h4>Full</h4>
+            <p>This is the default full shuffle mode. This is the most common mode when we race, and it's the same
+                as doing a custom mode with all the flags enabled. See the next section for a description of
+                flags.</p>
+            <h4>Custom</h4>
+            <p>This mode lets you pick and choose exactly what flags you want to use. The available flags are as
+                follows:</p>
+            <ul>
+                {% for flag in flags %}
+                    <li>{{ flag.1 }} - {{ flag.2 }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h3 class="card-title">Seed</h3>
+        </div>
+        <div class="card-body">
+            <p>Seed is a number used to randomize the game. If you want to generate the same game as somebody else
+                for racing, you can enter an exact seed here. If you just want a fresh experience, leave this blank
+                and the site will generate it automatically.</p>
         </div>
     </div>
 {% endblock %}

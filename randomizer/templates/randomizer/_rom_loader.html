@@ -1,28 +1,27 @@
 {% load static %}
 
-<div class="alert alert-danger alert-dismissible" role="alert" style="display:none">
+<div class="alert alert-danger alert-dismissible my-3" id="error-box" role="alert" style="display:none">
     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
         <span aria-hidden="true">&times;</span>
     </button>
-    <span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span>
     <span class="sr-only">Error:</span>
-    <span class="message">Cannot Read ROM file.</span>
+    <span class="message" id="error-message">Cannot Read ROM file.</span>
 </div>
 
-<div id="rom-select" class="panel panel-info" style="display:none">
-    <div class="panel-heading">
-        <h4 class="panel-title">Getting Started</h4>
+<div id="rom-select" class="card border-success my-3" style="display:none">
+    <div class="card-header bg-success text-white">
+        <h4 class="card-title">Getting Started</h4>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
         <p>
-            <label class="btn btn-default btn-file">
+            <label class="btn btn-outline-success">
                 Select ROM File <input type="file" accept=".sfc,.smc" name="rom-file" id="rom-file"
                                        style="display: none;">
             </label>
         </p>
         <p>Getting started is simple!</p>
         <ol>
-            <li>Select your ROM file and load it into the browser. Only US/EU regions are supported to do game
+            <li>Select your ROM file and load it into the browser. Only US/EU regions are supported due to game
                 modifications.
             </li>
             <li>OPTIONAL: Provide the WAD file for the same region as the ROM. This is only needed if you're playing on
@@ -41,20 +40,20 @@
     </div>
 </div>
 
-<div id="currently-loaded" class="panel panel-info" style="display:none">
-    <div class="panel-heading">
-        <h4 class="panel-title">Currently Loaded ROM</h4>
+<div id="currently-loaded" class="card border-info my-3" style="display:none">
+    <div class="card-header bg-info text-white">
+        <h4 class="card-title">Currently Loaded ROM</h4>
     </div>
-    <div class="panel-body">
+    <div class="card-body">
         <p>Region: <span class="region"></span></p>
         <p>
-            <label class="btn btn-default">
+            <label class="btn btn-outline-info">
                 Change Region <input type="button" name="clear-rom" id="clear-rom" style="display: none;">
             </label>
         </p>
         <div id="wad-select" style="display: none;">
             <p>
-                <label class="btn btn-default btn-file">
+                <label class="btn btn-outline-success">
                     Select WAD File (optional) <input type="file" accept=".wad" name="wad-file" id="wad-file"
                                                       style="display: none;">
                 </label>
@@ -68,7 +67,7 @@
         <div id="wad-loaded" style="display: none;">
             <p class="text-success">WAD file loaded successfully.</p>
             <p>
-                <label class="btn btn-default">
+                <label class="btn btn-outline-info">
                     Change WAD <input type="button" name="clear-wad" id="clear-wad" style="display: none;">
                 </label>
             </p>
@@ -77,19 +76,19 @@
 </div>
 
 <script>
-    var rom;
-    var wad;
+    let rom;
+    let wad;
 
     function resetRom() {
-        return new Promise(function (resolve) {
-            localforage.getItem("rom").then(function (blob) {
+        return new Promise((resolve) => {
+            localforage.getItem("rom").then((blob) => {
                 rom = new ROM(new Blob([blob]), resolve);
             });
         });
     }
 
     function romOk(rom) {
-        $(".generate-btn").html("Generate ROM").prop("disabled", false);
+        $("#generate-btn").html("Generate ROM").prop("disabled", false);
         checkWad();
         $("#currently-loaded").show().find(".region").text(rom.region);
         $("#seed-generate").show();
@@ -100,16 +99,15 @@
         localforage.removeItem("wad");
         rom = new ROM(new Blob([]));
         wad = new WAD(new Blob([]));
-        $(".alert, .info").hide();
-        $(".generate-btn").prop("disabled", true);
-        $(".generate-wad-btn").prop("disabled", true);
+        $("#error-box, #seed-details").hide();
+        $("#generate-btn").prop("disabled", true);
         $("#currently-loaded").hide();
         $("#seed-generate").hide();
         $("#rom-select").show();
     }
 
     function loadRom(blob, show_error) {
-        rom = new ROM(blob, function (rom) {
+        rom = new ROM(blob, (rom) => {
             if (show_error) {
                 localforage.setItem("rom", rom.getArrayBuffer());
             }
@@ -119,11 +117,11 @@
                 localforage.removeItem("rom");
                 if (show_error) {
                     if (rom.region === 'JP') {
-                        $(".alert .message").html("Only US/EU version is supported.");
+                        $("#error-message").html("Only US/EU version is supported.");
                     } else {
-                        $(".alert .message").html("ROM not recognized. Please try another.");
+                        $("#error-message").html("ROM not recognized. Please try another.");
                     }
-                    $(".alert").show();
+                    $("#error-box").show().delay(2000).fadeOut("slow");
                 }
                 $("#rom-select").show();
             }
@@ -132,19 +130,19 @@
 
     function checkWad() {
         // Load WAD from local storage if it"s there
-        localforage.getItem("wad").then(function (blob) {
+        localforage.getItem("wad").then((blob) => {
             loadWad(new Blob([blob]));
         });
     }
 
     function wadOk() {
-        $(".btn-save-wad").prop("disabled", false);
+        $("#btn-save-wad").prop("disabled", false);
         $("#wad-select").hide();
         $("#wad-loaded").show();
     }
 
     function loadWad(blob, show_error) {
-        wad = new WAD(blob, function (wad) {
+        wad = new WAD(blob, (wad) => {
             if (show_error) {
                 localforage.setItem("wad", wad.getArrayBuffer());
             }
@@ -155,11 +153,11 @@
                 localforage.removeItem("wad");
                 if (show_error) {
                     if (wad.region) {
-                        $(".alert .message").html("WAD region does not match ROM.");
+                        $("#error-message").html("WAD region does not match ROM.");
                     } else {
-                        $(".alert .message").html("WAD not recognized. Please try another.");
+                        $("#error-message").html("WAD not recognized. Please try another.");
                     }
-                    $(".alert").show();
+                    $("#error-box").show().delay(2000).fadeOut("slow");
                 }
                 $("#wad-select").show();
                 $("#wad-loaded").hide();
@@ -170,33 +168,33 @@
     function clearWad() {
         localforage.removeItem("wad");
         wad = new WAD(new Blob([]));
-        $(".alert").hide();
-        $(".btn-save-wad").prop("disabled", true);
+        $("#error-box").hide();
+        $("#btn-save-wad").prop("disabled", true);
         $("#wad-select").show();
         $("#wad-loaded").hide();
     }
 
     // Page load
     $(function () {
-        $(".alert, .info").hide();
+        $("#error-box, .info").hide();
 
         // Load ROM file when changed.
-        $("#rom-file").on("change", function () {
+        $("#rom-file").on("change", (event) => {
             $("#rom-select").hide();
-            $(".alert").hide();
-            loadRom(this.files[0], true);
+            $("#error-box").hide();
+            loadRom(event.target.files[0], true);
         });
 
         // Load ROM from local storage if it"s there
-        localforage.getItem("rom").then(function (blob) {
+        localforage.getItem("rom").then((blob) => {
             loadRom(new Blob([blob]));
         });
 
         // Load WAD file when changed.
-        $("#wad-file").on("change", function () {
+        $("#wad-file").on("change", (event) => {
             $("#wad-select").hide();
-            $(".alert").hide();
-            loadWad(this.files[0], true);
+            $("#error-box").hide();
+            loadWad(event.target.files[0], true);
         });
 
         // Clear rom when clicked.

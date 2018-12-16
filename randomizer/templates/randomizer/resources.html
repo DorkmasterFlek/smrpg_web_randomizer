@@ -3,24 +3,23 @@
 
 {% block content %}
     <h1>Resources</h1>
-    <div class="well">
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">Discord</h3>
+        <div class="card border-info my-3">
+            <div class="card-header bg-info text-white">
+                <h3 class="card-title">Discord</h3>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
                 <div style="text-align:center;">
-                    <a class="btn btn-primary btn-lg btn-xl" href="http://discord.smrpgspeedruns.com" rel="noopener noreferrer" role="button" target="_blank">Join our Discord</a>
+                    <a class="btn btn-info btn-lg btn-xl" href="http://discord.smrpgspeedruns.com" rel="noopener noreferrer" role="button" target="_blank">Join our Discord</a>
                 </div>
                 <p>Join our Discord community to race with other people, and see news and discussion about upcoming
                     features for the randomizer!</p>
             </div>
         </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">Mechanical Changes</h3>
+        <div class="card border-info my-3">
+            <div class="card-header bg-info text-white">
+                <h3 class="card-title">Mechanical Changes</h3>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
                 <h4>General Gameplay Changes</h4>
                 <ul>
                     <li>Mario is now swappable with other characters in the party.</li>
@@ -33,11 +32,11 @@
                 {% include 'randomizer/_cutscene_skip_notes.html' %}
             </div>
         </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">Equipment</h3>
+        <div class="card border-info my-3">
+            <div class="card-header bg-info text-white">
+                <h3 class="card-title">Equipment</h3>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
                 <p>All menu descriptions for weapons, armor, and accessories will look like something like this:</p>
                 <p>
                     <img alt="menu1" src="{% static 'randomizer/img/menu1.png' %}"/>
@@ -97,11 +96,11 @@
                 </p>
             </div>
         </div>
-        <div class="panel panel-info">
-            <div class="panel-heading">
-                <h3 class="panel-title">Psychopath</h3>
+        <div class="card border-info my-3">
+            <div class="card-header bg-info text-white">
+                <h3 class="card-title">Psychopath</h3>
             </div>
-            <div class="panel-body">
+            <div class="card-body">
                 <p>You can use the Psychopath spell to learn about enemy weaknesses and immunities. Psychopath messages
                     will look like something like this:</p>
                 <p>
@@ -139,5 +138,4 @@
                 </p>
             </div>
         </div>
-    </div>
 {% endblock %}

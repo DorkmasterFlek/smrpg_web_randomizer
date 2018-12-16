@@ -129,3 +129,6 @@ FORCE_CDN = True
 
 # Allow larger max upload size for packing WAD file.
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 25  # 25 MB
+
+# Beta site flag.
+BETA = local.BETA
