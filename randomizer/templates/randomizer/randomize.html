@@ -212,7 +212,7 @@
                     $("#btn-save-wad").html("Generating...").prop("disabled", true);
                     $("#btn-save-rom").prop("disabled", true);
 
-                    var fd = new FormData();
+                    let fd = new FormData();
                     fd.append("region", rom.region);
                     fd.append("rom", rom.toBlob());
                     fd.append("wad", wad.toBlob());
@@ -227,7 +227,7 @@
                             responseType: 'blob',
                         },
                         success: (result) => {
-                            var filename = rom.makeFilename("wad");
+                            let filename = rom.makeFilename("wad");
                             saveAs(result, filename);
                         },
                         error: () => {
