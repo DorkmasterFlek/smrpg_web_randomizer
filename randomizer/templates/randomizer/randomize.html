@@ -380,7 +380,7 @@
                 let mode = $(event.target).val();
                 localforage.setItem("rom.mode", mode);
 
-                // TODO: Show description for the selected mode.
+                // Show description for the selected mode.
                 $('.mode-description').hide();
                 $(`#mode-description-${mode}`).show();
 
@@ -395,8 +395,8 @@
 
             localforage.getItem("rom.mode").then((value) => {
                 let elem = $("#mode");
-                if (value !== null) {
-                    elem.val(value);
+                if (value === null) {
+                    elem.val('standard');
                 }
                 elem.change();
             });
