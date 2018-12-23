@@ -1,8 +1,9 @@
 from django.db import models
+from jsonfield import JSONField
 
 MODES = (
-    ('full', 'Full'),
-    ('custom', 'Custom'),
+    ('standard', 'Standard'),
+    ('open', 'Open'),
 )
 
 REGIONS = (
@@ -19,7 +20,9 @@ class Seed(models.Model):
     generated = models.DateTimeField(auto_now_add=True)
     mode = models.CharField(max_length=16, choices=MODES)
     debug_mode = models.BooleanField(default=False)
-    flags = models.TextField()
+    flags = JSONField()
+    file_select_char = models.CharField(max_length=100, default='')
+    file_select_hash = models.CharField(max_length=100, default='')
 
 
 class Patch(models.Model):

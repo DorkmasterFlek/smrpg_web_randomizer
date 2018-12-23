@@ -21,7 +21,7 @@ from django.views.generic import TemplateView, FormView
 
 from .models import Seed, Patch
 from .forms import GenerateForm
-from .logic.main import GameWorld, Settings, VERSION, FLAGS
+from .logic.main import GameWorld, Settings, VERSION, FLAGS, PRESETS
 from .logic.patch import PatchJSONEncoder
 
 
@@ -37,6 +37,7 @@ class RandomizerView(TemplateView):
         context['debug_enabled'] = settings.DEBUG
         context['beta_site'] = settings.BETA
         context['flags'] = FLAGS
+        context['presets'] = PRESETS
         return context
 
 
@@ -96,24 +97,25 @@ class GenerateView(FormView):
             del r
 
         mode = data['mode']
-        debug_mode = data['debug_mode']
+        debug_mode = bool(data['debug_mode'])
 
         # Compute hash based on seed and selected options.  Use first 10 characters for convenience.
         h = hashlib.md5()
         h.update(VERSION.encode('utf-8'))
         h.update(seed.to_bytes(4, 'big'))
         h.update(mode.encode('utf-8'))
-        h.update(str(debug_mode).encode('utf-8'))
-        if mode == 'custom':
-            for flag in FLAGS:
-                h.update(str(data[flag[0]]).encode('utf-8'))
+        h.update(str(data['debug_mode']).encode('utf-8'))
+        for flag in FLAGS:
+            if flag.available_in_mode(mode):
+                h.update(str(data[flag.field]).encode('utf-8'))
 
         hash = base64.b64encode(h.digest()).decode().replace('+', '').replace('/', '')[:10]
 
         # Get custom flags.
         custom_flags = {}
         for flag in FLAGS:
-            custom_flags[flag[0]] = data[flag[0]]
+            if flag.available_in_mode(mode):
+                custom_flags[flag.field] = data[flag.field]
 
         # Build game world, randomize it, and generate the patch.
         world = GameWorld(seed, Settings(mode, debug_mode, custom_flags))
@@ -128,6 +130,8 @@ class GenerateView(FormView):
             'mode': mode,
             'debug_mode': debug_mode,
             'custom_flags': custom_flags,
+            'file_select_character': world.file_select_character,
+            'file_select_hash': world.file_select_hash,
         }
 
         # Save patch to the database (don't need to save EU since it's the same as US).
@@ -141,7 +145,8 @@ class GenerateView(FormView):
                 s.delete()
 
             s = Seed(hash=hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
-                     flags=json.dumps(custom_flags))
+                     flags=json.dumps(custom_flags), file_select_char=world.file_select_character,
+                     file_select_hash=world.file_select_hash)
             s.save()
 
             for region, patch in patches.items():
@@ -186,6 +191,8 @@ class GenerateFromHashView(View):
             'mode': s.mode,
             'debug_mode': s.debug_mode,
             'custom_flags': json.loads(s.flags),
+            'file_select_character': s.file_select_char,
+            'file_select_hash': s.file_select_hash,
             'patch': json.loads(p.patch),
         }
         return JsonResponse(result)

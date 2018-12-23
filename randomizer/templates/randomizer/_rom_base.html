@@ -17,6 +17,13 @@
         "EU": "6f6862bbc5c5cad8bd44d34ae38b0612"
     };
 
+    // Mapping of flags to their single letter codes.
+    const FLAG_LETTERS = {
+    {% for flag in flags %}
+        "{{ flag.field }}": "{{ flag.letter }}",
+    {% endfor %}
+    };
+
     class ROM {
         constructor (blob, loaded_callback) {
             this.u_array = null;
@@ -30,6 +37,8 @@
             this.logic = null;
             this.mode = null;
             this.seed = null;
+            this.hash = null;
+            this.flags = {};
 
             this.fileReader.onload = (event) => {
                 this.arrayBuffer = event.target.result;
@@ -130,11 +139,35 @@
             return new Blob([this.u_array], {type: "application/octet-stream"});
         }
 
+        // Parse extra info from patch for modes, seed, flags, etc.
+        parseInfoFromPatch(patch) {
+            this.logic = patch.logic;
+            this.mode = patch.mode;
+            this.debug_mode = patch.debug_mode;
+            this.seed = patch.seed;
+            this.hash = patch.hash;
+            this.flags = patch.custom_flags;
+        }
+
         // Get generated filename based on current settings and provided extension.
         makeFilename(ext) {
+            // Build flag characters based on settings.
+            let flag_chars = '';
+            for (let [field, value] of Object.entries(this.flags)) {
+                value = parseInt(value);
+                if (value > 0) {
+                    flag_chars += FLAG_LETTERS[field];
+                    // For values greater than 1, show the number after the letter like FF4FE.
+                    if (value > 1) {
+                        flag_chars += value.toString();
+                    }
+                }
+            }
+
             let name = "SMRPG_GBARP_" + this.region
                 + "_" + this.logic
                 + "_" + this.mode
+                + "_" + flag_chars
                 + "_" + this.seed;
             if (this.debug_mode) {
                 name = name + "_DEBUG";

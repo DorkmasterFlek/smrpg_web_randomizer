@@ -739,7 +739,7 @@ def randomize_enemies(world):
 
     :type world: randomizer.logic.main.GameWorld
     """
-    if world.settings.randomize_monsters:
+    if world.settings.randomize_enemies:
         # *** Shuffle enemy attacks ***
         # Intershuffle attacks with status effects.
         with_status_effects = [a for a in world.enemy_attacks if a.status_effects]

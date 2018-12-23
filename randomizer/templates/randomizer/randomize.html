@@ -1,5 +1,6 @@
 {% extends 'randomizer/layouts/default.html' %}
 {% load static %}
+{% load levels_range %}
 
 {% block content %}
     {% include 'randomizer/_rom_base.html' %}
@@ -8,69 +9,253 @@
         {% include 'randomizer/_rom_loader.html' %}
 
         <div id="seed-generate" class="card border-success my-3" style="display:none">
-            <div class="card-header bg-success text-white">
-                <h3 class="card-title">Generate Randomized Game (v{{ version|default:'UNKNOWN' }})</h3>
-            </div>
-            <div class="card-body">
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <label for="mode" class="input-group-text">Randomization Mode</label>
+            <form id="config">
+                {% csrf_token %}
+                <input type="hidden" name="region" id="region" value=""/>
+
+                <div class="card-header bg-success text-white">
+                    <h3 class="card-title">Generate Randomized Game (v{{ version|default:'UNKNOWN' }})</h3>
+                </div>
+                <div class="card-header bg-info text-white">
+                    <h4 class="card-title">1. Select Mode</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label for="mode" class="input-group-text">Mode</label>
+                                </div>
+                                <select id="mode" name="mode" class="form-control">
+                                    <option value="standard">Standard</option>
+                                    {#<option value="open">Open</option>#}
+                                </select>
                             </div>
-                            <select id="mode" class="form-control multiselect">
-                                <option value="full">Full</option>
-                                <option value="custom">Custom</option>
-                            </select>
                         </div>
                     </div>
-                    <div class="card border-primary collapse m-3" id="custom-mode-settings">
-                        <div class="card-header bg-primary text-white">
-                            <h4 class="card-title">Custom Mode Settings</h4>
-                        </div>
-                        <div class="card-body">
-                            {% for flag in flags %}
-                                <div class="card border-primary my-2">
-                                    <div class="card-header">
-                                        <input id="{{ flag.0 }}" type="checkbox" value="true" checked
-                                               data-toggle="toggle"
-                                               data-on="Yes" data-off="No" data-size="small" class="custom-mode-checkbox">
-                                        <label for="{{ flag.0 }}">{{ flag.1 }}</label>
-                                    </div>
-                                    <div class="card-body">
-                                        <p>{{ flag.2 }}</p>
-                                    </div>
+                    <div class="mode-description" id="mode-description-standard">
+                        <ul>
+                            <li>Plot progression is the same as the vanilla game.</li>
+                            <li>Characters join at vanilla spots.</li>
+                            <li>Stars are awarded at their vanilla spots.</li>
+                        </ul>
+                    </div>
+                    <div class="mode-description" id="mode-description-open">
+                        <ul>
+                            <li>Non-linear progression, most of the map is open to you from the beginning.</li>
+                            <li>The first six 6 star pieces must be collected in order to open the path to
+                                Bowser's Keep.
+                            </li>
+                            <li>Those star pieces may not be on their vanilla bosses, depending on the flags used.</li>
+                            <li>The final star piece is always on Smithy at the end of the Factory area.</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="card-header bg-info text-white">
+                    <h4 class="card-title">2. Select Preset (optional)</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label for="preset" class="input-group-text">Select Preset</label>
                                 </div>
-                            {% endfor %}
+                                <select id="preset" name="preset" class="form-control">
+                                    {% for preset in presets %}
+                                        <option value="{{ preset.flags }}">{{ preset.name }}</option>
+                                    {% endfor %}
+                                    <option value="custom">Quick Custom</option>
+                                </select>
+                                <div class="input-group-append">
+                                    <button type="button" class="btn btn-info"
+                                            onclick="applyFlags();">Apply
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% for preset in presets %}
+                        <p class="preset-description" data-preset-flags="{{ preset.flags }}">{{ preset.description }}</p>
+                    {% endfor %}
+                    <div class="row" id="custom-flag-entry">
+                        <div class="col-md-6">
+                            <p>You can enter a custom flag string below:</p>
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label for="quick-custom" class="input-group-text">Custom Flag String</label>
+                                </div>
+                                <input type="text" id="quick-custom" name="quick-custom" class="form-control">
+                            </div>
                         </div>
                     </div>
                 </div>
-                <div class="row mb-3">
-                    <div class="col-md-6">
-                        <div class="input-group">
-                            <div class="input-group-prepend">
-                                <label for="seed" class="input-group-text">Seed</label>
+                <div class="card-header bg-info text-white" id="review-flags">
+                    <h4 class="card-title">3. Review Flags</h4>
+                    <h6 class="card-title">NOTE: The site will remember the last flags you used!</h6>
+                </div>
+                <div class="card-body">
+                    <div class="card">
+                        {% for flag in flags %}
+                            <div class="card-header flag-card {% for mode in flag.modes %} flag-{{ mode }}{% endfor %}">
+                                <div class="badge badge-info d-inline-block align-top px-3 mr-2">
+                                    <h3>{{ flag.letter }}</h3>
+                                </div>
+                                <div class="d-inline-block">
+                                    <div>{{ flag.name }}</div>
+                                    <div>
+                                        {% for i in flag.levels|levels_range %}
+                                            <div class="form-check form-check-inline rounded">
+                                                <input class="form-check-input flag-input flag-{{ flag.letter }} {{ flag.field }}"
+                                                       type="radio" name="{{ flag.field }}"
+                                                       data-flag-letter="{{ flag.letter }}"
+                                                       data-flag-modes="{{ flag.modes|join:',' }}"
+                                                       id="{{ flag.field }}-{{ i }}" value="{{ i }}">
+                                                <label class="form-check-label" for="{{ flag.field }}-{{ i }}">
+                                                    {# Use on/off for single level options. #}
+                                                    {% if flag.levels == 1 %}
+                                                        {% if i == 0 %}
+                                                            Off
+                                                        {% else %}
+                                                            On
+                                                        {% endif %}
+                                                    {% else %}
+                                                        {{ i }}
+                                                    {% endif %}
+                                                </label>
+                                            </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
                             </div>
-                            <input type="text" id="seed" class="form-control" placeholder="random">
-                            <div class="input-group-append">
-                                <button id="seed-clear" class="btn" type="button">
-                                    <span class="fas fa-trash-alt"></span>
-                                </button>
+                            <div class="card-body flag-card {% for mode in flag.modes %} flag-{{ mode }}{% endfor %}">
+                                {# Flag description bullet points. #}
+                                <ul>
+                                    {% if flag.field == 'randomize_character_stats' %}
+                                        <li class="randomize_character_stats-effect effect-1">
+                                            Shuffles the starting level and stats for each character, as well as stat
+                                            growths and level-up bonuses.
+                                        </li>
+                                        <li class="randomize_character_stats-effect effect-1">
+                                            Most of the stat growth will be up to level 20, similar to the vanilla game.
+                                            Stat growth after level 20 will be smaller.
+                                        </li>
+                                    {% elif flag.field == 'randomize_join_order' %}
+                                        <li class="randomize_join_order-effect effect-1">
+                                            Shuffles the order in which characters join the party. The spots at which a
+                                            new character joins that party are unchanged.
+                                        </li>
+                                        <li class="randomize_join_order-effect 1">
+                                            The character that joins the party will have their stats and starting level
+                                            scaled for that spot.
+                                        </li>
+                                    {% elif flag.field == 'randomize_enemies' %}
+                                        <li class="randomize_enemies-effect effect-1">
+                                            Shuffles the stats of enemies, as well as potential status effects of their
+                                            attacks.
+                                        </li>
+                                    {% elif flag.field == 'randomize_drops' %}
+                                        <li class="randomize_drops-effect effect-1">
+                                            Shuffles the EXP and item reward received from battles.
+                                        </li>
+                                    {% elif flag.field == 'randomize_enemy_formations' %}
+                                        <li class="randomize_enemy_formations-effect effect-1">
+                                            Shuffles the potential enemies that can be encountered in normal battles.
+                                            Boss battles are unchanged.
+                                        </li>
+                                    {% elif flag.field == 'randomize_shops' %}
+                                        <li class="randomize_shops-effect effect-1">
+                                            Shuffles the items available in shops and their prices (including frog coin
+                                            shops).
+                                        </li>
+                                    {% elif flag.field == 'randomize_equipment' %}
+                                        <li class="randomize_equipment-effect effect-1">
+                                            Shuffles the stats granted by equipment (could be positive or negative).
+                                        </li>
+                                    {% elif flag.field == 'randomize_buffs' %}
+                                        <li class="randomize_buffs-effect effect-1">
+                                            Shuffles special protections (elemental and status immunities) and
+                                            attack/defense buff statuses for equipment.
+                                        </li>
+                                    {% elif flag.field == 'randomize_allowed_equips' %}
+                                        <li class="randomize_allowed_equips-effect effect-1">
+                                            Shuffles which characters can equip different equipment.
+                                        </li>
+                                        <li class="randomize_allowed_equips-effect effect-1">
+                                            <span class="font-weight-bold">NOTE:</span> Geno cannot equip other
+                                            characters weapons, and they can't use his weapons. This is a technical
+                                            limitation of the game.
+                                        </li>
+                                    {% elif flag.field == 'randomize_spell_stats' %}
+                                        <li class="randomize_spell_stats-effect effect-1">
+                                            Shuffles the FP cost, attack power and hit rate of spells.
+                                        </li>
+                                        <li class="randomize_spell_stats-effect effect-1">
+                                            Shuffles starting party FP.
+                                        </li>
+                                    {% elif flag.field == 'randomize_spell_lists' %}
+                                        <li class="randomize_spell_lists-effect effect-1">
+                                            Shuffles which spells each character learns, and at what level they learn
+                                            them.
+                                        </li>
+                                        <li class="randomize_spell_lists-effect effect-1">
+                                            Peach must learn Group Hug due to a technical limitation, but it is
+                                            guaranteed not to be the final spell she learns.
+                                        </li>
+                                    {% else %}
+                                        {# Make sure we notice any new flags that we didn't add a description for. #}
+                                        <li class="text-warning">WARNING: No description for this flag.</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="card-header">
+                    <div class="form-group">
+                        <input type="text" id="flag-string" class="form-control form-control-lg text-center" readonly
+                               onclick="$(this).select(); document.execCommand('copy');">
+                        <label for="flag-string" class="d-none"></label>
+                    </div>
+                    <p class="font-italic">This is the flag string for this randomization. Copy and save this text if
+                        you wish to easily reapply this combination of flags for future randomizations.
+                    </p>
+                </div>
+                <div class="card-header bg-info text-white">
+                    <h4 class="card-title">4. Set Seed (optional)</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <div class="input-group">
+                                <div class="input-group-prepend">
+                                    <label for="seed" class="input-group-text">Seed</label>
+                                </div>
+                                <input type="text" id="seed" name="seed" class="form-control" placeholder="random">
+                                <div class="input-group-append">
+                                    <button id="seed-clear" class="btn" type="button">
+                                        <span class="fas fa-trash-alt"></span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 {% include 'randomizer/_rom_settings.html' %}
-            </div>
-            <div class="card-footer">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="btn-group btn-flex" role="group">
-                            <button name="generate" class="btn btn-success" id="generate-btn" disabled>Generate ROM</button>
-                        </div>
+                <div class="card-footer">
+                    <div class="alert alert-danger alert-dismissible" id="generate-error-box" role="alert"
+                         style="display:none">
+                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <span class="sr-only">Error:</span>
+                        <span class="message" id="generate-error-message">Cannot Read ROM file.</span>
+                    </div>
+                    <div class="btn-group btn-flex" role="group">
+                        <button type="button" name="generate" class="btn btn-success" id="generate-btn" disabled>Generate ROM</button>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
 
@@ -96,25 +281,12 @@
         </div>
     </div>
 
-    <form id="config" style="display:none">
-        {% csrf_token %}
-        <input type="hidden" name="region" id="form_region" value=""/>
-        <input type="hidden" name="seed" id="form_seed" value=""/>
-        <input type="hidden" name="mode" id="form_mode" value="full"/>
-        {% for flag in flags %}
-            <input type="hidden" name="{{ flag.0 }}" id="form_{{ flag.0 }}" value="true"/>
-        {% endfor %}
-        <input type="hidden" name="debug_mode" id="form_debug_mode" value="false"/>
-    </form>
-
     <script>
-        function applySeed(rom, seed) {
+        function applySeed(rom) {
             return new Promise((resolve, reject) => {
-                $("#form_region").val(rom.region);
-                $("#form_seed").val(seed);
+                $("#region").val(rom.region);
                 $.post("{% url 'randomizer:generate' %}", $("#config").serialize(), (patch) => {
-                    // TODO: Take mode from patch info.
-                    rom.applyModeChanges("standard").then(() => {
+                    rom.applyModeChanges(patch.mode).then(() => {
                         rom.parsePatch(patch.patch);
                         resolve(patch);
                     });
@@ -124,8 +296,8 @@
 
         function seedFailed() {
             $("#generate-btn").html("Generate ROM").prop("disabled", false);
-            $("#error-message").html("Failed Creating Seed :(");
-            $("#error-box").show().delay(2000).fadeOut("slow");
+            $("#generate-error-message").html("Failed Creating Seed :(");
+            $("#generate-error-box").show().delay(2000).fadeOut("slow");
         }
 
         function seedApplied(patch) {
@@ -137,14 +309,65 @@
                 } else {
                     $("#btn-save-wad").prop("disabled", true);
                 }
-                parseInfoFromPatch(patch);
-                rom.logic = patch.logic;
-                rom.mode = patch.mode;
-                rom.debug_mode = patch.debug_mode;
-                rom.seed = patch.seed;
-                rom.hash = patch.hash;
+                updateSeedDetailsFromPatch(patch);
+                rom.parseInfoFromPatch(patch);
                 resolve(rom);
             });
+        }
+
+        // Apply custom seed flag.
+        function applyFlags() {
+            // Parse flags string into an object mapping.
+            let flags = $('#preset').val();
+            if (flags === 'custom') {
+                flags = $('#quick-custom').val();
+            }
+
+            let flags_obj = {};
+            let current_flag = '';
+            for (let i=0; i < flags.length; i++) {
+                let char = flags.charAt(i);
+                if (char.match(/[A-Z]/i)) {
+                    // Letter means new flag.
+                    current_flag = char;
+                    flags_obj[current_flag] = '1';
+                } else {
+                    // Non-letter means value for current flag.
+                    flags_obj[current_flag] = char;
+                }
+            }
+
+            // Set each flag to the selected value.
+            let val, elems;
+            {% for flag in flags %}
+                val = flags_obj['{{ flag.letter }}'];
+                if (val === undefined) {
+                    val = '0';
+                }
+                elems = $('.flag-{{ flag.letter }}');
+                elems.not(`[value='${val}']`).prop('checked', false);
+                elems.filter(`[value='${val}']`).prop('checked', true).change();
+            {% endfor %}
+
+            // Scroll to review flags.
+            $('html').animate({scrollTop: $('#review-flags').offset().top}, 500);
+        }
+
+        // Build flag string based on selected flags visible for this mode.
+        function buildFlagString() {
+            let flagString = '';
+            let mode = $('#mode').val();
+            $('.flag-input:checked').each((index, elem) => {
+                elem = $(elem);
+                let modes = elem.attr('data-flag-modes').split(',');
+                if (modes.includes(mode) && elem.val() !== '0') {
+                    flagString += elem.attr('data-flag-letter');
+                    if (elem.val() !== '1') {
+                        flagString += elem.val();
+                    }
+                }
+            });
+            $('#flag-string').val(flagString);
         }
 
         $(() => {
@@ -154,50 +377,79 @@
 
             // Randomization mode
             $("#mode").change((event) => {
-                $("#seed-details").hide();
                 let mode = $(event.target).val();
                 localforage.setItem("rom.mode", mode);
-                $("#form_mode").val(mode);
-                if (mode === "custom") {
-                    $("#custom-mode-settings").collapse("show");
+
+                // TODO: Show description for the selected mode.
+                $('.mode-description').hide();
+                $(`#mode-description-${mode}`).show();
+
+                // Show flags that are for this mode only.
+                let flags = $('.flag-card');
+                flags.not(`.flag-${mode}`).hide();
+                flags.filter(`.flag-${mode}`).show();
+
+                // Rebuild flag string for new flags.
+                buildFlagString();
+            });
+
+            localforage.getItem("rom.mode").then((value) => {
+                let elem = $("#mode");
+                if (value !== null) {
+                    elem.val(value);
+                }
+                elem.change();
+            });
+
+            // Hide quick custom input when not selected.
+            $('#preset').change((event) => {
+                let flags = $(event.target).val();
+                let descriptions = $('.preset-description');
+                descriptions.hide();
+                if (flags === 'custom') {
+                    $('#custom-flag-entry').show();
                 } else {
-                    $("#custom-mode-settings").collapse("hide");
+                    $('#custom-flag-entry').hide();
+                    descriptions.filter(`[data-preset-flags='${flags}']`).show();
                 }
             }).change();
 
-            localforage.getItem("rom.mode").then((value) => {
-                if (value === null) {
-                    return;
-                }
-                $("#mode").val(value).change();
-            });
+            // Flag javascript event handlers.
+            {% for flag in flags %}
+                // {{ flag.name }}
+                $(".{{ flag.field }}").change(() => {
+                    let checked = $('.{{ flag.field }}:checked');
+                    localforage.setItem("rom.{{ flag.field }}", checked.val());
 
-            // Custom mode settings
-            $(".custom-mode-checkbox").each((index, elem) => {
-                let elem_id = $(elem).attr("id");
-                let form_id = "form_" + elem_id.replace(/-/g, "_");
-                let key = "rom." + elem_id.replace(/-/g, "_");
+                    // Toggle classes for background info for highlighting.
+                    checked.closest('.form-check').addClass('bg-primary text-white');
+                    $('.{{ flag.field }}').not(':checked').closest('.form-check').removeClass('bg-primary text-white');
 
-                $(elem).change((event) => {
-                    $("#seed-details").hide();
-                    let checked = $(event.target).prop("checked");
-                    localforage.setItem(key, checked);
-                    $("#" + form_id).val(checked);
+                    // Show/hide descriptions for selected option.
+                    let effects = $('.{{ flag.field }}-effect');
+                    let level_class = `.effect-${checked.val()}`;
+                    effects.not(level_class).hide();
+                    effects.filter(level_class).show();
+
+                    // Rebuild flag string for new selected flags.
+                    buildFlagString();
                 });
-                localforage.getItem(key).then((value) => {
+
+                // Load value from storage, default to 0.
+                localforage.getItem("rom.{{ flag.field }}").then((value) => {
                     if (value === null) {
-                        return;
+                        value = "0";
                     }
-                    $(elem).prop("checked", value).change();
+                    $(`.{{ flag.field }}[value='${value}']`).prop("checked", true).change();
                 });
-            });
+            {% endfor %}
 
             // Generate button
             $("#generate-btn").click((event) => {
                 $("#seed-details").hide();
                 $(event.target).html("Generating...").prop("disabled", true);
                 resetRom().then((rom) => {
-                    applySeed(rom, $("#seed").val()).then(seedApplied, seedFailed);
+                    applySeed(rom).then(seedApplied, seedFailed);
                 });
             });
 
@@ -246,7 +498,7 @@
             $("#generate-another").click(() => {
                 $("#seed-details").hide();
                 $("#generate-container").show();
-            })
+            });
         });
     </script>
 {% endblock %}

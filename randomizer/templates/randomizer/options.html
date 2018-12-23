@@ -4,21 +4,33 @@
     <h1>Game Options</h1>
     <div class="card border-info my-3">
         <div class="card-header bg-info text-white">
-            <h3 class="card-title">Randomization Modes</h3>
+            <h3 class="card-title">Modes</h3>
         </div>
         <div class="card-body">
-            <h4>Full</h4>
-            <p>This is the default full shuffle mode. This is the most common mode when we race, and it's the same
-                as doing a custom mode with all the flags enabled. See the next section for a description of
-                flags.</p>
-            <h4>Custom</h4>
-            <p>This mode lets you pick and choose exactly what flags you want to use. The available flags are as
-                follows:</p>
+            <h4>Standard</h4>
+            <p>In Standard mode, while the majority of the cutscenes and text have been removed, the actual progression
+                of the plot and collection of the star pieces remains the same as the vanilla game.  Story events will
+                occur where they are supposed to, characters will join your party at the expected points (although which
+                character it is can be randomized if desired), and stars will be awarded from the same bosses.
+            </p>
+            <h4>Open</h4>
+            <p>Open mode significantly changes the base game:</p>
             <ul>
-                {% for flag in flags %}
-                    <li>{{ flag.1 }} - {{ flag.2 }}</li>
-                {% endfor %}
+                <li>Almost the entire map is open to you from the beginning.</li>
+                <li>The first six 6 star pieces must be collected in order to open the path to Bowser's Keep.</li>
+                <li>Those star pieces may not be on their vanilla bosses, depending on the flags used.</li>
+                <li>The final star piece is always on Smithy at the end of the Factory area.</li>
             </ul>
+        </div>
+    </div>
+    <div class="card border-info my-3">
+        <div class="card-header bg-info text-white">
+            <h3 class="card-title">Flags</h3>
+        </div>
+        <div class="card-body">
+            <p>The full list of available flags can be viewed on the
+                <a href="{% url 'randomizer:randomize' %}">Generate Randomize Game</a> page.
+            </p>
         </div>
     </div>
     <div class="card border-info my-3">

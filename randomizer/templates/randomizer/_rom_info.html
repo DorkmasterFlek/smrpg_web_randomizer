@@ -1,21 +1,23 @@
 <div class="col-md-6">
-    <div>Randomization Mode: <span id="info-mode"></span></div>
-    <div id="info-debug-mode" class="bg-info">Debug Test Mode: <span>Yes</span></div>
-    <div id="info-custom">Custom Mode Settings:
+    <div>Mode: <span id="info-mode"></span></div>
+    <div id="info-debug-mode" class="bg-info text-white">Debug Test Mode: <span>Yes</span></div>
+    <div id="info-custom">Flags:
         <ul>
             {% for flag in flags %}
-                <li>{{ flag.1 }}: <span id="info-{{ flag.0 }}"></span></li>
+                <li>{{ flag.name }}: <span id="info-{{ flag.field }}"></span></li>
             {% endfor %}
         </ul>
     </div>
     <div>Seed: <span id="info-seed"></span></div>
+    <div class="text-info">File Select Character: <span id="file-select-character"></span></div>
+    <div class="text-info">File Select Hash: <span id="file-select-hash"></span></div>
     {% if show_permalink %}
-        <div>Permalink: <a id="info-permalink" href="" target="_blank">Link</a></div>
+        <div class="text-info">Permalink: <a id="info-permalink" href="" target="_blank">Link</a></div>
     {% endif %}
 </div>
 
 <script>
-    function parseInfoFromPatch(patch) {
+    function updateSeedDetailsFromPatch(patch) {
         let seed = $('#info-seed');
         seed.text(patch.seed);
 
@@ -27,7 +29,9 @@
             seed.html(patch.hash);
         }
 
-        $("#info-mode").html(patch.mode);
+        $("#info-mode").html(patch.mode.charAt(0).toUpperCase() + patch.mode.substr(1));
+        $('#file-select-character').html(patch.file_select_character);
+        $('#file-select-hash').html(patch.file_select_hash);
 
         // Debug mode seed?
         if (patch.debug_mode) {
@@ -36,15 +40,15 @@
             $("#info-debug-mode").hide();
         }
 
-        // Custom mode settings.
-        if (patch.mode === "custom") {
-            {% for flag in flags %}
-                $("#info-{{ flag.0 }}").html(patch.custom_flags.{{ flag.0 }} ? "Yes" : "No");
-            {% endfor %}
-            $("#info-custom").show();
-        } else {
-            $("#info-custom").hide();
-        }
+        // Flag settings.
+        {% for flag in flags %}
+            // Show On/Off for single level flags..
+            {% if flag.levels == 1 %}
+                $("#info-{{ flag.field }}").html(patch.custom_flags.{{ flag.field }} > 0 ? "On" : "Off");
+            {% else %}
+                $("#info-{{ flag.field }}").html(patch.custom_flags.{{ flag.field }});
+            {% endif %}
+        {% endfor %}
 
         $("#generate-container").hide();
         $("#seed-details").show();

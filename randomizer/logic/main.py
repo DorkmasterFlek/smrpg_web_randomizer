@@ -1,5 +1,6 @@
 # Main randomizer logic module that the front end calls.
 
+import collections
 import random
 
 from . import characters
@@ -26,20 +27,131 @@ FILE_ENTRY_NAMES = (
 FILE_ENTRY_NAMES += tuple(e[2].upper() for e in data.ENEMY_DATA if 1 <= len(e[2]) <= 6)
 FILE_ENTRY_NAMES = tuple(sorted(set(FILE_ENTRY_NAMES)))
 
-# List of option checkbox fields for dynamic page generation.
-FLAGS = (
-    ('randomize_character_stats', 'Character Stats', 'Shuffles the starting stats for each character, as well as how much each stat grows by when levelling up, and how much the level-up bonuses are worth.'),
-    ('randomize_drops', 'Drops', 'Shuffles the item reward received from battles.'),
-    ('randomize_enemy_formations', 'Enemy Formations', 'Shuffles the potential enemies that can be encountered in normal battles.'),
-    ('randomize_monsters', 'Monsters', 'Shuffles the stats of monsters, as well as potential status effects of their attacks.'),
-    ('randomize_shops', 'Shops', 'Shuffles the items available in shops and their prices (including frog coin shops).'),
-    ('randomize_equipment', 'Equipment Stats ', 'Shuffles the stats granted by equipment (could be positive or negative).'),
-    ('randomize_allowed_equips', 'Equipment Allowed Characters', 'Shuffles which characters can equip different equipment.'),
-    ('randomize_buffs', 'Equipment Buffs', 'Shuffles special protections (elemental and status immunities) and attack/defense buffs for equipment.'),
-    ('randomize_spell_stats', 'Character Spell Stats', 'Shuffles the FP cost, attack power and hit rate of spells, plus starting FP.'),
-    ('randomize_spell_lists', 'Character Spell Lists', 'Shuffles which spells each character learns, and at what level they learn them.'),
-    ('randomize_join_order', 'Character Join Order', 'Shuffles the order in which characters join the part. The spots at which a new character joins that party are unchanged.The character that joins the party will be the appropriate starting level for balance.'),
-)
+
+class Flag:
+    """Class representing a flag with its description, and possible values."""
+
+    def __init__(self, name, field, letter, levels=1, default=0, modes=None):
+        """
+
+        Args:
+            name (str): Name
+            field (str): Form field key
+            letter (str): Single letter used to represent this flag in the flagset when building filenames
+            levels (int): Number of levels this flag has.  Default is 1, i.e. on or off.
+            default (bool|str): Default level, should be 0 for off for all flags.
+            modes (list[str]): List of available modes for this flag.  If not set, will default to standard and open.
+        """
+        self.name = name
+        self.field = field
+        self.letter = letter
+        self.value = default
+        self.levels = levels
+        self._effects = collections.defaultdict(list)
+        self.modes = set()
+
+        if modes is None:
+            self.set_available_mode('standard')
+            self.set_available_mode('open')
+        else:
+            for mode in modes:
+                self.set_available_mode(mode)
+
+
+    def set_available_mode(self, mode, allowed=True):
+        """
+
+        Args:
+            mode (str): Which mode is available or not.
+            allowed (bool): Whether this mode is available.
+
+        """
+        if allowed:
+            self.modes.add(mode)
+        elif mode in self.modes:
+            self.modes.remove(mode)
+
+
+    def available_in_mode(self, mode):
+        """
+
+        Args:
+            mode (str): Mode to check availability.
+
+        Returns:
+            bool: True if this flag is available in the given mode, False otherwise.
+
+        """
+        return mode in self.modes
+
+
+    @classmethod
+    def get_default_flags(cls):
+        """
+
+        Returns:
+            list[Flag]: List of Flag objects with default values.
+
+        """
+        flags = []
+
+        # Format: (letter, field key, name, number of levels)
+        for letter, field, name, levels in (
+            ('C', 'randomize_character_stats', 'Character Stats', 1),
+            ('J', 'randomize_join_order', 'Character Join Order', 1),
+            ('E', 'randomize_enemies', 'Enemy Stats', 1),
+            ('D', 'randomize_drops', 'Enemy Drops', 1),
+            ('F', 'randomize_enemy_formations', 'Enemy Formations', 1),
+            ('P', 'randomize_shops', 'Shops', 1),
+            ('Q', 'randomize_equipment', 'Equipment Stats', 1),
+            ('B', 'randomize_buffs', 'Equipment Buffs', 1),
+            ('A', 'randomize_allowed_equips', 'Equipment Allowed Characters', 1),
+            ('S', 'randomize_spell_stats', 'Character Spell Stats', 1),
+            ('L', 'randomize_spell_lists', 'Character Spell Lists', 1),
+        ):
+            flags.append(Flag(name, field, letter, levels))
+
+        return flags
+
+
+class Preset:
+    def __init__(self, name, flags, description):
+        """Holder for preset info.
+
+        Args:
+            name (str): Name
+            flags (str): Flag string, ex. ABC2DEF
+            description (str): Text description to show on the UI.
+        """
+        self.name = name
+        self.flags = flags
+        self.description = description
+
+    @classmethod
+    def get_default_presets(cls):
+        """
+
+        Returns:
+            list[Preset]: List of presets for the UI.
+
+        """
+        presets = []
+
+        # Format: (name, flags, description)
+        for name, flags, description in (
+                ('Vanilla', '', 'No randomization, just a vanilla experience with the base game changes for cutscenes and non-linearity.'),
+                ('Full Shuffle', 'CJEDFPQBASL', 'High degree of randomization shuffling all available elements of the game.'),
+        ):
+            presets.append(Preset(name, flags, description))
+
+        return presets
+
+
+# Get default flags for use in forms and views.
+FLAGS = Flag.get_default_flags()
+
+# Flag presets for the website UI.
+PRESETS = Preset.get_default_presets()
 
 
 class Settings:
@@ -55,18 +167,7 @@ class Settings:
         if custom_flags is not None:
             self._custom_flags.update(custom_flags)
         for flag in FLAGS:
-            # If we're in full randomize mode, override all the flags to on.
-            if mode == 'full':
-                self._custom_flags[flag[0]] = True
-            else:
-                self._custom_flags.setdefault(flag[0], False)
-
-    def custom_flags_to_json(self):
-        """Return JSON serialization of custom flags.
-
-        :rtype: list[bool]
-        """
-        return [self._custom_flags[flag[0]] for flag in FLAGS]
+            self._custom_flags.setdefault(flag.field, 0)
 
     @property
     def mode(self):
@@ -81,10 +182,14 @@ class Settings:
     def get_flag(self, flag):
         """Get a specific custom flag.
 
-        :param flag:
-        :return:
+        Args:
+            flag (str): Flag to get
+
+        Returns:
+            int: Flag value
+
         """
-        return self._custom_flags.get(flag, False)
+        return self._custom_flags.get(flag, 0)
 
     def __getattr__(self, item):
         """Fall-back to get the custom flags as if they were class attributes.
@@ -110,6 +215,8 @@ class GameWorld:
         """
         self.seed = seed
         self.settings = settings
+        self.file_select_character = 'Mario'
+        self.file_select_hash = 'MARIO1/MARIO2/MARIO3/MARIO4'
 
         # *** Get vanilla data for randomizing.
         # Characters
@@ -313,26 +420,26 @@ class GameWorld:
         final_seed += VERSION.encode('utf-8')
         final_seed += self.seed.to_bytes(4, 'big')
         final_seed += self.settings.mode.encode('utf-8')
-        if self.settings.mode == 'custom':
-            for flag in self.settings.custom_flags_to_json():
-                final_seed += str(flag).encode('utf-8')
+        for flag in FLAGS:
+            if flag.available_in_mode(self.settings.mode):
+                final_seed += str(self.settings.get_flag(flag.field)).encode('utf-8')
         random.seed(final_seed)
 
         # Randomize character for the file select screen.
-        file_select_char = random.choice([0, 7, 13, 19, 25])
+        i = random.randint(0, 4)
+        file_select_char_bytes = [0, 7, 13, 19, 25]
+        self.file_select_character = self.characters[i].__class__.__name__
 
         # Change file select character graphic, if not Mario.
-        if file_select_char > 0:
+        if i != 0:
             addresses = [0x34757, 0x3489a, 0x34ee7, 0x340aa, 0x3501e]
 
             for addr, value in zip(addresses, [0, 1, 0, 0, 1]):
-                patch.add_data(addr, file_select_char + value)
-
-        # Add seed display on filename entry.
-        patch.add_data(0x3ef140, str(self.seed).center(10))
+                patch.add_data(addr, file_select_char_bytes[i] + value)
 
         # Replace file select names with random "hash" values for seed verification.
         file_select_names = random.choices(FILE_ENTRY_NAMES, k=4)
+        self.file_select_hash = '/'.join(file_select_names)
         for i, name in enumerate(file_select_names):
             addr = 0x3ef528 + (i * 7)
             val = name.encode().ljust(7, b'\x00')

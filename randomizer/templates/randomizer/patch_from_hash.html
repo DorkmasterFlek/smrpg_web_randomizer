@@ -26,8 +26,7 @@
         function applyHash(rom) {
             return new Promise(function (resolve, reject) {
                 $.get("/hash/{{ hash }}/" + rom.region, function (patch) {
-                    // TODO: Take mode from patch info.
-                    rom.applyModeChanges("standard").then(() => {
+                    rom.applyModeChanges(patch.mode).then(() => {
                         rom.parsePatch(patch.patch);
                         resolve(patch);
                     });
@@ -43,12 +42,8 @@
                 } else {
                     $("#btn-save-wad").prop("disabled", true);
                 }
-                parseInfoFromPatch(patch);
-                rom.logic = patch.logic;
-                rom.mode = patch.mode;
-                rom.debug_mode = patch.debug_mode;
-                rom.seed = patch.seed;
-                rom.hash = patch.hash;
+                updateSeedDetailsFromPatch(patch);
+                rom.parseInfoFromPatch(patch);
                 resolve(rom);
             });
         }
