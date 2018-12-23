@@ -99,18 +99,6 @@ class GenerateView(FormView):
         mode = data['mode']
         debug_mode = bool(data['debug_mode'])
 
-        # Compute hash based on seed and selected options.  Use first 10 characters for convenience.
-        h = hashlib.md5()
-        h.update(VERSION.encode('utf-8'))
-        h.update(seed.to_bytes(4, 'big'))
-        h.update(mode.encode('utf-8'))
-        h.update(str(data['debug_mode']).encode('utf-8'))
-        for flag in FLAGS:
-            if flag.available_in_mode(mode):
-                h.update(str(data[flag.field]).encode('utf-8'))
-
-        hash = base64.b64encode(h.digest()).decode().replace('+', '').replace('/', '')[:10]
-
         # Get custom flags.
         custom_flags = {}
         for flag in FLAGS:
@@ -121,6 +109,9 @@ class GenerateView(FormView):
         world = GameWorld(seed, Settings(mode, debug_mode, custom_flags))
         world.randomize()
         patches = {'US': world.build_patch()}
+
+        # Computed hash based on seed and selected options.  Use first 10 characters for convenience.
+        hash = base64.b64encode(world.hash.encode('utf-8')).decode().replace('+', '').replace('/', '')[:10]
 
         # Send back patch data.
         result = {

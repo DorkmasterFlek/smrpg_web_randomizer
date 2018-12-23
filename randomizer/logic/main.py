@@ -1,6 +1,7 @@
 # Main randomizer logic module that the front end calls.
 
 import collections
+import hashlib
 import random
 
 from . import characters
@@ -217,6 +218,7 @@ class GameWorld:
         self.settings = settings
         self.file_select_character = 'Mario'
         self.file_select_hash = 'MARIO1/MARIO2/MARIO3/MARIO4'
+        self.hash = ''
 
         # *** Get vanilla data for randomizing.
         # Characters
@@ -414,7 +416,7 @@ class GameWorld:
         if self.settings.debug_mode:
             patch += map.unlock_world_map()
 
-        # Build final PRNG seed value specifically for randomizing file select character and hash.
+        # Build hash value for choosing file select character and file name hash.
         # Use the same version, seed, mode, and flags used for the database hash.
         final_seed = bytearray()
         final_seed += VERSION.encode('utf-8')
@@ -423,23 +425,27 @@ class GameWorld:
         for flag in FLAGS:
             if flag.available_in_mode(self.settings.mode):
                 final_seed += str(self.settings.get_flag(flag.field)).encode('utf-8')
-        random.seed(final_seed)
+        self.hash = hashlib.md5(final_seed).hexdigest()
 
-        # Randomize character for the file select screen.
-        i = random.randint(0, 4)
+        # Choose character for the file select screen.
+        i = int(self.hash, 16) % 5
         file_select_char_bytes = [0, 7, 13, 19, 25]
         self.file_select_character = self.characters[i].__class__.__name__
 
         # Change file select character graphic, if not Mario.
         if i != 0:
             addresses = [0x34757, 0x3489a, 0x34ee7, 0x340aa, 0x3501e]
-
             for addr, value in zip(addresses, [0, 1, 0, 0, 1]):
                 patch.add_data(addr, file_select_char_bytes[i] + value)
 
-        # Replace file select names with random "hash" values for seed verification.
-        file_select_names = random.choices(FILE_ENTRY_NAMES, k=4)
-        self.file_select_hash = '/'.join(file_select_names)
+        # Replace file select names with "hash" values for seed verification.
+        file_select_names = [
+            FILE_ENTRY_NAMES[int(self.hash[0:8], 16) % len(FILE_ENTRY_NAMES)],
+            FILE_ENTRY_NAMES[int(self.hash[8:16], 16) % len(FILE_ENTRY_NAMES)],
+            FILE_ENTRY_NAMES[int(self.hash[16:24], 16) % len(FILE_ENTRY_NAMES)],
+            FILE_ENTRY_NAMES[int(self.hash[24:32], 16) % len(FILE_ENTRY_NAMES)],
+        ]
+        self.file_select_hash = ' / '.join(file_select_names)
         for i, name in enumerate(file_select_names):
             addr = 0x3ef528 + (i * 7)
             val = name.encode().ljust(7, b'\x00')
