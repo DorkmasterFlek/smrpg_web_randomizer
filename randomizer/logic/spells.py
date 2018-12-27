@@ -9,7 +9,6 @@ STARTING_FP = 10
 class Spell:
     """Class representing a magic spell to be randomized."""
     BASE_ADDRESS = 0x3a20f1
-    BASE_NAME_ADDRESS = 0x3a137f
 
     def __init__(self, index, name, fp, power, hitrate, instant_ko):
         """
@@ -61,11 +60,6 @@ class Spell:
         data += utils.ByteField(self.hitrate).as_bytes()
         patch.add_data(base_addr + 5, data)
 
-        # Add updated name.
-        base_addr = self.BASE_NAME_ADDRESS + (self.index * 15)
-        name = self.name.ljust(15)
-        patch.add_data(base_addr, name)
-
         return patch
 
 
@@ -82,7 +76,7 @@ def randomize_spells(world):
         # Randomize starting FP if we're randomizing spell stats.
         world.starting_fp = utils.mutate_normal(world.starting_fp, minimum=1, maximum=99)
 
-        # If we're generating a debug mode seed for testing, set max FP to start.
-        if world.settings.debug_mode:
-            world.starting_fp = 99
+    # If we're generating a debug mode seed for testing, set max FP to start.
+    if world.debug_mode:
+        world.starting_fp = 99
 
