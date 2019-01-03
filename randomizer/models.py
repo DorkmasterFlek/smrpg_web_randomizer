@@ -14,7 +14,7 @@ REGIONS = (
 
 
 class Seed(models.Model):
-    hash = models.CharField(max_length=10, unique=True)
+    hash = models.CharField(max_length=1000, unique=True)
     seed = models.BigIntegerField()
     version = models.CharField(max_length=16)
     generated = models.DateTimeField(auto_now_add=True)
