@@ -334,14 +334,15 @@ class GameWorld:
         if self.open_mode:
             # Key item locations.
             for location in self.key_locations:
-                print(">>>>>>>> {}".format(location))  # FIXME
+                # FIXME
+                # print(">>>>>>>> {}".format(location))
                 patch += location.get_patch()
 
             # Boss locations.
             for boss in self.boss_locations:
                 # FIXME
-                if boss.has_star:
-                    print(">>>>>>>>>>>>>>>> {}".format(boss.__class__.__name__))
+                # if boss.has_star:
+                #     print(">>>>>>>>>>>>>>>> {}".format(boss.__class__.__name__))
                 patch += boss.get_patch()
 
             # Set flags for seven star mode and Bowser's Keep.
