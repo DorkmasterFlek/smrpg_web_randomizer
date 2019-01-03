@@ -4,7 +4,9 @@
     <div id="info-custom">Flags:
         <ul>
             {% for flag in flags %}
-                <li>{{ flag.name }}: <span id="info-{{ flag.field }}"></span></li>
+                <li class="flag-li" data-flag-modes="{{ flag.modes|join:',' }}">
+                    {{ flag.name }}: <span id="info-{{ flag.field }}"></span>
+                </li>
             {% endfor %}
         </ul>
     </div>
@@ -41,14 +43,28 @@
         }
 
         // Flag settings.
+        let val;
         {% for flag in flags %}
-            // Show On/Off for single level flags..
+            // Show On/Off for single level flags.
+            val = patch.custom_flags.{{ flag.field }};
+            if (val === undefined) {
+                val = 0;
+            }
             {% if flag.levels == 1 %}
-                $("#info-{{ flag.field }}").html(patch.custom_flags.{{ flag.field }} > 0 ? "On" : "Off");
+                $("#info-{{ flag.field }}").html(val > 0 ? "On" : "Off");
             {% else %}
-                $("#info-{{ flag.field }}").html(patch.custom_flags.{{ flag.field }});
+                $("#info-{{ flag.field }}").html(val);
             {% endif %}
         {% endfor %}
+
+        // Show only flags that are in this mode.
+        $('.flag-li').hide().each((index, elem) => {
+            elem = $(elem);
+            let modes = elem.attr('data-flag-modes').split(',');
+            if (modes.includes(patch.mode)) {
+                elem.show();
+            }
+        });
 
         $("#generate-container").hide();
         $("#seed-details").show();

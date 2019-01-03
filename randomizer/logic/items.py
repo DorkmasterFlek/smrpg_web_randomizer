@@ -17,7 +17,6 @@ class Item:
     """Class representing an item."""
     BASE_ADDRESS = 0x3a014d
     BASE_PRICE_ADDRESS = 0x3a40f2
-    BASE_NAME_ADDRESS = 0x3a46ef
     BASE_DESC_POINTER_ADDRESS = 0x3a2f20
     DESC_DATA_POINTER_OFFSET = 0x3a0000
     BASE_DESC_DATA_ADDRESSES = (
@@ -76,6 +75,12 @@ class Item:
         self.frog_coin_item = frog_coin_item
         self.rare = rare
         self.basic = basic
+
+    def __str__(self):
+        return "<{}: price {}>".format(self.name, self.price)
+
+    def __repr__(self):
+        return str(self)
 
     @property
     def is_weapon(self):
@@ -474,7 +479,8 @@ class Item:
         base_addr = self.BASE_ADDRESS + (self.index * 18)
 
         # For non-shop items with no price (key items), there is no randomization.
-        if not self.price:
+        # EXCEPT for the seed + fertilizer because this turns them into key items!
+        if not self.price and self.index not in (158, 159):
             return patch
 
         # Only modify equipment properties.
@@ -517,11 +523,6 @@ class Item:
         # Price
         price_addr = self.BASE_PRICE_ADDRESS + (self.index * 2)
         patch.add_data(price_addr, utils.ByteField(self.price, num_bytes=2).as_bytes())
-
-        # Add updated name.
-        base_addr = self.BASE_NAME_ADDRESS + (self.index * 15)
-        name = self.name.ljust(15)
-        patch.add_data(base_addr, name)
 
         return patch
 
@@ -739,8 +740,9 @@ def randomize_items(world):
 
         # Partial juice bar lists for the alto/teno/soprano cards, and the first characters to join for balancing.
         juice_bar_partial = [9, 10, 11]  # full: 12
-        first_two_chars = set([0] + [c.index for c in world.character_join_order[:1]])
-        first_three_chars = set([0] + [c.index for c in world.character_join_order[:2]])
+
+        first_two_chars = set([c.index for c in world.character_join_order[:2]])
+        first_three_chars = set([c.index for c in world.character_join_order[:3]])
 
         # Define conditions for some shops to balance the item distribution.
         # ex. Make sure equipment in the first couple shops is actually equipable by the first characters to join.
@@ -825,6 +827,9 @@ def randomize_items(world):
             minimum = n
             maximum = len(previous_items) - 1
             average = (minimum + maximum) // 2
+            if not (minimum <= average <= maximum):
+                raise RuntimeError("Bad number of items for partial juice bar {}: assignments {}".format(
+                    p, assignments))
             num_items = random.randint(random.randint(minimum, average), maximum)
             chosen_items = random.sample(previous_items, num_items)
             assignments[p] = chosen_items
@@ -855,3 +860,9 @@ def randomize_items(world):
         # Sort the list of items by the ordering rank for display, and assign to the shop.
         for shop in world.shops:
             shop.items = sorted(assignments[shop.index], key=lambda i: i.order)
+
+    # Open mode-specific shuffles.
+    if world.open_mode:
+        # TODO: Shuffle key item locations.
+        if world.settings.randomize_key_items:
+            pass

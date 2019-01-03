@@ -66,19 +66,19 @@ class LearnedSpells:
         # Vanilla spells learned
         self._spells = [
             # Mario
-            [0xff, 0xff, 0x01, 0xff, 0xff, 0x02, 0xff, 0xff, 0xff, 0x03, 0xff, 0xff, 0xff, 0x04, 0xff, 0xff, 0xff, 0x05,
+            [0x00, 0xff, 0x01, 0xff, 0xff, 0x02, 0xff, 0xff, 0xff, 0x03, 0xff, 0xff, 0xff, 0x04, 0xff, 0xff, 0xff, 0x05,
              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
             # Peach
-            [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x08, 0xff, 0x09, 0xff, 0x0a, 0xff, 0xff, 0x0b,
+            [0xff, 0xff, 0x06, 0xff, 0xff, 0xff, 0x07, 0xff, 0xff, 0xff, 0x08, 0xff, 0x09, 0xff, 0x0a, 0xff, 0xff, 0x0b,
              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
             # Bowser
-            [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0d, 0xff, 0xff, 0x0e, 0xff, 0xff, 0x0f,
+            [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0c, 0xff, 0xff, 0xff, 0x0d, 0xff, 0xff, 0x0e, 0xff, 0xff, 0x0f,
              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
             # Geno
-            [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x11, 0xff, 0xff, 0x12, 0xff, 0xff, 0x13, 0xff, 0xff, 0x14, 0xff,
+            [0xff, 0xff, 0xff, 0xff, 0xff, 0x10, 0xff, 0x11, 0xff, 0xff, 0x12, 0xff, 0xff, 0x13, 0xff, 0xff, 0x14, 0xff,
              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
             # Mallow
-            [0xff, 0xff, 0x16, 0xff, 0xff, 0x17, 0xff, 0xff, 0xff, 0x18, 0xff, 0xff, 0xff, 0x19, 0xff, 0xff, 0xff, 0x1a,
+            [0xff, 0x15, 0x16, 0xff, 0xff, 0x17, 0xff, 0xff, 0xff, 0x18, 0xff, 0xff, 0xff, 0x19, 0xff, 0xff, 0xff, 0x1a,
              0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
         ]
 
@@ -343,31 +343,42 @@ class Character:
         for i, bonus in enumerate(self.levelup_bonuses):
             for attr in LEVEL_STATS:
                 value = getattr(bonus, attr)
-                setattr(bonus, attr, utils.mutate_normal(value, maximum=15))
+                # Make each bonus at least 1.
+                setattr(bonus, attr, max(utils.mutate_normal(value, maximum=15), 1))
 
         # Shuffle level up stat growths up to level 20.  Past level 20, make them tiny similar to vanilla.
         for attr in LEVEL_STATS:
             # Shuffle expected value at level 20 and rework the stat curve based on the final value.
+            # Make sure the stat at level 20 is at least 20, i.e. one point for each level at minimum.
             value = self.get_stat_at_level(attr, 20)
-            value = utils.mutate_normal(value, maximum=255)
+            value = utils.mutate_normal(value, minimum=20, maximum=255)
 
             # Generate random fixed value points between level 1 and 20 to interpolate between.
             fixed_points = [(1, 0), (20, value)]
 
             for _ in range(3):
-                dex = random.randint(1, len(fixed_points) - 1)
+                # Pick a random level range in the fixed points list that is >= 4 levels apart to spread them out a bit.
+                range_index = [i for i in range(1, len(fixed_points) - 1) if
+                               fixed_points[i][0] - fixed_points[i - 1][0] >= 4]
+                if not range_index:
+                    break
+
+                dex = random.choice(range_index)
                 lower_level, lower_value = fixed_points[dex - 1]
                 upper_level, upper_value = fixed_points[dex]
-                if upper_level - lower_level < 4:
-                    continue
 
                 level_interval = (upper_level - lower_level) // 2
                 value_interval = (upper_value - lower_value) // 2
-                level = (lower_level + random.randint(0, level_interval) + random.randint(0, level_interval))
-                if level <= lower_level or level >= upper_level:
-                    continue
 
-                value = (lower_value + random.randint(0, value_interval) + random.randint(0, value_interval))
+                # Increase by at least 1 level, but not all the way to the upper level.
+                level_increase = max(random.randint(0, level_interval) + random.randint(0, level_interval), 1)
+                level = min(lower_level + level_increase, upper_level - 1)
+
+                # Increase value by at least 1 for each level.
+                value_increase = random.randint(0, value_interval) + random.randint(0, value_interval)
+                value_increase = max(value_increase, level_increase)
+                value = lower_value + value_increase
+
                 fixed_points.append((level, value))
                 fixed_points = sorted(fixed_points)
 
@@ -376,9 +387,11 @@ class Character:
                 level_difference = level2 - level1
                 value_difference = value2 - value1
                 for l in range(level1 + 1, level2):
-                    factor = (l - level1) / float(level_difference)
-                    v = value1 + (factor * value_difference)
-                    fixed_points.append((l, int(round(v))))
+                    steps_away_from_level1 = l - level1
+                    factor = steps_away_from_level1 / float(level_difference)
+                    # Min increase value number of steps away from level1, so we increase by at least 1 for each level.
+                    v = value1 + max(int(round(factor * value_difference)), steps_away_from_level1)
+                    fixed_points.append((l, v))
 
             fixed_points = sorted(fixed_points)
             levels, values = list(zip(*fixed_points))
@@ -392,7 +405,8 @@ class Character:
                 raise ValueError("Generate levels aren't in order: {!r}".format(levels))
 
             if values != tuple(sorted(values)):
-                raise ValueError("Generate stat values aren't in order: {!r}".format(values))
+                raise ValueError("Stat values aren't in order character {}, stat {}: {!r}, fixed_points {!r}".format(
+                    self.__class__.__name__, attr, values, fixed_points))
 
             # Get increases for each levelup.
             increases = []
@@ -427,6 +441,7 @@ class Character:
             # Special logic for Mario.
             if self.index == 0:
                 # Make sure Mario has minimum basic starting HP and attack.  Shuffle increases to account for this.
+                # TODO: Should this be applied to the other two starting characters in open mode?
                 if attr in ["max_hp", "attack"]:
                     while base < 20:
                         candidates = [i for i in range(len(increases)) if increases[i] > 0]
@@ -455,13 +470,14 @@ class Character:
                         increases[chosen] -= 1
 
             # Set base value and set levelup growth increases to generated values.  Past level 20, just random shuffle
-            # around 2 base value to keep increases lower similar to the vanilla game.
+            # between 1-2 to keep increases lower similar to the vanilla game.
             setattr(self, attr, base)
             for s in self.levelup_growths:
                 if increases:
                     setattr(s, attr, increases.pop(0))
                 else:
-                    setattr(s, attr, utils.mutate_normal(2, maximum=15))
+                    # Beyond level 20, give a 1/3 chance of 2 increase, 2/3 chance of 1 increase.
+                    setattr(s, attr, random.choices([1, 2], weights=[2, 1])[0])
 
     def finalize(self, world):
         """Finalize character data after other shuffling has happened outside of this instance.
@@ -479,7 +495,10 @@ class Character:
                 max_allowed = 255
 
             while self.get_max_stat_at_level(attr, 30) > max_allowed:
-                ss = [s for s in self.levelup_growths[self.level - 1:] if getattr(s, attr) > 0]
+                # Subtract 1 from a random growth that has > 1 currently so we have at least 1 per level.
+                ss = [s for s in self.levelup_growths[self.level - 1:] if getattr(s, attr) > 1]
+                if not ss:
+                    break
                 s = random.choice(ss)
                 value = getattr(s, attr)
                 setattr(s, attr, value - 1)
@@ -488,7 +507,7 @@ class Character:
             setattr(self, attr, self.get_optimal_stat_at_level(attr, self.level))
 
         # If we're in debug mode, max all starting stats.
-        if world.settings.debug_mode:
+        if world.debug_mode:
             self.level = 30
             self.max_hp = 999
             self.speed = 255
@@ -1012,20 +1031,35 @@ def randomize_characters(world):
         for c in world.characters:
             c.randomize()
 
-    # If we're shuffling join order, do that now before we finalize the characters.
+    # If we're shuffling join order, do that now before we finalize the characters.  For standard mode, keep Mario as
+    # the first character and shuffle the others.  For open mode, shuffle the whole list.
     if world.settings.randomize_join_order:
-        random.shuffle(world.character_join_order)
+        if world.open_mode:
+            random.shuffle(world.character_join_order)
+        else:
+            extra_characters = world.character_join_order[1:]
+            random.shuffle(extra_characters)
+            world.character_join_order = world.character_join_order[:1] + extra_characters
 
-        # Adjust starting levels according to join order.  Get original levels, then update starting levels based on
-        # join order with Mallow = 4, Geno = 3, Bowser = 2, Peach = 1.
-        orig_levels = {}
-        for c in world.characters:
-            orig_levels[c.index] = c.level
+    # Adjust starting levels according to join order.  Get original levels, then update starting levels based on
+    # join order with Mallow = 4, Geno = 3, Bowser = 2, Peach = 1.
+    orig_levels = {}
+    for c in world.characters:
+        orig_levels[c.index] = c.level
 
+    # For open mode, make the first three characters level 1 to start.  The final two join at Bowyer and Bundt,
+    # so make their levels the same as Geno and Peach respectively.
+    if world.open_mode:
+        world.character_join_order[0].level = 1
+        world.character_join_order[1].level = 1
+        world.character_join_order[2].level = 1
+        world.character_join_order[3].level = orig_levels[3]
+        world.character_join_order[4].level = orig_levels[1]
+    # For standard mode, just make their levels the same as the vanilla join order.
+    else:
         for i, c in enumerate(world.character_join_order):
             c.level = orig_levels[4 - i]
 
     # Now finalize the characters and get patch data.
-    if world.settings.randomize_character_stats or world.settings.randomize_join_order:
-        for c in world.characters:
-            c.finalize(world)
+    for c in world.characters:
+        c.finalize(world)

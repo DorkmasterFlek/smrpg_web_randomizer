@@ -6,6 +6,11 @@
     {% include 'randomizer/_rom_base.html' %}
 
     <div id="generate-container">
+        {# FIXME #}
+        <div class="alert alert-warning text-center" role="alert">
+            NOTE: This page is a work in progress!  Flag selection UI is undergoing further redesign.
+        </div>
+
         {% include 'randomizer/_rom_loader.html' %}
 
         <div id="seed-generate" class="card border-success my-3" style="display:none">
@@ -28,7 +33,7 @@
                                 </div>
                                 <select id="mode" name="mode" class="form-control">
                                     <option value="standard">Standard</option>
-                                    {#<option value="open">Open</option>#}
+                                    <option value="open">Open</option>
                                 </select>
                             </div>
                         </div>
@@ -92,7 +97,9 @@
                 </div>
                 <div class="card-header bg-info text-white" id="review-flags">
                     <h4 class="card-title">3. Review Flags</h4>
-                    <h6 class="card-title">NOTE: The site will remember the last flags you used!</h6>
+                    <h6 class="card-title">Flags in <span class="text-danger">red</span> are considered "hard"
+                        settings and are not recommended for new players.
+                    </h6>
                 </div>
                 <div class="card-body">
                     <div class="card">
@@ -105,7 +112,8 @@
                                     <div>{{ flag.name }}</div>
                                     <div>
                                         {% for i in flag.levels|levels_range %}
-                                            <div class="form-check form-check-inline rounded">
+                                            <div class="form-check form-check-inline rounded px-1
+                                                    {% if i >= flag.hard_level %}flag-danger{% endif %} ">
                                                 <input class="form-check-input flag-input flag-{{ flag.letter }} {{ flag.field }}"
                                                        type="radio" name="{{ flag.field }}"
                                                        data-flag-letter="{{ flag.letter }}"
@@ -131,74 +139,115 @@
                             <div class="card-body flag-card {% for mode in flag.modes %} flag-{{ mode }}{% endfor %}">
                                 {# Flag description bullet points. #}
                                 <ul>
-                                    {% if flag.field == 'randomize_character_stats' %}
-                                        <li class="randomize_character_stats-effect effect-1">
+                                    {% if flag.field == 'randomize_key_items' %}
+                                        <li class="{{ flag.field }}-effect effect-1 effect-2">
+                                            Shuffle key items between each other.
+                                        </li>
+                                        <li class="{{ flag.field }}-effect effect-1 effect-2">
+                                            Includes the following items:
+                                            <span class="font-weight-bold">
+                                            Rare Frog Coin, Cricket Pie, Bambino Bomb, Castle Key 1, Castle Key 2,
+                                            Alto Card, Tenor Card, Soprano Card, Greaper Flag, Dry Bones Flag,
+                                            Big Boo Flag, Shed Key, Elder Key, Cricket Jam, Temple Key,
+                                            <span class="{{ flag.field }}-effect effect-2">Seed, Fertilizer,</span>
+                                            Room Key
+                                            </span>
+                                        </li>
+                                    {% elif flag.field == 'randomize_stars' %}
+                                        <li class="{{ flag.field }}-effect effect-1 effect-2">
+                                            Shuffles the first six star pieces between bosses.  These six must be
+                                            collected to open the way to Bowser's Keep.  The final star piece will be
+                                            located on Smithy as normal.
+                                        </li>
+                                        <li class="{{ flag.field }}-effect effect-1">
+                                            Culex will not have a star piece.
+                                        </li>
+                                        <li class="{{ flag.field }}-effect effect-2">
+                                            Culex may have a star piece.
+                                        </li>
+                                    {% elif flag.field == 'randomize_stars_seven' %}
+                                        <li class="{{ flag.field }}-effect effect-1">
+                                            Shuffle all seven star pieces between available bosses.  Smithy must still
+                                            be defeated to finish the game, but all seven star pieces must be found to
+                                            access the endgame areas.
+                                        </li>
+                                        <li class="{{ flag.field }}-effect effect-1">
+                                            This only has an effect if the Star Pieces flag is enabled.
+                                        </li>
+                                    {% elif flag.field == 'randomize_stars_bk' %}
+                                        <li class="{{ flag.field }}-effect effect-1">
+                                            Bowser's Keep will be open from the start.  The bosses inside the keep may
+                                            have star pieces if they're shuffled, and all the star pieces must be
+                                            found to open the way to the Factory instead.
+                                        </li>
+                                    {% elif flag.field == 'randomize_character_stats' %}
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the starting level and stats for each character, as well as stat
                                             growths and level-up bonuses.
                                         </li>
-                                        <li class="randomize_character_stats-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Most of the stat growth will be up to level 20, similar to the vanilla game.
                                             Stat growth after level 20 will be smaller.
                                         </li>
                                     {% elif flag.field == 'randomize_join_order' %}
-                                        <li class="randomize_join_order-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the order in which characters join the party. The spots at which a
                                             new character joins that party are unchanged.
                                         </li>
-                                        <li class="randomize_join_order-effect 1">
+                                        <li class="{{ flag.field }}-effect 1">
                                             The character that joins the party will have their stats and starting level
                                             scaled for that spot.
                                         </li>
                                     {% elif flag.field == 'randomize_enemies' %}
-                                        <li class="randomize_enemies-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the stats of enemies, as well as potential status effects of their
                                             attacks.
                                         </li>
                                     {% elif flag.field == 'randomize_drops' %}
-                                        <li class="randomize_drops-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the EXP and item reward received from battles.
                                         </li>
                                     {% elif flag.field == 'randomize_enemy_formations' %}
-                                        <li class="randomize_enemy_formations-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the potential enemies that can be encountered in normal battles.
                                             Boss battles are unchanged.
                                         </li>
                                     {% elif flag.field == 'randomize_shops' %}
-                                        <li class="randomize_shops-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the items available in shops and their prices (including frog coin
                                             shops).
                                         </li>
                                     {% elif flag.field == 'randomize_equipment' %}
-                                        <li class="randomize_equipment-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the stats granted by equipment (could be positive or negative).
                                         </li>
                                     {% elif flag.field == 'randomize_buffs' %}
-                                        <li class="randomize_buffs-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles special protections (elemental and status immunities) and
                                             attack/defense buff statuses for equipment.
                                         </li>
                                     {% elif flag.field == 'randomize_allowed_equips' %}
-                                        <li class="randomize_allowed_equips-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles which characters can equip different equipment.
                                         </li>
-                                        <li class="randomize_allowed_equips-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             <span class="font-weight-bold">NOTE:</span> Geno cannot equip other
                                             characters weapons, and they can't use his weapons. This is a technical
                                             limitation of the game.
                                         </li>
                                     {% elif flag.field == 'randomize_spell_stats' %}
-                                        <li class="randomize_spell_stats-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the FP cost, attack power and hit rate of spells.
                                         </li>
-                                        <li class="randomize_spell_stats-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles starting party FP.
                                         </li>
                                     {% elif flag.field == 'randomize_spell_lists' %}
-                                        <li class="randomize_spell_lists-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles which spells each character learns, and at what level they learn
                                             them.
                                         </li>
-                                        <li class="randomize_spell_lists-effect effect-1">
+                                        <li class="{{ flag.field }}-effect effect-1">
                                             Peach must learn Group Hug due to a technical limitation, but it is
                                             guaranteed not to be the final spell she learns.
                                         </li>
@@ -396,9 +445,9 @@
             localforage.getItem("rom.mode").then((value) => {
                 let elem = $("#mode");
                 if (value === null) {
-                    elem.val('standard');
+                    value = 'standard';
                 }
-                elem.change();
+                elem.val(value).change();
             });
 
             // Hide quick custom input when not selected.
@@ -422,8 +471,23 @@
                     localforage.setItem("rom.{{ flag.field }}", checked.val());
 
                     // Toggle classes for background info for highlighting.
-                    checked.closest('.form-check').addClass('bg-primary text-white');
-                    $('.{{ flag.field }}').not(':checked').closest('.form-check').removeClass('bg-primary text-white');
+                    $('.{{ flag.field }}').each((index, elem) => {
+                        elem = $(elem);
+                        let container = elem.closest('.form-check');
+                        if (elem.is(':checked')) {
+                            if (container.hasClass('flag-danger')) {
+                                container.addClass('bg-danger text-white').removeClass('text-danger');
+                            } else {
+                                container.addClass('bg-primary text-white');
+                            }
+                        } else {
+                            if (container.hasClass('flag-danger')) {
+                                container.removeClass('bg-danger text-white').addClass('text-danger');
+                            } else {
+                                container.removeClass('bg-primary text-white');
+                            }
+                        }
+                    });
 
                     // Show/hide descriptions for selected option.
                     let effects = $('.{{ flag.field }}-effect');

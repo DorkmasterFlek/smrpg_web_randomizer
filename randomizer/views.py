@@ -1,4 +1,3 @@
-import base64
 import binascii
 import hashlib
 import json
@@ -110,14 +109,11 @@ class GenerateView(FormView):
         world.randomize()
         patches = {'US': world.build_patch()}
 
-        # Computed hash based on seed and selected options.  Use first 10 characters for convenience.
-        hash = base64.b64encode(world.hash.encode('utf-8')).decode().replace('+', '').replace('/', '')[:10]
-
         # Send back patch data.
         result = {
             'logic': VERSION,
             'seed': seed,
-            'hash': hash,
+            'hash': world.hash,
             'mode': mode,
             'debug_mode': debug_mode,
             'custom_flags': custom_flags,
@@ -129,13 +125,13 @@ class GenerateView(FormView):
         with transaction.atomic():
             # If there's an existing seed with the same hash, replace it.
             try:
-                s = Seed.objects.get(hash=hash)
+                s = Seed.objects.get(hash=world.hash)
             except Seed.DoesNotExist:
                 pass
             else:
                 s.delete()
 
-            s = Seed(hash=hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
+            s = Seed(hash=world.hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
                      flags=json.dumps(custom_flags), file_select_char=world.file_select_character,
                      file_select_hash=world.file_select_hash)
             s.save()

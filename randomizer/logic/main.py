@@ -1,12 +1,14 @@
 # Main randomizer logic module that the front end calls.
 
-import collections
 import hashlib
 import random
 
+from . import bosses
 from . import characters
 from . import data
 from . import enemies
+from . import flags
+from . import keys
 from . import items
 from . import map
 from . import spells
@@ -14,7 +16,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '7.1.7'
+VERSION = '8.0.0beta1'
 
 # Possible names we can use for the hash values on the file select screen.  Needs to be 6 characters or less.
 FILE_ENTRY_NAMES = (
@@ -29,134 +31,15 @@ FILE_ENTRY_NAMES += tuple(e[2].upper() for e in data.ENEMY_DATA if 1 <= len(e[2]
 FILE_ENTRY_NAMES = tuple(sorted(set(FILE_ENTRY_NAMES)))
 
 
-class Flag:
-    """Class representing a flag with its description, and possible values."""
-
-    def __init__(self, name, field, letter, levels=1, default=0, modes=None):
-        """
-
-        Args:
-            name (str): Name
-            field (str): Form field key
-            letter (str): Single letter used to represent this flag in the flagset when building filenames
-            levels (int): Number of levels this flag has.  Default is 1, i.e. on or off.
-            default (bool|str): Default level, should be 0 for off for all flags.
-            modes (list[str]): List of available modes for this flag.  If not set, will default to standard and open.
-        """
-        self.name = name
-        self.field = field
-        self.letter = letter
-        self.value = default
-        self.levels = levels
-        self._effects = collections.defaultdict(list)
-        self.modes = set()
-
-        if modes is None:
-            self.set_available_mode('standard')
-            self.set_available_mode('open')
-        else:
-            for mode in modes:
-                self.set_available_mode(mode)
-
-
-    def set_available_mode(self, mode, allowed=True):
-        """
-
-        Args:
-            mode (str): Which mode is available or not.
-            allowed (bool): Whether this mode is available.
-
-        """
-        if allowed:
-            self.modes.add(mode)
-        elif mode in self.modes:
-            self.modes.remove(mode)
-
-
-    def available_in_mode(self, mode):
-        """
-
-        Args:
-            mode (str): Mode to check availability.
-
-        Returns:
-            bool: True if this flag is available in the given mode, False otherwise.
-
-        """
-        return mode in self.modes
-
-
-    @classmethod
-    def get_default_flags(cls):
-        """
-
-        Returns:
-            list[Flag]: List of Flag objects with default values.
-
-        """
-        flags = []
-
-        # Format: (letter, field key, name, number of levels)
-        for letter, field, name, levels in (
-            ('C', 'randomize_character_stats', 'Character Stats', 1),
-            ('J', 'randomize_join_order', 'Character Join Order', 1),
-            ('E', 'randomize_enemies', 'Enemy Stats', 1),
-            ('D', 'randomize_drops', 'Enemy Drops', 1),
-            ('F', 'randomize_enemy_formations', 'Enemy Formations', 1),
-            ('P', 'randomize_shops', 'Shops', 1),
-            ('Q', 'randomize_equipment', 'Equipment Stats', 1),
-            ('B', 'randomize_buffs', 'Equipment Buffs', 1),
-            ('A', 'randomize_allowed_equips', 'Equipment Allowed Characters', 1),
-            ('S', 'randomize_spell_stats', 'Character Spell Stats', 1),
-            ('L', 'randomize_spell_lists', 'Character Spell Lists', 1),
-        ):
-            flags.append(Flag(name, field, letter, levels))
-
-        return flags
-
-
-class Preset:
-    def __init__(self, name, flags, description):
-        """Holder for preset info.
-
-        Args:
-            name (str): Name
-            flags (str): Flag string, ex. ABC2DEF
-            description (str): Text description to show on the UI.
-        """
-        self.name = name
-        self.flags = flags
-        self.description = description
-
-    @classmethod
-    def get_default_presets(cls):
-        """
-
-        Returns:
-            list[Preset]: List of presets for the UI.
-
-        """
-        presets = []
-
-        # Format: (name, flags, description)
-        for name, flags, description in (
-                ('Vanilla', '', 'No randomization, just a vanilla experience with the base game changes for cutscenes and non-linearity.'),
-                ('Full Shuffle', 'CJEDFPQBASL', 'High degree of randomization shuffling all available elements of the game.'),
-        ):
-            presets.append(Preset(name, flags, description))
-
-        return presets
-
-
 # Get default flags for use in forms and views.
-FLAGS = Flag.get_default_flags()
+FLAGS = flags.Flag.get_default_flags()
 
 # Flag presets for the website UI.
-PRESETS = Preset.get_default_presets()
+PRESETS = flags.Preset.get_default_presets()
 
 
 class Settings:
-    def __init__(self, mode='full', debug_mode=False, custom_flags=None):
+    def __init__(self, mode, debug_mode=False, custom_flags=None):
         """
         :type mode: str
         :type debug_mode: bool
@@ -229,7 +112,8 @@ class GameWorld:
             characters.Bowser(),
             characters.Peach(),
         ]
-        self.character_join_order = [self.characters[1], self.characters[2], self.characters[3], self.characters[4]]
+        # Open mode needs to randomize all five.  Standard mode always starts with Mario.
+        self.character_join_order = self.characters[:]
 
         # Learned spells and level-up exp.
         self.learned_spells = characters.LearnedSpells()
@@ -303,6 +187,32 @@ class GameWorld:
                 f.leaders = [m.enemy for m in f.members]
             f.leaders = sorted(f.leaders, key=lambda m: m.index)
 
+        # Get key item data.
+        self.key_locations = keys.get_default_key_item_locations()
+
+        # Get boss location data.
+        self.boss_locations = bosses.get_default_boss_locations()
+
+    @property
+    def open_mode(self):
+        """Check if this game world is Open mode.
+
+        Returns:
+            bool:
+
+        """
+        return self.settings.mode == 'open'
+
+    @property
+    def debug_mode(self):
+        """Get debug mode flag.
+
+        Returns:
+            bool:
+
+        """
+        return self.settings.debug_mode
+
     def get_item_by_index(self, index):
         """
         :type index: int
@@ -340,6 +250,8 @@ class GameWorld:
         spells.randomize_spells(self)
         items.randomize_items(self)
         enemies.randomize_enemies(self)
+        bosses.randomize_bosses(self)
+        keys.randomize_key_items(self)
 
     def build_patch(self):
         """Build patch data for this instance.
@@ -352,23 +264,29 @@ class GameWorld:
         for character in self.characters:
             patch += character.get_patch()
 
-        # Update party join script events for the final order.
-        addresses = [0x1e2155, 0x1fc506, 0x1edf98, 0x1e8b79]
-        for addr, character in zip(addresses, self.character_join_order):
-            patch.add_data(addr, 0x80 + character.index)
+        # Update party join script events for the final order.  These are different for standard vs open mode.
+        if self.open_mode:
+            addresses = [0x1ef86d, 0x1ef86f, 0x1ef871, 0x1fc4f2, 0x1e8b72]
+            for addr, character in zip(addresses, self.character_join_order):
+                patch.add_data(addr, 0x80 + character.index)
+        else:
+            # For standard mode, Mario is the first character.  Update the other four.
+            addresses = [0x1e2155, 0x1fc506, 0x1edf98, 0x1e8b79]
+            for addr, character in zip(addresses, self.character_join_order[1:]):
+                patch.add_data(addr, 0x80 + character.index)
 
-        # Update other battle scripts so Belome eats the first one to join.
-        for addr in (
-                0x394b4d,
-                0x394b70,
-                0x394b74,
-                0x394b7d,
-                0x394b7f,
-                0x394b83,
-                0x3ab93f,
-                0x3ab95a,
-        ):
-            patch.add_data(addr, self.character_join_order[0].index)
+            # Update other battle scripts so Belome eats the first one to join.
+            for addr in (
+                    0x394b4d,
+                    0x394b70,
+                    0x394b74,
+                    0x394b7d,
+                    0x394b7f,
+                    0x394b83,
+                    0x3ab93f,
+                    0x3ab95a,
+            ):
+                patch.add_data(addr, self.character_join_order[1].index)
 
         # Learned spells and level-up exp.
         patch += self.learned_spells.get_patch()
@@ -382,7 +300,7 @@ class GameWorld:
         patch.add_data(0x3a00dd, utils.ByteField(self.starting_fp).as_bytes() * 2)
 
         # For debug mode, start with 9999 coins and 99 frog coins.
-        if self.settings.debug_mode:
+        if self.debug_mode:
             patch.add_data(0x3a00db, utils.ByteField(9999, num_bytes=2).as_bytes())
             patch.add_data(0x3a00df, utils.ByteField(99, num_bytes=2).as_bytes())
 
@@ -412,8 +330,29 @@ class GameWorld:
         for formation in self.enemy_formations:
             patch += formation.get_patch()
 
-        # Unlock the whole map if in debug mode.
-        if self.settings.debug_mode:
+        # Open mode specific data.
+        if self.open_mode:
+            # Key item locations.
+            for location in self.key_locations:
+                print(">>>>>>>> {}".format(location))  # FIXME
+                patch += location.get_patch()
+
+            # Boss locations.
+            for boss in self.boss_locations:
+                # FIXME
+                if boss.has_star:
+                    print(">>>>>>>>>>>>>>>> {}".format(boss.__class__.__name__))
+                patch += boss.get_patch()
+
+            # Set flags for seven star mode and Bowser's Keep.
+            if self.settings.randomize_stars and self.settings.randomize_stars_seven:
+                patch.add_data(0x1fd341, utils.ByteField(0xa2).as_bytes())
+
+            if self.settings.randomize_stars_bk:
+                patch.add_data(0x1fd343, utils.ByteField(0xa2).as_bytes())
+
+        # Unlock the whole map if in debug mode in standard.
+        if self.debug_mode and not self.open_mode:
             patch += map.unlock_world_map()
 
         # Build hash value for choosing file select character and file name hash.
@@ -424,13 +363,13 @@ class GameWorld:
         final_seed += self.settings.mode.encode('utf-8')
         for flag in FLAGS:
             if flag.available_in_mode(self.settings.mode):
-                final_seed += str(self.settings.get_flag(flag.field)).encode('utf-8')
+                final_seed += self.settings.get_flag(flag.field).to_bytes(1, 'big')
         self.hash = hashlib.md5(final_seed).hexdigest()
 
         # Choose character for the file select screen.
         i = int(self.hash, 16) % 5
-        file_select_char_bytes = [0, 7, 13, 19, 25]
-        self.file_select_character = self.characters[i].__class__.__name__
+        file_select_char_bytes = [0, 7, 13, 25, 19]
+        self.file_select_character = [c for c in self.characters if c.index == i][0].__class__.__name__
 
         # Change file select character graphic, if not Mario.
         if i != 0:
@@ -445,11 +384,13 @@ class GameWorld:
             FILE_ENTRY_NAMES[int(self.hash[16:24], 16) % len(FILE_ENTRY_NAMES)],
             FILE_ENTRY_NAMES[int(self.hash[24:32], 16) % len(FILE_ENTRY_NAMES)],
         ]
-        self.file_select_hash = ' / '.join(file_select_names)
         for i, name in enumerate(file_select_names):
             addr = 0x3ef528 + (i * 7)
             val = name.encode().ljust(7, b'\x00')
             patch.add_data(addr, val)
+
+        # Save file select hash text to show the user on the website, but the game uses '}' instead of dash.
+        self.file_select_hash = ' / '.join(file_select_names).replace('}', '-')
 
         # Update ROM title and version.
         title = 'SMRPG-R {}'.format(self.seed).ljust(20)
