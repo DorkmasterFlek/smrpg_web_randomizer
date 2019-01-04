@@ -118,10 +118,38 @@ class MelodyBay2(KeyItemLocation):
     addresses = [0x1e6290]
     item = 151
 
+    @staticmethod
+    def can_access(inventory):
+        """
+
+        Args:
+            inventory (Inventory):
+
+        Returns:
+            bool: True if this location is accessible with the given inventory, False otherwise.
+
+        """
+        # Songs must be played in order, and Bambino Bomb is needed to access this location (beat minecart minigame).
+        return MelodyBay1.can_access(inventory) and inventory.has_item(135)
+
 
 class MelodyBay3(KeyItemLocation):
     addresses = [0x1e62a7]
     item = 151
+
+    @staticmethod
+    def can_access(inventory):
+        """
+
+        Args:
+            inventory (Inventory):
+
+        Returns:
+            bool: True if this location is accessible with the given inventory, False otherwise.
+
+        """
+        # Songs must be played in order.
+        return MelodyBay2.can_access(inventory)
 
 
 class YosterIsle(KeyItemLocation):
@@ -320,7 +348,7 @@ def randomize_key_items(world):
         if world.settings.randomize_key_items:
             locations_to_fill = [l for l in world.key_locations if _item_location_filter(world, l)]
             # TODO: Add shuffle type flag for key items...
-            required_items = Inventory([l.item for l in locations_to_fill if l.item in (128, 132, 134)])
+            required_items = Inventory([l.item for l in locations_to_fill if l.item in (128, 132, 134, 135)])
             extra_items = Inventory([l.item for l in locations_to_fill if l.item not in required_items])
 
             # Sanity check to make sure we're filling the right number of spots.
