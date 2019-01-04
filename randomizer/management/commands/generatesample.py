@@ -113,7 +113,7 @@ class Command(BaseCommand):
         # Write star piece shuffle stats.
         with open(stars_file, 'w') as f:
             writer = csv.writer(f)
-            header = ['', 'Has Star']
+            header = ['Boss', 'Has Star']
             writer.writerow(header)
 
             keys = list(star_stats.keys())
@@ -126,7 +126,7 @@ class Command(BaseCommand):
         with open(key_items_file, 'w') as f:
             writer = csv.writer(f)
             locations = get_default_key_item_locations()
-            header = [''] + [l.name for l in locations]
+            header = ['Item'] + [l.name for l in locations]
             writer.writerow(header)
 
             keys = list(key_item_stats.keys())
