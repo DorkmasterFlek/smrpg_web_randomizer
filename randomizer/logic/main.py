@@ -16,7 +16,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0.0beta2'
+VERSION = '8.0.0beta3'
 
 # Possible names we can use for the hash values on the file select screen.  Needs to be 6 characters or less.
 FILE_ENTRY_NAMES = (

@@ -59,7 +59,7 @@ class Belome1(BossLocation):
 
 
 class Bowyer(BossLocation):
-    star_address = 0x1e952d
+    star_address = 0x1e953d
     has_star = True
 
 
