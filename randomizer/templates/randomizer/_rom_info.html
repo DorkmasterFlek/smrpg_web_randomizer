@@ -10,6 +10,7 @@
             {% endfor %}
         </ul>
     </div>
+    <div>Version: <span id="info-version"></span></div>
     <div>Seed: <span id="info-seed"></span></div>
     <div class="text-info">File Select Character: <span id="file-select-character"></span></div>
     <div class="text-info">File Select Hash: <span id="file-select-hash"></span></div>
@@ -22,6 +23,8 @@
     function updateSeedDetailsFromPatch(patch) {
         let seed = $('#info-seed');
         seed.text(patch.seed);
+
+        $('#info-version').text(patch.logic);
 
         let permalink_url = "/h/" + patch.hash;
         $("#info-permalink").attr("href", permalink_url);
