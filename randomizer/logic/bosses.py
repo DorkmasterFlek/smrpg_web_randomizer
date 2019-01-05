@@ -102,7 +102,7 @@ class Johnny(BossLocation):
 
 
 class Yaridovich(BossLocation):
-    star_address = 0x1e97c8
+    star_address = 0x1e97cc
     has_star = True
 
 
