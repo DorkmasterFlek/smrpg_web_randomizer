@@ -110,7 +110,8 @@ class Preset:
         # Format: (name, flags, description)
         for name, flags, description in (
                 ('Vanilla', '',
-                 'No randomization, just a vanilla experience with the base game changes for cutscenes and non-linearity.'),
+                 'No randomization, just a vanilla experience with the base game changes for cutscenes and '
+                 'non-linearity.'),
                 ('Full Shuffle', 'K2R2VWCJEDFPQUASL',
                  'High degree of randomization shuffling all available elements of the game.'),
         ):

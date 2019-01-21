@@ -6,7 +6,7 @@ import time
 
 from django.core.management.base import BaseCommand
 
-from randomizer.logic.keys import get_default_key_item_locations
+from randomizer.data.keys import get_default_key_item_locations
 from randomizer.logic.main import GameWorld, Settings, VERSION, FLAGS
 
 # Flag string for all flags at max level.
@@ -95,10 +95,8 @@ class Command(BaseCommand):
 
             # Record key item stats.
             for location in world.key_locations:
-                # TODO: Change this so the location item is a class instead!
-                item = world.get_item_by_index(location.item).name
-                key_item_stats.setdefault(item, collections.defaultdict(int))
-                key_item_stats[item][location.name] += 1
+                key_item_stats.setdefault(location.item.__name__, collections.defaultdict(int))
+                key_item_stats[location.item.__name__][location.name] += 1
 
             # Print running count of how many seeds we generated every 10 seeds, and on the last one.
             num_gen = i + 1
