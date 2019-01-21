@@ -308,6 +308,17 @@ class GameWorld:
             if self.settings.randomize_stars_bk:
                 patch.add_data(0x1fd343, utils.ByteField(0xa2).as_bytes())
 
+            # If star piece exp progression is on, set exp values for each star piece number and enable flag.
+            if self.settings.randomize_exp_stars:
+                patch.add_data(0x39bc44, utils.ByteField(1).as_bytes())  # 0 stars
+                patch.add_data(0x39bc46, utils.ByteField(2).as_bytes())  # 1 star
+                patch.add_data(0x39bc48, utils.ByteField(3).as_bytes())  # 2 stars
+                patch.add_data(0x39bc4a, utils.ByteField(5).as_bytes())  # 3 stars
+                patch.add_data(0x39bc4c, utils.ByteField(6).as_bytes())  # 4 stars
+                patch.add_data(0x39bc4e, utils.ByteField(7).as_bytes())  # 5 stars
+                patch.add_data(0x39bc52, utils.ByteField(11).as_bytes())  # 6/7 stars
+                patch.add_data(0x1fd32d, utils.ByteField(0xa0).as_bytes())  # Enable flag
+
         # Unlock the whole map if in debug mode in standard.
         if self.debug_mode and not self.open_mode:
             patch += map.unlock_world_map()

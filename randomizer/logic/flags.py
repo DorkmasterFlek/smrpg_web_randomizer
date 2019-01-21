@@ -71,13 +71,17 @@ class Flag:
             Flag('Star Pieces', 'randomize_stars', 'R', 2, modes=['open'], hard_level=2),
             Flag('Seven Star Hunt', 'randomize_stars_seven', 'V', modes=['open']),
             Flag("Bowser's Keep Open", 'randomize_stars_bk', 'W', modes=['open']),
+            Flag('Star Exp Progression', 'randomize_exp_stars', 'X', modes=['open']),
             Flag('Character Stats', 'randomize_character_stats', 'C'),
             Flag('Character Join Order', 'randomize_join_order', 'J'),
-            Flag('Enemy Stats', 'randomize_enemies', 'E'), Flag('Enemy Drops', 'randomize_drops', 'D'),
-            Flag('Enemy Formations', 'randomize_enemy_formations', 'F'), Flag('Shops', 'randomize_shops', 'P'),
-            Flag('Equipment Stats', 'randomize_equipment', 'Q'), Flag('Equipment Buffs', 'randomize_buffs', 'U'),
+            Flag('Enemy Stats', 'randomize_enemies', 'E'),
+            Flag('Enemy Drops', 'randomize_drops', 'D'),
+            Flag('Enemy Formations', 'randomize_enemy_formations', 'F'),
+            Flag('Shops', 'randomize_shops', 'P'),
+            Flag('Equipment Stats', 'randomize_equipment', 'Q'),
+            Flag('Equipment Buffs', 'randomize_buffs', 'U'),
             Flag('Equipment Allowed Characters', 'randomize_allowed_equips', 'A'),
-            Flag('Character Spell Stats', 'randomize_spell_stats', 'S'),
+            Flag('Spell Stats', 'randomize_spell_stats', 'S'),
             Flag('Character Spell Lists', 'randomize_spell_lists', 'L'),
         ]
 
@@ -112,7 +116,7 @@ class Preset:
                 ('Vanilla', '',
                  'No randomization, just a vanilla experience with the base game changes for cutscenes and '
                  'non-linearity.'),
-                ('Full Shuffle', 'K2R2VWCJEDFPQUASL',
+                ('Full Shuffle', 'K2R2VWXCJEDFPQUASL',
                  'High degree of randomization shuffling all available elements of the game.'),
         ):
             presets.append(Preset(name, flags, description))

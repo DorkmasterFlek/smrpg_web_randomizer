@@ -180,6 +180,20 @@
                                             have star pieces if they're shuffled, and all the star pieces must be
                                             found to open the way to the Factory instead.
                                         </li>
+                                    {% elif flag.field == 'randomize_exp_stars' %}
+                                        <li class="{{ flag.field }}-effect effect-1">
+                                            Exp granted by invincibility stars will be based on the number of star
+                                            pieces currently collected as follows:
+                                            <ul>
+                                                <li>0 stars: 1 exp per enemy</li>
+                                                <li>1 star: 2 exp per enemy</li>
+                                                <li>2 stars: 3 exp per enemy</li>
+                                                <li>3 stars: 5 exp per enemy</li>
+                                                <li>4 stars: 6 exp per enemy</li>
+                                                <li>5 stars: 7 exp per enemy</li>
+                                                <li>6/7 stars: 11 exp per enemy</li>
+                                            </ul>
+                                        </li>
                                     {% elif flag.field == 'randomize_character_stats' %}
                                         <li class="{{ flag.field }}-effect effect-1">
                                             Shuffles the starting level and stats for each character, as well as stat
