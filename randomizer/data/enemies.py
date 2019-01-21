@@ -873,6 +873,7 @@ class Chomp(Enemy):
 class Pandorite(Enemy):
     index = 23
     address = 0x390936
+    boss = True
     hp = 300
     speed = 1
     attack = 30
@@ -3433,6 +3434,7 @@ class Apprentice(Enemy):
 class BoxBoy(Enemy):
     index = 134
     address = 0x390956
+    boss = True
     hp = 900
     speed = 1
     attack = 180
@@ -3544,6 +3546,7 @@ class Oerlikon(Enemy):
 class Chester(Enemy):
     index = 139
     address = 0x390966
+    boss = True
     hp = 1200
     speed = 1
     attack = 220
