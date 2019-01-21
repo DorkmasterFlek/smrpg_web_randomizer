@@ -71,7 +71,7 @@ class Flag:
             Flag('Star Pieces', 'randomize_stars', 'R', 2, modes=['open'], hard_level=2),
             Flag('Seven Star Hunt', 'randomize_stars_seven', 'V', modes=['open']),
             Flag("Bowser's Keep Open", 'randomize_stars_bk', 'W', modes=['open']),
-            Flag('Star Exp Progression', 'randomize_exp_stars', 'X', modes=['open']),
+            Flag('Star Exp Progression', 'randomize_exp_stars', 'X', modes=['open'], hard_level=1),
             Flag('Character Stats', 'randomize_character_stats', 'C'),
             Flag('Character Join Order', 'randomize_join_order', 'J'),
             Flag('Enemy Stats', 'randomize_enemies', 'E'),
