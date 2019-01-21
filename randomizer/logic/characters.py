@@ -24,9 +24,8 @@ def _randomize_learned_spells(learned_spells):
     # of the extra duplicate ones.
     possible_spells = list(range(0x1b))
     possible_spells.remove(7)
-    extra = random.sample(possible_spells, 3)
     random.shuffle(possible_spells)
-    possible_spells = extra + possible_spells
+    possible_spells = possible_spells[:3] + possible_spells
     charspells = collections.defaultdict(list)
     while possible_spells:
         valid = [i for i in range(5) if (len(charspells[i]) < 5 or (len(charspells[i]) < 6 and i != 1)) and
