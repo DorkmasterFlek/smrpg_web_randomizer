@@ -3,6 +3,8 @@
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 
+from . import spells
+
 
 class StatGrowth:
     """Container class for a stat growth/bonus for a certain level + character."""
@@ -51,70 +53,6 @@ class StatGrowth:
         data += utils.ByteField(magical).as_bytes()
 
         return data
-
-
-class LearnedSpells:
-    """Class for spells learned at each level for all characters."""
-    BASE_ADDRESS = 0x3a42f5
-
-    def __init__(self):
-        # Vanilla spells learned
-        self.spells = [
-            # Mario
-            [0x00, 0xff, 0x01, 0xff, 0xff, 0x02, 0xff, 0xff, 0xff, 0x03, 0xff, 0xff, 0xff, 0x04, 0xff, 0xff, 0xff, 0x05,
-             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
-            # Peach
-            [0xff, 0xff, 0x06, 0xff, 0xff, 0xff, 0x07, 0xff, 0xff, 0xff, 0x08, 0xff, 0x09, 0xff, 0x0a, 0xff, 0xff, 0x0b,
-             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
-            # Bowser
-            [0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x0c, 0xff, 0xff, 0xff, 0x0d, 0xff, 0xff, 0x0e, 0xff, 0xff, 0x0f,
-             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
-            # Geno
-            [0xff, 0xff, 0xff, 0xff, 0xff, 0x10, 0xff, 0x11, 0xff, 0xff, 0x12, 0xff, 0xff, 0x13, 0xff, 0xff, 0x14, 0xff,
-             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
-            # Mallow
-            [0xff, 0x15, 0x16, 0xff, 0xff, 0x17, 0xff, 0xff, 0xff, 0x18, 0xff, 0xff, 0xff, 0x19, 0xff, 0xff, 0xff, 0x1a,
-             0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff],
-        ]
-
-    def get_patch(self):
-        """Get patch for learned spells.
-
-        :return: Patch data.
-        :rtype: randomizer.logic.patch.Patch
-        """
-        # Data is 29 blocks (starting at level 2), 5 bytes each block (1 byte per character in order)
-        data = bytearray()
-        for level in range(2, 31):
-            for index in range(5):
-                data += utils.ByteField(self.get_spell(index, level)).as_bytes()
-
-        patch = Patch()
-        patch.add_data(self.BASE_ADDRESS, data)
-        return patch
-
-    def get_spells_for_character(self, index):
-        """
-        :type index: int
-        :return: List of spells learned for this character.
-        :rtype: list[int]
-        """
-        if index not in range(5):
-            raise ValueError("Character index must be 0-4")
-        return self.spells[index]
-
-    def get_spell(self, index, level):
-        """
-        :type index: int
-        :type level: int
-        :return: Spell for this character and level
-        :rtype: int
-        """
-        if index not in range(5):
-            raise ValueError("Character index must be 0-4")
-        if level < 1 or level > 30:
-            raise ValueError("Level must be between 1 and 30")
-        return self.spells[index][level - 1]
 
 
 class LevelUpExps:
@@ -186,6 +124,7 @@ class Character:
     BASE_ADDRESS = 0x3a002c
     BASE_STAT_GROWTH_ADDRESS = 0x3a1b39
     BASE_STAT_BONUS_ADDRESS = 0x3a1cec
+    BASE_LEARNED_SPELLS_ADDRESS = 0x3a42f5
 
     # Stats used during levelups.
     LEVEL_STATS = ["max_hp", "attack", "defense", "magic_attack", "magic_defense"]
@@ -200,6 +139,7 @@ class Character:
     magic_attack = 1
     magic_defense = 1
     xp = 0
+    learned_spells = {}
 
     # Placeholders for vanilla starting levelup growth and bonus numbers.
     starting_growths = ()
@@ -304,7 +244,7 @@ class Character:
         char_data += utils.ByteField(0xff).as_bytes()
         char_data += utils.ByteField(0xff).as_bytes()
         char_data.append(0x00)  # Unused byte
-        char_data += utils.BitMapSet(4, self.starting_spells).as_bytes()
+        char_data += utils.BitMapSet(4, [spell.index for spell in self.starting_spells]).as_bytes()
 
         # Base address plus offset based on character index.
         addr = self.BASE_ADDRESS + (self.index * 20)
@@ -320,6 +260,17 @@ class Character:
             addr = self.BASE_STAT_BONUS_ADDRESS + (i * 15) + (self.index * 3)
             patch.add_data(addr, stat.as_bytes())
 
+        # Add learned spells data.
+        # Data is 29 blocks (starting at level 2), 5 bytes each block (1 byte per character in order)
+        base_addr = self.BASE_LEARNED_SPELLS_ADDRESS + (self.index * 29)
+        for level in range(2, 31):
+            level_addr = base_addr + ((level - 2) * 5)
+            # If we have a spell for this level, add the index.  Otherwise it should be 0xff for no spell learned.
+            if self.learned_spells.get(level):
+                patch.add_data(level_addr, utils.ByteField(self.learned_spells[level].index).as_bytes())
+            else:
+                patch.add_data(level_addr, utils.ByteField(0xff).as_bytes())
+
         return patch
 
 
@@ -333,6 +284,14 @@ class Mario(Character):
     defense = 0
     magic_attack = 10
     magic_defense = 2
+    learned_spells = {
+        1: spells.Jump,
+        3: spells.FireOrb,
+        6: spells.SuperJump,
+        10: spells.SuperFlame,
+        14: spells.UltraJump,
+        18: spells.UltraFlame,
+    }
 
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
@@ -412,6 +371,14 @@ class Peach(Character):
     defense = 8
     magic_attack = 14
     magic_defense = 14
+    learned_spells = {
+        3: spells.Therapy,
+        7: spells.GroupHug,
+        11: spells.SleepyTime,
+        13: spells.ComeBack,
+        15: spells.Mute,
+        18: spells.PsychBomb,
+    }
 
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
@@ -491,6 +458,12 @@ class Bowser(Character):
     defense = 29
     magic_attack = 1
     magic_defense = 13
+    learned_spells = {
+        8: spells.Terrorize,
+        12: spells.PoisonGas,
+        15: spells.Crusher,
+        18: spells.BowserCrush,
+    }
 
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
@@ -570,6 +543,13 @@ class Geno(Character):
     defense = 9
     magic_attack = 6
     magic_defense = 5
+    learned_spells = {
+        6: spells.GenoBeam,
+        8: spells.GenoBoost,
+        11: spells.GenoWhirl,
+        14: spells.GenoBlast,
+        17: spells.GenoFlash,
+    }
 
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
@@ -649,6 +629,14 @@ class Mallow(Character):
     defense = 2
     magic_attack = 11
     magic_defense = 6
+    learned_spells = {
+        2: spells.Thunderbolt,
+        3: spells.HPRain,
+        6: spells.Psychopath,
+        10: spells.Shocker,
+        14: spells.Snowy,
+        18: spells.StarRain,
+    }
 
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)

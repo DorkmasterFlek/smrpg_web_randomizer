@@ -2,6 +2,7 @@
 
 import hashlib
 import random
+import re
 
 from randomizer import data
 from . import bosses
@@ -94,9 +95,6 @@ class GameWorld:
         # Characters
         self.characters = data.characters.get_default_characters(self)
         self.character_join_order = self.characters[:]
-
-        # Learned spells and level-up exp.
-        self.learned_spells = data.characters.LearnedSpells()
         self.levelup_xps = data.characters.LevelUpExps()
 
         # Spells
@@ -249,7 +247,6 @@ class GameWorld:
                 patch.add_data(addr, self.character_join_order[1].index)
 
         # Learned spells and level-up exp.
-        patch += self.learned_spells.get_patch()
         patch += self.levelup_xps.get_patch()
 
         # Spells
@@ -335,16 +332,19 @@ class GameWorld:
                 patch.add_data(addr, file_select_char_bytes[i] + value)
 
         # Possible names we can use for the hash values on the file select screen.  Needs to be 6 characters or less.
-        file_entry_names = (
+        file_entry_names = {
             'MARIO',
             'MALLOW',
             'GENO',
             'BOWSER',
             'PEACH',
-        )
+        }
         # Also use enemy names, if they're 6 characters or less.
-        file_entry_names += tuple(e.name.upper() for e in self.enemies if 1 <= len(e.name) <= 6)
-        file_entry_names = tuple(sorted(set(file_entry_names)))
+        for e in self.enemies:
+            name = re.sub(r'[^A-Za-z]', '', e.name.upper())
+            if len(name) <= 6:
+                file_entry_names.add(name)
+        file_entry_names = sorted(file_entry_names)
 
         # Replace file select names with "hash" values for seed verification.
         file_select_names = [

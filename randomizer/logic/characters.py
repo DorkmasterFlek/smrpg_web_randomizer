@@ -3,45 +3,72 @@
 import collections
 import random
 
-from randomizer.data import characters
+from randomizer.data import characters, spells
 from randomizer.logic import utils
 
 
-def _randomize_learned_spells(learned_spells):
+# Move this to character classes instead!
+def _randomize_learned_spells(world):
     """Perform randomization for which levels characters learn spells.
 
     Args:
-        learned_spells(randomizer.data.characters.LearnedSpells):
+        world(randomizer.logic.main.GameWorld):
     """
-    # Reset all learned spells.
-    for level in range(30):
-        for index in range(5):
-            learned_spells.spells[index][level] = 0xff
-
     # Shuffle all spells.  There are 27 spells, so add an extra 3 random ones to ensure everybody has 6 spells.
     # Group Hug only works with Peach however, so remove it from the shuffle and give Peach only 5 spells.
     # Assign the 3 extra random spells first to guarantee we can assign all spells without a character getting any
     # of the extra duplicate ones.
-    possible_spells = list(range(0x1b))
-    possible_spells.remove(7)
+    possible_spells = [
+        spells.Jump,
+        spells.FireOrb,
+        spells.SuperJump,
+        spells.SuperFlame,
+        spells.UltraJump,
+        spells.UltraFlame,
+        spells.Therapy,
+        spells.SleepyTime,
+        spells.ComeBack,
+        spells.Mute,
+        spells.PsychBomb,
+        spells.Terrorize,
+        spells.PoisonGas,
+        spells.Crusher,
+        spells.BowserCrush,
+        spells.GenoBeam,
+        spells.GenoBoost,
+        spells.GenoWhirl,
+        spells.GenoBlast,
+        spells.GenoFlash,
+        spells.Thunderbolt,
+        spells.HPRain,
+        spells.Psychopath,
+        spells.Shocker,
+        spells.Snowy,
+        spells.StarRain,
+    ]
     random.shuffle(possible_spells)
     possible_spells = possible_spells[:3] + possible_spells
     charspells = collections.defaultdict(list)
+
     while possible_spells:
-        valid = [i for i in range(5) if (len(charspells[i]) < 5 or (len(charspells[i]) < 6 and i != 1)) and
-                 possible_spells[0] not in charspells[i]]
+        valid = [c for c in world.characters if
+                 (len(charspells[c]) < 5 or (len(charspells[c]) < 6 and not isinstance(c, characters.Peach))) and
+                 possible_spells[0] not in charspells[c]]
         chosen = random.choice(valid)
         charspells[chosen].append(possible_spells.pop(0))
 
     # Insert Group Hug for Peach, but make sure it's not the final spell learned for balance.
-    charspells[1].insert(random.randint(0, 4), 7)
+    for character in world.characters:
+        if isinstance(character, characters.Peach) and len(charspells[character]) < 6:
+            charspells[character].insert(random.randint(0, 4), spells.GroupHug)
 
     # Assign chosen spells for each character.  Make the first spell always learned from the start (level 1), and
     # assign the other spells to random levels from 2-20.
-    for index in range(5):
+    for character in world.characters:
+        character.learned_spells = {}
         charlevels = [1] + sorted(random.sample(list(range(2, 20)), 5))
-        for level, spell in zip(charlevels, charspells[index]):
-            learned_spells.spells[index][level - 1] = spell
+        for level, spell in zip(charlevels, charspells[character]):
+            character.learned_spells[level] = spell
 
 
 def _randomize_levelup_xps(levelup_xps):
@@ -276,9 +303,8 @@ def _finalize_character(character):
     # Set starting spells based on starting level and learned spells.
     character.starting_spells.clear()
     for level in range(1, character.starting_level + 1):
-        spell = character.world.learned_spells.get_spell(character.index, level)
-        if spell != 0xff:
-            character.starting_spells.add(spell)
+        if character.learned_spells.get(level):
+            character.starting_spells.add(character.learned_spells[level])
 
     # Set starting exp based on starting level.
     character.xp = character.world.levelup_xps.get_xp_for_level(character.starting_level)
@@ -291,7 +317,7 @@ def randomize_all(world):
     """
     # Shuffle learned spells for all characters.
     if world.settings.randomize_spell_lists:
-        _randomize_learned_spells(world.learned_spells)
+        _randomize_learned_spells(world)
 
     # Shuffle exp required for level ups.
     if world.settings.randomize_character_stats:
