@@ -262,7 +262,7 @@ class Character:
 
         # Add learned spells data.
         # Data is 29 blocks (starting at level 2), 5 bytes each block (1 byte per character in order)
-        base_addr = self.BASE_LEARNED_SPELLS_ADDRESS + (self.index * 29)
+        base_addr = self.BASE_LEARNED_SPELLS_ADDRESS + self.index
         for level in range(2, 31):
             level_addr = base_addr + ((level - 2) * 5)
             # If we have a spell for this level, add the index.  Otherwise it should be 0xff for no spell learned.
