@@ -295,8 +295,7 @@ class Item:
         base_addr = self.BASE_ADDRESS + (self.index * 18)
 
         # For non-shop items with no price (key items), there is no randomization.
-        # EXCEPT for the seed + fertilizer because this turns them into key items!
-        if not self.price and self.index not in (158, 159):
+        if not self.price:
             return patch
 
         # Only modify equipment properties.
