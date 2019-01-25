@@ -4274,109 +4274,6 @@ class MachineMadeAxemGreen(Enemy):
     rare_item = items.RoyalSyrup
 
 
-class GoombaIntro(Enemy):
-    index = 171
-    address = 0x390b96
-    boss = True
-    hp = 16
-    speed = 13
-    attack = 3
-    defense = 3
-    magic_attack = 1
-    magic_defense = 1
-    fp = 100
-    morph_chance = 3
-    sound_on_approach = 2
-    weaknesses = [6]
-    palette = 8
-    flower_bonus_type = 1
-
-    # Reward attributes
-    reward_address = 0x391a38
-    yoshi_cookie_item = items.Mushroom
-
-
-class HammerBroIntro(Enemy):
-    index = 172
-    address = 0x390ba6
-    boss = True
-    hp = 50
-    speed = 99
-    attack = 6
-    defense = 13
-    magic_attack = 6
-    magic_defense = 8
-    fp = 1
-    evade = 10
-    death_immune = True
-    sound_on_hit = 208
-    palette = 16
-    flower_bonus_type = 1
-    flower_bonus_chance = 2
-
-    # Reward attributes
-    reward_address = 0x391a3e
-    yoshi_cookie_item = items.Mushroom
-
-
-class BirdoIntro(Enemy):
-    index = 173
-    address = 0x390bb6
-    boss = True
-    hp = 10
-    speed = 99
-    attack = 10
-    fp = 100
-    morph_chance = 3
-    palette = 16
-    flower_bonus_type = 1
-    flower_bonus_chance = 2
-
-    # Reward attributes
-    reward_address = 0x391a44
-    yoshi_cookie_item = items.Mushroom
-
-
-class BbBomb(Enemy):
-    index = 174
-    address = 0x390bc6
-    boss = True
-    hp = 50
-    speed = 99
-    attack = 47
-    defense = 30
-    magic_attack = 6
-    magic_defense = 10
-    fp = 100
-    morph_chance = 3
-    sound_on_hit = 80
-    weaknesses = [6, 7]
-    palette = 8
-    flower_bonus_type = 1
-    flower_bonus_chance = 2
-
-    # Reward attributes
-    reward_address = 0x391a4a
-    yoshi_cookie_item = items.Mushroom
-
-
-class Magidragon(Enemy):
-    index = 175
-    address = 0x390bd6
-    boss = True
-    hp = 10
-    speed = 99
-    fp = 100
-    death_immune = True
-    palette = 32
-    flower_bonus_type = 1
-    flower_bonus_chance = 2
-
-    # Reward attributes
-    reward_address = 0x391a50
-    yoshi_cookie_item = items.Mushroom
-
-
 class Starslap(Enemy):
     index = 176
     address = 0x390306
@@ -6330,11 +6227,6 @@ def get_default_enemies(world):
         MachineMadeAxemRed(world),
         MachineMadeAxemYellow(world),
         MachineMadeAxemGreen(world),
-        GoombaIntro(world),
-        HammerBroIntro(world),
-        BirdoIntro(world),
-        BbBomb(world),
-        Magidragon(world),
         Starslap(world),
         Mukumuku(world),
         Zeostar(world),

@@ -211,24 +211,6 @@ def get_default_enemy_formations(world):
     """
     # Vanilla enemy formation data.
     formations = [
-        EnemyFormation(0, None, 195, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Terrapin), 167, 135),
-        ]),
-        EnemyFormation(1, None, 195, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Terrapin), 151, 111),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Terrapin), 183, 151),
-        ]),
-        EnemyFormation(2, None, 195, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Terrapin), 167, 111),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Terrapin), 151, 143),
-            FormationMember(2, False, world.get_enemy_instance(enemies.Terrapin), 215, 135),
-        ]),
-        EnemyFormation(3, None, 195, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Terrapin), 135, 119),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Terrapin), 167, 111),
-            FormationMember(2, False, world.get_enemy_instance(enemies.Terrapin), 183, 143),
-            FormationMember(3, False, world.get_enemy_instance(enemies.Terrapin), 215, 135),
-        ]),
         EnemyFormation(4, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikey), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spikey), 199, 143),
@@ -1854,54 +1836,6 @@ def get_default_enemy_formations(world):
         EnemyFormation(335, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jagger), 183, 127),
         ]),
-        EnemyFormation(340, 37, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Skytroopa), 135, 127),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Skytroopa), 215, 143),
-        ]),
-        EnemyFormation(341, 38, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 135, 119),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Goomba), 199, 151),
-            FormationMember(2, False, world.get_enemy_instance(enemies.K9), 199, 119),
-        ]),
-        EnemyFormation(342, 39, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.TheBigBoo), 119, 119),
-            FormationMember(1, False, world.get_enemy_instance(enemies.TheBigBoo), 199, 159),
-            FormationMember(2, False, world.get_enemy_instance(enemies.Shadow), 167, 111),
-            FormationMember(3, False, world.get_enemy_instance(enemies.Shadow), 215, 135),
-        ]),
-        EnemyFormation(343, 40, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.PiranhaPlant), 167, 135),
-            FormationMember(1, False, world.get_enemy_instance(enemies.PiranhaPlant), 135, 119),
-            FormationMember(2, False, world.get_enemy_instance(enemies.PiranhaPlant), 199, 151),
-            FormationMember(3, False, world.get_enemy_instance(enemies.Sparky), 167, 111),
-            FormationMember(4, False, world.get_enemy_instance(enemies.Sparky), 215, 135),
-        ]),
-        EnemyFormation(344, 41, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Corkpedite), 167, 135),
-            FormationMember(1, False, world.get_enemy_instance(enemies.CorkpediteBody), 183, 127),
-        ]),
-        EnemyFormation(345, None, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.HammerBroIntro), 151, 127),
-            FormationMember(1, False, world.get_enemy_instance(enemies.HammerBroIntro), 215, 143),
-        ]),
-        EnemyFormation(346, 92, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.BirdoIntro), 167, 118),
-        ]),
-        EnemyFormation(347, None, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.BbBomb), 135, 119),
-            FormationMember(1, False, world.get_enemy_instance(enemies.BbBomb), 151, 135),
-            FormationMember(2, False, world.get_enemy_instance(enemies.BbBomb), 183, 151),
-            FormationMember(3, False, world.get_enemy_instance(enemies.BbBomb), 215, 159),
-            FormationMember(4, True, world.get_enemy_instance(enemies.BbBomb), 199, 119),
-        ]),
-        EnemyFormation(348, None, 192, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Magidragon), 183, 143),
-        ]),
-        EnemyFormation(349, 43, 1, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.GoombaIntro), 151, 111),
-            FormationMember(1, False, world.get_enemy_instance(enemies.GoombaIntro), 167, 135),
-            FormationMember(2, False, world.get_enemy_instance(enemies.GoombaIntro), 215, 143),
-        ]),
         EnemyFormation(350, None, 31, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Culex), 183, 103),
             FormationMember(1, True, world.get_enemy_instance(enemies.FireCrystal), 135, 103),
@@ -2173,16 +2107,6 @@ def get_default_enemy_formations(world):
 
     # Vanilla formation pack data.
     formation_packs = [
-        FormationPack(0, [
-            formations_dict[0],
-            formations_dict[1],
-            formations_dict[2],
-        ]),
-        FormationPack(1, [
-            formations_dict[3],
-            formations_dict[2],
-            formations_dict[1],
-        ]),
         FormationPack(2, [
             formations_dict[4],
             formations_dict[5],
@@ -3107,56 +3031,6 @@ def get_default_enemy_formations(world):
             formations_dict[355],
             formations_dict[355],
             formations_dict[355],
-        ]),
-        FormationPack(196, [
-            formations_dict[340],
-            formations_dict[340],
-            formations_dict[340],
-        ]),
-        FormationPack(197, [
-            formations_dict[341],
-            formations_dict[341],
-            formations_dict[341],
-        ]),
-        FormationPack(198, [
-            formations_dict[342],
-            formations_dict[342],
-            formations_dict[342],
-        ]),
-        FormationPack(199, [
-            formations_dict[343],
-            formations_dict[343],
-            formations_dict[343],
-        ]),
-        FormationPack(200, [
-            formations_dict[344],
-            formations_dict[344],
-            formations_dict[344],
-        ]),
-        FormationPack(201, [
-            formations_dict[345],
-            formations_dict[345],
-            formations_dict[345],
-        ]),
-        FormationPack(202, [
-            formations_dict[346],
-            formations_dict[346],
-            formations_dict[346],
-        ]),
-        FormationPack(203, [
-            formations_dict[347],
-            formations_dict[347],
-            formations_dict[347],
-        ]),
-        FormationPack(204, [
-            formations_dict[348],
-            formations_dict[348],
-            formations_dict[348],
-        ]),
-        FormationPack(205, [
-            formations_dict[349],
-            formations_dict[349],
-            formations_dict[349],
         ]),
         FormationPack(206, [
             formations_dict[354],
