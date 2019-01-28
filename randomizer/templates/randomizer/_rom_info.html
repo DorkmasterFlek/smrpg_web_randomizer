@@ -1,16 +1,8 @@
 <div class="col-md-6">
     <div>Mode: <span id="info-mode"></span></div>
     <div id="info-debug-mode" class="bg-info text-white">Debug Test Mode: <span>Yes</span></div>
-    <div id="info-custom">Flags:
-        <ul>
-            {% for flag in flags %}
-                <li class="flag-li" data-flag-modes="{{ flag.modes|join:',' }}">
-                    {{ flag.name }}: <span id="info-{{ flag.field }}"></span>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
     <div>Version: <span id="info-version"></span></div>
+    <div>Flags: <span id="info-flags"></span></div>
     <div>Seed: <span id="info-seed"></span></div>
     <div class="text-info">File Select Character: <span id="file-select-character"></span></div>
     <div class="text-info">File Select Hash: <span id="file-select-hash"></span></div>
@@ -35,6 +27,7 @@
         }
 
         $("#info-mode").html(patch.mode.charAt(0).toUpperCase() + patch.mode.substr(1));
+        $('#info-flags').html(patch.flag_string);
         $('#file-select-character').html(patch.file_select_character);
         $('#file-select-hash').html(patch.file_select_hash);
 
@@ -44,21 +37,6 @@
         } else {
             $("#info-debug-mode").hide();
         }
-
-        // Flag settings.
-        let val;
-        {% for flag in flags %}
-            // Show On/Off for single level flags.
-            val = patch.custom_flags.{{ flag.field }};
-            if (val === undefined) {
-                val = 0;
-            }
-            {% if flag.levels == 1 %}
-                $("#info-{{ flag.field }}").html(val > 0 ? "On" : "Off");
-            {% else %}
-                $("#info-{{ flag.field }}").html(val);
-            {% endif %}
-        {% endfor %}
 
         // Show only flags that are in this mode.
         $('.flag-li').hide().each((index, elem) => {

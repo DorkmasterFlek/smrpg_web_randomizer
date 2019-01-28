@@ -182,3 +182,86 @@ label {
 .picon.jump {
     background: url('../img/fontTableDialogue.png') -90px -16px;
 }
+
+/* Flag styles */
+
+.flag-form-input {
+    display: none;
+}
+
+.flag-container {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 1rem;
+}
+
+.flag-checkbox, .flag-radio {
+    display: inline-block;
+    min-width: 2.0rem;
+    border-width: 0.05rem;
+    border-style: solid;
+    border-color: grey;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    color: grey;
+}
+
+.flag-checkbox {
+    border-radius: 0.1rem;
+}
+
+.flag-radio {
+    border-radius: 1.0rem;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+.flag-checkbox-hard, .flag-radio-hard {
+    border-color: red;
+}
+
+.flag-form-input:checked + .flag-checkbox-container > .flag-checkbox, .flag-form-input:checked + .flag-radio-container > .flag-radio {
+    color: white;
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+
+.flag-form-input:checked + .flag-checkbox-container > .flag-checkbox-hard, .flag-form-input:checked + .flag-radio-container > .flag-radio-hard {
+    color: red;
+    background-color: darkred;
+    border-color: red;
+}
+
+.flag-label {
+    cursor: pointer;
+    color: grey;
+}
+
+.flag-form-input:checked + * + .flag-subsection-container > .flag-label {
+    color: black;
+}
+
+.flag-checkbox h5, .flag-radio h5, .flag-label h5 {
+    margin: 0;
+}
+
+.flag-checkbox-container, .flag-radio-container {
+    vertical-align: top;
+}
+
+.flag-subsection {
+    display: none;
+}
+
+.flag-form-input:checked + * + .flag-subsection-container > .flag-subsection {
+    display: block;
+}
+
+.flag-checkbox, .flag-radio, .flag-label {
+    font-size: 110%;
+}
+
+.flag-description {
+    font-size: 80%;
+}

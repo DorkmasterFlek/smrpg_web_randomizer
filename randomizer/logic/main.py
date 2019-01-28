@@ -19,27 +19,19 @@ from .patch import Patch
 # Current version number
 VERSION = '8.0.0beta4'
 
-# Get default flags for use in forms and views.
-FLAGS = flags.Flag.get_default_flags()
-
-# Flag presets for the website UI.
-PRESETS = flags.Preset.get_default_presets()
-
 
 class Settings:
     def __init__(self, mode, debug_mode=False, custom_flags=None):
         """
         :type mode: str
         :type debug_mode: bool
-        :type custom_flags: dict[bool]
+        :type custom_flags: dict
         """
         self._mode = mode
         self._debug_mode = debug_mode
         self._custom_flags = {}
         if custom_flags is not None:
             self._custom_flags.update(custom_flags)
-        for flag in FLAGS:
-            self._custom_flags.setdefault(flag.field, 0)
 
     @property
     def mode(self):
@@ -51,27 +43,64 @@ class Settings:
         """:rtype: bool"""
         return self._debug_mode
 
-    def get_flag(self, flag):
-        """Get a specific custom flag.
+    @property
+    def flag_string(self):
+        """
+        Returns:
+            str: Computed flag string for these settings.
+        """
+        flag_strings = []
 
+        for category in flags.CATEGORIES:
+            for flag in category.flags:
+                if self.is_flag_enabled(flag):
+                    # Solo flag that begins with a dash.
+                    if flag.value.startswith('-'):
+                        flag_strings.append(flag.value)
+                    # Flag that may have a subsection of choices and/or options.
+                    else:
+                        chars = []
+
+                        choice = self.get_flag_choice(flag)
+                        if choice:
+                            chars.append(choice.value[1:])
+
+                        for option in flag.options:
+                            if self.is_flag_enabled(option):
+                                chars.append(option.value[1:])
+
+                        # If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
+                        if flag.value.startswith('@'):
+                            if chars:
+                                flag_strings.append(flag.value[1:] + ''.join(chars))
+                        else:
+                            flag_strings.append(flag.value[:1] + ''.join(chars))
+
+        return ' '.join(flag_strings)
+
+    def is_flag_enabled(self, flag):
+        """
         Args:
-            flag (str): Flag to get
+            flag(randomizer.logic.flags.Flag):
 
         Returns:
-            int: Flag value
-
+            bool: True if flag is enabled, False otherwise.
         """
-        return self._custom_flags.get(flag, 0)
+        return bool(self._custom_flags.get(flag.value))
 
-    def __getattr__(self, item):
-        """Fall-back to get the custom flags as if they were class attributes.
-
-        :type item: str
-        :rtype: bool
+    def get_flag_choice(self, flag):
         """
-        if item in self._custom_flags:
-            return self._custom_flags[item]
-        raise AttributeError(item)
+        Args:
+            flag(randomizer.logic.flags.Flag):
+
+        Returns:
+            randomizer.logic.flags.Flag: Selected choice for this flag.
+        """
+        val = self._custom_flags.get('{0}-choice'.format(flag.value))
+        for choice in flag.choices:
+            if choice.value == val:
+                return choice
+        return None
 
 
 class GameWorld:
@@ -88,7 +117,7 @@ class GameWorld:
         self.seed = seed
         self.settings = settings
         self.file_select_character = 'Mario'
-        self.file_select_hash = 'MARIO1/MARIO2/MARIO3/MARIO4'
+        self.file_select_hash = 'MARIO1 / MARIO2 / MARIO3 / MARIO4'
         self._rebuild_hash()
 
         # *** Get vanilla data for randomizing.
@@ -206,9 +235,7 @@ class GameWorld:
         final_seed += VERSION.encode('utf-8')
         final_seed += self.seed.to_bytes(4, 'big')
         final_seed += self.settings.mode.encode('utf-8')
-        for flag in FLAGS:
-            if flag.available_in_mode(self.settings.mode):
-                final_seed += self.settings.get_flag(flag.field).to_bytes(1, 'big')
+        final_seed += self.settings.flag_string.encode('utf-8')
         self.hash = hashlib.md5(final_seed).hexdigest()
 
     def build_patch(self):

@@ -54,408 +54,418 @@ class Spell:
         return patch
 
 
+class CharacterSpell(Spell):
+    """Grouping class for character-specific spells."""
+    pass
+
+
+class EnemySpell(Spell):
+    """Grouping class for enemy-specific spells."""
+    pass
+
+
 # ********************* Actual data classes
 
-class Jump(Spell):
+class Jump(CharacterSpell):
     index = 0
     fp = 3
     power = 25
     hit_rate = 100
 
 
-class FireOrb(Spell):
+class FireOrb(CharacterSpell):
     index = 1
     fp = 5
     power = 20
     hit_rate = 100
 
 
-class SuperJump(Spell):
+class SuperJump(CharacterSpell):
     index = 2
     fp = 7
     power = 45
     hit_rate = 100
 
 
-class SuperFlame(Spell):
+class SuperFlame(CharacterSpell):
     index = 3
     fp = 9
     power = 40
     hit_rate = 100
 
 
-class UltraJump(Spell):
+class UltraJump(CharacterSpell):
     index = 4
     fp = 11
     power = 65
     hit_rate = 100
 
 
-class UltraFlame(Spell):
+class UltraFlame(CharacterSpell):
     index = 5
     fp = 14
     power = 60
     hit_rate = 100
 
 
-class Therapy(Spell):
+class Therapy(CharacterSpell):
     index = 6
     fp = 2
     power = 40
     hit_rate = 100
 
 
-class GroupHug(Spell):
+class GroupHug(CharacterSpell):
     index = 7
     fp = 4
     power = 30
     hit_rate = 100
 
 
-class SleepyTime(Spell):
+class SleepyTime(CharacterSpell):
     index = 8
     fp = 4
     hit_rate = 99
 
 
-class ComeBack(Spell):
+class ComeBack(CharacterSpell):
     index = 9
     fp = 2
     hit_rate = 100
 
 
-class Mute(Spell):
+class Mute(CharacterSpell):
     index = 10
     fp = 3
     hit_rate = 99
 
 
-class PsychBomb(Spell):
+class PsychBomb(CharacterSpell):
     index = 11
     fp = 15
     power = 60
     hit_rate = 100
 
 
-class Terrorize(Spell):
+class Terrorize(CharacterSpell):
     index = 12
     fp = 6
     power = 10
     hit_rate = 90
 
 
-class PoisonGas(Spell):
+class PoisonGas(CharacterSpell):
     index = 13
     fp = 10
     power = 20
     hit_rate = 90
 
 
-class Crusher(Spell):
+class Crusher(CharacterSpell):
     index = 14
     fp = 12
     power = 60
     hit_rate = 100
 
 
-class BowserCrush(Spell):
+class BowserCrush(CharacterSpell):
     index = 15
     fp = 16
     power = 58
     hit_rate = 100
 
 
-class GenoBeam(Spell):
+class GenoBeam(CharacterSpell):
     index = 16
     fp = 3
     power = 40
     hit_rate = 100
 
 
-class GenoBoost(Spell):
+class GenoBoost(CharacterSpell):
     index = 17
     fp = 4
     hit_rate = 100
 
 
-class GenoWhirl(Spell):
+class GenoWhirl(CharacterSpell):
     index = 18
     fp = 8
     power = 45
     hit_rate = 100
 
 
-class GenoBlast(Spell):
+class GenoBlast(CharacterSpell):
     index = 19
     fp = 12
     power = 50
     hit_rate = 100
 
 
-class GenoFlash(Spell):
+class GenoFlash(CharacterSpell):
     index = 20
     fp = 16
     power = 60
     hit_rate = 100
 
 
-class Thunderbolt(Spell):
+class Thunderbolt(CharacterSpell):
     index = 21
     fp = 2
     power = 15
     hit_rate = 100
 
 
-class HPRain(Spell):
+class HPRain(CharacterSpell):
     index = 22
     fp = 2
     power = 10
     hit_rate = 100
 
 
-class Psychopath(Spell):
+class Psychopath(CharacterSpell):
     index = 23
     fp = 1
     hit_rate = 100
 
 
-class Shocker(Spell):
+class Shocker(CharacterSpell):
     index = 24
     fp = 8
     power = 60
     hit_rate = 100
 
 
-class Snowy(Spell):
+class Snowy(CharacterSpell):
     index = 25
     fp = 12
     power = 40
     hit_rate = 100
 
 
-class StarRain(Spell):
+class StarRain(CharacterSpell):
     index = 26
     fp = 14
     power = 55
     hit_rate = 100
 
 
-class Drain(Spell):
+class Drain(EnemySpell):
     index = 64
     fp = 1
     power = 4
     hit_rate = 90
 
 
-class LightningOrb(Spell):
+class LightningOrb(EnemySpell):
     index = 65
     fp = 2
     power = 8
     hit_rate = 90
 
 
-class Flame(Spell):
+class Flame(EnemySpell):
     index = 66
     fp = 3
     power = 12
     hit_rate = 90
 
 
-class Bolt(Spell):
+class Bolt(EnemySpell):
     index = 67
     fp = 4
     power = 20
     hit_rate = 90
 
 
-class Crystal(Spell):
+class Crystal(EnemySpell):
     index = 68
     fp = 5
     power = 25
     hit_rate = 90
 
 
-class FlameStone(Spell):
+class FlameStone(EnemySpell):
     index = 69
     fp = 6
     power = 32
     hit_rate = 90
 
 
-class MegaDrain(Spell):
+class MegaDrain(EnemySpell):
     index = 70
     fp = 7
     power = 40
     hit_rate = 90
 
 
-class WillyWisp(Spell):
+class WillyWisp(EnemySpell):
     index = 71
     fp = 8
     power = 48
     hit_rate = 90
 
 
-class DiamondSaw(Spell):
+class DiamondSaw(EnemySpell):
     index = 72
     fp = 9
     power = 60
     hit_rate = 90
 
 
-class Electroshock(Spell):
+class Electroshock(EnemySpell):
     index = 73
     fp = 10
     power = 72
     hit_rate = 90
 
 
-class Blast(Spell):
+class Blast(EnemySpell):
     index = 74
     fp = 11
     power = 89
     hit_rate = 90
 
 
-class Storm(Spell):
+class Storm(EnemySpell):
     index = 75
     fp = 12
     power = 108
     hit_rate = 90
 
 
-class IceRock(Spell):
+class IceRock(EnemySpell):
     index = 76
     fp = 13
     power = 130
     hit_rate = 90
 
 
-class Escape(Spell):
+class Escape(EnemySpell):
     index = 77
     hit_rate = 100
 
 
-class DarkStar(Spell):
+class DarkStar(EnemySpell):
     index = 78
     fp = 20
     power = 160
     hit_rate = 90
 
 
-class Recover(Spell):
+class Recover(EnemySpell):
     index = 79
     fp = 3
     power = 50
     hit_rate = 100
 
 
-class MegaRecover(Spell):
+class MegaRecover(EnemySpell):
     index = 80
     fp = 9
     power = 200
     hit_rate = 100
 
 
-class FlameWall(Spell):
+class FlameWall(EnemySpell):
     index = 81
     fp = 2
     power = 8
     hit_rate = 90
 
 
-class StaticE(Spell):
+class StaticE(EnemySpell):
     index = 82
     fp = 4
     power = 12
     hit_rate = 90
 
 
-class SandStorm(Spell):
+class SandStorm(EnemySpell):
     index = 83
     fp = 6
     power = 16
     hit_rate = 90
 
 
-class Blizzard(Spell):
+class Blizzard(EnemySpell):
     index = 84
     fp = 8
     power = 22
     hit_rate = 90
 
 
-class DrainBeam(Spell):
+class DrainBeam(EnemySpell):
     index = 85
     fp = 10
     power = 26
     hit_rate = 90
 
 
-class MeteorBlast(Spell):
+class MeteorBlast(EnemySpell):
     index = 86
     fp = 12
     power = 30
     hit_rate = 90
 
 
-class LightBeam(Spell):
+class LightBeam(EnemySpell):
     index = 87
     fp = 13
     power = 34
     hit_rate = 90
 
 
-class WaterBlast(Spell):
+class WaterBlast(EnemySpell):
     index = 88
     fp = 14
     power = 39
     hit_rate = 90
 
 
-class Solidify(Spell):
+class Solidify(EnemySpell):
     index = 89
     fp = 15
     power = 47
     hit_rate = 90
 
 
-class PetalBlast(Spell):
+class PetalBlast(EnemySpell):
     index = 90
     fp = 16
     power = 40
     hit_rate = 85
 
 
-class AuroraFlash(Spell):
+class AuroraFlash(EnemySpell):
     index = 91
     fp = 17
     power = 50
     hit_rate = 85
 
 
-class Boulder(Spell):
+class Boulder(EnemySpell):
     index = 92
     fp = 18
     power = 72
     hit_rate = 90
 
 
-class Corona(Spell):
+class Corona(EnemySpell):
     index = 93
     fp = 19
     power = 88
     hit_rate = 90
 
 
-class MeteorSwarm(Spell):
+class MeteorSwarm(EnemySpell):
     index = 94
     fp = 20
     power = 100
     hit_rate = 90
 
 
-class KnockOut(Spell):
+class KnockOut(EnemySpell):
     index = 95
     fp = 15
     power = 1
@@ -463,60 +473,60 @@ class KnockOut(Spell):
     instant_ko = True
 
 
-class WeirdMushroom(Spell):
+class WeirdMushroom(EnemySpell):
     index = 96
     power = 30
     hit_rate = 100
 
 
-class BreakerBeam(Spell):
+class BreakerBeam(EnemySpell):
     index = 97
     fp = 15
     power = 80
     hit_rate = 90
 
 
-class Shredder(Spell):
+class Shredder(EnemySpell):
     index = 98
     fp = 8
     hit_rate = 100
 
 
-class Sledge(Spell):
+class Sledge(EnemySpell):
     index = 99
     fp = 6
     power = 50
     hit_rate = 99
 
 
-class SwordRain(Spell):
+class SwordRain(EnemySpell):
     index = 100
     fp = 8
     power = 80
     hit_rate = 99
 
 
-class SpearRain(Spell):
+class SpearRain(EnemySpell):
     index = 101
     fp = 5
     power = 60
     hit_rate = 99
 
 
-class ArrowRain(Spell):
+class ArrowRain(EnemySpell):
     index = 102
     fp = 2
     power = 40
     hit_rate = 99
 
 
-class BigBang(Spell):
+class BigBang(EnemySpell):
     index = 103
     power = 100
     hit_rate = 100
 
 
-class ChainSaw(Spell):
+class ChainSaw(EnemySpell):
     index = 108
     power = 50
     hit_rate = 90

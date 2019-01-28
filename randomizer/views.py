@@ -20,7 +20,8 @@ from django.views.generic import TemplateView, FormView
 
 from .models import Seed, Patch
 from .forms import GenerateForm
-from .logic.main import GameWorld, Settings, VERSION, FLAGS, PRESETS
+from .logic.flags import CATEGORIES, FLAGS, PRESETS
+from .logic.main import GameWorld, Settings, VERSION
 from .logic.patch import PatchJSONEncoder
 
 
@@ -35,8 +36,22 @@ class RandomizerView(TemplateView):
         context['version'] = VERSION
         context['debug_enabled'] = settings.DEBUG
         context['beta_site'] = settings.BETA
-        context['flags'] = FLAGS
+        context['categories'] = CATEGORIES
         context['presets'] = PRESETS
+
+        # Build JSON representation of flag hierarchy.
+        flags = []
+        for category in CATEGORIES:
+            for flag in category.flags:
+                d = {
+                    'value': flag.value,
+                    'modes': flag.modes,
+                    'choices': [c.value for c in flag.choices],
+                    'options': [o.value for o in flag.options],
+                }
+                flags.append(d)
+        context['flags'] = flags
+
         return context
 
 
@@ -78,6 +93,10 @@ class GenerateView(FormView):
         if not settings.DEBUG:
             data['debug_mode'] = False
 
+        # FIXME
+        import pprint
+        print(">>>>>>>>>>>>> {}".format(pprint.pformat(data)))
+
         # If seed is provided, use it.  Otherwise generate a random seed (10 digits max).
         # For non-numeric values, take the CRC32 checksum of it.
         seed = data['seed']
@@ -100,12 +119,22 @@ class GenerateView(FormView):
 
         # Get custom flags.
         custom_flags = {}
-        for flag in FLAGS:
-            if flag.available_in_mode(mode):
-                custom_flags[flag.field] = data[flag.field]
+        for category in CATEGORIES:
+            for flag in category.flags:
+                if data['flag-{0}'.format(flag.value)]:
+                    custom_flags[flag.value] = data['flag-{0}'.format(flag.value)]
+
+                    # Get selected choice if any, or just get whether the flag is enabled.
+                    if flag.choices:
+                        custom_flags['{0}-choice'.format(flag.value)] = data['flag-{0}-choice'.format(flag.value)]
+
+                    # Get extra option flags.
+                    for option in flag.options:
+                        custom_flags[option.value] = data['flag-{0}'.format(option.value)]
 
         # Build game world, randomize it, and generate the patch.
         world = GameWorld(seed, Settings(mode, debug_mode, custom_flags))
+        print(">>>>>>>>>>>>>> {!r}".format(world.settings.flag_string))  # FIXME
         world.randomize()
         patches = {'US': world.build_patch()}
 
@@ -117,6 +146,7 @@ class GenerateView(FormView):
             'mode': mode,
             'debug_mode': debug_mode,
             'custom_flags': custom_flags,
+            'flag_string': world.settings.flag_string,
             'file_select_character': world.file_select_character,
             'file_select_hash': world.file_select_hash,
         }
@@ -155,7 +185,8 @@ class GenerateView(FormView):
 
 
 class GenerateFromHashView(View):
-    def get(self, request, hash, region):
+    @staticmethod
+    def get(request, hash, region):
         """Get a previously generated patch via hash value."""
         # EU patch is actually the US one.
         if region == 'EU':
@@ -178,6 +209,7 @@ class GenerateFromHashView(View):
             'mode': s.mode,
             'debug_mode': s.debug_mode,
             'custom_flags': json.loads(s.flags),
+            'flag_string': Settings(s.mode, s.debug_mode, s.flags).flag_string,
             'file_select_character': s.file_select_char,
             'file_select_hash': s.file_select_hash,
             'patch': json.loads(p.patch),
@@ -187,7 +219,8 @@ class GenerateFromHashView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class PackingView(View):
-    def post(self, request):
+    @staticmethod
+    def post(request):
         """Pack uploaded ROM into the provided WAD file as downloaded file."""
         if not request.FILES.get('rom'):
             return HttpResponseBadRequest("ROM file not provided")
@@ -243,7 +276,7 @@ class PackingView(View):
 
             try:
                 seed = int(title[7:].strip())
-            except:
+            except ValueError:
                 return HttpResponseBadRequest("Bad ROM title {!r}".format(title))
 
             # Read first content file data to find the channel title data and update it.
@@ -264,9 +297,9 @@ class PackingView(View):
             # Update MD5 hash for this content file.
             data = content[64:1584]
             data += b'\x00' * 16
-            hash = Wii.Crypto.createMD5Hash(data)
+            md5 = Wii.Crypto.createMD5Hash(data)
             for i in range(16):
-                content[1584 + i] = hash[i]
+                content[1584 + i] = md5[i]
 
             newwad.contents[0] = bytes(content)
 
