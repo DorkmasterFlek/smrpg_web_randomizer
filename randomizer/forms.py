@@ -1,7 +1,17 @@
 from django import forms
 
-from .models import REGIONS, MODES
 from .logic.flags import FLAGS
+
+MODES = (
+    ('open', 'Open'),
+    ('classic', 'Classic'),
+)
+
+REGIONS = (
+    ('US', 'US'),
+    # ('JP', 'Japan'),
+    ('EU', 'PAL'),
+)
 
 
 class GenerateForm(forms.Form):
