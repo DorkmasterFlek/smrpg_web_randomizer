@@ -327,6 +327,7 @@ class ChaosPreset(Preset):
     description = 'A highly chaotic shuffle with everything possible enabled.'
     flags = 'Ks R7kc Csmjl Edfsa S Qsba P2'
 
+
 # ************************************** Default lists for the site.
 
 # List of categories for the site.
