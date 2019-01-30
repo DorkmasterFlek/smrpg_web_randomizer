@@ -6,11 +6,6 @@
     {% include 'randomizer/_rom_base.html' %}
 
     <div id="generate-container">
-        {# FIXME #}
-        <div class="alert alert-warning text-center" role="alert">
-            NOTE: This page is a work in progress!  Flag selection UI is undergoing further redesign.
-        </div>
-
         {% include 'randomizer/_rom_loader.html' %}
 
         <div id="seed-generate" class="card border-success my-3" style="display:none">
@@ -33,12 +28,12 @@
                                 </div>
                                 <select id="mode" name="mode" class="form-control">
                                     <option value="open">Open</option>
-                                    <option value="standard">Standard</option>
+                                    <option value="linear">Linear</option>
                                 </select>
                             </div>
                         </div>
                     </div>
-                    <div class="mode-description" id="mode-description-standard">
+                    <div class="mode-description" id="mode-description-linear">
                         <ul>
                             <li>Plot progression is the same as the vanilla game.</li>
                             <li>Characters join at vanilla spots.</li>
