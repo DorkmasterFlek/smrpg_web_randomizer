@@ -300,9 +300,9 @@
         }
 
         // Apply custom seed flag.
-        function applyFlags(flags) {
+        function applyFlags(flags = null) {
             // Get flag string from selected preset if not provided.
-            if (flags === undefined) {
+            if (flags === null || flags === undefined) {
                 flags = $('#preset').val();
                 if (flags === 'custom') {
                     flags = $('#quick-custom').val();
