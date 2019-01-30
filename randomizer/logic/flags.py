@@ -12,7 +12,7 @@ class Flag:
     description = ''
     value = ''
     hard = False
-    modes = ['standard', 'open']
+    modes = ['linear', 'open']
     choices = []
     options = []
 
