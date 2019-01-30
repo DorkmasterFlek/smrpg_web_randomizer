@@ -384,7 +384,7 @@ def randomize_all(world):
         world.character_join_order[4].starting_level = orig_levels[1]
     # For standard mode, just make their levels the same as the vanilla join order.
     else:
-        for i, character in enumerate(world.character_join_order):
+        for i, character in enumerate(world.character_join_order[:1]):
             character.starting_level = orig_levels[4 - i]
 
     # Now finalize the characters and get patch data.
