@@ -4,7 +4,7 @@ import random
 from functools import reduce
 
 from randomizer.data.formations import FormationMember
-from . import utils
+from . import flags, utils
 
 
 def _randomize_enemy_attack(attack):
@@ -209,7 +209,7 @@ def randomize_all(world):
 
     :type world: randomizer.logic.main.GameWorld
     """
-    if world.settings.randomize_enemies:
+    if world.settings.is_flag_enabled(flags.EnemyAttacks):
         # *** Shuffle enemy attacks ***
         # Intershuffle attacks with status effects.
         with_status_effects = [a for a in world.enemy_attacks if a.status_effects]
@@ -226,6 +226,7 @@ def randomize_all(world):
         for attack in world.enemy_attacks:
             _randomize_enemy_attack(attack)
 
+    if world.settings.is_flag_enabled(flags.EnemyStats):
         # *** Shuffle enemy stats ***
         # Start with inter-shuffling some stats between non-boss enemies around the same rank as each other.
         candidates = [m for m in world.enemies if not m.boss]
@@ -304,7 +305,7 @@ def randomize_all(world):
                 setattr(a, attribute, bval)
 
     # Randomize individual rewards on their own.
-    if world.settings.randomize_drops:
+    if world.settings.is_flag_enabled(flags.EnemyDrops):
         for enemy in world.enemies:
             enemy.coins = utils.mutate_normal(enemy.coins, maximum=255)
 
@@ -337,6 +338,6 @@ def randomize_all(world):
                 enemy.yoshi_cookie_item = None
 
     # Shuffle enemy formations.
-    if world.settings.randomize_enemy_formations:
+    if world.settings.is_flag_enabled(flags.EnemyFormations):
         for formation in world.enemy_formations:
             _randomize_formation(formation)

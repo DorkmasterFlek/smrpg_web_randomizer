@@ -3,7 +3,7 @@
 import random
 
 from randomizer.data import keys
-from . import utils
+from . import flags, utils
 
 
 def _item_location_filter(world, location):
@@ -16,7 +16,8 @@ def _item_location_filter(world, location):
     Returns:
         bool:
     """
-    if isinstance(location, (keys.Seed, keys.Fertilizer)) and world.settings.randomize_key_items < 2:
+    if (isinstance(location, (keys.Seed, keys.Fertilizer)) and
+            world.settings.is_flag_enabled(flags.IncludeSeedFertilizer)):
         return False
     return True
 
@@ -92,7 +93,7 @@ def randomize_all(world):
     # Open mode-specific shuffles.
     if world.open_mode:
         # Shuffle key item locations.
-        if world.settings.randomize_key_items:
+        if world.settings.is_flag_enabled(flags.KeyItemShuffle):
             locations_to_fill = [l for l in world.key_locations if _item_location_filter(world, l)]
             required_items = keys.Inventory([l.item for l in locations_to_fill if
                                              l.item.shuffle_type == utils.ItemShuffleType.Required])

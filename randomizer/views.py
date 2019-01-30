@@ -20,7 +20,7 @@ from django.views.generic import TemplateView, FormView
 
 from .models import Seed, Patch
 from .forms import GenerateForm
-from .logic.flags import CATEGORIES, FLAGS, PRESETS
+from .logic.flags import CATEGORIES, PRESETS
 from .logic.main import GameWorld, Settings, VERSION
 from .logic.patch import PatchJSONEncoder
 
@@ -93,10 +93,6 @@ class GenerateView(FormView):
         if not settings.DEBUG:
             data['debug_mode'] = False
 
-        # FIXME
-        import pprint
-        print(">>>>>>>>>>>>> {}".format(pprint.pformat(data)))
-
         # If seed is provided, use it.  Otherwise generate a random seed (10 digits max).
         # For non-numeric values, take the CRC32 checksum of it.
         seed = data['seed']
@@ -118,23 +114,10 @@ class GenerateView(FormView):
         debug_mode = bool(data['debug_mode'])
 
         # Get custom flags.
-        custom_flags = {}
-        for category in CATEGORIES:
-            for flag in category.flags:
-                if data['flag-{0}'.format(flag.value)]:
-                    custom_flags[flag.value] = data['flag-{0}'.format(flag.value)]
-
-                    # Get selected choice if any, or just get whether the flag is enabled.
-                    if flag.choices:
-                        custom_flags['{0}-choice'.format(flag.value)] = data['flag-{0}-choice'.format(flag.value)]
-
-                    # Get extra option flags.
-                    for option in flag.options:
-                        custom_flags[option.value] = data['flag-{0}'.format(option.value)]
+        form_flags = dict((k, v) for k, v in data.items() if k.startswith('flag-'))
 
         # Build game world, randomize it, and generate the patch.
-        world = GameWorld(seed, Settings(mode, debug_mode, custom_flags))
-        print(">>>>>>>>>>>>>> {!r}".format(world.settings.flag_string))  # FIXME
+        world = GameWorld(seed, Settings(mode, debug_mode, form_flags))
         world.randomize()
         patches = {'US': world.build_patch()}
 
@@ -145,7 +128,6 @@ class GenerateView(FormView):
             'hash': world.hash,
             'mode': mode,
             'debug_mode': debug_mode,
-            'custom_flags': custom_flags,
             'flag_string': world.settings.flag_string,
             'file_select_character': world.file_select_character,
             'file_select_hash': world.file_select_hash,
@@ -162,7 +144,7 @@ class GenerateView(FormView):
                 s.delete()
 
             s = Seed(hash=world.hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
-                     flags=json.dumps(custom_flags), file_select_char=world.file_select_character,
+                     flags=form_flags, file_select_char=world.file_select_character,
                      file_select_hash=world.file_select_hash)
             s.save()
 
@@ -208,7 +190,6 @@ class GenerateFromHashView(View):
             'hash': s.hash,
             'mode': s.mode,
             'debug_mode': s.debug_mode,
-            'custom_flags': json.loads(s.flags),
             'flag_string': Settings(s.mode, s.debug_mode, s.flags).flag_string,
             'file_select_character': s.file_select_char,
             'file_select_hash': s.file_select_hash,

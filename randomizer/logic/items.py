@@ -4,7 +4,7 @@ import random
 
 from randomizer.data import items
 from randomizer.data.characters import Mario, Mallow, Geno, Bowser, Peach
-from . import utils
+from . import flags, utils
 
 
 def _randomize_item(item):
@@ -16,7 +16,7 @@ def _randomize_item(item):
     if not item.is_equipment:
         return
 
-    if item.world.settings.randomize_equipment:
+    if item.world.settings.is_flag_enabled(flags.EquipmentStats):
         # Randomize number of attributes to go up or down. Guarantee >= 1 attribute goes up, but none go down.
         # For each set, 1/3 chance all non-zero ones go up/down.  Otherwise, weighted random number of stats.
         # ...attributes going up
@@ -87,7 +87,7 @@ def _randomize_item(item):
         if item.variance:
             item.variance = utils.mutate_normal(item.variance, minimum=1, maximum=127)
 
-    if item.world.settings.randomize_allowed_equips:
+    if item.world.settings.is_flag_enabled(flags.EquipmentCharacters):
         # Randomize which characters can equip this item.
         # Geno can only equip his own weapons, and nobody else can equip his due to softlocks.
         if not item.is_weapon or Geno not in item.equip_chars:
@@ -116,7 +116,7 @@ def _randomize_item(item):
             item.equip_chars = list(new_chars)
 
     # Shuffle special properties.
-    if item.world.settings.randomize_buffs:
+    if item.world.settings.is_flag_enabled(flags.EquipmentBuffs):
         if item.tier == 1:
             odds = 2 / 3
         elif item.tier == 2:
@@ -182,7 +182,7 @@ def randomize_all(world):
         _randomize_item(item)
 
     # Shuffle shop contents and prices.
-    if world.settings.randomize_shops:
+    if world.settings.is_flag_enabled(flags.ShopShuffle):
         assignments = {}
 
         # ******************************* Phase 1: Frog coin shops

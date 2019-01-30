@@ -7,14 +7,34 @@ import time
 from django.core.management.base import BaseCommand
 
 from randomizer.data.keys import get_default_key_item_locations
-from randomizer.logic.main import GameWorld, Settings, VERSION, FLAGS
+from randomizer.logic.flags import CATEGORIES
+from randomizer.logic.main import GameWorld, Settings, VERSION
 
 # Flag string for all flags at max level.
-ALL_FLAGS = ''
-for flag in FLAGS:
-    ALL_FLAGS += flag.letter
-    if flag.levels > 1:
-        ALL_FLAGS += str(flag.levels)
+ALL_FLAGS = []
+for category in CATEGORIES:
+    for flag in category.flags:
+        # Solo flag that begins with a dash.
+        if flag.value.startswith('-'):
+            ALL_FLAGS.append(flag.value)
+        # Flag that may have a subsection of choices and/or options.
+        else:
+            chars = []
+
+            if flag.choices:
+                chars.append(flag.choices[-1].value[1:])
+
+            for option in flag.options:
+                chars.append(option.value[1:])
+
+            # If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
+            if flag.value.startswith('@'):
+                if chars:
+                    ALL_FLAGS.append(flag.value[1:] + ''.join(chars))
+            else:
+                ALL_FLAGS.append(flag.value[:1] + ''.join(chars))
+
+ALL_FLAGS = ' '.join(ALL_FLAGS)
 
 
 class Command(BaseCommand):
@@ -36,35 +56,15 @@ class Command(BaseCommand):
         parser.add_argument('-m', '--mode', dest='mode', default='open', choices=['standard', 'open'],
                             help='Mode to use for samples.  Default: %(default)s')
 
-        parser.add_argument('-f', '--flags', dest='flags', default='',
+        parser.add_argument('-f', '--flags', dest='flags', default=ALL_FLAGS,
                             help='Flags string (from website).  If not provided, all flags will be used.')
 
     def handle(self, *args, **options):
         sysrand = random.SystemRandom()
         start = time.time()
 
-        flags = options['flags']
-        if not options['flags']:
-            flags = ALL_FLAGS
-
         self.stdout.write("Generating {} samples of version {}, {} mode, flags {!r}".format(
-            options['samples'], VERSION, options['mode'], flags))
-
-        # Parse custom flags from flag string argument.
-        flags_dict = {}
-        current_flag = None
-        current_char = None
-        for char in flags:
-            if not char.isdigit() and char != current_char:
-                current_char = char
-                l = [f for f in FLAGS if f.letter == current_char]
-                if l:
-                    current_flag = l[0]
-
-            if char.isdigit():
-                flags_dict[current_flag.field] = int(char)
-            else:
-                flags_dict[current_flag.field] = 1
+            options['samples'], VERSION, options['mode'], options['flags']))
 
         stars_file = '{}_stars.csv'.format(options['output_file'])
         self.stdout.write("Star Locations: {}".format(stars_file))
@@ -77,7 +77,7 @@ class Command(BaseCommand):
         for i in range(options['samples']):
             # Generate random full standard seed.
             seed = sysrand.getrandbits(32)
-            world = GameWorld(seed, Settings(options['mode'], custom_flags=flags_dict))
+            world = GameWorld(seed, Settings(options['mode'], flag_string=options['flags']))
             try:
                 world.randomize()
             except Exception:

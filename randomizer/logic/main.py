@@ -21,17 +21,52 @@ VERSION = '8.0.0beta4'
 
 
 class Settings:
-    def __init__(self, mode, debug_mode=False, custom_flags=None):
-        """
-        :type mode: str
-        :type debug_mode: bool
-        :type custom_flags: dict
+    def __init__(self, mode, debug_mode=False, form_data=None, flag_string=None):
+        """Provide either form data fields or flag string to set flags on creation.
+
+        Args:
+            mode (str): Should be standard or open.
+            debug_mode (bool): Debug flag.
+            form_data (dict): Form data dict if getting settings from form submission.
+            flag_string (str): Flag string if parsing flags from string.
         """
         self._mode = mode
         self._debug_mode = debug_mode
-        self._custom_flags = {}
-        if custom_flags is not None:
-            self._custom_flags.update(custom_flags)
+        self._enabled_flags = set()
+
+        # If flag string provided, make fake form data based on it to parse.
+        if flag_string is not None:
+            form_data = {}
+            for flag in flag_string.split():
+                if flag.startswith('-'):
+                    # Solo flag that begins with a dash.
+                    form_data['flag-{}'.format(flag)] = True
+                else:
+                    # Flag that may have a subsection of choices and/or options.
+                    first = flag[0]
+                    form_data['flag-{}'.format(first)] = True
+                    form_data['flag-@{}'.format(first)] = True
+
+                    for char in flag[1:]:
+                        form_data['flag-@{}-choice'.format(first)] = '{}{}'.format(first, char)
+                        form_data['flag-{}{}'.format(first, char)] = True
+
+            # Get flags from form data.
+        if form_data is not None:
+            for category in flags.CATEGORIES:
+                for flag in category.flags:
+                    if flag.available_in_mode(self.mode):
+                        if form_data['flag-{}'.format(flag.value)]:
+                            self._enabled_flags.add(flag)
+
+                        # Check for choices and/or options.
+                        for choice in flag.choices:
+                            if form_data['flag-{}-choice'.format(flag.value)] == choice.value:
+                                self._enabled_flags.add(choice)
+
+                        for option in flag.options:
+                            if form_data['flag-{}'.format(option.value)]:
+                                self._enabled_flags.add(option)
 
     @property
     def mode(self):
@@ -81,24 +116,23 @@ class Settings:
     def is_flag_enabled(self, flag):
         """
         Args:
-            flag(randomizer.logic.flags.Flag):
+            flag: Flag class to check.
 
         Returns:
             bool: True if flag is enabled, False otherwise.
         """
-        return bool(self._custom_flags.get(flag.value))
+        return flag in self._enabled_flags
 
     def get_flag_choice(self, flag):
         """
         Args:
-            flag(randomizer.logic.flags.Flag):
+            flag: Flag class to get choice for.
 
         Returns:
             randomizer.logic.flags.Flag: Selected choice for this flag.
         """
-        val = self._custom_flags.get('{0}-choice'.format(flag.value))
         for choice in flag.choices:
-            if choice.value == val:
+            if self.is_flag_enabled(choice):
                 return choice
         return None
 
@@ -326,21 +360,29 @@ class GameWorld:
                 patch += boss.get_patch()
 
             # Set flags for seven star mode and Bowser's Keep.
-            if self.settings.randomize_stars and self.settings.randomize_stars_seven:
+            if self.settings.is_flag_enabled(flags.SevenStarHunt):
                 patch.add_data(0x1fd341, utils.ByteField(0xa2).as_bytes())
 
-            if self.settings.randomize_stars_bk:
+            if self.settings.is_flag_enabled(flags.BowsersKeepOpen):
                 patch.add_data(0x1fd343, utils.ByteField(0xa2).as_bytes())
 
             # If star piece exp progression is on, set exp values for each star piece number and enable flag.
-            if self.settings.randomize_exp_stars:
-                patch.add_data(0x39bc44, utils.ByteField(1).as_bytes())  # 0 stars
-                patch.add_data(0x39bc46, utils.ByteField(2).as_bytes())  # 1 star
-                patch.add_data(0x39bc48, utils.ByteField(3).as_bytes())  # 2 stars
-                patch.add_data(0x39bc4a, utils.ByteField(5).as_bytes())  # 3 stars
-                patch.add_data(0x39bc4c, utils.ByteField(6).as_bytes())  # 4 stars
-                patch.add_data(0x39bc4e, utils.ByteField(7).as_bytes())  # 5 stars
-                patch.add_data(0x39bc52, utils.ByteField(11).as_bytes())  # 6/7 stars
+            choice = self.settings.get_flag_choice(flags.StarExpChallenge)
+            if choice:
+                if choice is flags.StarExp1:
+                    exps = (2, 4, 5, 6, 8, 9, 11)
+                elif choice is flags.StarExp2:
+                    exps = (1, 2, 3, 5, 6, 7, 11)
+                else:
+                    raise ValueError("Got unrecognized value for star exp challenge: {!r}".format(choice))
+
+                patch.add_data(0x39bc44, utils.ByteField(exps[0]).as_bytes())  # 0 stars
+                patch.add_data(0x39bc46, utils.ByteField(exps[1]).as_bytes())  # 1 star
+                patch.add_data(0x39bc48, utils.ByteField(exps[2]).as_bytes())  # 2 stars
+                patch.add_data(0x39bc4a, utils.ByteField(exps[3]).as_bytes())  # 3 stars
+                patch.add_data(0x39bc4c, utils.ByteField(exps[4]).as_bytes())  # 4 stars
+                patch.add_data(0x39bc4e, utils.ByteField(exps[5]).as_bytes())  # 5 stars
+                patch.add_data(0x39bc52, utils.ByteField(exps[6]).as_bytes())  # 6/7 stars
                 patch.add_data(0x1fd32d, utils.ByteField(0xa0).as_bytes())  # Enable flag
 
         # Unlock the whole map if in debug mode in standard.

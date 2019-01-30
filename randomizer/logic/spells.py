@@ -1,6 +1,6 @@
 # Spell randomization logic.
 
-from . import utils
+from . import flags, utils
 
 from randomizer.data import spells
 
@@ -34,13 +34,20 @@ def randomize_all(world):
 
     :type world: randomizer.logic.main.GameWorld
     """
-    if world.settings.randomize_spell_stats:
+    if world.settings.is_flag_enabled(flags.CharacterSpellStats):
         # Randomize spell stats.
         for spell in world.spells:
-            _randomize_spell(spell)
+            if isinstance(spell, spells.CharacterSpell):
+                _randomize_spell(spell)
 
         # Randomize starting FP if we're randomizing spell stats.
         world.starting_fp = utils.mutate_normal(world.starting_fp, minimum=1, maximum=99)
+
+    # Randomize enemy spells.
+    if world.settings.is_flag_enabled(flags.EnemyAttacks):
+        for spell in world.spells:
+            if isinstance(spell, spells.EnemySpell):
+                _randomize_spell(spell)
 
     # If we're generating a debug mode seed for testing, set max FP to start.
     if world.debug_mode:

@@ -4,7 +4,7 @@ import collections
 import random
 
 from randomizer.data import characters, spells
-from randomizer.logic import utils
+from randomizer.logic import flags, utils
 
 
 # Move this to character classes instead!
@@ -316,15 +316,13 @@ def randomize_all(world):
     :type world: randomizer.logic.main.GameWorld
     """
     # Shuffle learned spells for all characters.
-    if world.settings.randomize_spell_lists:
+    if world.settings.is_flag_enabled(flags.CharacterLearnedSpells):
         _randomize_learned_spells(world)
 
-    # Shuffle exp required for level ups.
-    if world.settings.randomize_character_stats:
+    # Shuffle character stats.
+    if world.settings.is_flag_enabled(flags.CharacterStats):
         _randomize_levelup_xps(world.levelup_xps)
 
-    # Shuffle each character if needed, and finalize starting attributes based on learned spells.
-    if world.settings.randomize_character_stats:
         # Intershuffle levelup stat bonuses up to level 20 between all characters for variance.
         all_bonuses = []
         for character in world.characters:
@@ -360,7 +358,7 @@ def randomize_all(world):
 
     # If we're shuffling join order, do that now before we finalize the characters.  For standard mode, keep Mario as
     # the first character and shuffle the others.  For open mode, shuffle the whole list.
-    if world.settings.randomize_join_order:
+    if world.settings.is_flag_enabled(flags.CharacterJoinOrder):
         if world.open_mode:
             random.shuffle(world.character_join_order)
         else:

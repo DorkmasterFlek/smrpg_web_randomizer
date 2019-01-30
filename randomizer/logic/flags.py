@@ -52,7 +52,7 @@ class BowsersKeepOpen(Flag):
     modes = ['open']
 
 
-class IncludeCulex(Flag):
+class CulexStarShuffle(Flag):
     name = "Include Culex"
     description = "Culex may have a star piece."
     value = 'Rc'
@@ -69,7 +69,7 @@ class StarPieceShuffle(Flag):
     options = [
         SevenStarHunt,
         BowsersKeepOpen,
-        IncludeCulex,
+        CulexStarShuffle,
     ]
 
 
@@ -120,7 +120,7 @@ class CharacterLearnedSpells(Flag):
 class CharacterSpellStats(Flag):
     name = 'Randomize character spell stats'
     description = "The power and FP cost of character magic spells will be randomized."
-    value = 'Cm'
+    value = 'Cp'
 
 
 class CharacterShuffle(Flag):
@@ -313,19 +313,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R7 Cj Edf S Qsba'
+    flags = 'K R Cj Edf S Qa'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
-    description = 'A mild increase in difficulty compared to casual, while removing a couple easier flags.'
-    flags = 'Ks R7k Csmjl Edf S Qa P1'
+    description = 'A mild increase in difficulty compared to casual.'
+    flags = 'Ks R7 Cspjl Edf S Qa'
 
 
-class ChaosPreset(Preset):
-    name = 'Chaos'
+class AdvancedPreset(Preset):
+    name = 'Advanced'
+    description = 'More difficult options for advanced players, requiring you to manage your equips more.'
+    flags = 'Ks R7k Cspjl Edfs S Qsba P1'
+
+
+class ExpertPreset(Preset):
+    name = 'Expert'
     description = 'A highly chaotic shuffle with everything possible enabled.'
-    flags = 'Ks R7kc Csmjl Edfsa S Qsba P2'
+    flags = 'Ks R7kc Cspjl Edfsa S Qsba P2'
 
 
 # ************************************** Default lists for the site.
@@ -351,5 +357,6 @@ for category in CATEGORIES:
 PRESETS = (
     CasualPreset,
     IntermediatePreset,
-    ChaosPreset,
+    AdvancedPreset,
+    ExpertPreset,
 )

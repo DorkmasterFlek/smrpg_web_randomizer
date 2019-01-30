@@ -144,30 +144,10 @@
 
         // Get generated filename based on current settings and provided extension.
         makeFilename(ext) {
-            // Build flag characters based on settings.
-            let flag_chars = '';
-            let value, modes;
-            {% for flag in flags %}
-                modes = '{{ flag.modes|join:',' }}'.split(',');
-                if (modes.includes(this.mode)) {
-                    value = parseInt(this.flags['{{ flag.field }}']);
-                    if (!value) {
-                        value = 0;
-                    }
-                    if (value > 0) {
-                        flag_chars += '{{ flag.letter }}';
-                        // For values greater than 1, show the number after the letter like FF4FE.
-                        if (value > 1) {
-                            flag_chars += value.toString();
-                        }
-                    }
-                }
-            {% endfor %}
-
             let name = "SMRPG_GBARP_" + this.region
                 + "_" + this.logic
                 + "_" + this.mode
-                + "_" + flag_chars
+                + "_" + this.hash
                 + "_" + this.seed;
             if (this.debug_mode) {
                 name = name + "_DEBUG";
