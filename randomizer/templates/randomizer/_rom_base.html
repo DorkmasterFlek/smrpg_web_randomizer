@@ -159,8 +159,8 @@
         // Patch for each mode.
         applyModeChanges(mode) {
             return new Promise((resolve) => {
-                if (mode === "standard") {
-                    $.getJSON("{% static 'randomizer/patches/standard_mode.json' %}", {}, (patch) => {
+                if (mode === "linear") {
+                    $.getJSON("{% static 'randomizer/patches/linear_mode.json' %}", {}, (patch) => {
                         this.parsePatch(patch);
                         resolve(this);
                     });
