@@ -4,7 +4,7 @@ from .logic.flags import FLAGS
 
 MODES = (
     ('open', 'Open'),
-    ('classic', 'Classic'),
+    ('linear', 'Linear'),
 )
 
 REGIONS = (
