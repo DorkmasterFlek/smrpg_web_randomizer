@@ -16,7 +16,7 @@ def _boss_location_filter(world, location):
     Returns:
         bool:
     """
-    if isinstance(location, bosses.Culex) and world.settings.is_flag_enabled(flags.CulexStarShuffle):
+    if isinstance(location, bosses.Culex) and not world.settings.is_flag_enabled(flags.CulexStarShuffle):
         return False
     if isinstance(location, bosses.BowsersKeepLocation) and not world.settings.is_flag_enabled(flags.BowsersKeepOpen):
         return False
