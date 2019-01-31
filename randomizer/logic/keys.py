@@ -17,7 +17,7 @@ def _item_location_filter(world, location):
         bool:
     """
     if (isinstance(location, (keys.Seed, keys.Fertilizer)) and
-            world.settings.is_flag_enabled(flags.IncludeSeedFertilizer)):
+            not world.settings.is_flag_enabled(flags.IncludeSeedFertilizer)):
         return False
     return True
 
