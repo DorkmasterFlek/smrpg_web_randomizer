@@ -146,15 +146,15 @@ class AxemRangers(BossLocation):
 
 
 class Magikoopa(BowsersKeepLocation):
-    star_address = 0x1e9cea
+    star_address = 0x1e9a1b
 
 
 class Boomer(BowsersKeepLocation):
-    star_address = 0x1e9cfd
+    star_address = 0x1e9a2e
 
 
 class Exor(BowsersKeepLocation):
-    star_address = 0x1e9d010
+    star_address = 0x1e9a41
 
 
 # ********************* Default lists for the world.
