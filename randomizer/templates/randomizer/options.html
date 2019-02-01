@@ -36,8 +36,8 @@
             <h3 class="card-title">Modes</h3>
         </div>
         <div class="card-body">
-            <h4>Standard</h4>
-            <p>In Standard mode, while the majority of the cutscenes and text have been removed, the actual progression
+            <h4>Linear</h4>
+            <p>In Linear mode, while the majority of the cutscenes and text have been removed, the actual progression
                 of the plot and collection of the star pieces remains the same as the vanilla game.  Story events will
                 occur where they are supposed to, characters will join your party at the expected points (although which
                 character it is can be randomized if desired), and stars will be awarded from the same bosses.
@@ -76,9 +76,48 @@
             <h3 class="card-title">Flags</h3>
         </div>
         <div class="card-body">
-            <p>The flags can significantly change the randomizer experience.  The full list of available flags and their
-                effects can be viewed on the <a href="{% url 'randomizer:randomize' %}">Generate Randomize Game</a> page.
-            </p>
+            <p>The flags can significantly change the randomizer experience.  They are broken into categories:</p>
+            {% for category in categories %}
+                <div class="card border-info my-2">
+                    <div class="card-header">
+                        <h5 class="card-title">{{ category.name }}</h5>
+                    </div>
+                    <div class="card-body">
+                        <ul>
+                            {% for flag in category.flags %}
+                                <li>{{ flag.name }}</li>
+                                <ul>
+                                    {% if flag.description_as_markdown %}
+                                        <li>{{ flag.description_as_markdown }}</li>
+                                    {% endif %}
+
+                                    {% if flag.choices %}
+                                        {% for choice in flag.choices %}
+                                            <li>{{ choice.name }}</li>
+                                            {% if choice.description_as_markdown %}
+                                                <ul>
+                                                    <li>{{ choice.description_as_markdown }}</li>
+                                                </ul>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+
+                                    {% if flag.options %}
+                                        {% for option in flag.options %}
+                                            <li>{{ option.name }}</li>
+                                            {% if option.description_as_markdown %}
+                                                <ul>
+                                                    <li>{{ option.description_as_markdown }}</li>
+                                                </ul>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% endif %}
+                                </ul>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
     </div>
     <div class="card border-info my-3">

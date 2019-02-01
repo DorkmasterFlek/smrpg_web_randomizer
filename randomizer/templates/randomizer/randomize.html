@@ -52,7 +52,7 @@
                     </div>
                 </div>
                 <div class="card-header bg-info text-white">
-                    <h4 class="card-title">Select Preset</h4>
+                    <h4 class="card-title">Select Preset (optional)</h4>
                 </div>
                 <div class="card-body">
                     <div class="row mb-3">
@@ -83,7 +83,7 @@
                     {% endfor %}
                     <div class="row" id="custom-flag-entry">
                         <div class="col">
-                            <p>You can enter a custom flag string below:</p>
+                            <p>You can enter a custom flag string below.  Hit Apply when you're done.</p>
                             <div class="input-group">
                                 <input type="text" id="quick-custom" name="quick-custom" class="form-control"
                                        placeholder="Custom Flag String">
@@ -376,6 +376,9 @@
             // Set flag string from selected flags.
             let flagString = flagStrings.join(' ');
             $('#flag-string').val(flagString);
+
+            // Save current flags in local storage.
+            localforage.setItem("rom.flags", flagString);
         }
 
         $(() => {
@@ -490,8 +493,12 @@
                 $("#generate-container").show();
             });
 
-            // Apply flags from the first available preset by default.
-            applyFlags();
+            // Apply stored flags, if any.
+            localforage.getItem("rom.flags").then((value) => {
+                if (value) {
+                    applyFlags(value);
+                }
+            });
         });
     </script>
 {% endblock %}
