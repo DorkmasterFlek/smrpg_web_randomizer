@@ -17,7 +17,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0.0beta4'
+VERSION = '8.0.0beta5'
 
 
 class Settings:
@@ -218,7 +218,7 @@ class GameWorld:
             cls: Item class to get this world's instance of.
 
         Returns:
-            randomizer.logic.data.items.Item: Item instance for this world.
+            randomizer.data.items.Item: Item instance for this world.
         """
         return self.items_dict[cls.index]
 
@@ -228,7 +228,7 @@ class GameWorld:
             cls: Enemy class to get this world's instance of.
 
         Returns:
-            randomizer.logic.data.enemies.Enemy: Enemy instance for this world.
+            randomizer.data.enemies.Enemy: Enemy instance for this world.
         """
         return self.enemies_dict[cls.index]
 

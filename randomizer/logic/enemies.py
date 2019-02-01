@@ -3,6 +3,7 @@
 import random
 from functools import reduce
 
+from randomizer.data.enemies import Smithy2Head, Smithy2ChestHead, Smithy2MageHead, Smithy2SafeHead, Smithy2TankHead
 from randomizer.data.formations import FormationMember
 from . import flags, utils
 
@@ -270,6 +271,12 @@ def randomize_all(world):
         # Finally shuffle enemy attribute values as normal.
         for enemy in world.enemies:
             _randomize_enemy(enemy)
+
+        # Special logic for Smithy 2: All heads must have the same HP!  Use the base head enemy for this.
+        main_head = world.get_enemy_instance(Smithy2Head)
+        for cls in (Smithy2TankHead, Smithy2SafeHead, Smithy2MageHead, Smithy2ChestHead):
+            head = world.get_enemy_instance(cls)
+            head.hp = main_head.hp
 
         # *** Shuffle enemy rewards ***
         # Intershuffle xp, coins, and items like old logic.
