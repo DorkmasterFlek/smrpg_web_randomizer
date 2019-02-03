@@ -71,6 +71,10 @@ class ResourcesView(RandomizerView):
     template_name = 'randomizer/resources.html'
 
 
+class GuideView(RandomizerView):
+    template_name = 'randomizer/guide.html'
+
+
 class UpdatesView(RandomizerView):
     template_name = 'randomizer/updates.html'
 

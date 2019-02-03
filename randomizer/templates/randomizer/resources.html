@@ -1,5 +1,4 @@
 {% extends 'randomizer/layouts/default.html' %}
-{% load static %}
 
 {% block content %}
     <h1>Resources</h1>
@@ -17,109 +16,15 @@
         </div>
         <div class="card border-info my-3">
             <div class="card-header bg-info text-white">
-                <h3 class="card-title">Equipment</h3>
+                <h3 class="card-title">Reference Guide</h3>
             </div>
             <div class="card-body">
-                <p>All menu descriptions for weapons, armor, and accessories will look like something like this:</p>
-                <p>
-                    <img alt="menu1" src="{% static 'randomizer/img/menu1.png' %}"/>
-                    <img alt="menu2" src="{% static 'randomizer/img/menu2.png' %}"/>
-                </p>
-                <h4>First Row</h4>
-                <p>Lists elements that the equip makes you immune (<span class="icon x0"></span>) to, and elements that
-                    you will take half damage (<span class="icon x12"></span>) from. If this row is blank, that means
-                    the equipment does not offer any fire/ice/lightning protections.</p>
-                <ul>
-
-                    <li><span class="icon fire"></span>- Fire</li>
-
-                    <li><span class="icon ice"></span>- Ice</li>
-
-                    <li><span class="icon lightning"></span>- Lightning</li>
-                </ul>
-                <h4>Second Row</h4>
-                <p>Lists the amount by which your speed increases (<span class="icon agiup"></span>) or decreases
-                    (<span class="icon agidown"></span>), and status effects that the equip provides immunity to. If
-                    this row only shows the speed stat, that means the equipment does not offer any status immunities.
-                </p>
-                <ul>
-
-                    <li><span class="icon mute"></span> - Mute</li>
-
-                    <li><span class="icon sleep"></span> - Sleep</li>
-
-                    <li><span class="icon poison"></span> - Poison</li>
-
-                    <li><span class="icon fear"></span> - Fear</li>
-
-                    <li><span class="icon mushroom"></span> - Mushroom</li>
-
-                    <li><span class="icon scarecrow"></span> - Scarecrow</li>
-
-                    <li><span class="icon ko"></span> - Instant Death</li>
-
-                    <li><span class="icon berserk"></span> - Berserk (exists but unused in the original game code, is
-                        used in the randomizer)
-                    </li>
-                </ul>
-                <h4>Third Row</h4>
-                <p>Physical attack increase (<span class="icon atkup"></span>) or decrease (<span
-                        class="icon atkdown"></span>), and physical defense increase (<span class="icon defup"></span>)
-                    or decrease (<span class="icon defdown"></span>).</p>
-                <p>(<span class="icon boost"></span>) indicates that the stat is also given a 1.5x boost multiplier
-                    (exactly what Geno Boost gives you).</p>
-                <h4>Fourth Row</h4>
-                <p>Magic attack increase (<span class="icon matkup"></span>) or decrease (<span
-                        class="icon matkdown"></span>), and magic defense increase (<span class="icon mdefup"></span>)
-                    or decrease (<span class="icon mdefdown"></span>).</p>
-                <p>Like with the third row, (<span class="icon boost"></span>) indicates that the stat is also given a
-                    1.5x boost multiplier.</p>
-                <p><strong>NOTE:</strong> The boost multipliers are what is actually given with Geno Boost.  They
-                    <strong>do not stack</strong> with Geno Boost, and multiple boosts for the same stat are redundant!
-                </p>
-            </div>
-        </div>
-        <div class="card border-info my-3">
-            <div class="card-header bg-info text-white">
-                <h3 class="card-title">Psychopath</h3>
-            </div>
-            <div class="card-body">
-                <p>You can use the Psychopath spell to learn about enemy weaknesses and immunities.  This can be very
-                    useful if enemy stats are being shuffled!
-                </p>
-                <p>Psychopath messages will look like something like this:</p>
-                <p>
-                    <img alt="psych1" src="{% static 'randomizer/img/psych1.png' %}"/>
-                    <img alt="psych2" src="{% static 'randomizer/img/psych2.png' %}"/>
-                </p>
-                <p>Elements following the (<span class="picon _0x"></span>) symbol indicate the enemy's immunities (0
-                    damage), and elements following the (<span class="picon _2x"></span>) symbol indicate weaknesses (2x
-                    damage). </p>
-                <ul>
-
-                    <li><span class="picon fire"></span>- Fire</li>
-
-                    <li><span class="picon ice"></span>- Ice</li>
-
-                    <li><span class="picon lightning"></span>- Lightning</li>
-
-                    <li><span class="picon jump"></span>- Jump</li>
-                </ul>
-                <p>The rest of the symbols indicate status effects that the enemy is <strong>vulnerable</strong> to. </p>
-                <ul>
-
-                    <li><span class="picon mute"></span>- Mute</li>
-
-                    <li><span class="picon sleep"></span> - Sleep (Sleepy Time, Sleepy Bomb)</li>
-
-                    <li><span class="picon poison"></span> - Poison (Poison Gas, Bad Mushroom)</li>
-
-                    <li><span class="picon fear"></span> - Fear (Terrorize, Fright Bomb)</li>
-
-                    <li><span class="picon ko"></span><span class="picon ko"></span> - Instant Death (Geno Whirl)</li>
-                </ul>
-                <p>You may see the Jump element under both immunities and weaknesses.  This is allowed because the
-                    Jump Shoes will bypass this immunity and make them take double damage.
+                <div style="text-align:center;">
+                    <a class="btn btn-info btn-lg btn-xl" href="{% url 'randomizer:guide' %}"
+                       rel="noopener noreferrer" role="button">Reference Guide</a>
+                </div>
+                <p>We have a reference guide generously created by pidgezero_one!  If you're new to
+                    SMRPG or the randomizer, check it out for tons of useful info!
                 </p>
             </div>
         </div>
