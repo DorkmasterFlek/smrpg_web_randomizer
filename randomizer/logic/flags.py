@@ -173,13 +173,31 @@ class EnemyShuffle(Flag):
     ]
 
 
+class BossShuffleCulex(Flag):
+    name = 'Include Culex'
+    value = 'Bc'
+    hard = True
+
+
+class BossShuffleKeepStats(Flag):
+    name = "Don't scale stats"
+    description = "Boss stats will **not** be scaled to match the battle it's replacing."
+    value = 'Bs'
+    hard = True
+
+
 class BossShuffle(Flag):
     name = 'Randomize bosses'
     description = ("The positions of bosses are shuffled. Boss stats are roughly scaled to match the battle it's "
                    "replacing. For example, Yaridovich in Bandit's Way would have the HP and stats of Croco 1. "
-                   "(Yes, this flag is janky, and high power magic attacks are still strong. Save often.)")
+                   "(Yes, this flag is janky.  High power magic attacks are still strong, and status effects are still "
+                   "a thing. Save often.)")
     modes = ['open']
     value = 'B'
+    options = [
+        BossShuffleCulex,
+        BossShuffleKeepStats,
+    ]
 
 
 # ******** Item shuffle flags
@@ -313,25 +331,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Cj Edf S Qa'
+    flags = 'K R Cj Edf B S Qa'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf S Qa'
+    flags = 'Ks R7 Cspjl Edf B S Qa'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfs S Qsba P1'
+    flags = 'Ks R7k Cspjl Edfs Bc S Qsba P1'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything possible enabled.'
-    flags = 'Ks R7kc Cspjl Edfsa S Qsba P2'
+    flags = 'Ks R7kc Cspjl Edfsa Bcs S Qsba P2'
 
 
 # ************************************** Default lists for the site.

@@ -1,5 +1,6 @@
 # Data module for enemy formation data.
 
+from randomizer.data.bosses import Battlefields
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 from . import enemies
@@ -12,7 +13,7 @@ class FormationMember:
         """
         :type index: int
         :type hidden_at_start: bool
-        :type enemy: Enemy
+        :type enemy: randomizer.data.enemies.Enemy
         :type x_pos: int
         :type y_pos: int
         """
@@ -84,18 +85,24 @@ class EnemyFormation:
     # LOWER_Y = min(c[1] for c in VALID_COORDINATES)
     # UPPER_Y = max(c[1] for c in VALID_COORDINATES)
 
-    def __init__(self, index, event_at_start, misc_flags, members):
+    def __init__(self, index, event_at_start, music_run_flags, members, required_battlefield=None):
         """
-        :type index: int
-        :type event_at_start: int|None
-        :type misc_flags: int
-        :type members: list[FormationMember]
+        Args:
+            index (int):
+            event_at_start (int|None):
+            music_run_flags (int):
+            members (list[FormationMember]):
+            required_battlefield (int):
         """
         self.index = index
         self.event_at_start = event_at_start
-        self.misc_flags = misc_flags
         self.members = members
         self.leaders = set()
+        self.required_battlefield = required_battlefield
+
+        # Parse out can't run and music flags.
+        self.can_run_away = not bool(music_run_flags & 0x02)
+        self.music = music_run_flags & 0xfd
 
     @property
     def bosses(self):
@@ -136,6 +143,17 @@ class EnemyFormation:
             data += utils.ByteField(member.y_pos).as_bytes()
 
         base_addr = self.BASE_ADDRESS + (self.index * 26)
+        patch.add_data(base_addr, data)
+
+        # Add formation metadata.
+        data = bytearray()
+        data += utils.ByteField(self.event_at_start if self.event_at_start is not None else 0xff).as_bytes()
+        music_run_flags = self.music
+        if not self.can_run_away:
+            music_run_flags |= 0x03
+        data += utils.ByteField(music_run_flags).as_bytes()
+
+        base_addr = self.BASE_META_ADDRESS + self.index * 3 + 1
         patch.add_data(base_addr, data)
 
         return patch
@@ -1593,7 +1611,7 @@ def get_default_enemy_formations(world):
             FormationMember(3, True, world.get_enemy_instance(enemies.TentaclesRight), 193, 143),
             FormationMember(4, True, world.get_enemy_instance(enemies.TentaclesRight), 168, 156),
             FormationMember(5, True, world.get_enemy_instance(enemies.TentaclesRight), 135, 143),
-        ]),
+        ], required_battlefield=Battlefields.KingCalamari),
         EnemyFormation(286, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Belome1), 183, 127),
         ]),
@@ -1632,13 +1650,14 @@ def get_default_enemy_formations(world):
             FormationMember(0, False, world.get_enemy_instance(enemies.CountDown), 150, 93),
             FormationMember(1, False, world.get_enemy_instance(enemies.DingALing), 158, 52),
             FormationMember(2, False, world.get_enemy_instance(enemies.DingALing), 194, 67),
-        ]),
+        ], required_battlefield=Battlefields.Countdown),
         EnemyFormation(296, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AxemYellow), 183, 127),
         ]),
         EnemyFormation(297, None, 7, [
-            FormationMember(0, True, world.get_enemy_instance(enemies.Birdo), 167, 118),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Shelly), 171, 103),
+            # Hide Shelly and show Birdo instead to skip first phase for boss shuffle.
+            FormationMember(0, False, world.get_enemy_instance(enemies.Birdo), 167, 118),
+            FormationMember(1, True, world.get_enemy_instance(enemies.Shelly), 171, 103),
             FormationMember(2, True, world.get_enemy_instance(enemies.Eggbert), 135, 119),
             FormationMember(3, True, world.get_enemy_instance(enemies.Eggbert), 135, 135),
             FormationMember(4, True, world.get_enemy_instance(enemies.Eggbert), 167, 151),
@@ -1658,8 +1677,10 @@ def get_default_enemy_formations(world):
             FormationMember(0, False, world.get_enemy_instance(enemies.KingBomb), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.MezzoBomb), 199, 143),
         ]),
+        # This formation actually has Jinx 3 in the vanilla data, but it's for the Jinx 1 battle!
+        # There's a weird battle event that swaps in the Jinx 1 enemy, but we want Jinx 1 data for boss shuffle.
         EnemyFormation(301, 71, 4, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Jinx3), 183, 127),
+            FormationMember(0, False, world.get_enemy_instance(enemies.Jinx1), 183, 127),
         ]),
         EnemyFormation(302, None, 11, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Mack), 199, 119),
@@ -1691,7 +1712,7 @@ def get_default_enemy_formations(world):
             FormationMember(1, False, world.get_enemy_instance(enemies.Neosquid), 187, 136),
             FormationMember(2, True, world.get_enemy_instance(enemies.RightEye), 174, 145),
             FormationMember(3, True, world.get_enemy_instance(enemies.LeftEye), 203, 157),
-        ]),
+        ], required_battlefield=Battlefields.Exor),
         EnemyFormation(308, None, 15, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Smithy1), 199, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Smelter), 87, 87),
@@ -1702,7 +1723,7 @@ def get_default_enemy_formations(world):
             FormationMember(0, False, world.get_enemy_instance(enemies.Cloaker), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Domino), 215, 159),
             FormationMember(2, True, world.get_enemy_instance(enemies.MadAdder), 167, 135),
-        ]),
+        ], required_battlefield=Battlefields.CloakerDomino),
         EnemyFormation(310, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ratfunk), 199, 151),
@@ -1876,9 +1897,10 @@ def get_default_enemy_formations(world):
             FormationMember(1, True, world.get_enemy_instance(enemies.Terrapin), 167, 135),
         ]),
         EnemyFormation(358, None, 7, [
+            # Hide Hangin' Shy enemies for boss shuffle so it doesn't look weird.  Boomer cutscene is removed anyway.
             FormationMember(0, False, world.get_enemy_instance(enemies.Boomer), 215, 143),
-            FormationMember(1, False, world.get_enemy_instance(enemies.HanginShy), 66, 115),
-            FormationMember(2, False, world.get_enemy_instance(enemies.HanginShy), 186, 74),
+            FormationMember(1, True, world.get_enemy_instance(enemies.HanginShy), 66, 115),
+            FormationMember(2, True, world.get_enemy_instance(enemies.HanginShy), 186, 74),
         ]),
         EnemyFormation(359, None, 9, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeMack), 199, 119),

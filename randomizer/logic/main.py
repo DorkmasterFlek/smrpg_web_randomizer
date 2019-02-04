@@ -17,7 +17,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0.0beta5'
+VERSION = '8.0.0beta6'
 
 
 class Settings:
@@ -190,7 +190,7 @@ class GameWorld:
         self.key_locations = data.keys.get_default_key_item_locations()
 
         # Get boss location data.
-        self.boss_locations = data.bosses.get_default_boss_locations()
+        self.boss_locations = data.bosses.get_default_boss_locations(self)
 
     @property
     def open_mode(self):
@@ -235,14 +235,14 @@ class GameWorld:
     def get_enemy_formation_by_index(self, index):
         """
         :type index: int
-        :rtype: randomizer.logic.enemies.EnemyFormation
+        :rtype: randomizer.data.formations.EnemyFormation
         """
         return self.enemy_formations_dict[index]
 
     def get_formation_pack_by_index(self, index):
         """
         :type index: int
-        :rtype: randomizer.logic.enemies.FormationPack
+        :rtype: randomizer.data.formations.FormationPack
         """
         return self.formation_packs_dict[index]
 
@@ -355,8 +355,7 @@ class GameWorld:
             # Boss locations.
             for boss in self.boss_locations:
                 # FIXME
-                # if boss.has_star:
-                #     print(">>>>>>>>>>>>>>>> {}".format(boss.__class__.__name__))
+                # print(">>>>>>>>>>>>>>>> {}".format(boss))
                 patch += boss.get_patch()
 
             # Set flags for seven star mode and Bowser's Keep.
