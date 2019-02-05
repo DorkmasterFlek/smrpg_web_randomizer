@@ -532,6 +532,7 @@ def get_default_boss_locations(world):
         Culex(world),
         BoxBoy(world),
         MegaSmilax(world),
+        Dodo(world),
         Birdo(world),
         Valentina(world),
         CzarDragon(world),
