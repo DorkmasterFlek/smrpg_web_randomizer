@@ -148,7 +148,7 @@ class GenerateView(FormView):
                 s.delete()
 
             s = Seed(hash=world.hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
-                     flags=form_flags, file_select_char=world.file_select_character,
+                     flags=world.settings.flag_string, file_select_char=world.file_select_character,
                      file_select_hash=world.file_select_hash)
             s.save()
 
@@ -194,7 +194,7 @@ class GenerateFromHashView(View):
             'hash': s.hash,
             'mode': s.mode,
             'debug_mode': s.debug_mode,
-            'flag_string': Settings(s.mode, s.debug_mode, s.flags).flag_string,
+            'flag_string': s.flags,
             'file_select_character': s.file_select_char,
             'file_select_hash': s.file_select_hash,
             'patch': json.loads(p.patch),

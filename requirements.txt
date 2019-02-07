@@ -2,7 +2,6 @@ certifi==2018.11.29
 chardet==3.0.4
 Django==2.1.5
 idna==2.8
-jsonfield==2.0.2
 Markdown==3.0.1
 nlzss==0.1.2
 Pillow==5.4.1
