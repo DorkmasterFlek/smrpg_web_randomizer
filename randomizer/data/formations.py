@@ -1,13 +1,13 @@
 # Data module for enemy formation data.
 
-from randomizer.data.bosses import Battlefields
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 from . import enemies
+from .bosses import Battlefields
 
 
 class FormationMember:
-    """Class representing a single enemy in a formation with meta data."""
+    """Class representing a single enemy in a formation with metadata."""
 
     def __init__(self, index, hidden_at_start, enemy, x_pos, y_pos):
         """
@@ -85,7 +85,8 @@ class EnemyFormation:
     # LOWER_Y = min(c[1] for c in VALID_COORDINATES)
     # UPPER_Y = max(c[1] for c in VALID_COORDINATES)
 
-    def __init__(self, index, event_at_start, music_run_flags, members, required_battlefield=None):
+    def __init__(self, index, event_at_start, music_run_flags, members, required_battlefield=None,
+                 stat_total_enemies=None, stat_scaling_enemies=None):
         """
         Args:
             index (int):
@@ -93,12 +94,30 @@ class EnemyFormation:
             music_run_flags (int):
             members (list[FormationMember]):
             required_battlefield (int):
+            stat_total_enemies (list[randomizer.data.enemies.Enemy|type]): List of enemies needed for stat totals during
+                boss shuffle, if this is different than the actual member list in data.  If None, the main member list
+                is used.
+            stat_scaling_enemies (list[randomizer.data.enemies.Enemy|type]): List of enemies that need to have their
+                stats re-scaled during boss shuffle, if this is different than the actual member list in data.  If None,
+                the main member list is used with any duplicates removed.
         """
         self.index = index
         self.event_at_start = event_at_start
         self.members = members
         self.leaders = set()
         self.required_battlefield = required_battlefield
+
+        # Check if boss shuffle members are different than regular members.  Otherwise, use main member list.
+        if stat_total_enemies is not None:
+            self.stat_total_enemies = stat_total_enemies
+        else:
+            self.stat_total_enemies = [m.enemy for m in self.members]
+
+        # Check if enemies to re-scale are different than the regular members.  Otherwise, use main member list.
+        if stat_scaling_enemies is not None:
+            self.stat_scaling_enemies = stat_scaling_enemies
+        else:
+            self.stat_scaling_enemies = list(set(m.enemy for m in self.members))
 
         # Parse out can't run and music flags.
         self.can_run_away = not bool(music_run_flags & 0x02)
@@ -117,6 +136,43 @@ class EnemyFormation:
     #     x = utils.mutate_normal(x, minimum=self.LOWER_X, maximum=self.UPPER_X)
     #     y = utils.mutate_normal(y, minimum=self.LOWER_Y, maximum=self.UPPER_Y)
     #     return x, y
+
+    # ********** Properties for getting stat totals for boss shuffle.
+
+    @property
+    def shuffle_anchor(self):
+        """Get enemy that is the anchor for this formation for boss shuffle.
+
+        Returns:
+            randomizer.data.enemies.Enemy: Enemy that is the anchor, None if there is no anchor.
+
+        """
+        anchor = [e for e in self.stat_total_enemies if e.anchor]
+        if anchor:
+            return anchor[0]
+        return None
+
+    @property
+    def shuffle_hp(self):
+        """
+
+        Returns:
+            int: Total HP for this formation for boss shuffle.
+
+        """
+        return sum(e.hp for e in self.stat_total_enemies)
+
+    @property
+    def shuffle_fp(self):
+        """
+
+        Returns:
+            int: Total FP for this formation for boss shuffle.
+
+        """
+        return sum(e.fp for e in self.stat_total_enemies)
+
+    # ********** Patch stuff.
 
     def get_patch(self):
         """Get patch for this formation.
@@ -1548,10 +1604,16 @@ def get_default_enemy_formations(world):
             FormationMember(2, True, world.get_enemy_instance(enemies.Goombette), 135, 135),
             FormationMember(3, True, world.get_enemy_instance(enemies.Goombette), 167, 151),
             FormationMember(4, True, world.get_enemy_instance(enemies.Goombette), 215, 151),
+        ], stat_total_enemies=[
+            # Only include Hidon for boss shuffle logic.
+            world.get_enemy_instance(enemies.Hidon),
         ]),
         EnemyFormation(270, None, 3, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BoxBoy), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.Fautso), 151, 111),
+        ], stat_total_enemies=[
+            # Only count Box Boy for boss shuffle logic.
+            world.get_enemy_instance(enemies.BoxBoy),
         ]),
         EnemyFormation(271, None, 3, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chester), 183, 127),
@@ -1584,6 +1646,9 @@ def get_default_enemy_formations(world):
             FormationMember(2, False, world.get_enemy_instance(enemies.BandanaBlue), 135, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.BandanaBlue), 183, 159),
             FormationMember(4, False, world.get_enemy_instance(enemies.BandanaBlue), 215, 151),
+        ], stat_total_enemies=[
+            # Only count Johnny himself for boss shuffle logic.
+            world.get_enemy_instance(enemies.Johnny),
         ]),
         EnemyFormation(281, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.JohnnySolo), 183, 127),
@@ -1611,7 +1676,18 @@ def get_default_enemy_formations(world):
             FormationMember(3, True, world.get_enemy_instance(enemies.TentaclesRight), 193, 143),
             FormationMember(4, True, world.get_enemy_instance(enemies.TentaclesRight), 168, 156),
             FormationMember(5, True, world.get_enemy_instance(enemies.TentaclesRight), 135, 143),
-        ], required_battlefield=Battlefields.KingCalamari),
+        ], required_battlefield=Battlefields.KingCalamari, stat_total_enemies=[
+            # Need to include total spawned tentacles for boss shuffle logic.
+            world.get_enemy_instance(enemies.TentaclesLeft),
+            world.get_enemy_instance(enemies.TentaclesRight),
+            world.get_enemy_instance(enemies.TentaclesRight),
+            world.get_enemy_instance(enemies.TentaclesLeft),
+            world.get_enemy_instance(enemies.TentaclesLeft),
+            world.get_enemy_instance(enemies.TentaclesRight),
+            world.get_enemy_instance(enemies.TentaclesLeft),
+            world.get_enemy_instance(enemies.TentaclesRight),
+            world.get_enemy_instance(enemies.KingCalamari),
+        ]),
         EnemyFormation(286, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Belome1), 183, 127),
         ]),
@@ -1619,10 +1695,20 @@ def get_default_enemy_formations(world):
             FormationMember(0, False, world.get_enemy_instance(enemies.Belome2), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.MarioClone), 135, 119),
             FormationMember(2, True, world.get_enemy_instance(enemies.PeachClone), 215, 159),
+        ], stat_total_enemies=[
+            # Don't count clones for boss shuffle logic.
+            world.get_enemy_instance(enemies.Belome2),
+        ], stat_scaling_enemies=[
+            world.get_enemy_instance(enemies.Belome2),
+            world.get_enemy_instance(enemies.MarioClone),
+            world.get_enemy_instance(enemies.MallowClone),
+            world.get_enemy_instance(enemies.GenoClone),
+            world.get_enemy_instance(enemies.BowserClone),
+            world.get_enemy_instance(enemies.PeachClone),
         ]),
         EnemyFormation(289, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Valentina), 183, 127),
-            FormationMember(1, True, world.get_enemy_instance(enemies.Dodo1), 199, 151),
+            FormationMember(1, True, world.get_enemy_instance(enemies.Dodo), 199, 151),
         ]),
         EnemyFormation(290, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Cloaker2), 183, 127),
@@ -1637,6 +1723,10 @@ def get_default_enemy_formations(world):
             FormationMember(3, True, world.get_enemy_instance(enemies.Helio), 135, 135),
             FormationMember(4, True, world.get_enemy_instance(enemies.Helio), 199, 167),
             FormationMember(5, True, world.get_enemy_instance(enemies.Helio), 231, 151),
+        ], stat_total_enemies=[
+            # Only include main boss enemies for boss shuffle logic.
+            world.get_enemy_instance(enemies.CzarDragon),
+            world.get_enemy_instance(enemies.Zombone),
         ]),
         EnemyFormation(294, 58, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Smilax), 180, 157),
@@ -1645,6 +1735,17 @@ def get_default_enemy_formations(world):
             FormationMember(3, True, world.get_enemy_instance(enemies.Smilax), 207, 151),
             FormationMember(4, True, world.get_enemy_instance(enemies.Smilax), 191, 127),
             FormationMember(5, True, world.get_enemy_instance(enemies.Megasmilax), 175, 111),
+        ], stat_total_enemies=[
+            # Need to include all spawned enemies for boss shuffle logic.
+            world.get_enemy_instance(enemies.Smilax),
+            world.get_enemy_instance(enemies.Smilax),
+            world.get_enemy_instance(enemies.Smilax),
+            world.get_enemy_instance(enemies.Smilax),
+            world.get_enemy_instance(enemies.Smilax),
+            world.get_enemy_instance(enemies.Smilax),
+            world.get_enemy_instance(enemies.Smilax),
+            world.get_enemy_instance(enemies.Smilax),
+            world.get_enemy_instance(enemies.Megasmilax),
         ]),
         EnemyFormation(295, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.CountDown), 150, 93),
@@ -1655,19 +1756,25 @@ def get_default_enemy_formations(world):
             FormationMember(0, False, world.get_enemy_instance(enemies.AxemYellow), 183, 127),
         ]),
         EnemyFormation(297, None, 7, [
-            # Hide Shelly and show Birdo instead to skip first phase for boss shuffle.
-            FormationMember(0, False, world.get_enemy_instance(enemies.Birdo), 167, 118),
-            FormationMember(1, True, world.get_enemy_instance(enemies.Shelly), 171, 103),
+            FormationMember(0, True, world.get_enemy_instance(enemies.Birdo), 167, 118),
+            FormationMember(1, False, world.get_enemy_instance(enemies.Shelly), 171, 103),
             FormationMember(2, True, world.get_enemy_instance(enemies.Eggbert), 135, 119),
             FormationMember(3, True, world.get_enemy_instance(enemies.Eggbert), 135, 135),
             FormationMember(4, True, world.get_enemy_instance(enemies.Eggbert), 167, 151),
             FormationMember(5, True, world.get_enemy_instance(enemies.Eggbert), 199, 151),
+        ], stat_total_enemies=[
+            # Only include Birdo for boss shuffle logic.
+            world.get_enemy_instance(enemies.Birdo),
         ]),
         EnemyFormation(298, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bundt), 199, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Raspberry), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Torte), 199, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.Torte), 135, 119),
+        ], stat_total_enemies=[
+            # Only count the cake for boss shuffle logic.
+            world.get_enemy_instance(enemies.Bundt),
+            world.get_enemy_instance(enemies.Raspberry),
         ]),
         EnemyFormation(299, 17, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.KnifeGuy), 151, 119),
@@ -1692,6 +1799,9 @@ def get_default_enemy_formations(world):
         EnemyFormation(303, None, 11, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Yaridovich), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.YaridovichMirage), 183, 127),
+        ], stat_total_enemies=[
+            # Only include Yarid himself for the boss shuffle logic.
+            world.get_enemy_instance(enemies.Yaridovich),
         ]),
         EnemyFormation(304, 61, 11, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AxemRangers), 201, 79),
@@ -1723,7 +1833,18 @@ def get_default_enemy_formations(world):
             FormationMember(0, False, world.get_enemy_instance(enemies.Cloaker), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Domino), 215, 159),
             FormationMember(2, True, world.get_enemy_instance(enemies.MadAdder), 167, 135),
-        ], required_battlefield=Battlefields.CloakerDomino),
+        ], required_battlefield=Battlefields.CloakerDomino, stat_total_enemies=[
+            # Count all four enemies for boss shuffle logic.
+            world.get_enemy_instance(enemies.Cloaker),
+            world.get_enemy_instance(enemies.Domino),
+            world.get_enemy_instance(enemies.Earthlink),
+            world.get_enemy_instance(enemies.MadAdder),
+        ], stat_scaling_enemies=[
+            world.get_enemy_instance(enemies.Cloaker),
+            world.get_enemy_instance(enemies.Domino),
+            world.get_enemy_instance(enemies.Earthlink),
+            world.get_enemy_instance(enemies.MadAdder),
+        ]),
         EnemyFormation(310, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ratfunk), 199, 151),
@@ -1749,6 +1870,14 @@ def get_default_enemy_formations(world):
             FormationMember(2, True, world.get_enemy_instance(enemies.Microbomb), 151, 135),
             FormationMember(3, True, world.get_enemy_instance(enemies.Microbomb), 183, 151),
             FormationMember(4, True, world.get_enemy_instance(enemies.Microbomb), 215, 159),
+        ], stat_total_enemies=[
+            # Don't count extra bombs for boss shuffle logic.
+            world.get_enemy_instance(enemies.Punchinello),
+        ], stat_scaling_enemies=[
+            world.get_enemy_instance(enemies.Punchinello),
+            world.get_enemy_instance(enemies.Microbomb),
+            world.get_enemy_instance(enemies.Bobomb),
+            world.get_enemy_instance(enemies.MezzoBomb),
         ]),
         EnemyFormation(315, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.HammerBro), 135, 127),
@@ -1863,6 +1992,15 @@ def get_default_enemy_formations(world):
             FormationMember(2, True, world.get_enemy_instance(enemies.FireCrystal), 151, 119),
             FormationMember(3, True, world.get_enemy_instance(enemies.FireCrystal), 183, 135),
             FormationMember(4, True, world.get_enemy_instance(enemies.FireCrystal), 215, 143),
+        ], stat_total_enemies=[
+            # Only count Culex himself for the boss shuffle logic.
+            world.get_enemy_instance(enemies.Culex),
+        ], stat_scaling_enemies=[
+            world.get_enemy_instance(enemies.Culex),
+            world.get_enemy_instance(enemies.EarthCrystal),
+            world.get_enemy_instance(enemies.FireCrystal),
+            world.get_enemy_instance(enemies.WindCrystal),
+            world.get_enemy_instance(enemies.WaterCrystal),
         ]),
         EnemyFormation(351, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Formless), 167, 135),
@@ -1890,17 +2028,29 @@ def get_default_enemy_formations(world):
             FormationMember(2, False, world.get_enemy_instance(enemies.HeavyTroopa), 231, 143),
         ]),
         EnemyFormation(356, None, 7, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Dodo2), 183, 127),
+            FormationMember(0, False, world.get_enemy_instance(enemies.DodoSolo), 183, 127),
         ]),
         EnemyFormation(357, 101, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magikoopa), 215, 111),
             FormationMember(1, True, world.get_enemy_instance(enemies.Terrapin), 167, 135),
+        ], stat_total_enemies=[
+            # Only count Magikoopa himself for boss shuffle logic.
+            world.get_enemy_instance(enemies.Magikoopa),
+        ], stat_scaling_enemies=[
+            world.get_enemy_instance(enemies.Magikoopa),
+            world.get_enemy_instance(enemies.JinxClone),
+            world.get_enemy_instance(enemies.KingBomb),
+            world.get_enemy_instance(enemies.Bahamutt),
         ]),
         EnemyFormation(358, None, 7, [
-            # Hide Hangin' Shy enemies for boss shuffle so it doesn't look weird.  Boomer cutscene is removed anyway.
             FormationMember(0, False, world.get_enemy_instance(enemies.Boomer), 215, 143),
-            FormationMember(1, True, world.get_enemy_instance(enemies.HanginShy), 66, 115),
-            FormationMember(2, True, world.get_enemy_instance(enemies.HanginShy), 186, 74),
+            FormationMember(1, False, world.get_enemy_instance(enemies.HanginShy), 66, 115),
+            FormationMember(2, False, world.get_enemy_instance(enemies.HanginShy), 186, 74),
+        ], stat_total_enemies=[
+            # Only count Boomer himself for boss shuffle logic.
+            world.get_enemy_instance(enemies.Boomer),
+        ], stat_scaling_enemies=[
+            world.get_enemy_instance(enemies.Boomer),
         ]),
         EnemyFormation(359, None, 9, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeMack), 199, 119),

@@ -134,6 +134,16 @@ class CharacterShuffle(Flag):
     ]
 
 
+# TODO: ******** Starting character flags
+
+class ChooseStartingCharacter(Flag):
+    name = 'Choose starting character'
+    value = '@starting'
+    choices = [
+        # TODO
+    ]
+
+
 # ******** Enemy shuffle flags
 
 class EnemyStats(Flag):
@@ -298,10 +308,10 @@ class CharactersCategory(FlagCategory):
 
 
 class EnemiesCategory(FlagCategory):
-    name = 'Enemies'
+    name = 'Enemies/Bosses'
     flags = [
         EnemyShuffle,
-        # BossShuffle,  # TODO: Add this after boss shuffle is ready!
+        BossShuffle,
     ]
 
 

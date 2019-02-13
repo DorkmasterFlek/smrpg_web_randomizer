@@ -3,7 +3,8 @@
 import random
 from functools import reduce
 
-from randomizer.data.enemies import Smithy2Head, Smithy2ChestHead, Smithy2MageHead, Smithy2SafeHead, Smithy2TankHead
+from randomizer.data.enemies import (Smithy2Head, Smithy2ChestHead, Smithy2MageHead, Smithy2SafeHead, Smithy2TankHead,
+                                     HanginShy)
 from randomizer.data.formations import FormationMember
 from . import flags, utils
 
@@ -95,6 +96,10 @@ def _randomize_enemy(enemy):
 
         # Randomize morph item chance of success.
         enemy.morph_chance = random.randint(0, 3)
+
+    # For Hangin' Shy enemies, make their speed max to make sure they go first.  They set bits for Boomer.
+    if isinstance(enemy, HanginShy):
+        enemy.speed = 255
 
     # Shuffle elemental resistances and status immunities.  Keep the same number but randomize them for now.
     enemy.status_immunities = random.sample(range(0, 4), len(enemy.status_immunities))

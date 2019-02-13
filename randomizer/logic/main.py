@@ -17,7 +17,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0.0beta6'
+VERSION = '8.0.0beta7'
 
 
 class Settings:
@@ -409,7 +409,7 @@ class GameWorld:
         }
         # Also use enemy names, if they're 6 characters or less.
         for e in self.enemies:
-            name = re.sub(r'[^A-Za-z]', '', e.name.upper())
+            name = re.sub(r'[^A-Za-z0-9]', '', e.name.upper())
             if len(name) <= 6:
                 file_entry_names.add(name)
         file_entry_names = sorted(file_entry_names)

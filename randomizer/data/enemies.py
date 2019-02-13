@@ -14,6 +14,7 @@ class Enemy:
     BASE_PSYCHOPATH_POINTER_ADDRESS = 0x399fd1
     PSYCHOPATH_DATA_POINTER_OFFSET = 0x390000
     BASE_PSYCHOPATH_DATA_ADDRESS = 0x39a1d1
+    NAME_BASE_ADDRESS = 0x3992d1
 
     # Default instance attributes.
     index = 0
@@ -50,6 +51,19 @@ class Enemy:
     normal_item = None
     rare_item = None
 
+    # Boss shuffle attributes.
+    anchor = False
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+    ratio_attack = 1.0
+    ratio_defense = 1.0
+    ratio_magic_attack = 1.0
+    ratio_magic_defense = 1.0
+    ratio_speed = 1.0
+    ratio_evade = 1.0
+    ratio_magic_evade = 1.0
+    name_override = ''
+
     def __init__(self, world):
         """
 
@@ -58,6 +72,7 @@ class Enemy:
 
         """
         self.world = world
+        self.boss_shuffled = False
 
         # Set instance normal and rare item rewards to the actual item instances for this world.
         if self.normal_item is not None:
@@ -169,7 +184,7 @@ class Enemy:
         elif self not in candidates:
             return self
 
-        # Sort by rank and mutate our position within the list to get a replacement item.
+        # Sort by rank and mutate our position within the list to get a replacement enemy.
         index = candidates.index(self)
         index = utils.mutate_normal(index, maximum=len(candidates) - 1)
         return candidates[index]
@@ -232,6 +247,11 @@ class Enemy:
         data += utils.ByteField(self.normal_item.index if self.normal_item else 0xff).as_bytes()
         data += utils.ByteField(self.rare_item.index if self.rare_item else 0xff).as_bytes()
         patch.add_data(self.reward_address, data)
+
+        # If we have an override name, add to the patch data.
+        if self.name_override:
+            addr = self.NAME_BASE_ADDRESS + (self.index * 13)
+            patch.add_data(addr, self.name_override.upper().encode().ljust(13, b'\x20'))
 
         return patch
 
@@ -360,6 +380,7 @@ class Skytroopa(Enemy):
 class MadMallet(Enemy):
     index = 3
     address = 0x390866
+    boss = True
     hp = 200
     speed = 20
     attack = 120
@@ -379,6 +400,17 @@ class MadMallet(Enemy):
     xp = 20
     coins = 1
     yoshi_cookie_item = items.Energizer
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.2222
+    ratio_fp = 0.3333
+    ratio_attack = 0.75
+    ratio_defense = 0.8
+    ratio_magic_attack = 0.7234
+    ratio_magic_defense = 1.4167
+    ratio_speed = 1.3333
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class Shaman(Enemy):
@@ -947,6 +979,17 @@ class Bobomb(Enemy):
     yoshi_cookie_item = items.Mushroom
     normal_item = items.PickMeUp
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.075
+    ratio_fp = 10.0
+    ratio_attack = 0.83
+    ratio_defense = 0.9
+    ratio_magic_attack = 0.05
+    ratio_magic_defense = 0.25
+    ratio_speed = 0.07
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class Spookum(Enemy):
     index = 26
@@ -999,6 +1042,10 @@ class HammerBro(Enemy):
     yoshi_cookie_item = items.Mushroom
     normal_item = items.FlowerJar
     rare_item = items.FlowerJar
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.5
+    ratio_fp = 0.5
 
 
 class Buzzer(Enemy):
@@ -1154,6 +1201,10 @@ class Magikoopa(Enemy):
     xp = 30
     coins = 10
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
 
 
 class Leuko(Enemy):
@@ -1504,6 +1555,17 @@ class Bahamutt(Enemy):
     reward_address = 0x39191e
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.3125
+    ratio_fp = 0.4
+    ratio_attack = 1.7
+    ratio_defense = 1.6667
+    ratio_magic_attack = 0.6667
+    ratio_magic_defense = 0.2
+    ratio_speed = 0.6667
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class Octolot(Enemy):
     index = 48
@@ -1579,6 +1641,11 @@ class Clerk(Enemy):
     coins = 20
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    anchor = True
+    ratio_hp = 0.5556
+    ratio_fp = 0.3333
+
 
 class Gunyolk(Enemy):
     index = 51
@@ -1605,6 +1672,15 @@ class Gunyolk(Enemy):
     coins = 10
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.6
+    ratio_fp = 0.5
+    ratio_attack = 1.0
+    ratio_defense = 1.04
+    ratio_magic_attack = 1.2632
+    ratio_magic_defense = 0.9412
+    ratio_speed = 0.7143
+
 
 class Boomer(Enemy):
     index = 52
@@ -1629,6 +1705,10 @@ class Boomer(Enemy):
     xp = 55
     coins = 9
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
 
 
 class Remocon(Enemy):
@@ -1710,7 +1790,7 @@ class Stumpet(Enemy):
     rare_item = items.FrightBomb
 
 
-class Dodo1(Enemy):
+class Dodo(Enemy):
     index = 56
     address = 0x391116
     boss = True
@@ -1733,6 +1813,17 @@ class Dodo1(Enemy):
     reward_address = 0x391c12
     xp = 40
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.4167
+    ratio_fp = 0.2857
+    ratio_attack = 1.1667
+    ratio_defense = 1.25
+    ratio_magic_attack = 0.1125
+    ratio_magic_defense = 1.0
+    ratio_speed = 0.05
+    ratio_evade = 0.0
+    ratio_magic_evade = 1.0
 
     def get_patch(self):
         """For Dodo solo boss, also update the battle event trigger so he runs away from the solo fight at 60% of his
@@ -2036,6 +2127,17 @@ class Pounder(Enemy):
     coins = 2
     yoshi_cookie_item = items.Energizer
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.1343
+    ratio_fp = 0.25
+    ratio_attack = 1.0
+    ratio_defense = 0.6364
+    ratio_magic_attack = 0.75
+    ratio_magic_defense = 0.8571
+    ratio_speed = 1.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class Poundette(Enemy):
     index = 68
@@ -2059,6 +2161,17 @@ class Poundette(Enemy):
     xp = 28
     coins = 3
     yoshi_cookie_item = items.Energizer
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.0938
+    ratio_fp = 0.2
+    ratio_attack = 0.7368
+    ratio_defense = 0.5
+    ratio_magic_attack = 1.1579
+    ratio_magic_defense = 0.5625
+    ratio_speed = 0.8571
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class Sackit(Enemy):
@@ -2217,10 +2330,20 @@ class FactoryChief(Enemy):
     coins = 90
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.4
+    ratio_fp = 0.5
+    ratio_attack = 1.0
+    ratio_defense = 0.96
+    ratio_magic_attack = 0.7368
+    ratio_magic_defense = 1.0588
+    ratio_speed = 1.2857
+
 
 class BandanaBlue(Enemy):
     index = 75
     address = 0x390586
+    boss = True
     hp = 150
     speed = 30
     attack = 80
@@ -2239,6 +2362,15 @@ class BandanaBlue(Enemy):
     reward_address = 0x391774
     xp = 20
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.1829
+    ratio_fp = 1.0
+    ratio_attack = 0.9412
+    ratio_defense = 0.75
+    ratio_magic_attack = 0.8
+    ratio_magic_defense = 0.5
+    ratio_speed = 2.3077
 
 
 class Manager(Enemy):
@@ -2263,6 +2395,16 @@ class Manager(Enemy):
     xp = 60
     coins = 40
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    anchor = True
+    ratio_hp = 0.597
+    ratio_fp = 0.25
+    ratio_attack = 1.3077
+    ratio_defense = 1.0
+    ratio_magic_attack = 1.0
+    ratio_magic_defense = 1.0
+    ratio_speed = 1.0
 
 
 class Bluebird(Enemy):
@@ -2523,6 +2665,10 @@ class Hidon(Enemy):
     coins = 100
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+
 
 class SlingShy(Enemy):
     index = 88
@@ -2653,6 +2799,7 @@ class Stinger(Enemy):
 class Goombette(Enemy):
     index = 93
     address = 0x390976
+    boss = True
     hp = 100
     speed = 16
     attack = 90
@@ -2670,6 +2817,17 @@ class Goombette(Enemy):
     # Reward attributes
     reward_address = 0x391912
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.1667
+    ratio_fp = 1.0
+    ratio_attack = 0.8182
+    ratio_defense = 0.8889
+    ratio_magic_attack = 0.5
+    ratio_magic_defense = 1.0
+    ratio_speed = 16.0
+    ratio_evade = 1.0
+    ratio_magic_evade = 0.0
 
 
 class Geckit(Enemy):
@@ -2924,6 +3082,17 @@ class Fautso(Enemy):
     reward_address = 0x391918
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.4667
+    ratio_fp = 1.0
+    ratio_attack = 0.7222
+    ratio_defense = 0.9091
+    ratio_magic_attack = 0.75
+    ratio_magic_defense = 1.5
+    ratio_speed = 14.0
+    ratio_evade = 1.0
+    ratio_magic_evade = 0.0
+
 
 class Strawhead(Enemy):
     index = 104
@@ -3175,6 +3344,11 @@ class Director(Enemy):
     xp = 70
     coins = 80
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    anchor = True
+    ratio_hp = 0.625
+    ratio_fp = 0.2
 
 
 class Puppox(Enemy):
@@ -3457,6 +3631,10 @@ class BoxBoy(Enemy):
     coins = 150
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+
 
 class Shelly(Enemy):
     index = 135
@@ -3475,6 +3653,17 @@ class Shelly(Enemy):
     reward_address = 0x39198a
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.6435
+    ratio_fp = 0.0
+    ratio_attack = 0.0
+    ratio_defense = 0.6154
+    ratio_magic_attack = 0.0
+    ratio_magic_defense = 0.0
+    ratio_speed = 0.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class Superspike(Enemy):
     index = 136
@@ -3492,7 +3681,7 @@ class Superspike(Enemy):
     yoshi_cookie_item = items.Mushroom
 
 
-class Dodo2(Enemy):
+class DodoSolo(Enemy):
     index = 137
     address = 0x391126
     boss = True
@@ -3515,6 +3704,10 @@ class Dodo2(Enemy):
     reward_address = 0x391c18
     xp = 70
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
 
 
 class Oerlikon(Enemy):
@@ -3617,6 +3810,17 @@ class Torte(Enemy):
     reward_address = 0x39172c
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.0667
+    ratio_fp = 0.5
+    ratio_attack = 0.8824
+    ratio_defense = 3.3333
+    ratio_magic_attack = 0.2857
+    ratio_magic_defense = 0.675
+    ratio_speed = 6.1875
+    ratio_evade = 1.0
+    ratio_magic_evade = 1.0
+
 
 class Shyaway(Enemy):
     index = 143
@@ -3664,6 +3868,17 @@ class JinxClone(Enemy):
     # Reward attributes
     reward_address = 0x39199c
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.2
+    ratio_fp = 0.0
+    ratio_attack = 1.8
+    ratio_defense = 2.0
+    ratio_magic_attack = 0.0
+    ratio_magic_defense = 0.35
+    ratio_speed = 1.8333
+    ratio_evade = 1.0
+    ratio_magic_evade = 0.0
 
 
 class MachineMadeShyster(Enemy):
@@ -3782,6 +3997,17 @@ class FireCrystal(Enemy):
     xp = 40
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.6104
+    ratio_fp = 1.25
+    ratio_attack = 0.0
+    ratio_defense = 1.0
+    ratio_magic_attack = 1.3
+    ratio_magic_defense = 0.75
+    ratio_speed = 0.2
+    ratio_evade = 1.0
+    ratio_magic_evade = 0.0
+
 
 class WaterCrystal(Enemy):
     index = 150
@@ -3806,6 +4032,17 @@ class WaterCrystal(Enemy):
     reward_address = 0x3919c0
     xp = 30
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.4395
+    ratio_fp = 1.25
+    ratio_attack = 0.0
+    ratio_defense = 1.3
+    ratio_magic_attack = 1.2
+    ratio_magic_defense = 0.625
+    ratio_speed = 0.24
+    ratio_evade = 1.0
+    ratio_magic_evade = 0.0
 
 
 class EarthCrystal(Enemy):
@@ -3832,6 +4069,17 @@ class EarthCrystal(Enemy):
     xp = 50
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.7813
+    ratio_fp = 1.25
+    ratio_attack = 0.0
+    ratio_defense = 0.7
+    ratio_magic_attack = 0.8
+    ratio_magic_defense = 0.4125
+    ratio_speed = 0.02
+    ratio_evade = 1.0
+    ratio_magic_evade = 0.0
+
 
 class WindCrystal(Enemy):
     index = 152
@@ -3856,6 +4104,17 @@ class WindCrystal(Enemy):
     reward_address = 0x3919cc
     xp = 10
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.1953
+    ratio_fp = 1.25
+    ratio_attack = 0.0
+    ratio_defense = 0.2
+    ratio_magic_attack = 0.6
+    ratio_magic_defense = 1.1
+    ratio_speed = 0.6
+    ratio_evade = 1.0
+    ratio_magic_evade = 0.0
 
 
 class MarioClone(Enemy):
@@ -3882,6 +4141,17 @@ class MarioClone(Enemy):
     xp = 10
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.1667
+    ratio_fp = 0.1
+    ratio_attack = 0.8333
+    ratio_defense = 1.125
+    ratio_magic_attack = 1.65
+    ratio_magic_defense = 1.25
+    ratio_speed = 5.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class PeachClone(Enemy):
     index = 154
@@ -3904,6 +4174,17 @@ class PeachClone(Enemy):
     reward_address = 0x3919d8
     xp = 1
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.1
+    ratio_fp = 0.72
+    ratio_attack = 0.75
+    ratio_defense = 0.75
+    ratio_magic_attack = 3.1
+    ratio_magic_defense = 1.75
+    ratio_speed = 5.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class BowserClone(Enemy):
@@ -3929,6 +4210,17 @@ class BowserClone(Enemy):
     reward_address = 0x3919de
     xp = 100
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.25
+    ratio_fp = 0.004
+    ratio_attack = 1.0833
+    ratio_defense = 1.25
+    ratio_magic_attack = 0.6
+    ratio_magic_defense = 0.0
+    ratio_speed = 3.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class GenoClone(Enemy):
@@ -3956,6 +4248,17 @@ class GenoClone(Enemy):
     xp = 40
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.2083
+    ratio_fp = 0.16
+    ratio_attack = 1.0
+    ratio_defense = 1.0
+    ratio_magic_attack = 3.0
+    ratio_magic_defense = 0.75
+    ratio_speed = 7.5
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class MallowClone(Enemy):
     index = 157
@@ -3980,6 +4283,17 @@ class MallowClone(Enemy):
     reward_address = 0x3919ea
     xp = 60
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.125
+    ratio_fp = 0.32
+    ratio_attack = 0.6667
+    ratio_defense = 0.8125
+    ratio_magic_attack = 3.5
+    ratio_magic_defense = 2.0
+    ratio_speed = 3.5
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class Shyster(Enemy):
@@ -4376,6 +4690,10 @@ class Jagger(Enemy):
     reward_address = 0x391ad4
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+
 
 class Chompweed(Enemy):
     index = 180
@@ -4464,6 +4782,17 @@ class Microbomb(Enemy):
     reward_address = 0x391a86
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.025
+    ratio_fp = 10.0
+    ratio_attack = 0.7
+    ratio_defense = 0.71
+    ratio_magic_attack = 0.27
+    ratio_magic_defense = 0.25
+    ratio_speed = 1.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class Grit(Enemy):
     index = 186
@@ -4504,6 +4833,15 @@ class Neosquid(Enemy):
     xp = 40
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.3636
+    ratio_fp = 0.3333
+    ratio_attack = 1.5652
+    ratio_defense = 0.7407
+    ratio_magic_attack = 1.5926
+    ratio_magic_defense = 0.8065
+    ratio_speed = 0.3077
+
 
 class YaridovichMirage(Enemy):
     index = 188
@@ -4527,6 +4865,15 @@ class YaridovichMirage(Enemy):
     reward_address = 0x391a7a
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.3333
+    ratio_fp = 1.0
+    ratio_attack = 0.8
+    ratio_defense = 0.4706
+    ratio_magic_attack = 0.8571
+    ratio_magic_defense = 0.1333
+    ratio_speed = 0.8
+
 
 class Helio(Enemy):
     index = 189
@@ -4545,6 +4892,17 @@ class Helio(Enemy):
     # Reward attributes
     reward_address = 0x391a80
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.0031
+    ratio_fp = 0.5
+    ratio_attack = 0.8
+    ratio_defense = 0.0
+    ratio_magic_attack = 0.0
+    ratio_magic_defense = 0.0
+    ratio_speed = 0.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class RightEye(Enemy):
@@ -4571,6 +4929,15 @@ class RightEye(Enemy):
     xp = 30
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.2273
+    ratio_fp = 0.3333
+    ratio_attack = 1.113
+    ratio_defense = 0.9259
+    ratio_magic_attack = 1.5185
+    ratio_magic_defense = 0.5806
+    ratio_speed = 0.2615
+
 
 class LeftEye(Enemy):
     index = 191
@@ -4595,6 +4962,15 @@ class LeftEye(Enemy):
     reward_address = 0x391bac
     xp = 30
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.1364
+    ratio_fp = 0.3333
+    ratio_attack = 1.3304
+    ratio_defense = 1.2037
+    ratio_magic_attack = 0.8704
+    ratio_magic_defense = 1.2903
+    ratio_speed = 0.3231
 
 
 class KnifeGuy(Enemy):
@@ -4622,6 +4998,15 @@ class KnifeGuy(Enemy):
     xp = 40
     coins = 15
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.44
+    ratio_fp = 0.41
+    ratio_attack = 1.08
+    ratio_defense = 1.15
+    ratio_magic_attack = 0.87
+    ratio_magic_defense = 0.4
+    ratio_speed = 1.25
 
 
 class GrateGuy(Enemy):
@@ -4652,6 +5037,15 @@ class GrateGuy(Enemy):
     normal_item = items.FlowerJar
     rare_item = items.FlowerJar
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.56
+    ratio_fp = 0.59
+    ratio_attack = 0.92
+    ratio_defense = 0.83
+    ratio_magic_attack = 1.09
+    ratio_magic_defense = 1.6
+    ratio_speed = 0.7
+
 
 class Bundt(Enemy):
     index = 194
@@ -4678,6 +5072,15 @@ class Bundt(Enemy):
     xp = 25
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.6
+    ratio_fp = 0.5
+    ratio_attack = 0.9559
+    ratio_defense = 0.6667
+    ratio_magic_attack = 0.8929
+    ratio_magic_defense = 1.25
+    ratio_speed = 1.0
+
 
 class Jinx1(Enemy):
     index = 195
@@ -4702,6 +5105,25 @@ class Jinx1(Enemy):
     # Reward attributes
     reward_address = 0x391ac2
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+    name_override = 'JINX 1'
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 0.5))
+        patch.add_data(0x39419d, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        return patch
 
 
 class Jinx2(Enemy):
@@ -4728,6 +5150,25 @@ class Jinx2(Enemy):
     reward_address = 0x391ac8
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+    name_override = 'JINX 2'
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 0.5))
+        patch.add_data(0x3941d0, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        return patch
+
 
 class CountDown(Enemy):
     index = 197
@@ -4752,6 +5193,15 @@ class CountDown(Enemy):
     coins = 100
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.5
+    ratio_fp = 0.3333
+    ratio_attack = 0.0
+    ratio_defense = 0.7477
+    ratio_magic_attack = 2.2642
+    ratio_magic_defense = 1.3333
+    ratio_speed = 0.625
+
 
 class DingALing(Enemy):
     index = 198
@@ -4775,6 +5225,15 @@ class DingALing(Enemy):
     reward_address = 0x391ae0
     xp = 30
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.25
+    ratio_fp = 0.3333
+    ratio_attack = 1.5
+    ratio_defense = 1.1215
+    ratio_magic_attack = 0.3774
+    ratio_magic_defense = 0.8333
+    ratio_speed = 1.25
 
 
 class Belome1(Enemy):
@@ -4803,6 +5262,25 @@ class Belome1(Enemy):
     coins = 40
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+    name_override = 'BELOME 1'
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 300 / 500))
+        patch.add_data(0x3943ae, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        return patch
+
 
 class Belome2(Enemy):
     index = 200
@@ -4829,6 +5307,11 @@ class Belome2(Enemy):
     coins = 20
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+    name_override = 'BELOME 2'
+
 
 class Smilax(Enemy):
     index = 202
@@ -4852,6 +5335,15 @@ class Smilax(Enemy):
     # Reward attributes
     reward_address = 0x391af8
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.0769
+    ratio_fp = 0.1111
+    ratio_attack = 0.71
+    ratio_defense = 1.0
+    ratio_magic_attack = 1.0
+    ratio_magic_defense = 0.63
+    ratio_speed = 2.50
 
 
 class Thrax(Enemy):
@@ -4896,6 +5388,11 @@ class Megasmilax(Enemy):
     xp = 120
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes
+    anchor = True
+    ratio_hp = 0.3846
+    ratio_fp = 0.1111
+
 
 class Birdo(Enemy):
     index = 205
@@ -4921,6 +5418,10 @@ class Birdo(Enemy):
     coins = 30
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+
 
 class Eggbert(Enemy):
     index = 206
@@ -4938,6 +5439,17 @@ class Eggbert(Enemy):
     # Reward attributes
     reward_address = 0x391b10
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.01
+    ratio_fp = 1.0
+    ratio_attack = 1.31
+    ratio_defense = 0.0
+    ratio_magic_attack = 0.0
+    ratio_magic_defense = 0.0
+    ratio_speed = 0.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class AxemYellow(Enemy):
@@ -4965,6 +5477,17 @@ class AxemYellow(Enemy):
     xp = 30
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.1579
+    ratio_fp = 0.125
+    ratio_attack = 1.4783
+    ratio_defense = 1.3265
+    ratio_magic_attack = 0.1538
+    ratio_magic_defense = 0.7229
+    ratio_speed = 0.0577
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class Punchinello(Enemy):
     index = 208
@@ -4988,6 +5511,29 @@ class Punchinello(Enemy):
     reward_address = 0x391a98
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 2 / 3))
+        patch.add_data(0x393f07, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x393f1e, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        phase3_hp = int(round(self.hp * 1 / 3))
+        patch.add_data(0x393f37, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x393f52, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+
+        return patch
+
 
 class TentaclesRight(Enemy):
     index = 209
@@ -5010,6 +5556,15 @@ class TentaclesRight(Enemy):
     # Reward attributes
     reward_address = 0x391b3a
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.0985
+    ratio_fp = 0.1111
+    ratio_attack = 0.82
+    ratio_defense = 0.625
+    ratio_magic_attack = 1.1667
+    ratio_magic_defense = 1.0
+    ratio_speed = 2.625
 
 
 class AxemRed(Enemy):
@@ -5038,6 +5593,17 @@ class AxemRed(Enemy):
     xp = 40
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.2106
+    ratio_fp = 0.125
+    ratio_attack = 1.3043
+    ratio_defense = 1.0204
+    ratio_magic_attack = 0.6154
+    ratio_magic_defense = 0.9639
+    ratio_speed = 0.5769
+    ratio_evade = 0.9091
+    ratio_magic_evade = 0.0
+
 
 class AxemGreen(Enemy):
     index = 211
@@ -5064,6 +5630,17 @@ class AxemGreen(Enemy):
     xp = 20
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.1185
+    ratio_fp = 0.25
+    ratio_attack = 0.9565
+    ratio_defense = 0.6122
+    ratio_magic_attack = 0.0
+    ratio_magic_defense = 1.4458
+    ratio_speed = 0.3846
+    ratio_evade = 0.0
+    ratio_magic_evade = 4.0
+
 
 class KingBomb(Enemy):
     index = 212
@@ -5084,6 +5661,17 @@ class KingBomb(Enemy):
     # Reward attributes
     reward_address = 0x391a8c
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.3125
+    ratio_fp = 0.4
+    ratio_attack = 0.0
+    ratio_defense = 2.1667
+    ratio_magic_attack = 0.6667
+    ratio_magic_defense = 0.0
+    ratio_speed = 0.0
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class MezzoBomb(Enemy):
@@ -5106,6 +5694,17 @@ class MezzoBomb(Enemy):
     # Reward attributes
     reward_address = 0x391a92
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.125
+    ratio_fp = 10.0
+    ratio_attack = 1.17
+    ratio_defense = 0.95
+    ratio_magic_attack = 0.0
+    ratio_magic_defense = 0.25
+    ratio_speed = 0.07
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
 
 
 class Raspberry(Enemy):
@@ -5133,6 +5732,15 @@ class Raspberry(Enemy):
     xp = 50
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.4
+    ratio_fp = 0.5
+    ratio_attack = 1.0294
+    ratio_defense = 1.3333
+    ratio_magic_attack = 1.0714
+    ratio_magic_defense = 0.75
+    ratio_speed = 1.0
+
 
 class KingCalamari(Enemy):
     index = 216
@@ -5159,6 +5767,11 @@ class KingCalamari(Enemy):
     coins = 100
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes
+    anchor = True
+    ratio_hp = 0.303
+    ratio_fp = 0.1111
+
 
 class TentaclesLeft(Enemy):
     index = 217
@@ -5182,6 +5795,15 @@ class TentaclesLeft(Enemy):
     # Reward attributes
     reward_address = 0x391b46
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.0758
+    ratio_fp = 0.1111
+    ratio_attack = 0.87
+    ratio_defense = 1.0
+    ratio_magic_attack = 1.1667
+    ratio_magic_defense = 0.575
+    ratio_speed = 2.625
 
 
 class Jinx3(Enemy):
@@ -5207,6 +5829,28 @@ class Jinx3(Enemy):
     # Reward attributes
     reward_address = 0x391ace
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+    name_override = 'JINX 3'
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 0.6))
+        patch.add_data(0x394216, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        phase3_hp = int(round(self.hp * 0.3))
+        patch.add_data(0x394228, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+
+        return patch
 
 
 class Zombone(Enemy):
@@ -5235,6 +5879,17 @@ class Zombone(Enemy):
     xp = 50
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.5625
+    ratio_fp = 0.5
+    ratio_attack = 1.0857
+    ratio_defense = 0.75
+    ratio_magic_attack = 0.8
+    ratio_magic_defense = 1.1765
+    ratio_speed = 0.4615
+    ratio_evade = 0.0
+    ratio_magic_evade = 2.0
+
 
 class CzarDragon(Enemy):
     index = 220
@@ -5262,6 +5917,17 @@ class CzarDragon(Enemy):
     xp = 100
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.4375
+    ratio_fp = 0.5
+    ratio_attack = 0.9143
+    ratio_defense = 1.25
+    ratio_magic_attack = 1.2
+    ratio_magic_defense = 0.8235
+    ratio_speed = 1.5385
+    ratio_evade = 2.0
+    ratio_magic_evade = 0.0
+
 
 class Cloaker(Enemy):
     index = 221
@@ -5286,6 +5952,15 @@ class Cloaker(Enemy):
     xp = 60
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.3934
+    ratio_fp = 0.1429
+    ratio_attack = 1.1688
+    ratio_defense = 1.3
+    ratio_magic_attack = 0.2105
+    ratio_magic_defense = 0.2222
+    ratio_speed = 1.1111
+
 
 class Domino(Enemy):
     index = 222
@@ -5309,6 +5984,15 @@ class Domino(Enemy):
     reward_address = 0x391b5e
     xp = 60
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.2951
+    ratio_fp = 0.3571
+    ratio_attack = 0.4221
+    ratio_defense = 0.8
+    ratio_magic_attack = 2.1053
+    ratio_magic_defense = 1.6667
+    ratio_speed = 1.3889
 
 
 class MadAdder(Enemy):
@@ -5336,6 +6020,15 @@ class MadAdder(Enemy):
     normal_item = items.Crystalline
     rare_item = items.Crystalline
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.4918
+    ratio_fp = 0.3571
+    ratio_attack = 0.974
+    ratio_defense = 0.7
+    ratio_magic_attack = 1.5789
+    ratio_magic_defense = 2.0
+    ratio_speed = 0.5556
+
 
 class Mack(Enemy):
     index = 224
@@ -5361,6 +6054,10 @@ class Mack(Enemy):
     coins = 20
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes
+    anchor = True
+    ratio_hp = 0.8
+
 
 class Bodyguard(Enemy):
     index = 225
@@ -5383,6 +6080,17 @@ class Bodyguard(Enemy):
     # Reward attributes
     reward_address = 0x391b82
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes
+    ratio_hp = 0.05
+    ratio_fp = 0.1071
+    ratio_attack = 0.91
+    ratio_defense = 0.88
+    ratio_magic_attack = 1.27
+    ratio_magic_defense = 0.6
+    ratio_speed = 1.88
+    ratio_evade = 0.1
+    ratio_magic_evade = 0.0
 
 
 class Yaridovich(Enemy):
@@ -5409,6 +6117,10 @@ class Yaridovich(Enemy):
     xp = 120
     coins = 50
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
 
 
 class DrillBit(Enemy):
@@ -5461,6 +6173,17 @@ class AxemPink(Enemy):
     xp = 10
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.1053
+    ratio_fp = 0.25
+    ratio_attack = 1.0435
+    ratio_defense = 0.8163
+    ratio_magic_attack = 2.0513
+    ratio_magic_defense = 1.2048
+    ratio_speed = 0.4808
+    ratio_evade = 2.2727
+    ratio_magic_evade = 2.0
+
 
 class AxemBlack(Enemy):
     index = 229
@@ -5486,6 +6209,17 @@ class AxemBlack(Enemy):
     reward_address = 0x391b34
     xp = 40
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.1448
+    ratio_fp = 0.125
+    ratio_attack = 1.2174
+    ratio_defense = 1.2245
+    ratio_magic_attack = 0.1026
+    ratio_magic_defense = 0.4819
+    ratio_speed = 0.6731
+    ratio_evade = 2.7273
+    ratio_magic_evade = 0.0
 
 
 class Bowyer(Enemy):
@@ -5550,6 +6284,15 @@ class Exor(Enemy):
     reward_address = 0x391ba0
     xp = 100
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.8182
+    ratio_fp = 0.0
+    ratio_attack = 0.0
+    ratio_defense = 1.1111
+    ratio_magic_attack = 0.0
+    ratio_magic_defense = 1.2903
+    ratio_speed = 3.0769
 
 
 class Smithy1(Enemy):
@@ -5721,6 +6464,25 @@ class Croco1(Enemy):
     normal_item = items.FlowerTab
     rare_item = items.FlowerTab
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+    name_override = 'CROCO 1'
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 100 / 320))
+        patch.add_data(0x395543, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        return patch
+
 
 class Croco2(Enemy):
     index = 241
@@ -5749,6 +6511,25 @@ class Croco2(Enemy):
     yoshi_cookie_item = items.Mushroom
     rare_item = items.FlowerBox
 
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+    name_override = 'CROCO 2'
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 400 / 750))
+        patch.add_data(0x395588, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        return patch
+
 
 class Earthlink(Enemy):
     index = 243
@@ -5774,6 +6555,15 @@ class Earthlink(Enemy):
     yoshi_cookie_item = items.Mushroom
     normal_item = items.PowerBlast
     rare_item = items.PowerBlast
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.8197
+    ratio_fp = 0.1429
+    ratio_attack = 1.4286
+    ratio_defense = 1.2
+    ratio_magic_attack = 0.0877
+    ratio_magic_defense = 0.1111
+    ratio_speed = 0.8889
 
 
 class Bowser(Enemy):
@@ -5820,6 +6610,17 @@ class AxemRangers(Enemy):
     xp = 50
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.263
+    ratio_fp = 0.125
+    ratio_attack = 0.0
+    ratio_defense = 1.0204
+    ratio_magic_attack = 3.0769
+    ratio_magic_defense = 1.2048
+    ratio_speed = 3.8462
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class Booster(Enemy):
     index = 246
@@ -5847,6 +6648,25 @@ class Booster(Enemy):
     coins = 100
     yoshi_cookie_item = items.Mushroom
     rare_item = items.FlowerBox
+
+    # Boss shuffle attributes
+    anchor = True
+    ratio_hp = 0.57
+    ratio_fp = 0.02
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 500 / 800))
+        patch.add_data(0x3955cc, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        return patch
 
 
 class Booster2(Enemy):
@@ -5890,6 +6710,17 @@ class Snifit(Enemy):
     yoshi_cookie_item = items.Mushroom
     rare_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.14
+    ratio_fp = 0.33
+    ratio_attack = 0.80
+    ratio_defense = 1.09
+    ratio_magic_attack = 1.0
+    ratio_magic_defense = 0.5
+    ratio_speed = 1.08
+    ratio_evade = 0.0
+    ratio_magic_evade = 0.0
+
 
 class Johnny(Enemy):
     index = 249
@@ -5914,6 +6745,24 @@ class Johnny(Enemy):
     xp = 90
     coins = 50
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 400 / 820))
+        patch.add_data(0x395650, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        return patch
 
 
 class JohnnySolo(Enemy):
@@ -5966,6 +6815,25 @@ class Valentina(Enemy):
     coins = 200
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes
+    anchor = True
+    ratio_hp = 0.8333
+    ratio_fp = 0.7143
+
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 0.6))
+        patch.add_data(0x3956b5, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        return patch
+
 
 class Cloaker2(Enemy):
     index = 252
@@ -5990,6 +6858,15 @@ class Cloaker2(Enemy):
     xp = 60
     yoshi_cookie_item = items.Mushroom
 
+    # Boss shuffle attributes.
+    ratio_hp = 0.3934
+    ratio_fp = 0.1429
+    ratio_attack = 1.1688
+    ratio_defense = 1.3
+    ratio_magic_attack = 0.2105
+    ratio_magic_defense = 0.2222
+    ratio_speed = 1.1111
+
 
 class Domino2(Enemy):
     index = 253
@@ -6012,6 +6889,15 @@ class Domino2(Enemy):
     reward_address = 0x391b76
     xp = 60
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.2951
+    ratio_fp = 0.3571
+    ratio_attack = 0.4221
+    ratio_defense = 0.8
+    ratio_magic_attack = 2.1053
+    ratio_magic_defense = 1.6667
+    ratio_speed = 1.3889
 
 
 class Candle(Enemy):
@@ -6052,6 +6938,10 @@ class Culex(Enemy):
     reward_address = 0x391c24
     xp = 600
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 1.0
+    ratio_fp = 1.0
 
 
 # ********************* Default lists for the world.
@@ -6123,7 +7013,7 @@ def get_default_enemies(world):
         Remocon(world),
         Snapdragon(world),
         Stumpet(world),
-        Dodo1(world),
+        Dodo(world),
         Jester(world),
         Artichoker(world),
         Arachne(world),
@@ -6195,7 +7085,7 @@ def get_default_enemies(world):
         BoxBoy(world),
         Shelly(world),
         Superspike(world),
-        Dodo2(world),
+        DodoSolo(world),
         Oerlikon(world),
         Chester(world),
         CorkpediteBody(world),

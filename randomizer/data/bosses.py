@@ -1,4 +1,4 @@
-# Boss randomization data for open mode.
+# Boss/star piece randomization data for open mode.
 
 from enum import IntEnum
 
