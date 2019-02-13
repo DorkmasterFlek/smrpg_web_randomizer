@@ -1844,6 +1844,8 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.Domino),
             world.get_enemy_instance(enemies.Earthlink),
             world.get_enemy_instance(enemies.MadAdder),
+            world.get_enemy_instance(enemies.Cloaker2),
+            world.get_enemy_instance(enemies.Domino2),
         ]),
         EnemyFormation(310, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 135, 119),
