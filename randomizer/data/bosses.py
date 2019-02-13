@@ -467,7 +467,7 @@ class Countdown(BossLocation):
 class CloakerDomino(BossLocation):
     battle_address = 0x1f61d9
     pack_number = 184
-    battlefield = Battlefields.CloakerDomino
+    battlefield = Battlefields.Gate
     music = BattleMusic.Boss1
 
 
