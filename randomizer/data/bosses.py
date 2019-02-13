@@ -452,14 +452,14 @@ class Exor(BowsersKeepLocation):
     star_address = 0x1e9a41
     battle_address = 0x1f8a58
     pack_number = 186
-    battlefield = Battlefields.Exor
+    battlefield = Battlefields.BowsersKeep
     music = BattleMusic.Boss2
 
 
 class Countdown(BossLocation):
     battle_address = 0x1fe11d
     pack_number = 174
-    battlefield = Battlefields.Countdown
+    battlefield = Battlefields.Factory
     music = BattleMusic.Boss1
 
 

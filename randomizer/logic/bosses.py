@@ -106,8 +106,7 @@ def randomize_all(world):
                     else:
                         hp = sum(e.hp for e in elist)
 
-                    # FP, exp, and coins just sum all the enemies.
-                    fp = sum(e.fp for e in elist)
+                    # For exp and coin rewards, just sum all the enemies.
                     xp = sum(e.xp for e in elist)
                     coins = sum(e.coins for e in elist)
 
@@ -132,7 +131,6 @@ def randomize_all(world):
 
                     location_stats.append({
                         'hp': hp,
-                        'fp': fp,
                         'attack': attack,
                         'defense': defense,
                         'magic_attack': magic_attack,
@@ -148,7 +146,6 @@ def randomize_all(world):
                 for location, stats in zip(shuffled_locations, location_stats):
                     for i, enemy in enumerate(location.formation.stat_scaling_enemies):
                         enemy.hp = int(round(stats['hp'] * enemy.ratio_hp))
-                        enemy.fp = min(int(round(stats['fp'] * enemy.ratio_fp)), 255)
                         enemy.attack = min(int(round(stats['attack'] * enemy.ratio_attack)), 255)
                         enemy.defense = min(int(round(stats['defense'] * enemy.ratio_defense)), 255)
                         enemy.magic_attack = min(int(round(stats['magic_attack'] * enemy.ratio_magic_attack)), 255)
@@ -175,6 +172,8 @@ def randomize_all(world):
                 location.formation.music = location.music
                 location.formation.can_run_away = location.can_run_away
 
+                # *** Special cases
+
                 # Hide Shelly and show Birdo instead to skip first phase if not in vanilla location.
                 if location.formation.index == 297 and not isinstance(location, bosses.Birdo):
                     location.formation.members[0].hidden_at_start = False
@@ -187,3 +186,17 @@ def randomize_all(world):
                     location.formation.members[1].y_pos = 255
                     location.formation.members[2].x_pos = 0
                     location.formation.members[2].y_pos = 255
+
+            # *** Extra enemy logic needed for boss shuffle.
+
+            # Make sure Valentina goes first to call Dodo.
+            world.get_enemy_instance(enemies.Valentina).speed = 255
+
+            # Make sure Axem's ship goes first to disable itself in phase one.
+            world.get_enemy_instance(enemies.AxemRangers).speed = 255
+
+            # Make sure Boomer's Hangin' Shy enemies go first, they set Boomer bits and disable themselves.
+            world.get_enemy_instance(enemies.HanginShy).speed = 255
+
+            # Make sure Exor goes first to set immunity.
+            world.get_enemy_instance(enemies.Exor).speed = 255
