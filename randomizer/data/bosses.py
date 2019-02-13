@@ -20,6 +20,7 @@ class Battlefields(IntEnum):
     Exor = 0x10
     ClownBros = 0x11
     Countdown = 0x12
+    Gate = 0x13
     KeroSewers = 0x15
     NimbusCastle = 0x16
     Birdo = 0x17
@@ -459,7 +460,7 @@ class Exor(BowsersKeepLocation):
 class Countdown(BossLocation):
     battle_address = 0x1fe11d
     pack_number = 174
-    battlefield = Battlefields.Factory
+    battlefield = Battlefields.Gate
     music = BattleMusic.Boss1
 
 
