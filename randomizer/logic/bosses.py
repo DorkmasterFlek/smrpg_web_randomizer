@@ -175,9 +175,10 @@ def randomize_all(world):
                 # *** Special cases
 
                 # Hide Shelly and show Birdo instead to skip first phase if not in vanilla location.
-                if location.formation.index == 297 and not isinstance(location, bosses.Birdo):
-                    location.formation.members[0].hidden_at_start = False
-                    location.formation.members[1].hidden_at_start = True
+                # TODO: Should we bother with this???
+                # if location.formation.index == 297 and not isinstance(location, bosses.Birdo):
+                #     location.formation.members[0].hidden_at_start = False
+                #     location.formation.members[1].hidden_at_start = True
 
                 # For Boomer fight, "hide" the Hangin' Shy enemies by moving them off the screen.  This is needed
                 # because they set bits for the Boomer fight and disable themselves.  Also make sure speed is max.
