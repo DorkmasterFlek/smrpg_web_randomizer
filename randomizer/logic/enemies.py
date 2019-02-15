@@ -623,19 +623,19 @@ class EnemyFormation:
                 while True:
                     if not done_coordinates:
                         x, y = random.choice(self.valid_coordinates)
-                        x, y = self.mutate_coordinate(x, y)
+                        # x, y = self.mutate_coordinate(x, y)
                     else:
                         candidates = random.sample(self.valid_coordinates, len(chosen_enemies) * 2)
-                        candidates = [self.mutate_coordinate(c[0], c[1]) for c in candidates]
+                        # candidates = [self.mutate_coordinate(c[0], c[1]) for c in candidates]
                         x, y = self.select_most_distance(candidates, done_coordinates)
 
                     # High flying units with an x coord of 119-124 cannot have a y coordinate of 138 or higher, or the
                     # game will softlock after they finish attacking.  Reroll if we hit this scenario.
-                    if enemy.high_flying and 119 <= x <= 124 and y >= 138:
-                        continue
+                    # if enemy.high_flying and 119 <= x <= 124 and y >= 138:
+                    #     continue
                     # Regular flying enemies will softlock in the range x 116-153, y 150-168
-                    elif enemy.flying and 116 <= x <= 153 and 150 <= y <= 168:
-                        continue
+                    # elif enemy.flying and 116 <= x <= 153 and 150 <= y <= 168:
+                    #     continue
 
                     done_coordinates.append((x, y))
                     self.members.append(FormationMember(i, False, enemy, x, y))
