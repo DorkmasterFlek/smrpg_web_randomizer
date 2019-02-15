@@ -61,7 +61,23 @@ class CharacterSpell(Spell):
 
 class EnemySpell(Spell):
     """Grouping class for enemy-specific spells."""
-    pass
+    status_effects = []
+
+    def get_patch(self):
+        """Get patch for this spell.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data.
+
+        """
+        patch = super().get_patch()
+
+        # Add status effects for enemy attacks, if any.
+        base_addr = self.BASE_ADDRESS + (self.index * 12)
+        data = utils.BitMapSet(1, self.status_effects).as_bytes()
+        patch.add_data(base_addr + 7, data)
+
+        return patch
 
 
 # ********************* Actual data classes
@@ -386,6 +402,7 @@ class SandStorm(EnemySpell):
     fp = 6
     power = 16
     hit_rate = 90
+    status_effects = [3]
 
 
 class Blizzard(EnemySpell):
@@ -414,6 +431,7 @@ class LightBeam(EnemySpell):
     fp = 13
     power = 34
     hit_rate = 90
+    status_effects = [1]
 
 
 class WaterBlast(EnemySpell):
@@ -435,6 +453,7 @@ class PetalBlast(EnemySpell):
     fp = 16
     power = 40
     hit_rate = 85
+    status_effects = [5]
 
 
 class AuroraFlash(EnemySpell):
@@ -442,6 +461,7 @@ class AuroraFlash(EnemySpell):
     fp = 17
     power = 50
     hit_rate = 85
+    status_effects = [1]
 
 
 class Boulder(EnemySpell):

@@ -3,8 +3,7 @@
 import random
 from functools import reduce
 
-from randomizer.data.enemies import (Smithy2Head, Smithy2ChestHead, Smithy2MageHead, Smithy2SafeHead, Smithy2TankHead,
-                                     HanginShy)
+from randomizer.data.enemies import Smithy2Head, Smithy2ChestHead, Smithy2MageHead, Smithy2SafeHead, Smithy2TankHead
 from randomizer.data.formations import FormationMember
 from . import flags, utils
 
@@ -15,28 +14,41 @@ def _randomize_enemy_attack(attack):
     Args:
         attack(randomizer.data.attacks.EnemyAttack):
     """
-    # If the attack has no special damage types or buffs, randomize the attack priority level.
-    # Allow a small chance (1 in 495) to get the instant KO flag.  Otherwise attack level is 1-7, lower more likely.
-    if not attack.damage_types and not attack.buffs:
-        new_attack_level = random.randint(0, random.randint(0, random.randint(0, random.randint(0, 8))))
-        if new_attack_level > attack.attack_level:
-            # If we got the instant KO flag, also hide the damage numbers.
-            if new_attack_level == 8:
-                new_attack_level = 7
-                attack.damage_types = [3, 5]
-            attack.attack_level = new_attack_level
+    # Use old logic if no safety checks enabled, allows for instant KO applied to other attacks and random strong stuff.
+    if attack.world.settings.is_flag_enabled(flags.EnemyNoSafetyChecks):
+        # If the attack has no special damage types or buffs, randomize the attack priority level.
+        # Allow a small chance (1 in 495) to get the instant KO flag.  Otherwise attack level is 1-7, lower more likely.
+        if not attack.damage_types and not attack.buffs:
+            new_attack_level = random.randint(0, random.randint(0, random.randint(0, random.randint(0, 8))))
+            if new_attack_level > attack.attack_level:
+                # If we got the instant KO flag, also hide the damage numbers.
+                if new_attack_level == 8:
+                    new_attack_level = 7
+                    attack.damage_types = [3, 5]
+                attack.attack_level = new_attack_level
 
-    # If there are no buffs applied to the attack, give a 1/5 chance to apply a random status effect.
-    # The status effect chosen has a 1/7 chance to be the unused "berserk" status.  If we hit this status, only
-    # allow it 1/10 chance, otherwise reroll it (total berserk chance 1 in 350).
-    if not attack.buffs and random.randint(1, 5) == 5:
-        i = random.randint(0, 6)
-        if i != 4 or random.randint(1, 10) == 10:
-            attack.status_effects = [i]
+        # If there are no buffs applied to the attack, give a 1/5 chance to apply a random status effect.
+        # The status effect chosen has a 1/7 chance to be the unused "berserk" status.  If we hit this status, only
+        # allow it another 1/5 chance, otherwise reroll it.
+        if not attack.buffs and utils.coin_flip(1 / 5):
+            while True:
+                i = random.randint(0, 6)
+                if i != 4 or utils.coin_flip(1 / 5):
+                    attack.status_effects = [i]
+                    break
 
-    # If there are some buffs given by this attack, give a 50% chance to have an extra random buff.
-    if attack.buffs and random.randint(1, 2) == 2:
-        attack.buffs.append(random.randint(3, 6))
+        # If there are some buffs given by this attack, give a 50% chance to have an extra random buff.
+        if attack.buffs and random.randint(1, 2) == 2:
+            attack.buffs.append(random.choice(list({3, 4, 5, 6} - set(attack.buffs))))
+
+    # If there are status effects, randomize them.
+    if attack.status_effects:
+        effects = [0, 1, 2, 3, 5, 6]
+        # Small chance to include berserk as an option if safety checks are disabled.
+        if attack.world.settings.is_flag_enabled(flags.EnemyNoSafetyChecks) and utils.coin_flip(1 / 5):
+            effects.append(4)
+
+        attack.status_effects = random.sample(effects, len(attack.status_effects))
 
     # Shuffle hit rate.  If the attack is instant death, cap hit rate at 99% so items that protect from this
     # actually work.  Protection forces the attack to miss, but 100% hit rate can't miss so it hits anyway.
@@ -213,9 +225,9 @@ def randomize_all(world):
     """
     if world.settings.is_flag_enabled(flags.EnemyAttacks):
         # *** Shuffle enemy attacks ***
-        # Intershuffle attacks with status effects.
+        # Intershuffle hit rate of attacks with status effects.
         with_status_effects = [a for a in world.enemy_attacks if a.status_effects]
-        for attr in ('hit_rate', 'status_effects'):
+        for attr in ('hit_rate', ):
             shuffled = with_status_effects[:]
             random.shuffle(shuffled)
             swaps = []

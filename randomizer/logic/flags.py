@@ -46,15 +46,15 @@ class SevenStarHunt(Flag):
 
 class BowsersKeepOpen(Flag):
     name = "Include Bowser's Keep locations"
-    description = ("Bowser's Keep is open from the start and the bosses inside the keep may have star pieces.  All the "
-                   "star pieces must be found to open the way to the Factory instead.")
+    description = ("Bowser's Keep is open from the start and the boss locations inside the keep may have star pieces.  "
+                   "All the star pieces must be found to open the way to the Factory instead.")
     value = 'Rk'
     modes = ['open']
 
 
 class CulexStarShuffle(Flag):
     name = "Include Culex"
-    description = "Culex may have a star piece."
+    description = "Culex's location may have a star piece."
     value = 'Rc'
     hard = True
     modes = ['open']
@@ -62,8 +62,8 @@ class CulexStarShuffle(Flag):
 
 class StarPieceShuffle(Flag):
     name = 'Randomize star pieces'
-    description = ("Shuffles the first six star pieces between open bosses with the exception of Culex.  The final "
-                   "star piece will be located on Smithy as normal.")
+    description = ("Shuffles the first six star pieces between open boss locations with the exception of Culex.  The "
+                   "final star piece will be located on Smithy as normal.")
     value = 'R'
     modes = ['open']
     options = [
@@ -150,7 +150,6 @@ class EnemyStats(Flag):
     name = 'Randomize enemy stats'
     description = "Enemy stats and immunities/weaknesses will be randomized."
     value = 'Es'
-    hard = True
 
 
 class EnemyDrops(Flag):
@@ -169,6 +168,12 @@ class EnemyAttacks(Flag):
     name = 'Randomize enemy attacks'
     description = "Enemy spells and attacks will have their power and potential status effects randomized."
     value = 'Ea'
+
+
+class EnemyNoSafetyChecks(Flag):
+    name = 'No safety checks'
+    description = "Removes safety checks on enemy attack shuffle that prevent abnormally large effects."
+    value = 'E!'
     hard = True
 
 
@@ -180,6 +185,7 @@ class EnemyShuffle(Flag):
         EnemyFormations,
         EnemyStats,
         EnemyAttacks,
+        EnemyNoSafetyChecks,
     ]
 
 
@@ -353,13 +359,13 @@ class IntermediatePreset(Preset):
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfs Bc S Qsba P1'
+    flags = 'Ks R7k Cspjl Edfsa Bc S Qsba P1'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything possible enabled.'
-    flags = 'Ks R7kc Cspjl Edfsa Bcs S Qsba P2'
+    flags = 'Ks R7kc Cspjl Edfsa! Bcs S Qsba P2'
 
 
 # ************************************** Default lists for the site.

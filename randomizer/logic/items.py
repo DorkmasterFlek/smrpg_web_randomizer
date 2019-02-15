@@ -152,6 +152,10 @@ def _randomize_item(item):
             # Status immunities.
             item.status_immunities = []
             for i in range(0, 7):
+                # Skip berserk status if the safety checks on enemy shuffle is not enabled.
+                if i == 4 and not item.world.settings.is_flag_enabled(flags.EnemyNoSafetyChecks):
+                    continue
+
                 if utils.coin_flip(odds):
                     item.status_immunities.append(i)
 
