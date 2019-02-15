@@ -72,7 +72,6 @@ class Enemy:
 
         """
         self.world = world
-        self.boss_shuffled = False
 
         # Set instance normal and rare item rewards to the actual item instances for this world.
         if self.normal_item is not None:

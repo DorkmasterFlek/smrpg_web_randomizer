@@ -367,8 +367,8 @@ class Peach(Character):
     starting_level = 9
     max_hp = 15
     speed = 24
-    attack = 19
-    defense = 8
+    attack = 15
+    defense = 5
     magic_attack = 14
     magic_defense = 14
     learned_spells = {
@@ -383,13 +383,13 @@ class Peach(Character):
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
     starting_growths = (
-        (2, 1, 1, 1, 1),
-        (2, 2, 1, 1, 1),
-        (2, 1, 1, 2, 1),
+        (2, 2, 2, 1, 1),
+        (2, 2, 2, 1, 1),
         (2, 2, 2, 2, 1),
-        (2, 1, 2, 2, 1),
+        (2, 2, 2, 2, 1),
+        (2, 2, 2, 2, 1),
         (2, 2, 2, 3, 2),
-        (2, 1, 2, 3, 2),
+        (2, 2, 2, 3, 2),
         (3, 2, 2, 3, 2),
         (4, 1, 3, 4, 2),
         (5, 2, 3, 4, 3),
