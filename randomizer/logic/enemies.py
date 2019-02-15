@@ -3,7 +3,7 @@
 import random
 from functools import reduce
 
-from randomizer.data.enemies import Smithy2Head, Smithy2ChestHead, Smithy2MageHead, Smithy2SafeHead, Smithy2TankHead
+from randomizer.data import enemies
 from randomizer.data.formations import FormationMember
 from . import flags, utils
 
@@ -286,9 +286,9 @@ def randomize_all(world):
             _randomize_enemy(enemy)
 
         # Special logic for Smithy 2: All heads must have the same HP!  Use the base head enemy for this.
-        main_head = world.get_enemy_instance(Smithy2Head)
-        for cls in (Smithy2TankHead, Smithy2SafeHead, Smithy2MageHead, Smithy2ChestHead):
-            head = world.get_enemy_instance(cls)
+        main_head = world.get_enemy_instance(enemies.Smithy2Head)
+        for e in (enemies.Smithy2TankHead, enemies.Smithy2SafeHead, enemies.Smithy2MageHead, enemies.Smithy2ChestHead):
+            head = world.get_enemy_instance(e)
             head.hp = main_head.hp
 
         # *** Shuffle enemy rewards ***
@@ -361,3 +361,17 @@ def randomize_all(world):
     if world.settings.is_flag_enabled(flags.EnemyFormations):
         for formation in world.enemy_formations:
             _randomize_formation(formation)
+
+    # *** Make sure certain enemies always have max speed for required battle scripts!
+
+    # Valentina calls Dodo.
+    world.get_enemy_instance(enemies.Valentina).speed = 255
+
+    # Axem's ship sets bits and disables itself in phase one.
+    world.get_enemy_instance(enemies.AxemRangers).speed = 255
+
+    # Hangin' Shy enemies set Boomer bits and disable themselves.
+    world.get_enemy_instance(enemies.HanginShy).speed = 255
+
+    # Exor goes first to set immunity.
+    world.get_enemy_instance(enemies.Exor).speed = 255

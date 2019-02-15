@@ -187,17 +187,3 @@ def randomize_all(world):
                     location.formation.members[1].y_pos = 255
                     location.formation.members[2].x_pos = 0
                     location.formation.members[2].y_pos = 255
-
-            # *** Extra enemy logic needed for boss shuffle.
-
-            # Make sure Valentina goes first to call Dodo.
-            world.get_enemy_instance(enemies.Valentina).speed = 255
-
-            # Make sure Axem's ship goes first to disable itself in phase one.
-            world.get_enemy_instance(enemies.AxemRangers).speed = 255
-
-            # Make sure Boomer's Hangin' Shy enemies go first, they set Boomer bits and disable themselves.
-            world.get_enemy_instance(enemies.HanginShy).speed = 255
-
-            # Make sure Exor goes first to set immunity.
-            world.get_enemy_instance(enemies.Exor).speed = 255
