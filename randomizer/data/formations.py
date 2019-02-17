@@ -114,10 +114,14 @@ class EnemyFormation:
             self.stat_total_enemies = [m.enemy for m in self.members]
 
         # Check if enemies to re-scale are different than the regular members.  Otherwise, use main member list.
+        # If we're using the main member list, make sure the order stays the same!
         if stat_scaling_enemies is not None:
             self.stat_scaling_enemies = stat_scaling_enemies
         else:
-            self.stat_scaling_enemies = list(set(m.enemy for m in self.members))
+            self.stat_scaling_enemies = []
+            for member in self.members:
+                if member.enemy not in self.stat_scaling_enemies:
+                    self.stat_scaling_enemies.append(member.enemy)
 
         # Parse out can't run and music flags.
         self.can_run_away = not bool(music_run_flags & 0x02)

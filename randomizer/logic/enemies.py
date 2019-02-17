@@ -361,17 +361,3 @@ def randomize_all(world):
     if world.settings.is_flag_enabled(flags.EnemyFormations):
         for formation in world.enemy_formations:
             _randomize_formation(formation)
-
-    # *** Make sure certain enemies always have max speed for required battle scripts!
-
-    # Valentina calls Dodo.
-    world.get_enemy_instance(enemies.Valentina).speed = 255
-
-    # Axem's ship sets bits and disables itself in phase one.
-    world.get_enemy_instance(enemies.AxemRangers).speed = 255
-
-    # Hangin' Shy enemies set Boomer bits and disable themselves.
-    world.get_enemy_instance(enemies.HanginShy).speed = 255
-
-    # Exor goes first to set immunity.
-    world.get_enemy_instance(enemies.Exor).speed = 255
