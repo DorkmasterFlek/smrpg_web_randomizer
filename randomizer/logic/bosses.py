@@ -117,7 +117,6 @@ def randomize_all(world):
                         defense = anchor.defense
                         magic_attack = anchor.magic_attack
                         magic_defense = anchor.magic_defense
-                        speed = anchor.speed
                         evade = anchor.evade
                         magic_evade = anchor.magic_evade
                     else:
@@ -125,7 +124,6 @@ def randomize_all(world):
                         defense = int(round(statistics.mean(e.defense for e in elist)))
                         magic_attack = int(round(statistics.mean(e.magic_attack for e in elist)))
                         magic_defense = int(round(statistics.mean(e.magic_defense for e in elist)))
-                        speed = int(round(statistics.mean(e.speed for e in elist)))
                         evade = int(round(statistics.mean(e.evade for e in elist)))
                         magic_evade = int(round(statistics.mean(e.magic_evade for e in elist)))
 
@@ -135,7 +133,6 @@ def randomize_all(world):
                         'defense': defense,
                         'magic_attack': magic_attack,
                         'magic_defense': magic_defense,
-                        'speed': speed,
                         'evade': evade,
                         'magic_evade': magic_evade,
                         'xp': xp,
@@ -150,12 +147,19 @@ def randomize_all(world):
                         enemy.defense = min(int(round(stats['defense'] * enemy.ratio_defense)), 255)
                         enemy.magic_attack = min(int(round(stats['magic_attack'] * enemy.ratio_magic_attack)), 255)
                         enemy.magic_defense = min(int(round(stats['magic_defense'] * enemy.ratio_magic_defense)), 255)
-                        enemy.speed = min(int(round(stats['speed'] * enemy.ratio_speed)), 255)
                         enemy.evade = min(int(round(stats['evade'] * enemy.ratio_evade)), 100)
                         enemy.magic_evade = min(int(round(stats['magic_evade'] * enemy.ratio_magic_evade)), 100)
 
-                        # Give the first enemy all the XP/coins for this fight, except for Hammer Bros that need half.
-                        if i == 0:
+                        # For snek fight, the XP/coins need to be put on both sneks because you fight either one!
+                        if location.formation.index == 309:
+                            if isinstance(enemy, (enemies.Earthlink, enemies.MadAdder)):
+                                enemy.xp = stats['xp']
+                                enemy.coins = stats['coins']
+                            else:
+                                enemy.xp = 0
+                                enemy.coins = 0
+                        # Otherwise give the first enemy all the XP/coins, except for Hammer Bros that need half.
+                        elif i == 0:
                             if isinstance(enemy, enemies.HammerBro):
                                 enemy.xp = int(round(stats['xp'] / 2))
                                 enemy.coins = int(round(stats['coins'] / 2))

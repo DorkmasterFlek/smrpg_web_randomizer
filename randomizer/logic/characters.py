@@ -294,7 +294,7 @@ def _finalize_character(character):
     if character.world.debug_mode:
         character.starting_level = 30
         character.max_hp = 999
-        character.speed = 255
+        character.speed = 99
         character.attack = 255
         character.defense = 255
         character.magic_attack = 255

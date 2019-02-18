@@ -1750,6 +1750,10 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.Smilax),
             world.get_enemy_instance(enemies.Smilax),
             world.get_enemy_instance(enemies.Megasmilax),
+        ], stat_scaling_enemies=[
+            # Order Megasmilax first here so it gets all the exp and coins!
+            world.get_enemy_instance(enemies.Megasmilax),
+            world.get_enemy_instance(enemies.Smilax),
         ]),
         EnemyFormation(295, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.CountDown), 150, 93),
