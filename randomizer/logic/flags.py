@@ -202,6 +202,12 @@ class BossShuffleKeepStats(Flag):
     hard = True
 
 
+class BossShuffleMusic(Flag):
+    name = 'Randomize boss music'
+    description = 'Battle music will be randomized for each boss fight.'
+    value = 'Bm'
+
+
 class BossShuffle(Flag):
     name = 'Randomize bosses'
     description = ("The positions of bosses are shuffled. Boss stats are roughly scaled to match the battle it's "
@@ -211,6 +217,7 @@ class BossShuffle(Flag):
     modes = ['open']
     value = 'B'
     options = [
+        BossShuffleMusic,
         BossShuffleCulex,
         BossShuffleKeepStats,
     ]
@@ -365,7 +372,7 @@ class AdvancedPreset(Preset):
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything possible enabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bcs S Qsba P2'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba P2'
 
 
 # ************************************** Default lists for the site.

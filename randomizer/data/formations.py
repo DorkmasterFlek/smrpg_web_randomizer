@@ -156,26 +156,6 @@ class EnemyFormation:
             return anchor[0]
         return None
 
-    @property
-    def shuffle_hp(self):
-        """
-
-        Returns:
-            int: Total HP for this formation for boss shuffle.
-
-        """
-        return sum(e.hp for e in self.stat_total_enemies)
-
-    @property
-    def shuffle_fp(self):
-        """
-
-        Returns:
-            int: Total FP for this formation for boss shuffle.
-
-        """
-        return sum(e.fp for e in self.stat_total_enemies)
-
     # ********** Patch stuff.
 
     def get_patch(self):

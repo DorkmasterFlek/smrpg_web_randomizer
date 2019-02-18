@@ -111,7 +111,7 @@ class BossLocation:
         self.pack = self.world.get_formation_pack_by_index(self.pack_number)
 
     def __str__(self):
-        return "<{}: members {}>".format(self.name, [m.enemy for m in self.formation.members])
+        return "<{}: music {}, members {}>".format(self.name, self.music, [m.enemy for m in self.formation.members])
 
     def __repr__(self):
         return str(self)
@@ -177,8 +177,8 @@ class BossAndStarLocation(StarLocation, BossLocation):
         BossLocation.__init__(self, world)
 
     def __str__(self):
-        return "<{}: has_star {}, members {}>".format(
-            self.name, self.has_star, [m.enemy for m in self.formation.members])
+        return "<{}: has_star {}, music {}, members {}>".format(
+            self.name, self.has_star, self.music, [m.enemy for m in self.formation.members])
 
     def __repr__(self):
         return str(self)

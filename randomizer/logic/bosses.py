@@ -74,6 +74,13 @@ def randomize_all(world):
             random.shuffle(shuffled_locations)
             shuffled_packs = [b.pack for b in shuffled_locations]
 
+            # Randomize boss music for locations if enabled.
+            if world.settings.is_flag_enabled(flags.BossShuffleMusic):
+                # noinspection PyTypeChecker
+                music_choices = list(bosses.BattleMusic)
+                for location in locations:
+                    location.music = random.choice(music_choices)
+
             # Scale boss stats accordingly if keep stats not enabled.
             if not world.settings.is_flag_enabled(flags.BossShuffleKeepStats):
                 # First calculate total stats for each slot based on anchors and stats shuffled already.
