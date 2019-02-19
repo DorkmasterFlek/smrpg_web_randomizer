@@ -99,16 +99,16 @@ def randomize_all(world):
                             elif isinstance(e, (enemies.LeftEye, enemies.RightEye)):
                                 eyes += e.hp
                         hp += int(eyes / 2)
-                    # For Cloaker/Domino, count average HP of the two sneks.
+                    # For Cloaker/Domino, count average HP of each phase of the fight.
                     elif any(e for e in elist if isinstance(e, enemies.Cloaker)):
-                        hp = 0
+                        dudes = 0
                         sneks = 0
                         for e in elist:
                             if isinstance(e, (enemies.Cloaker, enemies.Domino)):
-                                hp += e.hp
+                                dudes += e.hp
                             elif isinstance(e, (enemies.Earthlink, enemies.MadAdder)):
                                 sneks += e.hp
-                        hp += int(sneks / 2)
+                        hp = int(round((dudes / 2) + (sneks / 2)))
                     # Anything else, just sum all HP.
                     else:
                         hp = sum(e.hp for e in elist)
