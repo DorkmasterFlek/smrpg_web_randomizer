@@ -584,23 +584,24 @@ def get_default_enemy_formations(world):
             FormationMember(3, False, world.get_enemy_instance(enemies.PiranhaPlant), 231, 143),
             FormationMember(4, False, world.get_enemy_instance(enemies.PiranhaPlant), 199, 159),
         ]),
+        # Change Bobomb enemies in the normal formations to Robombs so we can boss shuffle Punchinello.
         EnemyFormation(72, None, 1, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Bobomb), 183, 127),
+            FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 183, 127),
         ]),
         EnemyFormation(73, None, 1, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Bobomb), 135, 119),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Bobomb), 199, 151),
+            FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 135, 119),
+            FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Cluster), 199, 119),
         ]),
         EnemyFormation(74, None, 1, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Bobomb), 151, 127),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Bobomb), 167, 103),
-            FormationMember(2, False, world.get_enemy_instance(enemies.Bobomb), 199, 151),
-            FormationMember(3, False, world.get_enemy_instance(enemies.Bobomb), 215, 127),
+            FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 151, 127),
+            FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 167, 103),
+            FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 199, 151),
+            FormationMember(3, False, world.get_enemy_instance(enemies.Robomb), 215, 127),
         ]),
         EnemyFormation(75, None, 1, [
-            FormationMember(0, False, world.get_enemy_instance(enemies.Bobomb), 135, 119),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Bobomb), 199, 151),
+            FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 135, 119),
+            FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Enigma), 183, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.Cluster), 215, 127),
         ]),
@@ -611,7 +612,7 @@ def get_default_enemy_formations(world):
         EnemyFormation(77, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 167, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sparky), 215, 135),
-            FormationMember(2, False, world.get_enemy_instance(enemies.Bobomb), 167, 135),
+            FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 167, 135),
         ]),
         EnemyFormation(78, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 183, 127),
@@ -630,7 +631,7 @@ def get_default_enemy_formations(world):
         ]),
         EnemyFormation(81, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmite), 151, 111),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Bobomb), 183, 127),
+            FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 183, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Sparky), 215, 143),
         ]),
         EnemyFormation(82, None, 1, [
@@ -642,7 +643,7 @@ def get_default_enemy_formations(world):
         EnemyFormation(83, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmite), 135, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmite), 231, 151),
-            FormationMember(2, False, world.get_enemy_instance(enemies.Bobomb), 167, 135),
+            FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 167, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.Cluster), 199, 119),
         ]),
         EnemyFormation(84, None, 1, [
@@ -1916,14 +1917,15 @@ def get_default_enemy_formations(world):
             FormationMember(3, False, world.get_enemy_instance(enemies.Poundette), 167, 119),
             FormationMember(4, False, world.get_enemy_instance(enemies.Clerk), 199, 119),
         ]),
+        # Remove Mad Mallet, Pounder, and Poundette so we can use them in boss shuffle.
         EnemyFormation(324, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jabit), 215, 135),
-            FormationMember(1, False, world.get_enemy_instance(enemies.MadMallet), 151, 119),
+            FormationMember(1, False, world.get_enemy_instance(enemies.Jabit), 151, 119),
         ]),
         EnemyFormation(325, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jabit), 151, 143),
-            FormationMember(1, False, world.get_enemy_instance(enemies.Pounder), 151, 111),
-            FormationMember(2, False, world.get_enemy_instance(enemies.Poundette), 215, 143),
+            FormationMember(1, False, world.get_enemy_instance(enemies.Jabit), 151, 111),
+            FormationMember(2, False, world.get_enemy_instance(enemies.Jabit), 215, 143),
         ]),
         EnemyFormation(326, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jabit), 135, 119),
@@ -1936,10 +1938,10 @@ def get_default_enemy_formations(world):
         EnemyFormation(327, None, 1, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jabit), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Jabit), 183, 143),
-            FormationMember(2, False, world.get_enemy_instance(enemies.MadMallet), 135, 103),
-            FormationMember(3, False, world.get_enemy_instance(enemies.MadMallet), 183, 111),
-            FormationMember(4, False, world.get_enemy_instance(enemies.Poundette), 215, 127),
-            FormationMember(5, False, world.get_enemy_instance(enemies.Poundette), 231, 151),
+            FormationMember(2, False, world.get_enemy_instance(enemies.Jabit), 135, 103),
+            FormationMember(3, False, world.get_enemy_instance(enemies.Jabit), 183, 111),
+            FormationMember(4, False, world.get_enemy_instance(enemies.Jabit), 215, 127),
+            FormationMember(5, False, world.get_enemy_instance(enemies.Jabit), 231, 151),
         ]),
         EnemyFormation(328, None, 3, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Fireball), 151, 111),

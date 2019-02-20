@@ -199,6 +199,21 @@ def randomize_all(world):
                     location.formation.members[2].x_pos = 0
                     location.formation.members[2].y_pos = 255
 
+            # *** Certain formation changes necessary for boss shuffle.
+
+            # Formation 368 is a solo Mad Mallet fight before the factory boss rush.
+            # These enemies need to be changed to some other factory enemies when doing boss shuffle.
+            factory_enemies = [
+                enemies.LilBoo,
+                enemies.MachineMadeShyster,
+                enemies.Puppox,
+                enemies.Doppel,
+                enemies.Hippopo,
+            ]
+            formation = world.get_enemy_formation_by_index(368)
+            for member in formation.members:
+                member.enemy = random.choice(factory_enemies)
+
     # *** Make sure certain enemies always have max speed for required battle scripts!
 
     # Valentina calls Dodo.
