@@ -39,7 +39,9 @@ def _randomize_enemy_attack(attack):
 
         # If there are some buffs given by this attack, give a 50% chance to have an extra random buff.
         if attack.buffs and random.randint(1, 2) == 2:
-            attack.buffs.append(random.choice(list({3, 4, 5, 6} - set(attack.buffs))))
+            unused = list({3, 4, 5, 6} - set(attack.buffs))
+            if unused:
+                attack.buffs.append(random.choice(unused))
 
     # If there are status effects, randomize them.
     if attack.status_effects:
