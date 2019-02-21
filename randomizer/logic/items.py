@@ -149,6 +149,11 @@ def _randomize_item(item):
                 if i not in item.elemental_immunities and utils.coin_flip(odds):
                     item.elemental_resistances.append(i)
 
+            # For certain namesake items, keep their status immunities so people don't get confused.
+            guaranteed_immunities = []
+            if isinstance(item, (items.FearlessPin, items.AntidotePin, items.TrueformPin, items.WakeUpPin)):
+                guaranteed_immunities = item.status_immunities
+
             # Status immunities.
             item.status_immunities = []
             for i in range(0, 7):
@@ -157,6 +162,11 @@ def _randomize_item(item):
                     continue
 
                 if utils.coin_flip(odds):
+                    item.status_immunities.append(i)
+
+            # Add guaranteed immunities back.
+            for i in guaranteed_immunities:
+                if i not in item.status_immunities:
                     item.status_immunities.append(i)
 
             # Weight weapons more towards the status buffs, and weight armor/accessories towards immunities.
