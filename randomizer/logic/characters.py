@@ -18,7 +18,7 @@ def _randomize_learned_spells(world):
     # Group Hug only works with Peach however, so remove it from the shuffle and give Peach only 5 spells.
     # Assign the 3 extra random spells first to guarantee we can assign all spells without a character getting any
     # of the extra duplicate ones.
-    possible_spells = [
+    default_spells = [
         spells.Jump,
         spells.FireOrb,
         spells.SuperJump,
@@ -46,21 +46,45 @@ def _randomize_learned_spells(world):
         spells.Snowy,
         spells.StarRain,
     ]
-    random.shuffle(possible_spells)
-    possible_spells = possible_spells[:3] + possible_spells
+    waiting_spells = default_spells[:]
     charspells = collections.defaultdict(list)
 
-    while possible_spells:
-        valid = [c for c in world.characters if
-                 (len(charspells[c]) < 5 or (len(charspells[c]) < 6 and not isinstance(c, characters.Peach))) and
-                 possible_spells[0] not in charspells[c]]
-        chosen = random.choice(valid)
-        charspells[chosen].append(possible_spells.pop(0))
+    # Place spells in characters who still need spells until we have no more.
+    while True:
+        still_need = [c for c in world.characters if
+                      (len(charspells[c]) < 5 or (len(charspells[c]) < 6 and not isinstance(c, characters.Peach)))]
+        if not still_need:
+            break
+
+        for char in still_need:
+            possible_spells = [spell for spell in waiting_spells if spell not in charspells[char]]
+            spell = random.choice(possible_spells)
+            charspells[char].append(spell)
+
+            # Remove spell from list of waiting to be assigned.  If we used them all, reset the list and choose more.
+            waiting_spells.remove(spell)
+            if not waiting_spells:
+                waiting_spells = default_spells[:]
+
+    # Guarantee Geno Boost isn't the last spell a character learns if they have it.
+    for character in world.characters:
+        our_spells = charspells[character]
+        if spells.GenoBoost in our_spells:
+            index = our_spells.index(spells.GenoBoost)
+            if index == (len(our_spells) - 1):
+                our_spells.insert(random.randint(0, max(len(our_spells) - 2, 0)), our_spells.pop(index))
 
     # Insert Group Hug for Peach, but make sure it's not the final spell learned for balance.
     for character in world.characters:
         if isinstance(character, characters.Peach) and len(charspells[character]) < 6:
             charspells[character].insert(random.randint(0, 4), spells.GroupHug)
+
+    # Sanity check to make sure every character has 6 spells and Peach has Group Hug.
+    for character in world.characters:
+        if len(charspells[character]) != 6:
+            raise RuntimeError("Character {} does not have 6 spells: {!r}".format(character, charspells))
+        elif isinstance(character, characters.Peach) and spells.GroupHug not in charspells[character]:
+            raise RuntimeError("Peach was assigned 6 spells before Group Hug: {!r}".format(charspells))
 
     # Assign chosen spells for each character.  Make the first spell always learned from the start (level 1), and
     # assign the other spells to random levels from 2-20.
