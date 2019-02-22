@@ -3663,6 +3663,29 @@ class Shelly(Enemy):
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
 
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        phase2_hp = int(round(self.hp * 0.8))
+        patch.add_data(0x3947b1, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+
+        phase3_hp = int(round(self.hp * 0.6))
+        patch.add_data(0x3947c0, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+
+        phase4_hp = int(round(self.hp * 0.4))
+        patch.add_data(0x3947cf, utils.ByteField(phase4_hp, num_bytes=2).as_bytes())
+
+        phase5_hp = int(round(self.hp * 0.2))
+        patch.add_data(0x3947de, utils.ByteField(phase5_hp, num_bytes=2).as_bytes())
+
+        return patch
+
 
 class Superspike(Enemy):
     index = 136
@@ -4687,6 +4710,7 @@ class Jagger(Enemy):
 
     # Reward attributes
     reward_address = 0x391ad4
+    xp = 50
     yoshi_cookie_item = items.Mushroom
 
     # Boss shuffle attributes.
@@ -5103,6 +5127,7 @@ class Jinx1(Enemy):
 
     # Reward attributes
     reward_address = 0x391ac2
+    xp = 75
     yoshi_cookie_item = items.Mushroom
 
     # Boss shuffle attributes.
@@ -5147,6 +5172,7 @@ class Jinx2(Enemy):
 
     # Reward attributes
     reward_address = 0x391ac8
+    xp = 100
     yoshi_cookie_item = items.Mushroom
 
     # Boss shuffle attributes.
@@ -5508,6 +5534,7 @@ class Punchinello(Enemy):
 
     # Reward attributes
     reward_address = 0x391a98
+    xp = 70
     yoshi_cookie_item = items.Mushroom
 
     # Boss shuffle attributes.
@@ -5827,6 +5854,7 @@ class Jinx3(Enemy):
 
     # Reward attributes
     reward_address = 0x391ace
+    xp = 150
     yoshi_cookie_item = items.Mushroom
 
     # Boss shuffle attributes.
@@ -6786,6 +6814,17 @@ class JohnnySolo(Enemy):
     # Reward attributes
     reward_address = 0x391c06
     yoshi_cookie_item = items.Mushroom
+
+    # Boss shuffle attributes.
+    ratio_hp = 0.4878
+    ratio_fp = 1.0
+    ratio_attack = 1.0588
+    ratio_defense = 1.25
+    ratio_magic_attack = 0.0
+    ratio_magic_defense = 0.5333
+    ratio_speed = 2.3077
+    ratio_evade = 1.0
+    ratio_magic_evade = 1.0
 
 
 class Valentina(Enemy):

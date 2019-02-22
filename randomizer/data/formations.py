@@ -1634,6 +1634,11 @@ def get_default_enemy_formations(world):
         ], stat_total_enemies=[
             # Only count Johnny himself for boss shuffle logic.
             world.get_enemy_instance(enemies.Johnny),
+        ], stat_scaling_enemies=[
+            # Also need to scale solo Johnny enemy!
+            world.get_enemy_instance(enemies.Johnny),
+            world.get_enemy_instance(enemies.BandanaBlue),
+            world.get_enemy_instance(enemies.JohnnySolo),
         ]),
         EnemyFormation(281, None, 7, [
             FormationMember(0, False, world.get_enemy_instance(enemies.JohnnySolo), 183, 127),

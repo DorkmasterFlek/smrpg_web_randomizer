@@ -41,7 +41,7 @@ class Settings:
                 if flag.startswith('-'):
                     # Solo flag that begins with a dash.
                     form_data['flag-{}'.format(flag)] = True
-                else:
+                elif flag:
                     # Flag that may have a subsection of choices and/or options.
                     first = flag[0]
                     form_data['flag-{}'.format(first)] = True
@@ -56,16 +56,16 @@ class Settings:
             for category in flags.CATEGORIES:
                 for flag in category.flags:
                     if flag.available_in_mode(self.mode):
-                        if form_data['flag-{}'.format(flag.value)]:
+                        if form_data.get('flag-{}'.format(flag.value)):
                             self._enabled_flags.add(flag)
 
                         # Check for choices and/or options.
                         for choice in flag.choices:
-                            if form_data['flag-{}-choice'.format(flag.value)] == choice.value:
+                            if form_data.get('flag-{}-choice'.format(flag.value)) == choice.value:
                                 self._enabled_flags.add(choice)
 
                         for option in flag.options:
-                            if form_data['flag-{}'.format(option.value)]:
+                            if form_data.get('flag-{}'.format(option.value)):
                                 self._enabled_flags.add(option)
 
     @property
@@ -409,7 +409,10 @@ class GameWorld:
         }
         # Also use enemy names, if they're 6 characters or less.
         for e in self.enemies:
-            name = re.sub(r'[^A-Za-z0-9]', '', e.name.upper())
+            if isinstance(e, data.enemies.K9):
+                name = e.name
+            else:
+                name = re.sub(r'[^A-Za-z]', '', e.name.upper())
             if len(name) <= 6:
                 file_entry_names.add(name)
         file_entry_names = sorted(file_entry_names)
