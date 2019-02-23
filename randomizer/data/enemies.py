@@ -89,6 +89,30 @@ class Enemy:
     def name(self):
         return self.__class__.__name__
 
+    @staticmethod
+    def round_for_battle_script(val):
+        """Round a HP value for battle event data.  This means round to an integer, and make sure it does have the
+        values 0xfe or 0xff because these are special values that stop processing the battle script.
+
+        Args:
+            val (float|int): Base value to confirm.
+
+        Returns:
+            int: Rounded HP value.
+
+        """
+        ret = int(round(val))
+        m = ret % 256
+
+        # 0xfe
+        if m == 254:
+            ret += 2
+        # 0xff
+        elif m == 255:
+            ret += 1
+
+        return ret
+
     @classmethod
     def get_world_instance(cls, world):
         """
@@ -1834,7 +1858,7 @@ class Dodo(Enemy):
         """
         patch = super().get_patch()
 
-        run_away = int(round(self.hp * 0.6))
+        run_away = self.round_for_battle_script(self.hp * 0.6)
         # Open mode event address is the same as vanilla, but standard mode patch is in a different spot.
         if self.world.open_mode:
             patch.add_data(0x395702, utils.ByteField(run_away, num_bytes=2).as_bytes())
@@ -3672,16 +3696,16 @@ class Shelly(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 0.8))
+        phase2_hp = self.round_for_battle_script(self.hp * 0.8)
         patch.add_data(0x3947b1, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
-        phase3_hp = int(round(self.hp * 0.6))
+        phase3_hp = self.round_for_battle_script(self.hp * 0.6)
         patch.add_data(0x3947c0, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
-        phase4_hp = int(round(self.hp * 0.4))
+        phase4_hp = self.round_for_battle_script(self.hp * 0.4)
         patch.add_data(0x3947cf, utils.ByteField(phase4_hp, num_bytes=2).as_bytes())
 
-        phase5_hp = int(round(self.hp * 0.2))
+        phase5_hp = self.round_for_battle_script(self.hp * 0.2)
         patch.add_data(0x3947de, utils.ByteField(phase5_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -3970,6 +3994,7 @@ class Formless(Enemy):
 class Mokura(Enemy):
     index = 148
     address = 0x390656
+    boss = True
     hp = 620
     speed = 25
     attack = 120
@@ -5144,7 +5169,7 @@ class Jinx1(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 0.5))
+        phase2_hp = self.round_for_battle_script(self.hp * 0.5)
         patch.add_data(0x39419d, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -5189,7 +5214,7 @@ class Jinx2(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 0.5))
+        phase2_hp = self.round_for_battle_script(self.hp * 0.5)
         patch.add_data(0x3941d0, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -5301,7 +5326,7 @@ class Belome1(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 300 / 500))
+        phase2_hp = self.round_for_battle_script(self.hp * 300 / 500)
         patch.add_data(0x3943ae, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -5550,11 +5575,11 @@ class Punchinello(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 2 / 3))
+        phase2_hp = self.round_for_battle_script(self.hp * 2 / 3)
         patch.add_data(0x393f07, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
         patch.add_data(0x393f1e, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
-        phase3_hp = int(round(self.hp * 1 / 3))
+        phase3_hp = self.round_for_battle_script(self.hp * 1 / 3)
         patch.add_data(0x393f37, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
         patch.add_data(0x393f52, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
@@ -5871,10 +5896,10 @@ class Jinx3(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 0.6))
+        phase2_hp = self.round_for_battle_script(self.hp * 0.6)
         patch.add_data(0x394216, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
-        phase3_hp = int(round(self.hp * 0.3))
+        phase3_hp = self.round_for_battle_script(self.hp * 0.3)
         patch.add_data(0x394228, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -6505,7 +6530,7 @@ class Croco1(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 100 / 320))
+        phase2_hp = self.round_for_battle_script(self.hp * 100 / 320)
         patch.add_data(0x395543, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -6552,7 +6577,7 @@ class Croco2(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 400 / 750))
+        phase2_hp = self.round_for_battle_script(self.hp * 400 / 750)
         patch.add_data(0x395588, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -6690,7 +6715,7 @@ class Booster(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 500 / 800))
+        phase2_hp = self.round_for_battle_script(self.hp * 500 / 800)
         patch.add_data(0x3955cc, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -6786,7 +6811,7 @@ class Johnny(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 400 / 820))
+        phase2_hp = self.round_for_battle_script(self.hp * 400 / 820)
         patch.add_data(0x395650, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
@@ -6867,7 +6892,7 @@ class Valentina(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = int(round(self.hp * 0.6))
+        phase2_hp = self.round_for_battle_script(self.hp * 0.6)
         patch.add_data(0x3956b5, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
