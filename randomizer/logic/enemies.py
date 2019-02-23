@@ -189,28 +189,14 @@ def _randomize_formation(formation):
     formation.members = []
     done_coordinates = []
     for i, enemy in enumerate(chosen_enemies):
-        while True:
-            # TODO: Should we just not mutate coordinates to avoid softlocks???
-            if not done_coordinates:
-                x, y = random.choice(formation.VALID_COORDINATES)
-                # x, y = formation.mutate_coordinate(x, y)
-            else:
-                candidates = random.sample(formation.VALID_COORDINATES, len(chosen_enemies) * 2)
-                # candidates = [formation.mutate_coordinate(c[0], c[1]) for c in candidates]
-                x, y = select_most_distance(candidates, done_coordinates)
+        if not done_coordinates:
+            x, y = random.choice(formation.VALID_COORDINATES)
+        else:
+            candidates = random.sample(formation.VALID_COORDINATES, len(chosen_enemies) * 2)
+            x, y = select_most_distance(candidates, done_coordinates)
 
-            # TODO: We don't need this if we're not mutating the vanilla coordinates???
-            # High flying units with an x coord of 119-124 cannot have a y coordinate of 138 or higher, or the
-            # game will softlock after they finish attacking.  Reroll if we hit this scenario.
-            # if enemy.high_flying and 119 <= x <= 124 and y >= 138:
-            #     continue
-            # Regular flying enemies will softlock in the range x 116-153, y 150-168
-            # elif enemy.flying and 116 <= x <= 153 and 150 <= y <= 168:
-            #     continue
-
-            done_coordinates.append((x, y))
-            formation.members.append(FormationMember(i, False, enemy, x, y))
-            break
+        done_coordinates.append((x, y))
+        formation.members.append(FormationMember(i, False, enemy, x, y))
 
     formation.members.sort(key=lambda m: m.index)
 
