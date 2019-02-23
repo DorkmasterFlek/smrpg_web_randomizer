@@ -250,6 +250,15 @@ class EquipmentCharacters(Flag):
     value = 'Qa'
 
 
+class EquipmentNoSafetyChecks(Flag):
+    name = 'No safety checks'
+    description = ("Normally certain namesake items retain their protections: **Fearless Pin**, **Antidote Pin**, "
+                   "**Trueform Pin**, and **Wakeup Pin**.  In addition, at least four equipment will have instant KO "
+                   "protection.  This flag removes those checks.")
+    value = 'Q!'
+    hard = True
+
+
 class EquipmentShuffle(Flag):
     name = 'Randomize equipment'
     value = '@Q'
@@ -257,6 +266,7 @@ class EquipmentShuffle(Flag):
         EquipmentStats,
         EquipmentBuffs,
         EquipmentCharacters,
+        EquipmentNoSafetyChecks,
     ]
 
 
@@ -354,13 +364,13 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Cj Edf B S Qa'
+    flags = 'K R Csj Edf B S Qa'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf B S Qa'
+    flags = 'Ks R7 Cspjl Edf B S Qsa'
 
 
 class AdvancedPreset(Preset):
@@ -372,7 +382,7 @@ class AdvancedPreset(Preset):
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything possible enabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba P2'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! P2'
 
 
 # ************************************** Default lists for the site.

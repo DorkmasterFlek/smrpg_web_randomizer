@@ -149,9 +149,10 @@ def _randomize_item(item):
                 if i not in item.elemental_immunities and utils.coin_flip(odds):
                     item.elemental_resistances.append(i)
 
-            # For certain namesake items, keep their status immunities so people don't get confused.
+            # For certain namesake items, keep their status immunities so people don't get confused for safety.
             guaranteed_immunities = []
-            if isinstance(item, (items.FearlessPin, items.AntidotePin, items.TrueformPin, items.WakeUpPin)):
+            if (isinstance(item, (items.FearlessPin, items.AntidotePin, items.TrueformPin, items.WakeUpPin)) and
+                    not item.world.settings.is_flag_enabled(flags.EquipmentNoSafetyChecks)):
                 guaranteed_immunities = item.status_immunities
 
             # Status immunities.
@@ -194,6 +195,16 @@ def randomize_all(world):
     # Shuffle equipment stats and equip characters.
     for item in world.items:
         _randomize_item(item)
+
+    # Safety check that at least four tier equips have instant death protection for safety.
+    if (world.settings.is_flag_enabled(flags.EquipmentBuffs) and
+            not world.settings.is_flag_enabled(flags.EquipmentNoSafetyChecks)):
+        instant_ko_items = len([item for item in world.items if item.prevent_ko])
+        if instant_ko_items < 4:
+            top_armor = [item for item in world.items if (item.is_armor or item.is_accessory) and item.tier == 1 and
+                         not item.prevent_ko]
+            for item in random.sample(top_armor, 4 - instant_ko_items):
+                item.prevent_ko = True
 
     # Shuffle shop contents and prices.
     if world.settings.is_flag_enabled(flags.ShopShuffle):
