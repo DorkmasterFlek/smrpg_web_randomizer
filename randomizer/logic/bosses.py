@@ -149,11 +149,18 @@ def randomize_all(world):
                 # Now adjust stats for each shuffled pack given the total stats for the slot it's going into.
                 for location, stats in zip(shuffled_locations, location_stats):
                     for i, enemy in enumerate(location.formation.stat_scaling_enemies):
-                        enemy.hp = int(round(stats['hp'] * enemy.ratio_hp))
-                        enemy.attack = min(int(round(stats['attack'] * enemy.ratio_attack)), 255)
-                        enemy.defense = min(int(round(stats['defense'] * enemy.ratio_defense)), 255)
-                        enemy.magic_attack = min(int(round(stats['magic_attack'] * enemy.ratio_magic_attack)), 255)
-                        enemy.magic_defense = min(int(round(stats['magic_defense'] * enemy.ratio_magic_defense)), 255)
+                        # Do not raise King Bomb's stats more than normal.
+                        no_raise = isinstance(enemy, enemies.KingBomb)
+
+                        enemy.hp = min(int(round(stats['hp'] * enemy.ratio_hp)), enemy.hp if no_raise else 65535)
+                        enemy.attack = min(int(round(stats['attack'] * enemy.ratio_attack)),
+                                           enemy.attack if no_raise else 255)
+                        enemy.defense = min(int(round(stats['defense'] * enemy.ratio_defense)),
+                                            enemy.defense if no_raise else 255)
+                        enemy.magic_attack = min(int(round(stats['magic_attack'] * enemy.ratio_magic_attack)),
+                                                 enemy.magic_attack if no_raise else 255)
+                        enemy.magic_defense = min(int(round(stats['magic_defense'] * enemy.ratio_magic_defense)),
+                                                  enemy.magic_defense if no_raise else 255)
                         enemy.evade = min(int(round(stats['evade'] * enemy.ratio_evade)), 100)
                         enemy.magic_evade = min(int(round(stats['magic_evade'] * enemy.ratio_magic_evade)), 100)
 
