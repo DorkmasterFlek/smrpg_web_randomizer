@@ -59,14 +59,14 @@ class Settings:
                         if form_data.get('flag-{}'.format(flag.value)):
                             self._enabled_flags.add(flag)
 
-                        # Check for choices and/or options.
-                        for choice in flag.choices:
-                            if form_data.get('flag-{}-choice'.format(flag.value)) == choice.value:
-                                self._enabled_flags.add(choice)
+                            # Check for choices and/or options.
+                            for choice in flag.choices:
+                                if form_data.get('flag-{}-choice'.format(flag.value)) == choice.value:
+                                    self._enabled_flags.add(choice)
 
-                        for option in flag.options:
-                            if form_data.get('flag-{}'.format(option.value)):
-                                self._enabled_flags.add(option)
+                            for option in flag.options:
+                                if form_data.get('flag-{}'.format(option.value)):
+                                    self._enabled_flags.add(option)
 
     @property
     def mode(self):
