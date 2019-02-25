@@ -164,9 +164,9 @@ def randomize_all(world):
                         enemy.evade = min(int(round(stats['evade'] * enemy.ratio_evade)), 100)
                         enemy.magic_evade = min(int(round(stats['magic_evade'] * enemy.ratio_magic_evade)), 100)
 
-                        # For snek fight, the XP/coins need to be put on both sneks because you fight either one!
+                        # For snek fight, the XP/coins need to be put on Cloaker/Domino 2 because you fight either one.
                         if location.formation.index == 309:
-                            if isinstance(enemy, (enemies.Earthlink, enemies.MadAdder)):
+                            if isinstance(enemy, (enemies.Cloaker2, enemies.Domino2)):
                                 enemy.xp = stats['xp']
                                 enemy.coins = stats['coins']
                             else:

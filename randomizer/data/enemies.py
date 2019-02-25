@@ -1,6 +1,6 @@
 # Data module for enemy data.
 
-from randomizer.logic import utils
+from randomizer.logic import flags, utils
 from randomizer.logic.patch import Patch
 from . import items
 
@@ -1228,6 +1228,21 @@ class Magikoopa(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+
+    def get_patch(self):
+        """Extra patch data for this enemy.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if fix Magikoopa flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.FixMagikoopa):
+            patch.add_data(0x393252, bytes([0xdc, 0xf5]))
+
+        return patch
 
 
 class Leuko(Enemy):
@@ -3663,7 +3678,7 @@ class Shelly(Enemy):
     index = 135
     address = 0x390e06
     boss = True
-    hp = 500
+    hp = 10
     defense = 80
     fp = 100
     death_immune = True
@@ -3677,7 +3692,7 @@ class Shelly(Enemy):
     yoshi_cookie_item = items.Mushroom
 
     # Boss shuffle attributes.
-    ratio_hp = 0.6435
+    ratio_hp = 0.0129
     ratio_fp = 0.0
     ratio_attack = 0.0
     ratio_defense = 0.6154
@@ -3697,16 +3712,16 @@ class Shelly(Enemy):
         patch = super().get_patch()
 
         phase2_hp = self.round_for_battle_script(self.hp * 0.8)
-        patch.add_data(0x3947b1, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f6d9, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         phase3_hp = self.round_for_battle_script(self.hp * 0.6)
-        patch.add_data(0x3947c0, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f6e8, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
         phase4_hp = self.round_for_battle_script(self.hp * 0.4)
-        patch.add_data(0x3947cf, utils.ByteField(phase4_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f6f7, utils.ByteField(phase4_hp, num_bytes=2).as_bytes())
 
         phase5_hp = self.round_for_battle_script(self.hp * 0.2)
-        patch.add_data(0x3947de, utils.ByteField(phase5_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f706, utils.ByteField(phase5_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5170,7 +5185,7 @@ class Jinx1(Enemy):
         patch = super().get_patch()
 
         phase2_hp = self.round_for_battle_script(self.hp * 0.5)
-        patch.add_data(0x39419d, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f402, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5215,7 +5230,7 @@ class Jinx2(Enemy):
         patch = super().get_patch()
 
         phase2_hp = self.round_for_battle_script(self.hp * 0.5)
-        patch.add_data(0x3941d0, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f438, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5576,12 +5591,12 @@ class Punchinello(Enemy):
         patch = super().get_patch()
 
         phase2_hp = self.round_for_battle_script(self.hp * 2 / 3)
-        patch.add_data(0x393f07, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-        patch.add_data(0x393f1e, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f555, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f56c, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         phase3_hp = self.round_for_battle_script(self.hp * 1 / 3)
-        patch.add_data(0x393f37, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
-        patch.add_data(0x393f52, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f585, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f5a0, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5897,10 +5912,10 @@ class Jinx3(Enemy):
         patch = super().get_patch()
 
         phase2_hp = self.round_for_battle_script(self.hp * 0.6)
-        patch.add_data(0x394216, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f481, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         phase3_hp = self.round_for_battle_script(self.hp * 0.3)
-        patch.add_data(0x394228, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+        patch.add_data(0x39f493, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -6345,6 +6360,22 @@ class Exor(Enemy):
     ratio_magic_attack = 0.0
     ratio_magic_defense = 1.2903
     ratio_speed = 3.0769
+
+    def get_patch(self):
+        """Extra patch data for this enemy.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if no Geno Whirl flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoGenoWhirlExor):
+            patch.add_data(0x393226, bytes([0x8a, 0xf6, 0x2e, 0xf6]))
+            patch.add_data(0x39327c, bytes([0xfe, 0xf5]))
+
+        return patch
 
 
 class Smithy1(Enemy):

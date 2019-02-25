@@ -308,6 +308,30 @@ class StarExpChallenge(Flag):
     ]
 
 
+# ******** Glitches
+
+class NoGenoWhirlExor(Flag):
+    name = 'No Geno Whirl on Exor'
+    description = 'Fixes the Exor bug where he is vulnerable to Geno Whirl when the eyes are stunned.'
+    value = 'Ge'
+
+
+class FixMagikoopa(Flag):
+    name = "Fix Magikoopa"
+    description = 'Fixes Magikoopa bug after King Bomb explodes that prevents him from taking further actions.'
+    value = 'Gm'
+
+
+class Glitches(Flag):
+    name = 'Glitches'
+    modes = ['open']
+    value = '@G'
+    options = [
+        NoGenoWhirlExor,
+        FixMagikoopa,
+    ]
+
+
 # ************************************** Category classes
 
 class FlagCategory:
@@ -353,6 +377,13 @@ class ChallengesCategory(FlagCategory):
     ]
 
 
+class TweaksCategory(FlagCategory):
+    name = 'Tweaks'
+    flags = [
+        Glitches,
+    ]
+
+
 # ************************************** Preset classes
 
 class Preset:
@@ -376,13 +407,13 @@ class IntermediatePreset(Preset):
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc S Qsba P1'
+    flags = 'Ks R7k Cspjl Edfsa Bc S Qsba P1 Gm'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
-    description = 'A highly chaotic shuffle with everything possible enabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! P2'
+    description = 'A highly chaotic shuffle with everything possible enabled and helpful glitches disabled.'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! P2 Gem'
 
 
 # ************************************** Default lists for the site.
@@ -394,6 +425,7 @@ CATEGORIES = (
     EnemiesCategory,
     ShopsItemsCategory,
     ChallengesCategory,
+    TweaksCategory,
 )
 
 # List of flags flattened out from categories, as well as all their options.

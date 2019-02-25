@@ -192,7 +192,7 @@ class NimbusLandCastleKey(KeyItemLocation):
 
 
 class Birdo(KeyItemLocation):
-    addresses = [0x1e6370]
+    addresses = [0x20a3b0]
     item = items.CastleKey2
 
     @staticmethod

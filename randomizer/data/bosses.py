@@ -292,8 +292,23 @@ class Bundt(BossAndStarLocation):
 
 
 class StarHill(StarLocation):
-    star_address = 0x1e973a
+    star_address = 0x14aacb
     has_star = True
+
+    def get_patch(self):
+        """Override patch generation because this is an overworld spot that needs special data.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = Patch()
+
+        # Different values needed for this spot.
+        val = 0x9c if self.has_star else 0x1c
+        patch.add_data(self.star_address, utils.ByteField(val).as_bytes())
+
+        return patch
 
 
 class KingCalamari(BossAndStarLocation):
