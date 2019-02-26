@@ -17,7 +17,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0.0beta11'
+VERSION = '8.0beta11'
 
 
 class Settings:
@@ -436,6 +436,12 @@ class GameWorld:
         title = 'SMRPG-R {}'.format(self.seed).ljust(20)
         if len(title) > 20:
             title = title[:19] + '?'
+
+        # Add version number on name entry screen.
+        version_text = ('v' + VERSION).ljust(10)
+        if len(version_text) > 10:
+            raise ValueError("Version text is too long: {!r}".format(version_text))
+        patch.add_data(0x3ef140, version_text)
 
         # Add title and major version number to SNES header data.
         patch.add_data(0x7fc0, title)
