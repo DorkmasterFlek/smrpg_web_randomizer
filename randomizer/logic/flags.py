@@ -314,6 +314,7 @@ class NoGenoWhirlExor(Flag):
     name = 'No Geno Whirl on Exor'
     description = 'Fixes the Exor bug where he is vulnerable to Geno Whirl when the eyes are stunned.'
     value = 'Ge'
+    hard = True
 
 
 class FixMagikoopa(Flag):
@@ -327,8 +328,8 @@ class Glitches(Flag):
     modes = ['open']
     value = '@G'
     options = [
-        NoGenoWhirlExor,
         FixMagikoopa,
+        NoGenoWhirlExor,
     ]
 
 
@@ -413,7 +414,7 @@ class AdvancedPreset(Preset):
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything possible enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! P2 Gem'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! P2 Gme'
 
 
 # ************************************** Default lists for the site.
