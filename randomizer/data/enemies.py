@@ -42,6 +42,7 @@ class Enemy:
     flower_bonus_chance = 0
     flying = False
     high_flying = False
+    one_per_battle = False  # Flag if enemy is unique per battle (only 1 max per formation)
 
     # Reward attributes.
     reward_address = 0x000000
@@ -2005,6 +2006,7 @@ class Hippopo(Enemy):
     palette = 32
     flower_bonus_type = 5
     flower_bonus_chance = 10
+    one_per_battle = True
 
     # Reward attributes
     reward_address = 0x3918f4

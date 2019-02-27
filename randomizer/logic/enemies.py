@@ -178,6 +178,10 @@ def _randomize_formation(formation):
     while len(chosen_enemies) < num_enemies:
         vram_total = sum([e.palette for e in chosen_enemies])
         sub_candidates = candidates + chosen_enemies
+
+        # Exclude any enemies that are unique per battle.
+        sub_candidates = [e for e in sub_candidates if not e.one_per_battle or e not in chosen_enemies]
+
         sub_candidates = [e for e in sub_candidates if vram_total + e.palette <= 64]
         if not sub_candidates:
             break
