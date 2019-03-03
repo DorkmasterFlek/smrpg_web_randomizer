@@ -98,10 +98,6 @@ def _randomize_item(item):
             for _ in range(num_equippable):
                 char_choices = {Mario, Mallow, Geno, Bowser, Peach} - new_chars
 
-                # Mario cannot equip Hurly Gloves due to softlock when he throws himself.
-                if isinstance(item, items.HurlyGloves) and Mario in char_choices:
-                    char_choices.remove(Mario)
-
                 # Geno can only equip his own weapons (we checked if this was one of his above).
                 if item.is_weapon and Geno in char_choices:
                     char_choices.remove(Geno)
