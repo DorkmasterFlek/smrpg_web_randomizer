@@ -157,11 +157,6 @@ def _randomize_character(character):
         value_lvl1 = utils.mutate_normal(value_lvl1, minimum=1)
         value_lvl20 = utils.mutate_normal(value_lvl20, minimum=value_lvl1 + 19)
 
-        # If we're doing open mode, lower the initial starting stats because you get three characters to start.
-        # TODO: Should we actually do this???
-        # if character.world.open_mode:
-        #     value_lvl1 = max(int(round(value_lvl1 * 0.5)), 1)
-
         # Generate random fixed value points between level 1 and 20 to interpolate between.
         fixed_points = [(1, value_lvl1), (20, value_lvl20)]
 
