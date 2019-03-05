@@ -70,7 +70,7 @@ class Inventory(list):
 
 # ********************************** Actual location classes.
 class MariosPad(KeyItemLocation):
-    addresses = [0x1e620a]
+    addresses = [0x1e620f]
     item = items.DryBonesFlag
 
 
@@ -80,7 +80,7 @@ class Croco1(KeyItemLocation):
 
 
 class MushroomKingdom(KeyItemLocation):
-    addresses = [0x1e6608]
+    addresses = [0x1e6610]
     item = items.CricketPie
 
     @staticmethod
@@ -99,22 +99,22 @@ class MushroomKingdom(KeyItemLocation):
 
 
 class RoseTown(KeyItemLocation):
-    addresses = [0x1e6221, 0x1e6238]
+    addresses = [0x1e6226, 0x1e623d]
     item = items.GreaperFlag
 
 
 class CricketJamChest(KeyItemLocation):
-    addresses = [0x1e6256, 0x1e6261]
+    addresses = [0x1e625b, 0x1e6266]
     item = items.CricketJam
 
 
 class MelodyBay1(KeyItemLocation):
-    addresses = [0x1e627b]
+    addresses = [0x1e6280]
     item = items.AltoCard
 
 
 class MelodyBay2(KeyItemLocation):
-    addresses = [0x1e6290]
+    addresses = [0x1e6295]
     item = items.AltoCard
 
     @staticmethod
@@ -133,7 +133,7 @@ class MelodyBay2(KeyItemLocation):
 
 
 class MelodyBay3(KeyItemLocation):
-    addresses = [0x1e62a7]
+    addresses = [0x1e62ac]
     item = items.AltoCard
 
     @staticmethod
@@ -152,7 +152,7 @@ class MelodyBay3(KeyItemLocation):
 
 
 class YosterIsle(KeyItemLocation):
-    addresses = [0x1e62c0]
+    addresses = [0x1e62c5]
     item = items.BigBooFlag
 
 
@@ -162,37 +162,37 @@ class Croco2(KeyItemLocation):
 
 
 class BoosterTowerAncestors(KeyItemLocation):
-    addresses = [0x1e62da]
+    addresses = [0x1e62df]
     item = items.ElderKey
 
 
 class BoosterTowerCheckerboard(KeyItemLocation):
-    addresses = [0x1e62f9]
+    addresses = [0x1e62fe]
     item = items.RoomKey
 
 
 class SeasideTown(KeyItemLocation):
-    addresses = [0x1e630d]
+    addresses = [0x1e6312]
     item = items.ShedKey
 
 
 class MonstroTown(KeyItemLocation):
-    addresses = [0x1e6321]
+    addresses = [0x1e6326]
     item = items.TempleKey
 
 
 class Seed(KeyItemLocation):
-    addresses = [0x1e6335]
+    addresses = [0x1e633a]
     item = items.Seed
 
 
 class NimbusLandCastleKey(KeyItemLocation):
-    addresses = [0x1e6355]
+    addresses = [0x1e635a]
     item = items.CastleKey1
 
 
 class Birdo(KeyItemLocation):
-    addresses = [0x20a3b0]
+    addresses = [0x1e6378]
     item = items.CastleKey2
 
     @staticmethod
@@ -211,7 +211,7 @@ class Birdo(KeyItemLocation):
 
 
 class Fertilizer(KeyItemLocation):
-    addresses = [0x1e6399]
+    addresses = [0x1e63a1]
     item = items.Fertilizer
 
     @staticmethod
