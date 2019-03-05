@@ -1749,6 +1749,29 @@ class Boomer(Enemy):
     ratio_hp = 1.0
     ratio_fp = 1.0
 
+    def get_patch(self):
+        """Update battle events for switching between blue and red states for Boomer with shuffled stat changes.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Change to blue state.  Scale shuffled stats based on vanilla ratios.
+        patch.add_data(0x353629, utils.ByteField(int(round(min(self.attack * 0.6, 255)))).as_bytes())
+        patch.add_data(0x35362d, utils.ByteField(int(round(min(self.defense * 0.6429, 255)))).as_bytes())
+        patch.add_data(0x353631, utils.ByteField(int(round(min(self.magic_attack * 2.8571, 255)))).as_bytes())
+        patch.add_data(0x353635, utils.ByteField(int(round(min(self.magic_defense * 3.4615, 255)))).as_bytes())
+
+        # Change back to red state (use starting stats).
+        patch.add_data(0x3535e2, utils.ByteField(self.attack).as_bytes())
+        patch.add_data(0x3535e6, utils.ByteField(self.defense).as_bytes())
+        patch.add_data(0x3535ea, utils.ByteField(self.magic_attack).as_bytes())
+        patch.add_data(0x3535ee, utils.ByteField(self.magic_defense).as_bytes())
+
+        return patch
+
 
 class Remocon(Enemy):
     index = 53
