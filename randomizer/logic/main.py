@@ -17,7 +17,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0beta11'
+VERSION = '8.0beta12'
 
 
 class Settings:
