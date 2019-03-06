@@ -1758,17 +1758,19 @@ class Boomer(Enemy):
         """
         patch = super().get_patch()
 
-        # Change to blue state.  Scale shuffled stats based on vanilla ratios.
-        patch.add_data(0x353629, utils.ByteField(int(round(min(self.attack * 0.6, 255)))).as_bytes())
-        patch.add_data(0x35362d, utils.ByteField(int(round(min(self.defense * 0.6429, 255)))).as_bytes())
-        patch.add_data(0x353631, utils.ByteField(int(round(min(self.magic_attack * 2.8571, 255)))).as_bytes())
-        patch.add_data(0x353635, utils.ByteField(int(round(min(self.magic_defense * 3.4615, 255)))).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            # Change to blue state.  Scale shuffled stats based on vanilla ratios.
+            patch.add_data(0x353629, utils.ByteField(int(round(min(self.attack * 0.6, 255)))).as_bytes())
+            patch.add_data(0x35362d, utils.ByteField(int(round(min(self.defense * 0.6429, 255)))).as_bytes())
+            patch.add_data(0x353631, utils.ByteField(int(round(min(self.magic_attack * 2.8571, 255)))).as_bytes())
+            patch.add_data(0x353635, utils.ByteField(int(round(min(self.magic_defense * 3.4615, 255)))).as_bytes())
 
-        # Change back to red state (use starting stats).
-        patch.add_data(0x3535e2, utils.ByteField(self.attack).as_bytes())
-        patch.add_data(0x3535e6, utils.ByteField(self.defense).as_bytes())
-        patch.add_data(0x3535ea, utils.ByteField(self.magic_attack).as_bytes())
-        patch.add_data(0x3535ee, utils.ByteField(self.magic_defense).as_bytes())
+            # Change back to red state (use starting stats).
+            patch.add_data(0x3535e2, utils.ByteField(self.attack).as_bytes())
+            patch.add_data(0x3535e6, utils.ByteField(self.defense).as_bytes())
+            patch.add_data(0x3535ea, utils.ByteField(self.magic_attack).as_bytes())
+            patch.add_data(0x3535ee, utils.ByteField(self.magic_defense).as_bytes())
 
         return patch
 
@@ -3736,17 +3738,19 @@ class Shelly(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 0.8)
-        patch.add_data(0x39f6d9, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 0.8)
+            patch.add_data(0x39f6d9, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
-        phase3_hp = self.round_for_battle_script(self.hp * 0.6)
-        patch.add_data(0x39f6e8, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+            phase3_hp = self.round_for_battle_script(self.hp * 0.6)
+            patch.add_data(0x39f6e8, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
-        phase4_hp = self.round_for_battle_script(self.hp * 0.4)
-        patch.add_data(0x39f6f7, utils.ByteField(phase4_hp, num_bytes=2).as_bytes())
+            phase4_hp = self.round_for_battle_script(self.hp * 0.4)
+            patch.add_data(0x39f6f7, utils.ByteField(phase4_hp, num_bytes=2).as_bytes())
 
-        phase5_hp = self.round_for_battle_script(self.hp * 0.2)
-        patch.add_data(0x39f706, utils.ByteField(phase5_hp, num_bytes=2).as_bytes())
+            phase5_hp = self.round_for_battle_script(self.hp * 0.2)
+            patch.add_data(0x39f706, utils.ByteField(phase5_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5209,8 +5213,10 @@ class Jinx1(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 0.5)
-        patch.add_data(0x39f402, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 0.5)
+            patch.add_data(0x39f402, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5254,8 +5260,10 @@ class Jinx2(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 0.5)
-        patch.add_data(0x39f438, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 0.5)
+            patch.add_data(0x39f438, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5366,8 +5374,10 @@ class Belome1(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 300 / 500)
-        patch.add_data(0x3943ae, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 300 / 500)
+            patch.add_data(0x3943ae, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5615,13 +5625,15 @@ class Punchinello(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 2 / 3)
-        patch.add_data(0x39f555, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-        patch.add_data(0x39f56c, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 2 / 3)
+            patch.add_data(0x39f555, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+            patch.add_data(0x39f56c, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
-        phase3_hp = self.round_for_battle_script(self.hp * 1 / 3)
-        patch.add_data(0x39f585, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
-        patch.add_data(0x39f5a0, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+            phase3_hp = self.round_for_battle_script(self.hp * 1 / 3)
+            patch.add_data(0x39f585, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+            patch.add_data(0x39f5a0, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -5936,11 +5948,13 @@ class Jinx3(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 0.6)
-        patch.add_data(0x39f481, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 0.6)
+            patch.add_data(0x39f481, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
-        phase3_hp = self.round_for_battle_script(self.hp * 0.3)
-        patch.add_data(0x39f493, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
+            phase3_hp = self.round_for_battle_script(self.hp * 0.3)
+            patch.add_data(0x39f493, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -6586,8 +6600,10 @@ class Croco1(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 100 / 320)
-        patch.add_data(0x395543, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 100 / 320)
+            patch.add_data(0x395543, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -6633,8 +6649,10 @@ class Croco2(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 400 / 750)
-        patch.add_data(0x395588, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 400 / 750)
+            patch.add_data(0x395588, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -6771,8 +6789,10 @@ class Booster(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 500 / 800)
-        patch.add_data(0x3955cc, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 500 / 800)
+            patch.add_data(0x3955cc, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -6867,8 +6887,10 @@ class Johnny(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 400 / 820)
-        patch.add_data(0x395650, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 400 / 820)
+            patch.add_data(0x395650, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
@@ -6948,8 +6970,10 @@ class Valentina(Enemy):
         """
         patch = super().get_patch()
 
-        phase2_hp = self.round_for_battle_script(self.hp * 0.6)
-        patch.add_data(0x3956b5, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+        # TODO: Get addresses for linear mode.
+        if self.world.open_mode:
+            phase2_hp = self.round_for_battle_script(self.hp * 0.6)
+            patch.add_data(0x3956b5, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 
