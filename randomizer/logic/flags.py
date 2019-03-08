@@ -287,7 +287,6 @@ class ExperienceNoRegular(Flag):
 
 class ExperienceFlag(Flag):
     name = 'Experience'
-    modes = ['open']
     value = '@X'
     options = [
         ExperienceSharing,
