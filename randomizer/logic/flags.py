@@ -270,6 +270,31 @@ class EquipmentShuffle(Flag):
     ]
 
 
+# ******** Experience
+
+class ExperienceSharing(Flag):
+    name = 'XP sharing'
+    description = 'Earned experience points are not divided among your party members; each receives the full amount.'
+    value = 'Xs'
+
+
+class ExperienceNoRegular(Flag):
+    name = 'No XP from regular encounters'
+    description = 'Bosses still award XP.'
+    value = 'Xx'
+    hard = True
+
+
+class ExperienceFlag(Flag):
+    name = 'Experience'
+    modes = ['open']
+    value = '@X'
+    options = [
+        ExperienceSharing,
+        ExperienceNoRegular,
+    ]
+
+
 # ******** Star exp progression challenge
 
 class StarExp1(Flag):
@@ -371,6 +396,13 @@ class ShopsItemsCategory(FlagCategory):
     ]
 
 
+class BattlesCategory(FlagCategory):
+    name = 'Battles'
+    flags = [
+        ExperienceFlag,
+    ]
+
+
 class ChallengesCategory(FlagCategory):
     name = 'Challenges'
     flags = [
@@ -396,25 +428,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Csj Edf B S Qa'
+    flags = 'K R Csj Edf B S Qa Xs'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf B S Qsa'
+    flags = 'Ks R7 Cspjl Edf B S Qsa Xs'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc S Qsba P1 Gm'
+    flags = 'Ks R7k Cspjl Edfsa Bc S Qsba Xs P1 Gm'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything possible enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! P2 Gme'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! Xsx P2 Gme'
 
 
 # ************************************** Default lists for the site.
@@ -425,6 +457,7 @@ CATEGORIES = (
     CharactersCategory,
     EnemiesCategory,
     ShopsItemsCategory,
+    BattlesCategory,
     ChallengesCategory,
     TweaksCategory,
 )
