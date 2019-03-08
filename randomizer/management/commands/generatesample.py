@@ -6,6 +6,7 @@ import time
 
 from django.core.management.base import BaseCommand
 
+from randomizer.data.bosses import StarLocation
 from randomizer.data.keys import get_default_key_item_locations
 from randomizer.logic.flags import CATEGORIES
 from randomizer.logic.main import GameWorld, Settings, VERSION
@@ -88,7 +89,7 @@ class Command(BaseCommand):
                 raise
 
             # Record star piece shuffle stats.
-            for location in world.boss_locations:
+            for location in [l for l in world.boss_locations if isinstance(l, StarLocation)]:
                 star_stats.setdefault(location.name, 0)
                 if location.has_star:
                     star_stats[location.name] += 1

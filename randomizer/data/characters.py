@@ -367,8 +367,8 @@ class Peach(Character):
     starting_level = 9
     max_hp = 15
     speed = 24
-    attack = 19
-    defense = 8
+    attack = 15
+    defense = 0
     magic_attack = 14
     magic_defense = 14
     learned_spells = {
@@ -383,14 +383,15 @@ class Peach(Character):
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
     starting_growths = (
-        (2, 1, 1, 1, 1),
-        (2, 2, 1, 1, 1),
-        (2, 1, 1, 2, 1),
+        (2, 2, 2, 1, 1),
+        (2, 2, 2, 1, 1),
         (2, 2, 2, 2, 1),
-        (2, 1, 2, 2, 1),
-        (2, 2, 2, 3, 2),
-        (2, 1, 2, 3, 2),
-        (3, 2, 2, 3, 2),
+        (2, 2, 3, 2, 1),
+        (2, 2, 3, 2, 1),
+        (2, 2, 3, 3, 2),
+        (2, 2, 3, 3, 2),
+        (3, 2, 3, 3, 2),
+        # Vanilla growths
         (4, 1, 3, 4, 2),
         (5, 2, 3, 4, 3),
         (6, 3, 3, 4, 3),
@@ -452,12 +453,12 @@ class Peach(Character):
 class Bowser(Character):
     index = 2
     starting_level = 8
-    max_hp = 35
+    max_hp = 25
     speed = 15
-    attack = 60
-    defense = 29
+    attack = 39
+    defense = 15
     magic_attack = 1
-    magic_defense = 13
+    magic_defense = 6
     learned_spells = {
         8: spells.Terrorize,
         12: spells.PoisonGas,
@@ -468,13 +469,14 @@ class Bowser(Character):
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
     starting_growths = (
-        (5, 3, 3, 1, 2),
-        (5, 3, 3, 1, 2),
-        (5, 3, 3, 1, 2),
-        (6, 3, 3, 1, 2),
-        (6, 3, 3, 2, 2),
-        (6, 3, 3, 2, 2),
-        (6, 3, 3, 2, 2),
+        (6, 6, 5, 1, 3),
+        (6, 6, 5, 1, 3),
+        (7, 6, 5, 1, 3),
+        (7, 6, 5, 1, 3),
+        (7, 6, 5, 2, 3),
+        (8, 6, 5, 2, 3),
+        (8, 6, 5, 2, 3),
+        # Vanilla growths
         (8, 3, 3, 4, 2),
         (8, 3, 3, 4, 2),
         (8, 4, 3, 4, 2),
@@ -539,9 +541,9 @@ class Geno(Character):
     starting_level = 6
     max_hp = 20
     speed = 30
-    attack = 34
-    defense = 9
-    magic_attack = 6
+    attack = 24
+    defense = 6
+    magic_attack = 3
     magic_defense = 5
     learned_spells = {
         6: spells.GenoBeam,
@@ -554,11 +556,12 @@ class Geno(Character):
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
     starting_growths = (
-        (3, 4, 2, 2, 2),
-        (4, 4, 2, 2, 2),
-        (4, 4, 2, 2, 2),
-        (4, 4, 3, 3, 2),
-        (4, 4, 3, 4, 2),
+        (3, 6, 3, 3, 2),
+        (4, 6, 3, 3, 2),
+        (4, 6, 3, 3, 2),
+        (4, 6, 3, 3, 2),
+        (4, 6, 3, 4, 2),
+        # Vanilla growths
         (8, 5, 3, 4, 2),
         (8, 5, 3, 4, 2),
         (8, 5, 3, 4, 2),
@@ -626,9 +629,9 @@ class Mallow(Character):
     max_hp = 16
     speed = 18
     attack = 20
-    defense = 2
+    defense = 0
     magic_attack = 11
-    magic_defense = 6
+    magic_defense = 7
     learned_spells = {
         2: spells.Thunderbolt,
         3: spells.HPRain,
@@ -641,7 +644,8 @@ class Mallow(Character):
     # Vanilla levelup stat growths
     # (hp, attack, defense, m.attack, m.defense)
     starting_growths = (
-        (4, 2, 1, 2, 3),
+        (4, 2, 3, 2, 2),
+        # Vanilla growths
         (4, 2, 3, 2, 2),
         (4, 2, 3, 2, 2),
         (4, 2, 3, 3, 2),

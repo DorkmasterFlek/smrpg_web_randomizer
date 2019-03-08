@@ -46,15 +46,15 @@ class SevenStarHunt(Flag):
 
 class BowsersKeepOpen(Flag):
     name = "Include Bowser's Keep locations"
-    description = ("Bowser's Keep is open from the start and the bosses inside the keep may have star pieces.  All the "
-                   "star pieces must be found to open the way to the Factory instead.")
+    description = ("Bowser's Keep is open from the start and the boss locations inside the keep may have star pieces.  "
+                   "All the star pieces must be found to open the way to the Factory instead.")
     value = 'Rk'
     modes = ['open']
 
 
 class CulexStarShuffle(Flag):
     name = "Include Culex"
-    description = "Culex may have a star piece."
+    description = "Culex's location may have a star piece."
     value = 'Rc'
     hard = True
     modes = ['open']
@@ -62,8 +62,8 @@ class CulexStarShuffle(Flag):
 
 class StarPieceShuffle(Flag):
     name = 'Randomize star pieces'
-    description = ("Shuffles the first six star pieces between open bosses with the exception of Culex.  The final "
-                   "star piece will be located on Smithy as normal.")
+    description = ("Shuffles the first six star pieces between open boss locations with the exception of Culex.  The "
+                   "final star piece will be located on Smithy as normal.")
     value = 'R'
     modes = ['open']
     options = [
@@ -134,13 +134,22 @@ class CharacterShuffle(Flag):
     ]
 
 
+# TODO: ******** Starting character flags
+
+class ChooseStartingCharacter(Flag):
+    name = 'Choose starting character'
+    value = '@starting'
+    choices = [
+        # TODO
+    ]
+
+
 # ******** Enemy shuffle flags
 
 class EnemyStats(Flag):
     name = 'Randomize enemy stats'
     description = "Enemy stats and immunities/weaknesses will be randomized."
     value = 'Es'
-    hard = True
 
 
 class EnemyDrops(Flag):
@@ -159,6 +168,12 @@ class EnemyAttacks(Flag):
     name = 'Randomize enemy attacks'
     description = "Enemy spells and attacks will have their power and potential status effects randomized."
     value = 'Ea'
+
+
+class EnemyNoSafetyChecks(Flag):
+    name = 'No safety checks'
+    description = "Removes safety checks on enemy attack shuffle that prevent abnormally large effects."
+    value = 'E!'
     hard = True
 
 
@@ -170,16 +185,42 @@ class EnemyShuffle(Flag):
         EnemyFormations,
         EnemyStats,
         EnemyAttacks,
+        EnemyNoSafetyChecks,
     ]
+
+
+class BossShuffleCulex(Flag):
+    name = 'Include Culex'
+    value = 'Bc'
+    hard = True
+
+
+class BossShuffleKeepStats(Flag):
+    name = "Don't scale stats"
+    description = "Boss stats will **not** be scaled to match the battle it's replacing."
+    value = 'Bs'
+    hard = True
+
+
+class BossShuffleMusic(Flag):
+    name = 'Randomize boss music'
+    description = 'Battle music will be randomized for each boss fight.'
+    value = 'Bm'
 
 
 class BossShuffle(Flag):
     name = 'Randomize bosses'
     description = ("The positions of bosses are shuffled. Boss stats are roughly scaled to match the battle it's "
                    "replacing. For example, Yaridovich in Bandit's Way would have the HP and stats of Croco 1. "
-                   "(Yes, this flag is janky, and high power magic attacks are still strong. Save often.)")
+                   "(Yes, this flag is janky.  High power magic attacks are still strong, and status effects are still "
+                   "a thing. Save often.)")
     modes = ['open']
     value = 'B'
+    options = [
+        BossShuffleMusic,
+        BossShuffleCulex,
+        BossShuffleKeepStats,
+    ]
 
 
 # ******** Item shuffle flags
@@ -209,6 +250,15 @@ class EquipmentCharacters(Flag):
     value = 'Qa'
 
 
+class EquipmentNoSafetyChecks(Flag):
+    name = 'No safety checks'
+    description = ("Normally certain namesake items retain their protections: **Fearless Pin**, **Antidote Pin**, "
+                   "**Trueform Pin**, and **Wakeup Pin**.  In addition, at least four equipment will have instant KO "
+                   "protection.  This flag removes those checks.")
+    value = 'Q!'
+    hard = True
+
+
 class EquipmentShuffle(Flag):
     name = 'Randomize equipment'
     value = '@Q'
@@ -216,6 +266,31 @@ class EquipmentShuffle(Flag):
         EquipmentStats,
         EquipmentBuffs,
         EquipmentCharacters,
+        EquipmentNoSafetyChecks,
+    ]
+
+
+# ******** Experience
+
+class ExperienceSharing(Flag):
+    name = 'XP sharing'
+    description = 'Earned experience points are not divided among your party members; each receives the full amount.'
+    value = 'Xs'
+
+
+class ExperienceNoRegular(Flag):
+    name = 'No XP from regular encounters'
+    description = 'Bosses still award XP.'
+    value = 'Xx'
+    hard = True
+
+
+class ExperienceFlag(Flag):
+    name = 'Experience'
+    value = '@X'
+    options = [
+        ExperienceSharing,
+        ExperienceNoRegular,
     ]
 
 
@@ -257,6 +332,31 @@ class StarExpChallenge(Flag):
     ]
 
 
+# ******** Glitches
+
+class NoGenoWhirlExor(Flag):
+    name = 'No Geno Whirl on Exor'
+    description = 'Fixes the Exor bug where he is vulnerable to Geno Whirl when the eyes are stunned.'
+    value = 'Ge'
+    hard = True
+
+
+class FixMagikoopa(Flag):
+    name = "Fix Magikoopa"
+    description = 'Fixes Magikoopa bug after King Bomb explodes that prevents him from taking further actions.'
+    value = 'Gm'
+
+
+class Glitches(Flag):
+    name = 'Glitches'
+    modes = ['open']
+    value = '@G'
+    options = [
+        FixMagikoopa,
+        NoGenoWhirlExor,
+    ]
+
+
 # ************************************** Category classes
 
 class FlagCategory:
@@ -280,10 +380,10 @@ class CharactersCategory(FlagCategory):
 
 
 class EnemiesCategory(FlagCategory):
-    name = 'Enemies'
+    name = 'Enemies/Bosses'
     flags = [
         EnemyShuffle,
-        # BossShuffle,  # TODO: Add this after boss shuffle is ready!
+        BossShuffle,
     ]
 
 
@@ -295,10 +395,24 @@ class ShopsItemsCategory(FlagCategory):
     ]
 
 
+class BattlesCategory(FlagCategory):
+    name = 'Battles'
+    flags = [
+        ExperienceFlag,
+    ]
+
+
 class ChallengesCategory(FlagCategory):
     name = 'Challenges'
     flags = [
         StarExpChallenge,
+    ]
+
+
+class TweaksCategory(FlagCategory):
+    name = 'Tweaks'
+    flags = [
+        Glitches,
     ]
 
 
@@ -313,25 +427,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Cj Edf S Qa'
+    flags = 'K R Csj Edf B S Qa Xs'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf S Qa'
+    flags = 'Ks R7 Cspjl Edf B S Qsa Xs'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfs S Qsba P1'
+    flags = 'Ks R7k Cspjl Edfsa Bc S Qsba Xs P1 Gm'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
-    description = 'A highly chaotic shuffle with everything possible enabled.'
-    flags = 'Ks R7kc Cspjl Edfsa S Qsba P2'
+    description = 'A highly chaotic shuffle with everything possible enabled and helpful glitches disabled.'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! Xsx P2 Gme'
 
 
 # ************************************** Default lists for the site.
@@ -342,7 +456,9 @@ CATEGORIES = (
     CharactersCategory,
     EnemiesCategory,
     ShopsItemsCategory,
+    BattlesCategory,
     ChallengesCategory,
+    TweaksCategory,
 )
 
 # List of flags flattened out from categories, as well as all their options.

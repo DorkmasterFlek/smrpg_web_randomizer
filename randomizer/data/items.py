@@ -599,6 +599,21 @@ class HurlyGloves(Item):
     variance = 5
     price = 92
 
+    def get_patch(self):
+        """Get patch for this item.
+
+        Returns:
+            randomizer.logic.patch.Patch:
+        """
+        patch = super().get_patch()
+
+        # Alter Hurly Gloves animation script so it thinks Mario is dead and always uses the doll.  This avoids softlock
+        # issues in some situations when Mario is alive but not present, or Mario uses the gloves to throw himself!
+        patch.add_data(0x35f672, bytes([0x20, 0x0f, 0x01, 0x00, 0x2c, 0x0f, 0x00, 0x00]))
+        patch.add_data(0x35f5f8, bytes([0x20, 0x0f, 0x01, 0x00, 0x2c, 0x0f, 0x00, 0x00]))
+
+        return patch
+
 
 class DoublePunch(Item):
     index = 21

@@ -1,5 +1,7 @@
 # Spell randomization logic.
 
+import random
+
 from . import flags, utils
 
 from randomizer.data import spells
@@ -12,6 +14,15 @@ def _randomize_spell(spell):
         spell(randomizer.data.spells.Spell):
     """
     spell.fp = utils.mutate_normal(spell.fp, minimum=1, maximum=99)
+
+    # If this is an enemy spell with status effects, shuffle them.
+    if isinstance(spell, spells.EnemySpell) and spell.status_effects:
+        effects = [0, 1, 2, 3, 5, 6]
+        # Chance to include berserk as an option if safety checks are disabled.
+        if spell.world.settings.is_flag_enabled(flags.EnemyNoSafetyChecks) and utils.coin_flip(1 / 5):
+            effects.append(4)
+
+        spell.status_effects = random.sample(effects, len(spell.status_effects))
 
     # Don't shuffle power for Geno Boost, it causes problems if it deals damage.
     if not isinstance(spell, spells.GenoBoost):

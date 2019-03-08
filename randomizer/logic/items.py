@@ -98,10 +98,6 @@ def _randomize_item(item):
             for _ in range(num_equippable):
                 char_choices = {Mario, Mallow, Geno, Bowser, Peach} - new_chars
 
-                # Mario cannot equip Hurly Gloves due to softlock when he throws himself.
-                if isinstance(item, items.HurlyGloves) and Mario in char_choices:
-                    char_choices.remove(Mario)
-
                 # Geno can only equip his own weapons (we checked if this was one of his above).
                 if item.is_weapon and Geno in char_choices:
                     char_choices.remove(Geno)
@@ -149,10 +145,25 @@ def _randomize_item(item):
                 if i not in item.elemental_immunities and utils.coin_flip(odds):
                     item.elemental_resistances.append(i)
 
+            # For certain namesake items, keep their status immunities so people don't get confused for safety.
+            guaranteed_immunities = []
+            if (isinstance(item, (items.FearlessPin, items.AntidotePin, items.TrueformPin, items.WakeUpPin)) and
+                    not item.world.settings.is_flag_enabled(flags.EquipmentNoSafetyChecks)):
+                guaranteed_immunities = item.status_immunities
+
             # Status immunities.
             item.status_immunities = []
             for i in range(0, 7):
+                # Skip berserk status if the safety checks on enemy shuffle is not enabled.
+                if i == 4 and not item.world.settings.is_flag_enabled(flags.EnemyNoSafetyChecks):
+                    continue
+
                 if utils.coin_flip(odds):
+                    item.status_immunities.append(i)
+
+            # Add guaranteed immunities back.
+            for i in guaranteed_immunities:
+                if i not in item.status_immunities:
                     item.status_immunities.append(i)
 
             # Weight weapons more towards the status buffs, and weight armor/accessories towards immunities.
@@ -180,6 +191,16 @@ def randomize_all(world):
     # Shuffle equipment stats and equip characters.
     for item in world.items:
         _randomize_item(item)
+
+    # Safety check that at least four tier equips have instant death protection for safety.
+    if (world.settings.is_flag_enabled(flags.EquipmentBuffs) and
+            not world.settings.is_flag_enabled(flags.EquipmentNoSafetyChecks)):
+        instant_ko_items = len([item for item in world.items if item.prevent_ko])
+        if instant_ko_items < 4:
+            top_armor = [item for item in world.items if (item.is_armor or item.is_accessory) and item.tier == 1 and
+                         not item.prevent_ko]
+            for item in random.sample(top_armor, 4 - instant_ko_items):
+                item.prevent_ko = True
 
     # Shuffle shop contents and prices.
     if world.settings.is_flag_enabled(flags.ShopShuffle):

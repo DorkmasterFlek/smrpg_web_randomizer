@@ -17,7 +17,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0.0beta5'
+VERSION = '8.0beta13'
 
 
 class Settings:
@@ -41,7 +41,7 @@ class Settings:
                 if flag.startswith('-'):
                     # Solo flag that begins with a dash.
                     form_data['flag-{}'.format(flag)] = True
-                else:
+                elif flag:
                     # Flag that may have a subsection of choices and/or options.
                     first = flag[0]
                     form_data['flag-{}'.format(first)] = True
@@ -56,17 +56,17 @@ class Settings:
             for category in flags.CATEGORIES:
                 for flag in category.flags:
                     if flag.available_in_mode(self.mode):
-                        if form_data['flag-{}'.format(flag.value)]:
+                        if form_data.get('flag-{}'.format(flag.value)):
                             self._enabled_flags.add(flag)
 
-                        # Check for choices and/or options.
-                        for choice in flag.choices:
-                            if form_data['flag-{}-choice'.format(flag.value)] == choice.value:
-                                self._enabled_flags.add(choice)
+                            # Check for choices and/or options.
+                            for choice in flag.choices:
+                                if form_data.get('flag-{}-choice'.format(flag.value)) == choice.value:
+                                    self._enabled_flags.add(choice)
 
-                        for option in flag.options:
-                            if form_data['flag-{}'.format(option.value)]:
-                                self._enabled_flags.add(option)
+                            for option in flag.options:
+                                if form_data.get('flag-{}'.format(option.value)):
+                                    self._enabled_flags.add(option)
 
     @property
     def mode(self):
@@ -190,7 +190,7 @@ class GameWorld:
         self.key_locations = data.keys.get_default_key_item_locations()
 
         # Get boss location data.
-        self.boss_locations = data.bosses.get_default_boss_locations()
+        self.boss_locations = data.bosses.get_default_boss_locations(self)
 
     @property
     def open_mode(self):
@@ -235,14 +235,14 @@ class GameWorld:
     def get_enemy_formation_by_index(self, index):
         """
         :type index: int
-        :rtype: randomizer.logic.enemies.EnemyFormation
+        :rtype: randomizer.data.formations.EnemyFormation
         """
         return self.enemy_formations_dict[index]
 
     def get_formation_pack_by_index(self, index):
         """
         :type index: int
-        :rtype: randomizer.logic.enemies.FormationPack
+        :rtype: randomizer.data.formations.FormationPack
         """
         return self.formation_packs_dict[index]
 
@@ -355,8 +355,7 @@ class GameWorld:
             # Boss locations.
             for boss in self.boss_locations:
                 # FIXME
-                # if boss.has_star:
-                #     print(">>>>>>>>>>>>>>>> {}".format(boss.__class__.__name__))
+                # print(">>>>>>>>>>>>>>>> {}".format(boss))
                 patch += boss.get_patch()
 
             # Set flags for seven star mode and Bowser's Keep.
@@ -410,7 +409,10 @@ class GameWorld:
         }
         # Also use enemy names, if they're 6 characters or less.
         for e in self.enemies:
-            name = re.sub(r'[^A-Za-z]', '', e.name.upper())
+            if isinstance(e, data.enemies.K9):
+                name = e.name
+            else:
+                name = re.sub(r'[^A-Za-z]', '', e.name.upper())
             if len(name) <= 6:
                 file_entry_names.add(name)
         file_entry_names = sorted(file_entry_names)
@@ -434,6 +436,12 @@ class GameWorld:
         title = 'SMRPG-R {}'.format(self.seed).ljust(20)
         if len(title) > 20:
             title = title[:19] + '?'
+
+        # Add version number on name entry screen.
+        version_text = ('v' + VERSION).ljust(10)
+        if len(version_text) > 10:
+            raise ValueError("Version text is too long: {!r}".format(version_text))
+        patch.add_data(0x3ef140, version_text)
 
         # Add title and major version number to SNES header data.
         patch.add_data(0x7fc0, title)

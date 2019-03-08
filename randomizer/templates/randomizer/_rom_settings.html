@@ -44,10 +44,10 @@
                 $(`.debug-mode-effect-${checked.val()}`).show();
             });
 
-            // Load debug mode flag, default to 0
+            // Load debug mode flag, default to off.
             localforage.getItem("rom.debug_mode").then((value) => {
                 if (value === null) {
-                    value = "0";
+                    value = "false";
                 }
                 $(`.debug-mode[value='${value}']`).prop("checked", true).change();
             });
