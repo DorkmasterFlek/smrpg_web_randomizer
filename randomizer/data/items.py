@@ -1,6 +1,7 @@
 # Data module for item/shop data.
 
 import random
+import math
 
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
@@ -50,6 +51,10 @@ class Item:
     rare = False
     basic = False
     shuffle_type = utils.ItemShuffleType.Extra
+    rank_value = 0
+    rank_order = 0
+    rank_order_reverse = 0
+    arbitrary_value = 0
 
     def __init__(self, world):
         """
@@ -106,12 +111,7 @@ class Item:
         if self.is_frog_coin_item:
             return False
 
-        factor = float(random.randint(random.randint(10, 50), 50))
-        if self.rare:
-            price = int(round(self.rank / factor))
-        else:
-            price = int(round(self.price / factor))
-        self.price = min(max(price, 1), 50)
+        self.price = math.ceil(self.rank_value / 5)
         self.frog_coin_item = True
         return True
 

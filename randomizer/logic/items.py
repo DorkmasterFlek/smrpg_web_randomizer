@@ -1,6 +1,7 @@
 # Item/shop randomization logic
 
 import random
+import math
 
 from randomizer.data import items
 from randomizer.data.characters import Mario, Mallow, Geno, Bowser, Peach
@@ -339,26 +340,46 @@ def randomize_all(world):
             assignments[p.index] = chosen_items
 
         # ******************************* Phase 3: Repricing
+
+        
+		# Calculate raw rank value
+        for item in world.items:
+            if item.is_equipment:
+                if item.index in (83, 148, 93):
+                    item.arbitrary_value = 1
+                elif item.index == 88:
+                    item.arbitrary_value = 2
+                elif item.index in (76, 79):
+                    item.arbitrary_value = 1
+                elif item.index == 80:
+                    item.arbitrary_value = 10
+                item.rank_value = item.attack * max(0, min(2, (item.attack + item.variance) / (1 if (item.attack - item.variance == 0) else (item.attack - item.variance)))) + max (0, item.magic_attack + item.magic_defense + item.defense + min (20, item.speed / 2)) + 10 * len(item.status_immunities) + 15 * len(item.elemental_immunities) + 7.5 * len(item.elemental_resistances) + 50 * (1 if item.prevent_ko else 0) + 30 * len(item.status_buffs) + 10 * item.arbitrary_value
+        
+        ranks = [item for item in world.items if item.is_equipment]
+        ranks.sort(key=lambda x: x.rank_value, reverse=True)
+        ranks_reverse = sorted(ranks, key=lambda x: x.rank_value)
+        
+        for item in world.items:
+            item.rank_order = (ranks.index(item) + 1 if item in ranks else 0)
+            item.rank_order_reverse = (ranks_reverse.index(item) + 1 if item in ranks_reverse else 0)
+
         repriced = set()
         for shop in world.shops:
             assigned_items = assignments[shop.index]
             for item in assigned_items:
-                # If we already repriced the item, skip it.
-                if item in repriced:
-                    continue
 
                 # Turn the item into a frog coin price if it's in one of those shops.
                 if shop.frog_coin_shop:
                     item.become_frog_coin_item()
                 else:
-                    # If the item is already not a frog coin item and it's rare, use max(price, rank) as the base price.
-                    if not item.unbecome_frog_coin_item() and item.rare:
-                        item.price = max(item.price, int(item.rank))
+                    # Shuffle the final computed price.
+                    if item.is_equipment:
+                        price = math.ceil(item.rank_value * (1.5 + (item.rank_order_reverse / len(ranks_reverse))))
+                    else:
+                        price = min(9999, max(2, item.price))
+                    price = utils.mutate_normal(price, minimum=2, maximum=9999)
+                    item.price = price
 
-                # Shuffle the final computed price.
-                price = min(9999, max(2, item.price))
-                price = utils.mutate_normal(price, minimum=2, maximum=9999)
-                item.price = price
                 repriced.add(item)
 
         # Sort the list of items by the ordering rank for display, and assign to the shop.
