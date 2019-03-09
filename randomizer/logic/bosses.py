@@ -167,19 +167,19 @@ def randomize_all(world):
                         # For snek fight, the XP/coins need to be put on Cloaker/Domino 2 because you fight either one.
                         if location.formation.index == 309:
                             if isinstance(enemy, (enemies.Cloaker2, enemies.Domino2)):
-                                enemy.xp = stats['xp']
-                                enemy.coins = stats['coins']
+                                enemy.xp = min(stats['xp'], 0xffff)
+                                enemy.coins = min(stats['coins'], 255)
                             else:
                                 enemy.xp = 0
                                 enemy.coins = 0
                         # Otherwise give the first enemy all the XP/coins, except for Hammer Bros that need half.
                         elif i == 0:
                             if isinstance(enemy, enemies.HammerBro):
-                                enemy.xp = int(round(stats['xp'] / 2))
-                                enemy.coins = int(round(stats['coins'] / 2))
+                                enemy.xp = min(int(round(stats['xp'] / 2)), 0xffff)
+                                enemy.coins = min(int(round(stats['coins'] / 2)), 255)
                             else:
-                                enemy.xp = stats['xp']
-                                enemy.coins = stats['coins']
+                                enemy.xp = min(stats['xp'], 0xffff)
+                                enemy.coins = min(stats['coins'], 255)
                         else:
                             enemy.xp = 0
                             enemy.coins = 0
