@@ -29,24 +29,21 @@
 
     <ul class="navbar-nav">
         <!-- Links -->
-        <li class="nav-item {% if 'how-to-play' in request.path %}active{% endif %}">
-            <a class="nav-link" href="{% url 'randomizer:how-to-play' %}">How To Play</a>
-        </li>
-        <li class="nav-item {% if 'resources' in request.path %}active{% endif %}">
-            <a class="nav-link" href="{% url 'randomizer:resources' %}">Resources</a>
-        </li>
         <li class="nav-item {% if 'randomize' in request.path %}active{% endif %}">
             <a class="nav-link" href="{% url 'randomizer:randomize' %}">Generate Randomized Game</a>
+        </li>
+        <li class="nav-item {% if 'resources' in request.path %}active{% endif %}">
+            <a class="nav-link" href="{% url 'randomizer:resources' %}">Discord</a>
         </li>
 
         <!-- Dropdown -->
         <li class="nav-item dropdown">
             <a class="nav-link dropdown-toggle" href="#" id="navbardrop" data-toggle="dropdown">Help</a>
             <div class="dropdown-menu dropdown-menu-right">
-                <a class="dropdown-item {% if 'options' in request.path %}active{% endif %}" href="{% url 'randomizer:options' %}">Game Options</a>
-                <a class="dropdown-item {% if 'guide' in request.path %}active{% endif %}" href="{% url 'randomizer:guide' %}">Reference Guide</a>
-                <a class="dropdown-item" href="http://discord.smrpgspeedruns.com" target="_blank">Join the Discord</a>
-                <a class="dropdown-item {% if 'updates' in request.path %}active{% endif %}" href="{% url 'randomizer:updates' %}">Updates</a>
+                <a class="dropdown-item {% if 'how-to-play' in request.path %}active{% endif %}" href="{% url 'randomizer:how-to-play' %}">How To Play</a>
+                <a class="dropdown-item {% if 'options' in request.path %}active{% endif %}" href="{% url 'randomizer:options' %}">Flag & Mode Explanations</a>
+                <a class="dropdown-item {% if 'guide' in request.path %}active{% endif %}" href="{% url 'randomizer:guide' %}">Player's Guide</a>
+                <a class="dropdown-item {% if 'updates' in request.path %}active{% endif %}" href="{% url 'randomizer:updates' %}">Version History</a>
                 <a class="dropdown-item" href="https://github.com/DorkmasterFlek/smrpg_web_randomizer/issues/new" target="_blank">Report an Issue</a>
             </div>
         </li>

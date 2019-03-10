@@ -38,8 +38,7 @@ class Flag:
 
 class SevenStarHunt(Flag):
     name = 'Shuffle seven stars'
-    description = ("Shuffle all seven star pieces between open bosses.  All seven star pieces must be found to access "
-                   "the endgame areas.")
+    description = ("You must find seven star pieces instead of six to open the final area.")
     value = 'R7'
     modes = ['open']
 
@@ -47,14 +46,14 @@ class SevenStarHunt(Flag):
 class BowsersKeepOpen(Flag):
     name = "Include Bowser's Keep locations"
     description = ("Bowser's Keep is open from the start and the boss locations inside the keep may have star pieces.  "
-                   "All the star pieces must be found to open the way to the Factory instead.")
+                   "The Factory will be opened once you find all star pieces.")
     value = 'Rk'
     modes = ['open']
 
 
 class CulexStarShuffle(Flag):
-    name = "Include Culex"
-    description = "Culex's location may have a star piece."
+    name = "Include Culex's Lair"
+    description = "Culex's Lair in Monstro Town may have a star piece."
     value = 'Rc'
     hard = True
     modes = ['open']
@@ -62,8 +61,7 @@ class CulexStarShuffle(Flag):
 
 class StarPieceShuffle(Flag):
     name = 'Randomize star pieces'
-    description = ("Shuffles the first six star pieces between open boss locations with the exception of Culex.  The "
-                   "final star piece will be located on Smithy as normal.")
+    description = ("Assigns six star pieces to random boss locations, excluding Culex's Lair, Bowser's Keep, and the Factory. Collect all the star pieces to open Bowser's Keep and progress to the end of the game.")
     value = 'R'
     modes = ['open']
     options = [
@@ -211,9 +209,8 @@ class BossShuffleMusic(Flag):
 class BossShuffle(Flag):
     name = 'Randomize bosses'
     description = ("The positions of bosses are shuffled. Boss stats are roughly scaled to match the battle it's "
-                   "replacing. For example, Yaridovich in Bandit's Way would have the HP and stats of Croco 1. "
-                   "(Yes, this flag is janky.  High power magic attacks are still strong, and status effects are still "
-                   "a thing. Save often.)")
+                   "replacing. For example, Yaridovich in Bandit's Way would have the HP and stats of Croco 1, but can still cast powerful magic like Water Blast. "
+                   "Save often.")
     modes = ['open']
     value = 'B'
     options = [
@@ -227,12 +224,12 @@ class BossShuffle(Flag):
 
 class ShopShuffleVanilla(Flag):
     name = "Vanilla shop inventory"
-    description = "Restrict shops to only contain items that were available in the original game, shuffled within each other."
+    description = "Shops will only contain items that were available in the original game's shops, shuffled amongst each other."
     value = 'Sv'
 
 class ShopShuffleBalanced(Flag):
-    name = "Balanced shop inventory"
-    description = "Restrict shops such that shops locked behind battles or key items, as well as Frog Coin shops, contain better items."
+    name = "Biased shop inventory"
+    description = "Shops that are harder to access will contain better items."
     value = 'Sb'
     
 class ShopTier1(Flag):
@@ -274,7 +271,7 @@ class ShopShuffle(Flag):
 
 class FreeShops(Flag):
     name = "'Free' Shops"
-    description = "All items in shops cost 1 coin. You will start with 9999 coins and 99 frog coins."
+    description = "All shop items will cost 1 coin. You will start with 9999 coins and 99 frog coins."
     value = '$'
     
 class EquipmentStats(Flag):

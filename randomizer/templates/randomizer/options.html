@@ -1,10 +1,10 @@
 {% extends 'randomizer/layouts/default.html' %}
 
 {% block content %}
-    <h1>Game Options</h1>
+    <h1>Flag & Mode Explanations</h1>
     <div class="card border-info my-3">
         <div class="card-header bg-info text-white">
-            <h3 class="card-title">General Game Changes</h3>
+            <h3 class="card-title">Mechanical changes to Super Mario RPG</h3>
         </div>
         <div class="card-body">
             <h4>File Select Changes</h4>
@@ -29,11 +29,16 @@
             <p>The randomizer applies a patch which skips most of the cutscenes and text in the game. This patch
                 only works on the US or EU version, since the EU version is based on the US one. Only these regions
                 are supported as a result.</p>
+            <h4>Equipment & Psychopath</h4>
+            <ul>
+            <li>Equipment descriptions as seen in game menus will explain what the equipment piece does. <a href="{% url 'randomizer:guide' %}#equipment">Here is an explanation on the symbols used to describe stats and buffs.</a></li>
+            <li>The Psychopath spell, when <a target="_blank" href="http://pidgezero.one/timings/index.html#Psychopath">properly timed</a>, will explain elements the enemy is weak to, elements it is immune to, and status effects that it is weak to. <a href="{% url 'randomizer:guide' %}#spells-yours">Here is an explanation on the symbols used.</a></li>
+            </ul>
         </div>
     </div>
     <div class="card border-info my-3">
         <div class="card-header bg-info text-white">
-            <h3 class="card-title">Modes</h3>
+            <h3 class="card-title">Progression Modes</h3>
         </div>
         <div class="card-body">
             <h4>Linear</h4>
