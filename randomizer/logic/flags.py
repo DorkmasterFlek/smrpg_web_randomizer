@@ -225,16 +225,72 @@ class BossShuffle(Flag):
 
 # ******** Item shuffle flags
 
+class ShopShuffleVanilla(Flag):
+    name = "Vanilla shop inventory"
+    description = "Restrict shops to only contain items that were available in the original game, shuffled within each other."
+    value = 'Sv'
+
+class ShopShuffleBalanced(Flag):
+    name = "Balanced shop inventory"
+    description = "Restrict shops such that shops locked behind battles or key items, as well as Frog Coin shops, contain better items."
+    value = 'Sb'
+    
+class ShopTier1(Flag):
+    name = "Restrict to worst items"
+    description = "Only the very worst equipment and support/healing items will appear in shops."
+    value = 'S1'
+    hard = True
+
+class ShopTier2(Flag):
+    name = "Restrict to weak items"
+    description = "Only weak equipment and some support/healing items will appear in shops."
+    value = 'S2'
+    
+class ShopTier3(Flag):
+    name = "Exclude best items"
+    description = "Out of all items that could appear in shops, the very best items will be left out."
+    value = 'S3'
+        
+class ShopTier4(Flag):
+    name = "Include all items"
+    description = "Any non-key item may appear in a shop."
+    value = 'S4'
+    
 class ShopShuffle(Flag):
     name = 'Randomize shops'
     description = "Shop contents and prices will be shuffled"
     value = 'S'
+    choices = [
+        ShopTier4,
+        ShopTier3,
+        ShopTier2,
+        ShopTier1
+    ]
+    options = [
+        ShopShuffleVanilla,
+        ShopShuffleBalanced
+    ]
 
 
+class FreeShops(Flag):
+    name = "'Free' Shops"
+    description = "All items in shops cost 1 coin. You will start with 9999 coins and 99 frog coins."
+    value = '$'
+    
 class EquipmentStats(Flag):
     name = 'Randomize equipment stats'
     description = "Stats for equipment will be randomized"
     value = 'Qs'
+
+class ShopInclusion(Flag):
+    name = 'Randomize shops'
+    description = "Shop contents and prices will be shuffled"
+    value = 'S'
+    options = [
+        SevenStarHunt,
+        BowsersKeepOpen,
+        CulexStarShuffle,
+    ]
 
 
 class EquipmentBuffs(Flag):
@@ -388,12 +444,18 @@ class EnemiesCategory(FlagCategory):
 
 
 class ShopsItemsCategory(FlagCategory):
-    name = 'Shops/Items'
+    name = 'Shops'
     flags = [
         ShopShuffle,
-        EquipmentShuffle,
+        FreeShops
     ]
 
+
+class EquipsCategory(FlagCategory):
+    name = 'Equipment'
+    flags = [
+        EquipmentShuffle,
+    ]
 
 class BattlesCategory(FlagCategory):
     name = 'Battles'
@@ -456,6 +518,7 @@ CATEGORIES = (
     CharactersCategory,
     EnemiesCategory,
     ShopsItemsCategory,
+    EquipsCategory,
     BattlesCategory,
     ChallengesCategory,
     TweaksCategory,
