@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block content %}
-    <h1>Reference Guide</h1>
+    <h1>Player's Guide</h1>
     <p>Want to know what an item or key item does? Want to know what there is to do in a location under any conditions?
         Want to learn any of the quirks about this game’s spells and battle system? Use Ctrl+F in here to your heart’s
         content! Old and new players of SMRPG alike may find something useful in here.
@@ -34,7 +34,7 @@
                         <li><a href="#spells-attacks">Enemy Attacks</a></li>
                     </ol>
                 </li>
-                <li><a href="#bosses">Boss Scripts</a></li>
+                <li><a href="#bosses">How Does This Boss Work?</a></li>
                 <li><a href="#leveling">Leveling Up</a></li>
                 <li><a href="#getitems">Getting Items & Equipment</a></li>
                 <li><a href="#equipment">What Equips Do</a></li>
@@ -458,7 +458,7 @@
 
     <div class="card border-info my-3" id="bosses">
         <div class="card-header bg-info text-white">
-            <h3 class="card-title">Boss Scripts</h3>
+            <h3 class="card-title">How Does This Boss Work?</h3>
         </div>
         <div class="card-body">
             <p>With the addition of the boss randomization feature, boss stats and locations will not be listed here.
@@ -507,6 +507,8 @@
             <ul>
                 <li>Will randomly use a <a href="http://pidgezero.one/timings/index.html#Belome_Attack" target="_blank">physical
                     attack</a> or Sleep Sauce. After taking enough damage, will start using S'crow Funk as well.
+                </li>
+                <li>On certain turns he will disable the character in the rightmost slot.
                 </li>
             </ul>
 
@@ -651,6 +653,15 @@
                 </li>
             </ul>
 
+            <h6>Clerk</h6>
+            <ul>
+                <li>Clerk will either attack you with a <a href="http://pidgezero.one/timings/index.html#Manager_Attack"
+                                                       target="_blank">physical attack</a> or an unblockable bomb.</li>
+                <li>The Mad Mallets will only use a <a href="http://pidgezero.one/timings/index.html?#Pounder_Attack">physical attack</a>.</li>
+                <li>Unlike Director and Manager, Clerk will not re-summon the Mad Mallets when they are killed.</li>
+                <li>If a Mad Mallet is the only enemy left, it will run away from the battle.</li>
+            </ul>
+            
             <h6>Cloaker & Domino</h6>
             <ul>
                 <li>This is a two-phase fight.</li>
@@ -777,7 +788,17 @@
 
             </ul>
 
-            <h6>Dodo (hallway)</h6>
+            <h6>Director</h6>
+            <ul>
+                <li>Director will either attack you with a <a href="http://pidgezero.one/timings/index.html#Manager_Attack"
+                                                       target="_blank">physical attack</a>, an unblockable bomb, or Spritz Bomb.</li>
+                <li>Director has a 33% chance of countering any attacks with his physical attack.</li>
+                <li>Director will increase his attack and defense power the first time all the Poundettes are killed.</li>
+                <li>Director will re-summon the Poundettes when they are all killed.</li>
+                <li>The Poundettes will use a <a href="http://pidgezero.one/timings/index.html?#Pounder_Attack">physical attack</a>, or a <a href="http://pidgezero.one/timings/index.html?#Pounder_Mallet">hammer toss</a> that sometimes inflicts a status.</li>
+            </ul>
+            
+            <h6>Dodo (solo)</h6>
             <ul>
                 <li>Dodo will either use a <a href="http://pidgezero.one/timings/index.html#Dodo_Attack"
                                               target="_blank">physical attack</a>, <a
@@ -926,7 +947,7 @@
                 <li>You do not need to kill the Bandana Blues to finish the fight. They will vanish when Johnny is
                     defeated.
                 </li>
-                <li>If you kill all the Bandana Blues, and Mario is currently in the battle, Johnny will take the
+                <li>If you kill all the Bandana Blues, Johnny will take the
                     character in your left slot to a 1v1 battle.
                 </li>
                 <li>In the 1v1, Johnny can use his <a href="http://pidgezero.one/timings/index.html#Johnny_Attack"
@@ -1006,6 +1027,15 @@
                 </li>
             </ul>
 
+            <h6>Manager</h6>
+            <ul>
+                <li>Manager will either attack you with a <a href="http://pidgezero.one/timings/index.html#Manager_Attack"
+                                                       target="_blank">physical attack</a>, an unblockable bomb, or Spritz Bomb.</li>
+                <li>Manager has a 33% chance of countering any attacks with his physical attack.</li>
+                <li>Manager will re-summon the Pounders when they are all killed.</li>
+                <li>The Pounders will always attack with a <a href="http://pidgezero.one/timings/index.html?#Pounder_Attack">physical attack</a> or a <a href="http://pidgezero.one/timings/index.html?#Pounder_Mallet">hammer toss</a>.</li>
+            </ul>
+            
             <h6>Megasmilax</h6>
             <ul>
                 <li>This is a four-phase fight. In the first three phases, you fight a total of 6 Smilaxes.</li>
@@ -1492,22 +1522,22 @@
                     <h5 class="card-title" id="area-1">Area 1</h5>
                 </div>
                 <div class="card-body">
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMariosPad.png"
-                           target="_blank">Mario's Pad</a></h6>
+                    <h6>Mario's Pad <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMariosPad.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>Can heal for free by turning off the lamp.</li>
                         <li>Press A at the bed corner for a key item.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMushroomWay.png"
-                           target="_blank">Mushroom Way</a></h6>
+                    <h6>Mushroom Way <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMushroomWay.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>You can choose to rescue Toad for some small item rewards.</li>
                         <li>One boss fight at the end that gives you an equip.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMushroomKingdom.png"
-                           target="_blank">Mushroom Kingdom</a></h6>
+                    <h6>Mushroom Kingdom <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMushroomKingdom.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>There is one shop here. Sells items and equips.</li>
                         <li>You can turn in the RareFrogCoin to the shop for another key item.</li>
@@ -1530,8 +1560,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBanditsWay.png"
-                           target="_blank">Bandit's Way</a></h6>
+                    <h6>Bandit's Way <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBanditsWay.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>1 boss fight.</li>
                         <li>You can attempt <a href="https://imgur.com/OPDbmnJ" target="_blank">Doge Jump</a> if you
@@ -1551,8 +1581,8 @@
                     <h5 class="card-title" id="area-2">Area 2</h5>
                 </div>
                 <div class="card-body">
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGKeroSewers.png"
-                           target="_blank">Kero Sewers</a></h6>
+                    <h6>Kero Sewers <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGKeroSewers.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>One mimic chest and one boss fight, each may have a star piece.</li>
                         <li>The mimic chest transforms into a 50 coin chest if you reload the room after defeating it.
@@ -1565,8 +1595,8 @@
                         <li>When you defeat the boss, you can exit instead of doing Midas River.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMidasRiver.png"
-                           target="_blank">Midas River</a></h6>
+                    <h6>Midas River <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMidasRiver.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>Obstacle course minigame.</li>
                         <li>You can’t keep any of the regular coins you find here, but you can trade 60 in for a Frog
@@ -1575,8 +1605,8 @@
                         <li>The toad gives you a weapon.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGTadpolePond.png"
-                           target="_blank">Tadpole Pond</a></h6>
+                    <h6>Tadpole Pond <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGTadpolePond.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>The left shop only accepts Frog Coins. Sells all types of equips and items.</li>
                         <li>The right shop sells items, accepts normal coins, and adds more items for sale when you
@@ -1593,15 +1623,15 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGRoseTown.png"
-                           target="_blank">Rose Way</a></h6>
+                    <h6>Rose Way<a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGRoseWay.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>No bosses or shops.</li>
                         <li>Mostly just minor spoils here.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGRoseTown.png"
-                           target="_blank">Rose Town</a></h6>
+                    <h6>Rose Town <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGRoseTown.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>2 shops here (one selling items, one selling equips).</li>
                         <li>You can get a key item by pressing A on the right side of the “Welcome” sign.</li>
@@ -1614,8 +1644,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGForestMaze.png"
-                           target="_blank">Forest Maze</a></h6>
+                    <h6>Forest Maze <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGForestMaze.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>You can perform <a href="https://www.youtube.com/watch?v=R06qW3TOqj4" target="_blank">Wiggler
                             Jump</a> to obtain coins and frog coins.
@@ -1627,8 +1657,8 @@
                         <li>After defeating the area boss, you recruit a new character.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGPipeVault.png"
-                           target="_blank">Pipe Vault</a></h6>
+                    <h6>Pipe Vault <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGPipeVault.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>Completing this area unlocks Yo’ster Isle.</li>
                         <li>The mole with the 4 pipes is the Goomba Thumpin’ minigame, which can get you item rewards
@@ -1639,8 +1669,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGYosterIsle.png"
-                           target="_blank">Yo’ster Isle</a></h6>
+                    <h6>Yo’ster Isle <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGYosterIsle.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>Press A between “O” and “A” on the goalpost to get a key item.</li>
                         <li>You can beat Boshi in a race here to unlock the Yoshi Race minigame.</li>
@@ -1660,10 +1690,10 @@
                     <h5 class="card-title" id="area-3">Area 3</h5>
                 </div>
                 <div class="card-body">
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMoleville.png"
-                           target="_blank">Moleville</a> <a
+                    <h6>Moleville <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMoleville.png"
+                           target="_blank">(map)</a> / Mines <a
                             href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMolevilleMines.png"
-                            target="_blank">(Mines)</a></h6>
+                            target="_blank">(map)</a></h6>
                     <ul>
                         <li>1 shop here (sells items and equips).</li>
                         <li>2 boss fights in the mines.</li>
@@ -1691,8 +1721,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBoosterPass.png"
-                           target="_blank">Booster Pass</a></h6>
+                    <h6>Booster Pass <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBoosterPass.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>Talk to the 2nd bush near the entrance marked “Start” on the map to receive a frog coin.
                         </li>
@@ -1703,8 +1733,8 @@
                         <li>Some of the bushes are enemy encounters.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBoostersTower.png"
-                           target="_blank">Booster Tower</a></h6>
+                    <h6>Booster Tower <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBoostersTower.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>To get the equip chest with the seesaw, walk (don’t run) off the center of the platform.
                         </li>
@@ -1738,8 +1768,8 @@
                         <li>Bounce off the barrels and Snifits to grab flowers from Peach.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMarrymore.png"
-                           target="_blank">Marrymore</a></h6>
+                    <h6>Marrymore <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMarrymore.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>There is a shop in the hotel selling items and equips.</li>
                         <li>Complete the boss fight in the chapel to recruit a new character.</li>
@@ -1756,8 +1786,8 @@
                     <h5 class="card-title" id="area-4">Area 4</h5>
                 </div>
                 <div class="card-body">
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGStarHill.png"
-                           target="_blank">Star Hill</a></h6>
+                    <h6>Star Hill <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGStarHill.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>Talk to the green flowers to open the door to the next room.</li>
                         <li>Check the top right corner of the final room to see if a star piece is there.</li>
@@ -1783,15 +1813,15 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGSea.png"
-                           target="_blank">Sea</a></h6>
+                    <h6>Sea <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGSea.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>There is a shop here that sells items and equips.</li>
                         <li>This is also a great place to do Death Abuse when chests aren’t randomized.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGSunkenShip.png"
-                           target="_blank">Sunken Ship</a></h6>
+                    <h6>Sunken Ship <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGSunkenShip.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>There are two boss fights and a mimic chest, all of which can contain a star piece.</li>
                         <li>After defeating the mimic chest, it becomes a 100 coin chest the next time the room is
@@ -1811,10 +1841,10 @@
                     <h5 class="card-title" id="area-5">Area 5</h5>
                 </div>
                 <div class="card-body">
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGLandsEnd.png"
-                           target="_blank">Land's End</a> <a
+                    <h6>Land's End <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGLandsEnd.png"
+                           target="_blank">(map)</a> / Belome Temple <a
                             href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBelomeTemple.png"
-                            target="_blank">(Temple)</a></h6>
+                            target="_blank">(map)</a></h6>
                     <ul>
                         <li>If you take the lower path in the flower mountain room, you can access a cave in the Sky
                             Bridge room. Wait for a puff of smoke to come out of the cave, and then jump into it.
@@ -1846,8 +1876,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMonstroTown.png"
-                           target="_blank">Monstro Town</a></h6>
+                    <h6>Monstro Town <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGMonstroTown.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>There is one shop here (items & equips).</li>
                         <li>If you come here early, the trampoline will be missing and you cannot go through the back
@@ -1863,8 +1893,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBeanValley.png"
-                           target="_blank">Bean Valley</a></h6>
+                    <h6>Bean Valley <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBeanValley.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>There is one mimic chest and one boss fight here.</li>
                         <li>You must fight the Piranha Plants in the pipes if you wish to get to the underground
@@ -1888,8 +1918,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGGrateGuysCasino.png"
-                           target="_blank">Grate Guy's Casino</a></h6>
+                    <h6>Grate Guy's Casino <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGGrateGuysCasino.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>You must have the Bright Card to get past the security guards.</li>
                         <li>The slot machine in here will only reward you frog coins for 3 of a kind.</li>
@@ -1909,8 +1939,8 @@
                     <h5 class="card-title" id="area-6">Area 6</h5>
                 </div>
                 <div class="card-body">
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGNimbusLand.png"
-                           target="_blank">Nimbus Land</a></h6>
+                    <h6>Nimbus Land <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGNimbusLand.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>There is one shop here, selling items and equips.</li>
                         <li>You can use the “Dream Cushion” at the inn for a chance at getting good items.</li>
@@ -1920,8 +1950,8 @@
                             door and talk to a castle attendant to receive a key item.
                         </li>
                         <li>If you have Castle Key 1, you can open the middle door for another boss fight.</li>
-                        <li>Defeat the first boss fight for another key item.</li>
-                        <li>If you have Castle Key 2, you can open the door behind the second boss to unlock the third
+                        <li>Defeat the boss fight behind Castle Key 1 for another key item.</li>
+                        <li>If you have Castle Key 2, you can open the door behind the Castle Key 1 boss to unlock the third
                             castle boss.
                         </li>
                         <li>After completing the castle, you can walk off the right-hand side of the outdoor area of
@@ -1933,8 +1963,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBarrelVolcano.png"
-                           target="_blank">Barrel Volcano</a></h6>
+                    <h6>Barrel Volcano <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBarrelVolcano.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>There are two shops (one item, one equip) and two boss fights in here.</li>
                         <li>Some of the frog coins can be obtained by jumping in the lava.</li>
@@ -1955,8 +1985,8 @@
                         <li>Nothing else.</li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBowsersKeep.png"
-                           target="_blank">Bowser's Keep</a></h6>
+                    <h6>Bowser's Keep <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGBowsersKeep.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>Croco has two shops in here (each selling items and equips).</li>
                         <li>You must complete 4 of the 6 red doors to advance to the bosses; you can manipulate the door
@@ -1982,8 +2012,8 @@
                         </li>
                     </ul>
 
-                    <h6><a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGSmithysFactory.png"
-                           target="_blank">Factory</a></h6>
+                    <h6>Factory <a href="https://fantasyanime.com/squaresoft/mariorpg/maps/SuperMarioRPGSmithysFactory.png"
+                           target="_blank">(map)</a></h6>
                     <ul>
                         <li>Unlocked when you collect all your star pieces.</li>
                         <li>Three boss fights in total, with some forced encounters as well.</li>

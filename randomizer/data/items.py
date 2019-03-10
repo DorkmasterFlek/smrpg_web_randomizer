@@ -1,6 +1,7 @@
 # Data module for item/shop data.
 
 import random
+import math
 
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
@@ -50,6 +51,12 @@ class Item:
     rare = False
     basic = False
     shuffle_type = utils.ItemShuffleType.Extra
+    rank_value = 0
+    rank_order = 0
+    rank_order_reverse = 0
+    arbitrary_value = 0
+    vanilla_shop = False
+    hard_tier = 0
 
     def __init__(self, world):
         """
@@ -106,12 +113,7 @@ class Item:
         if self.is_frog_coin_item:
             return False
 
-        factor = float(random.randint(random.randint(10, 50), 50))
-        if self.rare:
-            price = int(round(self.rank / factor))
-        else:
-            price = int(round(self.price / factor))
-        self.price = min(max(price, 1), 50)
+        self.price = max(math.ceil(self.rank_value / 5), 1)
         self.frog_coin_item = True
         return True
 
@@ -464,6 +466,7 @@ class PunchGlove(Item):
     attack = 30
     variance = 3
     price = 36
+    vanilla_shop = True
 
 
 class FingerShot(Item):
@@ -475,6 +478,7 @@ class FingerShot(Item):
     attack = 12
     variance = 3
     price = 50
+    vanilla_shop = True
 
 
 class Cymbals(Item):
@@ -486,6 +490,7 @@ class Cymbals(Item):
     attack = 30
     variance = 3
     price = 42
+    vanilla_shop = True
 
 
 class Chomp(Item):
@@ -521,6 +526,7 @@ class ChompShell(Item):
     attack = 9
     variance = 3
     price = 60
+    vanilla_shop = True
 
 
 class SuperHammer(Item):
@@ -532,6 +538,7 @@ class SuperHammer(Item):
     attack = 40
     variance = 4
     price = 70
+    vanilla_shop = True
 
 
 class HandGun(Item):
@@ -543,6 +550,7 @@ class HandGun(Item):
     attack = 24
     variance = 4
     price = 75
+    vanilla_shop = True
 
 
 class WhompGlove(Item):
@@ -554,6 +562,7 @@ class WhompGlove(Item):
     attack = 40
     variance = 4
     price = 72
+    vanilla_shop = True
 
 
 class SlapGlove(Item):
@@ -576,6 +585,7 @@ class TroopaShell(Item):
     attack = 50
     variance = 5
     price = 90
+    vanilla_shop = True
 
 
 class Parasol(Item):
@@ -587,6 +597,7 @@ class Parasol(Item):
     attack = 50
     variance = 5
     price = 84
+    vanilla_shop = True
 
 
 class HurlyGloves(Item):
@@ -598,6 +609,7 @@ class HurlyGloves(Item):
     attack = 20
     variance = 5
     price = 92
+    vanilla_shop = True
 
     def get_patch(self):
         """Get patch for this item.
@@ -624,6 +636,7 @@ class DoublePunch(Item):
     attack = 35
     variance = 5
     price = 88
+    vanilla_shop = True
 
 
 class RibbitStick(Item):
@@ -635,6 +648,7 @@ class RibbitStick(Item):
     attack = 50
     variance = 5
     price = 86
+    vanilla_shop = True
 
 
 class SpikedLink(Item):
@@ -646,6 +660,7 @@ class SpikedLink(Item):
     attack = 30
     variance = 6
     price = 94
+    vanilla_shop = True
 
 
 class MegaGlove(Item):
@@ -657,6 +672,7 @@ class MegaGlove(Item):
     attack = 60
     variance = 6
     price = 102
+    vanilla_shop = True
 
 
 class WarFan(Item):
@@ -668,6 +684,7 @@ class WarFan(Item):
     attack = 60
     variance = 6
     price = 100
+    vanilla_shop = True
 
 
 class HandCannon(Item):
@@ -679,6 +696,7 @@ class HandCannon(Item):
     attack = 45
     variance = 6
     price = 105
+    vanilla_shop = True
 
 
 class StickyGlove(Item):
@@ -690,6 +708,7 @@ class StickyGlove(Item):
     attack = 60
     variance = 6
     price = 98
+    vanilla_shop = True
 
 
 class UltraHammer(Item):
@@ -783,6 +802,7 @@ class LuckyHammer(Item):
     order = 54
     equip_chars = [Mario]
     price = 123
+    vanilla_shop = True
 
 
 class Shirt(Item):
@@ -795,6 +815,7 @@ class Shirt(Item):
     defense = 6
     magic_defense = 6
     price = 7
+    vanilla_shop = True
 
 
 class Pants(Item):
@@ -807,6 +828,7 @@ class Pants(Item):
     defense = 6
     magic_defense = 3
     price = 7
+    vanilla_shop = True
 
 
 class ThickShirt(Item):
@@ -819,6 +841,7 @@ class ThickShirt(Item):
     defense = 12
     magic_defense = 8
     price = 14
+    vanilla_shop = True
 
 
 class ThickPants(Item):
@@ -831,6 +854,7 @@ class ThickPants(Item):
     defense = 12
     magic_defense = 6
     price = 14
+    vanilla_shop = True
 
 
 class MegaShirt(Item):
@@ -843,6 +867,7 @@ class MegaShirt(Item):
     defense = 18
     magic_defense = 10
     price = 22
+    vanilla_shop = True
 
 
 class MegaPants(Item):
@@ -855,6 +880,7 @@ class MegaPants(Item):
     defense = 18
     magic_defense = 9
     price = 22
+    vanilla_shop = True
 
 
 class WorkPants(Item):
@@ -870,6 +896,7 @@ class WorkPants(Item):
     magic_attack = 10
     magic_defense = 5
     price = 22
+    vanilla_shop = True
 
 
 class MegaCape(Item):
@@ -882,6 +909,7 @@ class MegaCape(Item):
     defense = 6
     magic_defense = 3
     price = 22
+    vanilla_shop = True
 
 
 class HappyShirt(Item):
@@ -894,6 +922,7 @@ class HappyShirt(Item):
     defense = 24
     magic_defense = 12
     price = 38
+    vanilla_shop = True
 
 
 class HappyPants(Item):
@@ -906,6 +935,7 @@ class HappyPants(Item):
     defense = 24
     magic_defense = 12
     price = 38
+    vanilla_shop = True
 
 
 class HappyCape(Item):
@@ -918,6 +948,7 @@ class HappyCape(Item):
     defense = 12
     magic_defense = 6
     price = 38
+    vanilla_shop = True
 
 
 class HappyShell(Item):
@@ -930,6 +961,7 @@ class HappyShell(Item):
     defense = 6
     magic_defense = 3
     price = 38
+    vanilla_shop = True
 
 
 class PolkaDress(Item):
@@ -955,6 +987,7 @@ class SailorShirt(Item):
     defense = 30
     magic_defense = 15
     price = 50
+    vanilla_shop = True
 
 
 class SailorPants(Item):
@@ -967,6 +1000,7 @@ class SailorPants(Item):
     defense = 30
     magic_defense = 15
     price = 50
+    vanilla_shop = True
 
 
 class SailorCape(Item):
@@ -979,6 +1013,7 @@ class SailorCape(Item):
     defense = 18
     magic_defense = 9
     price = 50
+    vanilla_shop = True
 
 
 class NauticaDress(Item):
@@ -991,6 +1026,7 @@ class NauticaDress(Item):
     defense = 30
     magic_defense = 15
     price = 50
+    vanilla_shop = True
 
 
 class CourageShell(Item):
@@ -1003,6 +1039,7 @@ class CourageShell(Item):
     defense = 12
     magic_defense = 6
     price = 60
+    vanilla_shop = True
 
 
 class FuzzyShirt(Item):
@@ -1015,6 +1052,7 @@ class FuzzyShirt(Item):
     defense = 36
     magic_defense = 18
     price = 70
+    vanilla_shop = True
 
 
 class FuzzyPants(Item):
@@ -1027,6 +1065,7 @@ class FuzzyPants(Item):
     defense = 36
     magic_defense = 18
     price = 70
+    vanilla_shop = True
 
 
 class FuzzyCape(Item):
@@ -1039,6 +1078,7 @@ class FuzzyCape(Item):
     defense = 24
     magic_defense = 12
     price = 70
+    vanilla_shop = True
 
 
 class FuzzyDress(Item):
@@ -1051,6 +1091,7 @@ class FuzzyDress(Item):
     defense = 36
     magic_defense = 18
     price = 70
+    vanilla_shop = True
 
 
 class FireShirt(Item):
@@ -1063,6 +1104,7 @@ class FireShirt(Item):
     defense = 42
     magic_defense = 21
     price = 90
+    vanilla_shop = True
 
 
 class FirePants(Item):
@@ -1075,6 +1117,7 @@ class FirePants(Item):
     defense = 42
     magic_defense = 21
     price = 90
+    vanilla_shop = True
 
 
 class FireCape(Item):
@@ -1087,6 +1130,7 @@ class FireCape(Item):
     defense = 30
     magic_defense = 15
     price = 90
+    vanilla_shop = True
 
 
 class FireShell(Item):
@@ -1099,6 +1143,7 @@ class FireShell(Item):
     defense = 18
     magic_defense = 9
     price = 90
+    vanilla_shop = True
 
 
 class FireDress(Item):
@@ -1111,6 +1156,7 @@ class FireDress(Item):
     defense = 42
     magic_defense = 21
     price = 90
+    vanilla_shop = True
 
 
 class HeroShirt(Item):
@@ -1123,6 +1169,7 @@ class HeroShirt(Item):
     defense = 48
     magic_defense = 24
     price = 100
+    vanilla_shop = True
 
 
 class PrincePants(Item):
@@ -1135,6 +1182,7 @@ class PrincePants(Item):
     defense = 48
     magic_defense = 24
     price = 100
+    vanilla_shop = True
 
 
 class StarCape(Item):
@@ -1147,6 +1195,7 @@ class StarCape(Item):
     defense = 36
     magic_defense = 18
     price = 100
+    vanilla_shop = True
 
 
 class HealShell(Item):
@@ -1159,6 +1208,7 @@ class HealShell(Item):
     defense = 24
     magic_defense = 12
     price = 100
+    vanilla_shop = True
 
 
 class RoyalDress(Item):
@@ -1171,6 +1221,7 @@ class RoyalDress(Item):
     defense = 48
     magic_defense = 24
     price = 100
+    vanilla_shop = True
 
 
 class SuperSuit(Item):
@@ -1248,6 +1299,7 @@ class JumpShoes(Item):
     magic_attack = 5
     magic_defense = 1
     price = 30
+    vanilla_shop = True
 
 
 class SafetyRing(Item):
@@ -1294,6 +1346,7 @@ class ScroogeRing(Item):
     price = 50
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
 
 
 class ExpBooster(Item):
@@ -1306,6 +1359,7 @@ class ExpBooster(Item):
     price = 22
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
 
 
 class AttackScarf(Item):
@@ -1347,6 +1401,7 @@ class BtubRing(Item):
     equip_chars = [Peach]
     elemental_resistances = [4, 5, 6, 7]
     price = 145
+    vanilla_shop = True
 
 
 class AntidotePin(Item):
@@ -1360,6 +1415,7 @@ class AntidotePin(Item):
     magic_defense = 2
     status_immunities = [2]
     price = 28
+    vanilla_shop = True
 
 
 class WakeUpPin(Item):
@@ -1373,6 +1429,7 @@ class WakeUpPin(Item):
     magic_defense = 3
     status_immunities = [0, 1]
     price = 42
+    vanilla_shop = True
 
 
 class FearlessPin(Item):
@@ -1386,6 +1443,7 @@ class FearlessPin(Item):
     magic_defense = 5
     status_immunities = [3]
     price = 130
+    vanilla_shop = True
 
 
 class TrueformPin(Item):
@@ -1399,6 +1457,7 @@ class TrueformPin(Item):
     magic_defense = 4
     status_immunities = [5, 6]
     price = 60
+    vanilla_shop = True
 
 
 class CoinTrick(Item):
@@ -1411,6 +1470,7 @@ class CoinTrick(Item):
     price = 36
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
 
 
 class GhostMedal(Item):
@@ -1500,6 +1560,8 @@ class Mushroom(Item):
     consumable = True
     price = 4
     basic = True
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class MidMushroom(Item):
@@ -1510,6 +1572,8 @@ class MidMushroom(Item):
     consumable = True
     price = 20
     basic = True
+    vanilla_shop = True
+    hard_tier = 2
 
 
 class MaxMushroom(Item):
@@ -1520,6 +1584,8 @@ class MaxMushroom(Item):
     consumable = True
     price = 78
     basic = True
+    vanilla_shop = True
+    hard_tier = 3
 
 
 class HoneySyrup(Item):
@@ -1530,6 +1596,8 @@ class HoneySyrup(Item):
     consumable = True
     price = 10
     basic = True
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class MapleSyrup(Item):
@@ -1540,6 +1608,8 @@ class MapleSyrup(Item):
     consumable = True
     price = 30
     basic = True
+    vanilla_shop = True
+    hard_tier = 2
 
 
 class RoyalSyrup(Item):
@@ -1551,6 +1621,7 @@ class RoyalSyrup(Item):
     price = 101
     rare = True
     basic = True
+    hard_tier = 3
 
 
 class PickMeUp(Item):
@@ -1561,6 +1632,8 @@ class PickMeUp(Item):
     consumable = True
     price = 5
     basic = True
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class AbleJuice(Item):
@@ -1571,6 +1644,8 @@ class AbleJuice(Item):
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 4
     basic = True
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class Bracer(Item):
@@ -1580,9 +1655,12 @@ class Bracer(Item):
     item_type = 3
     consumable = True
     status_buffs = [5, 6]
-    price = 2
+    price = 50
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
+    hard_tier = 2
+    rank_value = 10
 
 
 class Energizer(Item):
@@ -1592,9 +1670,11 @@ class Energizer(Item):
     item_type = 3
     consumable = True
     status_buffs = [3, 4]
-    price = 2
+    price = 50
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
+    hard_tier = 2
 
 
 class YoshiAde(Item):
@@ -1606,6 +1686,7 @@ class YoshiAde(Item):
     status_buffs = [3, 4, 5, 6]
     price = 200
     rare = True
+    hard_tier = 3
 
 
 class RedEssence(Item):
@@ -1617,6 +1698,7 @@ class RedEssence(Item):
     status_immunities = [7]
     price = 400
     rare = True
+    hard_tier = 4
 
 
 class KerokeroCola(Item):
@@ -1626,6 +1708,8 @@ class KerokeroCola(Item):
     item_type = 3
     consumable = True
     price = 400
+    vanilla_shop = True
+    hard_tier = 4
 
 
 class YoshiCookie(Item):
@@ -1634,8 +1718,9 @@ class YoshiCookie(Item):
     order = 26
     item_type = 3
     consumable = True
-    price = 2
+    price = 100
     rare = True
+    hard_tier = 1
 
 
 class PureWater(Item):
@@ -1646,6 +1731,7 @@ class PureWater(Item):
     consumable = True
     price = 150
     rare = True
+    hard_tier = 1
 
 
 class SleepyBomb(Item):
@@ -1655,9 +1741,11 @@ class SleepyBomb(Item):
     item_type = 3
     consumable = True
     status_immunities = [1]
-    price = 1
+    price = 25
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class BadMushroom(Item):
@@ -1668,6 +1756,8 @@ class BadMushroom(Item):
     consumable = True
     status_immunities = [2]
     price = 30
+    vanilla_shop = True
+    hard_tier = 2
 
 
 class FireBomb(Item):
@@ -1677,6 +1767,8 @@ class FireBomb(Item):
     item_type = 3
     consumable = True
     price = 200
+    vanilla_shop = True
+    hard_tier = 3
 
 
 class IceBomb(Item):
@@ -1686,6 +1778,8 @@ class IceBomb(Item):
     item_type = 3
     consumable = True
     price = 250
+    vanilla_shop = True
+    hard_tier = 3
 
 
 class FlowerTab(Item):
@@ -1696,6 +1790,7 @@ class FlowerTab(Item):
     consumable = True
     price = 200
     rare = True
+    hard_tier = 2
 
 
 class FlowerJar(Item):
@@ -1706,6 +1801,7 @@ class FlowerJar(Item):
     consumable = True
     price = 600
     rare = True
+    hard_tier = 3
 
 
 class FlowerBox(Item):
@@ -1716,6 +1812,7 @@ class FlowerBox(Item):
     consumable = True
     price = 1000
     rare = True
+    hard_tier = 4
 
 
 class YoshiCandy(Item):
@@ -1727,6 +1824,7 @@ class YoshiCandy(Item):
     price = 140
     rare = True
     basic = True
+    hard_tier = 2
 
 
 class FroggieDrink(Item):
@@ -1736,6 +1834,8 @@ class FroggieDrink(Item):
     item_type = 3
     consumable = True
     price = 16
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class MukuCookie(Item):
@@ -1746,6 +1846,8 @@ class MukuCookie(Item):
     consumable = True
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 69
+    vanilla_shop = True
+    hard_tier = 2
 
 
 class Elixir(Item):
@@ -1755,6 +1857,8 @@ class Elixir(Item):
     item_type = 3
     consumable = True
     price = 48
+    vanilla_shop = True
+    hard_tier = 2 
 
 
 class Megalixir(Item):
@@ -1764,6 +1868,9 @@ class Megalixir(Item):
     item_type = 3
     consumable = True
     price = 120
+    vanilla_shop = True
+    hard_tier = 3
+    basic = True
 
 
 class SeeYa(Item):
@@ -1773,9 +1880,11 @@ class SeeYa(Item):
     item_type = 3
     consumable = True
     reuseable = True
-    price = 10
+    price = 250
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
+    hard_tier = 2
 
 
 class TempleKey(Item):
@@ -1793,6 +1902,7 @@ class GoodieBag(Item):
     reuseable = True
     price = 1110
     rare = True
+    hard_tier = 1
 
 
 class EarlierTimes(Item):
@@ -1802,9 +1912,11 @@ class EarlierTimes(Item):
     item_type = 3
     consumable = True
     reuseable = True
-    price = 15
+    price = 375
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class FreshenUp(Item):
@@ -1815,6 +1927,8 @@ class FreshenUp(Item):
     consumable = True
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 50
+    vanilla_shop = True
+    hard_tier = 2
 
 
 class RareFrogCoin(Item):
@@ -1831,6 +1945,7 @@ class Wallet(Item):
     item_type = 3
     price = 246
     rare = True
+    hard_tier = 1
 
 
 class CricketPie(Item):
@@ -1848,6 +1963,7 @@ class RockCandy(Item):
     consumable = True
     price = 400
     rare = True
+    hard_tier = 4
 
 
 class CastleKey1(Item):
@@ -1880,8 +1996,9 @@ class SheepAttack(Item):
     item_type = 3
     consumable = True
     reuseable = True
-    price = 2
+    price = 150
     rare = True
+    hard_tier = 4
 
 
 class CarboCookie(Item):
@@ -1890,6 +2007,7 @@ class CarboCookie(Item):
     item_type = 3
     price = 2
     rare = True
+    hard_tier = 1
 
 
 class ShinyStone(Item):
@@ -1898,6 +2016,7 @@ class ShinyStone(Item):
     item_type = 3
     price = 4
     rare = True
+    hard_tier = 2
 
 
 class RoomKey(Item):
@@ -1927,8 +2046,9 @@ class LambsLure(Item):
     item_type = 3
     consumable = True
     reuseable = True
-    price = 2
+    price = 40
     rare = True
+    hard_tier = 3
 
 
 class FrightBomb(Item):
@@ -1939,6 +2059,7 @@ class FrightBomb(Item):
     consumable = True
     status_immunities = [3]
     price = 100
+    hard_tier = 2
 
 
 class MysteryEgg(Item):
@@ -1949,6 +2070,7 @@ class MysteryEgg(Item):
     reuseable = True
     price = 200
     rare = True
+    hard_tier = 2
 
 
 class BeetleBox(Item):
@@ -1973,6 +2095,8 @@ class LuckyJewel(Item):
     reuseable = True
     price = 100
     rare = True
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class SopranoCard(Item):
@@ -2003,9 +2127,11 @@ class Crystalline(Item):
     item_type = 3
     consumable = True
     status_buffs = [5, 6]
-    price = 5
+    price = 125
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
+    hard_tier = 3
 
 
 class PowerBlast(Item):
@@ -2015,9 +2141,11 @@ class PowerBlast(Item):
     item_type = 3
     consumable = True
     status_buffs = [3, 4]
-    price = 5
+    price = 125
     frog_coin_item = True
     rare = True
+    vanilla_shop = True
+    hard_tier = 3
 
 
 class WiltShroom(Item):
@@ -2028,6 +2156,7 @@ class WiltShroom(Item):
     price = 8
     rare = True
     basic = True
+    hard_tier = 1
 
 
 class RottenMush(Item):
@@ -2038,6 +2167,7 @@ class RottenMush(Item):
     price = 4
     rare = True
     basic = True
+    hard_tier = 1
 
 
 class MoldyMush(Item):
@@ -2048,6 +2178,7 @@ class MoldyMush(Item):
     price = 2
     rare = True
     basic = True
+    hard_tier = 1
 
 
 class Seed(Item):
@@ -2055,6 +2186,7 @@ class Seed(Item):
     order = 146
     item_type = 3
     rare = True
+    hard_tier = 3
 
 
 class Fertilizer(Item):
@@ -2062,6 +2194,7 @@ class Fertilizer(Item):
     order = 141
     item_type = 3
     rare = True
+    hard_tier = 3
 
 
 class BigBooFlag(Item):
@@ -2098,6 +2231,7 @@ class BrightCard(Item):
     order = 133
     item_type = 3
     rare = True
+    hard_tier = 1
 
 
 class Mushroom2(Item):
@@ -2109,6 +2243,8 @@ class Mushroom2(Item):
     status_immunities = [5]
     price = 4
     basic = True
+    vanilla_shop = True
+    hard_tier = 1
 
 
 class StarEgg(Item):
@@ -2118,8 +2254,9 @@ class StarEgg(Item):
     item_type = 3
     consumable = True
     reuseable = True
-    price = 2
+    price = 300
     rare = True
+    hard_tier = 4
 
 
 # ************************** Shop data classes
@@ -2229,7 +2366,7 @@ class MushroomKingdomShop(Shop):
         first_chars = set([c.index for c in self.world.character_join_order[:2]])
         equip_chars = set([c.index for c in item.equip_chars])
         can_equip = self.world.open_mode or bool(equip_chars & first_chars)
-        return item.consumable or (item.is_equipment and can_equip)
+        return item.consumable or ((item.is_armor or item.is_accessory) and can_equip)
 
 
 class RoseTownItemShop(Shop):
@@ -2267,7 +2404,7 @@ class RoseTownArmorShop(Shop):
         first_chars = set([c.index for c in self.world.character_join_order[:3]])
         equip_chars = set([c.index for c in item.equip_chars])
         can_equip = self.world.open_mode or bool(equip_chars & first_chars)
-        return item.is_equipment and can_equip
+        return (item.is_armor or item.is_accessory) and can_equip
 
 
 class DiscipleShop(Shop):
@@ -2294,13 +2431,15 @@ class MolevilleShop(Shop):
         first_chars = set([c.index for c in self.world.character_join_order[:3]])
         equip_chars = set([c.index for c in item.equip_chars])
         can_equip = self.world.open_mode or bool(equip_chars & first_chars)
-        return item.consumable or (item.is_equipment and can_equip)
+        return item.consumable or ((item.is_armor or item.is_weapon) and can_equip)
 
 
 class MarrymoreShop(Shop):
     index = 5
     items = [SuperHammer, HandGun, WhompGlove, ChompShell, HappyShirt, HappyPants, HappyCape, HappyShell, BtubRing,
              MidMushroom, MapleSyrup]
+    def is_item_allowed(self, item):
+        return item.consumable or (item.is_equipment)
 
 
 class FrogCoinEmporiumShop(Shop):
@@ -2313,6 +2452,8 @@ class SeaShop(Shop):
     index = 7
     items = [HurlyGloves, SuperHammer, HandGun, WhompGlove, SailorShirt, SailorPants, SailorCape, NauticaDress,
              MidMushroom, MapleSyrup, PickMeUp, AbleJuice, FreshenUp]
+    def is_item_allowed(self, item):
+        return item.consumable or (item.is_armor or item.is_weapon)
 
 
 class SeasideYaridShop(Shop):
@@ -2329,7 +2470,7 @@ class SeasideYaridShop(Shop):
             bool: True if item is allowed in this shop/world, False otherwise.
 
         """
-        return item.consumable and not item.basic
+        return item.consumable
 
 
 class JuiceBarPartial1(PartialJuiceBarShop):
@@ -2361,7 +2502,7 @@ class JuiceBarFull(JuiceBarShop):
             bool: True if item is allowed in this shop/world, False otherwise.
 
         """
-        return item.consumable and not item.basic and not item.reuseable
+        return item.consumable and not item.reuseable
 
 
 class SeasideWeaponShop(Shop):
@@ -2437,6 +2578,8 @@ class SeasideItemShop(Shop):
 class MonstroTownShop(Shop):
     index = 17
     items = [SpikedLink, CourageShell, MidMushroom, MapleSyrup, PickMeUp, AbleJuice, FreshenUp]
+    def is_item_allowed(self, item):
+        return item.consumable or (item.is_armor or item.is_weapon)
 
 
 class NimbusLandShop(Shop):
@@ -2470,7 +2613,7 @@ class HinopioShop(Shop):
             bool: True if item is allowed in this shop/world, False otherwise.
 
         """
-        return item.is_equipment
+        return item.is_armor
 
 
 class BabyGoombaShop(Shop):
@@ -2487,23 +2630,29 @@ class BabyGoombaShop(Shop):
             bool: True if item is allowed in this shop/world, False otherwise.
 
         """
-        return item.consumable and not item.basic
+        return item.consumable
 
 
 class NimbusLandItemWeaponShop(Shop):
     index = 21
     items = [MidMushroom, MapleSyrup, PickMeUp, AbleJuice, FreshenUp, MegaGlove, WarFan, HandCannon, StickyGlove,
              FuzzyShirt, FuzzyPants, FuzzyCape, FuzzyDress]
+    def is_item_allowed(self, item):
+        return item.consumable or (item.is_armor or item.is_weapon)
 
 
 class CrocoShop1(Shop):
     index = 22
     items = [MidMushroom, MapleSyrup, PickMeUp, FreshenUp, FireShirt, FirePants, FireCape, FireShell, FireDress]
+    def is_item_allowed(self, item):
+        return item.consumable or item.is_armor
 
 
 class CrocoShop2(Shop):
     index = 23
     items = [MidMushroom, MapleSyrup, PickMeUp, FreshenUp, HeroShirt, PrincePants, StarCape, HealShell, RoyalDress]
+    def is_item_allowed(self, item):
+        return item.consumable or item.is_armor
 
 
 class ToadShop(Shop):

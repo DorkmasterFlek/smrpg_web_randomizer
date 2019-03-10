@@ -318,7 +318,7 @@ class GameWorld:
         patch.add_data(0x3a00dd, utils.ByteField(self.starting_fp).as_bytes() * 2)
 
         # For debug mode, start with 9999 coins and 99 frog coins.
-        if self.debug_mode:
+        if self.debug_mode or self.settings.is_flag_enabled(flags.FreeShops):
             patch.add_data(0x3a00db, utils.ByteField(9999, num_bytes=2).as_bytes())
             patch.add_data(0x3a00df, utils.ByteField(99, num_bytes=2).as_bytes())
 
