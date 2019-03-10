@@ -232,6 +232,12 @@ class ShopShuffleBalanced(Flag):
     description = "Shops that are harder to access will contain better items."
     value = 'Sb'
     
+class ShopTierX(Flag):
+    name = "Empty shops"
+    description = "All shops contain only the Goodie Bag."
+    value = 'Sx'
+    hard = True
+
 class ShopTier1(Flag):
     name = "Restrict to worst items"
     description = "Only the very worst equipment and support/healing items will appear in shops."
@@ -261,7 +267,8 @@ class ShopShuffle(Flag):
         ShopTier4,
         ShopTier3,
         ShopTier2,
-        ShopTier1
+        ShopTier1,
+        ShopTierX
     ]
     options = [
         ShopShuffleVanilla,
