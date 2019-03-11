@@ -327,7 +327,6 @@ class GameWorld:
 
         # No Mack Skip flag
         if self.settings.is_flag_enabled(flags.NoMackSkip):
-            print(True)
             patch.add_data(0x14ca6c, bytes([0xA5]))
             
         # Items
