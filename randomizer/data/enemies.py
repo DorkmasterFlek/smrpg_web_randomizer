@@ -4242,7 +4242,21 @@ class MarioClone(Enemy):
     ratio_speed = 5.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x3944C3, bytes([0xFF]))
+
+        return patch
 
 class PeachClone(Enemy):
     index = 154
@@ -4276,7 +4290,21 @@ class PeachClone(Enemy):
     ratio_speed = 5.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x39452F, bytes([0xFF]))
+
+        return patch
 
 class BowserClone(Enemy):
     index = 155
@@ -4312,7 +4340,21 @@ class BowserClone(Enemy):
     ratio_speed = 3.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x39458D, bytes([0xFF]))
+
+        return patch
 
 class GenoClone(Enemy):
     index = 156
@@ -4349,6 +4391,21 @@ class GenoClone(Enemy):
     ratio_speed = 7.5
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x3945F3, bytes([0xFF]))
+
+        return patch
 
 
 class MallowClone(Enemy):
@@ -4385,7 +4442,21 @@ class MallowClone(Enemy):
     ratio_speed = 3.5
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x39465B, bytes([0xFF]))
+
+        return patch
 
 class Shyster(Enemy):
     index = 158
