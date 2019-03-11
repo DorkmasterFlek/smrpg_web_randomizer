@@ -247,15 +247,17 @@
             </div>
         </div>
         <div class="card-body">
-            {% include 'randomizer/_rom_info.html' with show_permalink=True %}
-            <div class="col-md-6">
-                <div role="group" class="btn-group btn-flex mr-3 mt-3">
-                    <button name="save_rom" class="btn btn-success" id="btn-save-rom" disabled>Save Rom</button>
-                </div>
-                <div role="group" class="btn-group btn-flex mr-3 mt-3">
-                    <button name="save_wad" class="btn btn-success" id="btn-save-wad" disabled>Save Wad</button>
+            <div class="row">
+                <div class="col-md-6">
+                    <div role="group" class="btn-group btn-flex mr-3 mb-3">
+                        <button name="save_rom" class="btn btn-success" id="btn-save-rom" disabled>Save Rom</button>
+                    </div>
+                    <div role="group" class="btn-group btn-flex mr-3 mb-3">
+                        <button name="save_wad" class="btn btn-success" id="btn-save-wad" disabled>Save Wad</button>
+                    </div>
                 </div>
             </div>
+            {% include 'randomizer/_rom_info.html' with show_permalink=True %}
         </div>
     </div>
 

@@ -265,3 +265,41 @@ label {
 .flag-description {
     font-size: 80%;
 }
+.display-table {
+    display: table;
+}
+.display-cell {
+    display: table-cell;
+    padding: 0 5px;
+}
+.inline-flag-description, .disabled-inline-flag-description {
+    display: table;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.sub-flag {
+    padding-left: 10px;
+}
+.inline-flag-description .display-cell:first-child div, .disabled-inline-flag-description .display-cell:first-child div {
+    color: white;
+    text-align: center;
+    width: 25px;
+}
+.inline-flag-description p, .disabled-inline-flag-description p {
+    margin: 0;
+}
+.inline-flag-description .display-cell:first-child div {
+    background-color: #17a2b8;
+    border-color: #17a2b8;
+}
+.disabled-inline-flag-description .display-cell:first-child div {
+    background-color: #adadad;
+    border-color: #adadad;
+    text-decoration: line-through;
+}
+.disabled-inline-flag-description .display-cell:last-child {
+    color: #adadad;
+}
+.inline-flag-description .display-cell:first-child, .disabled-inline-flag-description .display-cell:first-child {
+    width: 25px;
+}
