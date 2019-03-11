@@ -64,8 +64,6 @@ class Enemy:
     ratio_evade = 1.0
     ratio_magic_evade = 1.0
     name_override = ''
-    
-    death_immune_override = False
 
     def __init__(self, world):
         """
@@ -4256,7 +4254,7 @@ class MarioClone(Enemy):
 
         # Check if No OHKO flag is enabled.
         if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x3944DD, bytes([0xFF]))
+            patch.add_data(0x3944C3, bytes([0xFF]))
 
         return patch
 
@@ -4304,7 +4302,7 @@ class PeachClone(Enemy):
 
         # Check if No OHKO flag is enabled.
         if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x394549, bytes([0xFF]))
+            patch.add_data(0x39452F, bytes([0xFF]))
 
         return patch
 
@@ -4354,7 +4352,7 @@ class BowserClone(Enemy):
 
         # Check if No OHKO flag is enabled.
         if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x3945A7, bytes([0xFF]))
+            patch.add_data(0x39458D, bytes([0xFF]))
 
         return patch
 
@@ -4405,7 +4403,7 @@ class GenoClone(Enemy):
 
         # Check if No OHKO flag is enabled.
         if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x39460D, bytes([0xFF]))
+            patch.add_data(0x3945F3, bytes([0xFF]))
 
         return patch
 
@@ -4456,7 +4454,7 @@ class MallowClone(Enemy):
 
         # Check if No OHKO flag is enabled.
         if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x394675, bytes([0xFF]))
+            patch.add_data(0x39465B, bytes([0xFF]))
 
         return patch
 

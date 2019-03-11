@@ -93,9 +93,6 @@ def _randomize_enemy(enemy):
     enemy.evade = utils.mutate_normal(enemy.evade, minimum=0, maximum=100)
     enemy.magic_evade = utils.mutate_normal(enemy.magic_evade, minimum=0, maximum=100)
     
-    #if Gk is set, dont let any agent in a boss fight be hit by OHKO
-    if enemy.settings.is_flag_enabled(flags.NoOHKO) and enemy.index in [3, 25, 47, 67, 68, 75, 93, 103, 184, 189, 209, 213, 225, 233, 229, 211, 228, 245, 210, 207, 199, 200, 157, 153, 156, 155, 154, 205, 52, 246, 230, 134, 194, 215, 50, 221, 252, 222, 253, 243, 223, 240, 241, 255, 151, 149, 150, 152, 220, 219, 114, 56, 137, 191, 190, 187, 51, 74, 27, 87, 179, 195, 196, 218, 249, 216, 192, 193, 224, 33, 76, 204, 23, 208, 251, 226, 188]:
-        enemy.death_immune_override = True
 
     if enemy.boss:
         for attr, old_val in old_stats.items():
@@ -104,12 +101,12 @@ def _randomize_enemy(enemy):
 
     if enemy.boss:
         # For bosses, allow a small 1/255 chance to be vulnerable to Geno Whirl.
-        if utils.coin_flip(1 / 255) and not enemy.death_immune_override:
+        if utils.coin_flip(1 / 255):
             enemy.death_immune = False
 
     else:
         # Have a 1/3 chance of reversing instant death immunity for normal enemies.
-        if random.randint(1, 3) == 3 and not enemy.death_immune_override:
+        if random.randint(1, 3) == 3:
             enemy.death_immune = not enemy.death_immune
 
         # Randomize morph item chance of success.
@@ -237,6 +234,8 @@ def randomize_all(world):
             _randomize_enemy_attack(attack)
 
     if world.settings.is_flag_enabled(flags.EnemyStats):
+    
+    
         # *** Shuffle enemy stats ***
         # Start with inter-shuffling some stats between non-boss enemies around the same rank as each other.
         candidates = [m for m in world.enemies if not m.boss]
@@ -370,3 +369,10 @@ def randomize_all(world):
         for enemy in world.enemies:
             if not enemy.boss:
                 enemy.xp = 0
+                
+    
+    #if Gk is set, dont let any agent in a boss fight be hit by OHKO
+    if world.settings.is_flag_enabled(flags.NoOHKO):
+        for enemy in world.enemies:
+            if enemy.index in [3, 25, 47, 67, 68, 75, 93, 103, 184, 189, 209, 213, 225, 233, 229, 211, 228, 245, 210, 207, 199, 200, 157, 153, 156, 155, 154, 205, 52, 246, 230, 134, 194, 215, 50, 221, 252, 222, 253, 243, 223, 240, 241, 255, 151, 149, 150, 152, 220, 219, 114, 56, 137, 191, 190, 187, 51, 74, 27, 87, 179, 195, 196, 218, 249, 216, 192, 193, 224, 33, 76, 204, 23, 208, 251, 226, 188]:
+                enemy.death_immune = True
