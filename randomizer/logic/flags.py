@@ -511,6 +511,7 @@ class Glitches(Flag):
     modes = ['open']
     value = '@G'
     options = [
+        NoMackSkip,
         FixMagikoopa,
         NoOHKO,
         NoGenoWhirlExor,
