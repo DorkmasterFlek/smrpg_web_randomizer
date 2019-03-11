@@ -6,7 +6,6 @@ import math
 from randomizer.data import items
 from randomizer.data.characters import Mario, Mallow, Geno, Bowser, Peach
 from . import flags, utils
-from randomizer.logic.patch import Patch
 
 
 def _randomize_item(item):
@@ -190,7 +189,7 @@ def randomize_all(world):
 
     :type world: randomizer.logic.main.GameWorld
     """
-    
+
     # Shuffle equipment stats and equip characters.
     for item in world.items:
         _randomize_item(item)
@@ -208,9 +207,9 @@ def randomize_all(world):
     # Shuffle shop contents and prices.
     if world.settings.is_flag_enabled(flags.ShopShuffle):
         assignments = {}
-        
+
         # ******************************* Phase 0: Calculate raw value to use as basis for pricing as well as Sb, Tb assignment
-                
+
 		# Calculate raw rank value
         for item in world.items:
             if item.is_equipment:
@@ -223,12 +222,12 @@ def randomize_all(world):
                 elif item.index == 80:
                     item.arbitrary_value = 10
                 item.rank_value = item.attack * max(0, min(2, (item.attack + item.variance) / (1 if (item.attack - item.variance == 0) else (item.attack - item.variance)))) + max (0, item.magic_attack + item.magic_defense + item.defense + min (20, item.speed / 2)) + 10 * len(item.status_immunities) + 15 * len(item.elemental_immunities) + 7.5 * len(item.elemental_resistances) + 50 * (1 if item.prevent_ko else 0) + 30 * len(item.status_buffs) + 10 * item.arbitrary_value
-        
+
         #Calculate list position (used as a factor in pricing)
         ranks = [item for item in world.items if item.is_equipment]
         ranks.sort(key=lambda x: x.rank_value, reverse=True)
         ranks_reverse = sorted(ranks, key=lambda x: x.rank_value)
-        
+
         for item in world.items:
             if item.is_equipment:
                 item.rank_order = (ranks.index(item) + 1 if item in ranks else 0)
@@ -241,11 +240,11 @@ def randomize_all(world):
                     item.hard_tier = 2
                 else:
                     item.hard_tier = 1
-                    
+
         if world.settings.is_flag_enabled(flags.ShopTierX):
             for shop in world.shops:
                 shop.items = [i for i in world.items if i.index == 125]
-        
+
         else:
             tiers_allowed = 4;
             if world.settings.is_flag_enabled(flags.ShopTier1):
@@ -255,13 +254,13 @@ def randomize_all(world):
             elif world.settings.is_flag_enabled(flags.ShopTier3):
                 tiers_allowed = 3;
 
-            
+
             #Establish an array for each shop's items
             for shop in world.shops:
                 assignments[shop.index] = []
-                
+
             # ******************************* Phase 1: Frog coin shops
-            
+
             #Sv
             if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
                 #Sv and Sb - only allow the chosen highest tiers of items here
@@ -297,7 +296,7 @@ def randomize_all(world):
             num_choose = min(num_choose, len(choose_again))
             if num_choose and choose_again:
                 chosen += random.sample(choose_again, num_choose)
-                
+
             # Put the chosen in the disciple shop and up to 15 remaining in the Emporium
             assignments[items.DiscipleShop.index] = chosen
             num_emporium = random.randint(random.randint(0, 15), 15)
@@ -307,10 +306,10 @@ def randomize_all(world):
             # ******************************* Phase 2: Non-frog coin shops
 
             # Collect remaining items that aren't in frog coin shops and aren't key items.
-            
+
             #exclude wallet, shiny stone, carbo cookie
             excluded_items =  [129, 137, 138]
-            
+
             if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
                 shop_items = [i for i in world.items if
                       i not in assignments[items.DiscipleShop.index] and
@@ -326,20 +325,20 @@ def randomize_all(world):
                       i.price
                       and i.hard_tier <= tiers_allowed
                       and i.index not in excluded_items]
-                
+
             #First, we want every item to wind up in a shop.
             done_already = set()
             #But we need a backup reserve of items to pull from in case the logic doesnt work out - i.e. Sb is enabled but there are no accessories in the upper tiers
             item_reserve = shop_items;
-            
+
             #Unique items will first be split among the shops (anything except basic healing items)
             #unique_items = [i for i in shop_items if not (i.consumable and not i.reuseable and (i.hard_tier <= math.ceil(tiers_allowed / 2) or i.basic))]
             #basic_items = [i for i in shop_items if (i.consumable and not i.reuseable and (i.hard_tier <= math.ceil(tiers_allowed / 2) or i.basic))]
             unique_items = [i for i in shop_items if not (i.consumable and not i.reuseable and i.basic)]
             basic_items = [i for i in shop_items if (i.consumable and not i.reuseable and i.basic)]
-            
-            
-                
+
+
+
             #Function determining what can go in a shop, based on flags selected
             def get_valid_items(base, shop, exclude=[]):
                 #Sb and Sv
@@ -386,8 +385,8 @@ def randomize_all(world):
                     else:
                         valid_items = [i for i in base if i not in done_already and i not in exclude and shop.is_item_allowed(i) and i.hard_tier <= tiers_allowed]
                 return valid_items
-            
-            
+
+
             #Juice bar gets "first dibs"
             #This is kind of weird, but first partial juice bar is modeled after rose town shop since they have the same permission properties
             for shop1 in world.shops:
@@ -430,8 +429,8 @@ def randomize_all(world):
                 assignments[12].append(item)
                 if (item in unique_items):
                     done_already.add(item)
-                
-            
+
+
             #Randomly assign unique items until they've all been assigned.
             while len(done_already) < len(unique_items):
                 #Get a random shop - avoided simple looping to prevent biasing against lategame shops
@@ -449,7 +448,7 @@ def randomize_all(world):
                         assignments[shop.index].append(chosen_item)
                         done_already.add(chosen_item)
                 remaining = [i for i in unique_items if i not in done_already]
-                            
+
             #Randomly assign anything to Yaridovich shop
             for shop in world.shops:
                 if shop.index == 8:
@@ -457,7 +456,7 @@ def randomize_all(world):
                     yarid_items = random.sample(valid_items, random.randint(1, min(len(valid_items), 15)))
                     for item in yarid_items:
                         assignments[shop.index].append(item)
-                        
+
             #Assign random consumables to shops that have space left and can have consumables
             for shop1 in [items.MushroomKingdomShop, items.RoseTownItemShop, items.MolevilleShop, items.MarrymoreShop, items.SeaShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop, items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1, items.CrocoShop2, items.ToadShop]:
                 #this is really bad implementation but i don't know how else to get the world property to stop breaking for linear mode
@@ -476,7 +475,7 @@ def randomize_all(world):
                     for item in append_consumables:
                         if (item not in assignments[shop.index]):
                             assignments[shop.index].append(item)
-            
+
             #Randomly assign anything to shops with space remaining
             done_already.clear()
             for shop in world.shops:
@@ -488,13 +487,13 @@ def randomize_all(world):
                             append_items = random.sample(valid_items, random.randint(1, max_remaining))
                             for item in append_items:
                                 assignments[shop.index].append(item)
-                        
+
             #Loop through shops to find any that are empty, and just add Pick Me Up
             for shop in world.shops:
                 if not (isinstance(shop, items.PartialJuiceBarShop) or shop.index in [disciple_shop, frog_coin_emporium]):
                     if not assignments[shop.index]:
                         assignments[shop.index].append(items.PickMeUp)
-            
+
             # ******************************* Phase 3: Repricing
 
             for shop in world.shops:
@@ -502,9 +501,9 @@ def randomize_all(world):
                 for item in assigned_items:
 
                     # Turn the item into a frog coin price if it's in one of those shops.
-                    
+
                     ########Set new regular-coin prices for FC items
-                                
+
                     if world.settings.is_flag_enabled(flags.FreeShops):
                         if shop.frog_coin_shop:
                             item.frog_coin_item = True
@@ -530,12 +529,12 @@ def randomize_all(world):
                                 price = min(9999, max(2, item.price))
                                 price = utils.mutate_normal(price, minimum=2, maximum=9999)
                                 item.price = price
-                        
+
 
             # Sort the list of items by the ordering rank for display, and assign to the shop.
             for shop in world.shops:
                 shop.items = sorted(assignments[shop.index], key=lambda i: i.order)
-            
+
     else:
         for shop in world.shops:
             if world.settings.is_flag_enabled(flags.FreeShops):

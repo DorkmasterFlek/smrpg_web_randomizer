@@ -286,39 +286,6 @@ def randomize_all(world):
             head = world.get_enemy_instance(e)
             head.hp = main_head.hp
 
-        # *** Shuffle enemy rewards ***
-        # Intershuffle xp, coins, and items like old logic.
-        candidates = [enemy for enemy in world.enemies if not enemy.boss and enemy.xp > 0 and (
-                enemy.normal_item != enemy.rare_item or enemy.normal_item is None)]
-        candidates.sort(key=lambda enemy: enemy.rank)
-
-        for attribute in ("xp", "coins", "normal_item", "rare_item"):
-            shuffled = candidates[:]
-            max_index = len(candidates) - 1
-            done = set()
-
-            # For each reward, have a 50/50 chance of swapping stat with the next one up sorted by rank.
-            for i in range(len(candidates)):
-                new_index = i
-                if shuffled[i] in done:
-                    continue
-                while random.randint(0, 1) == 1:
-                    new_index += 1
-                new_index = int(round(new_index))
-                new_index = min(new_index, max_index)
-                a, b = shuffled[i], shuffled[new_index]
-                done.add(a)
-                shuffled[i] = b
-                shuffled[new_index] = a
-
-            # Now swap attribute values with shuffled list.
-            swaps = []
-            for a, b in zip(candidates, shuffled):
-                aval, bval = getattr(a, attribute), getattr(b, attribute)
-                swaps.append(bval)
-            for a, bval in zip(candidates, swaps):
-                setattr(a, attribute, bval)
-
     # Randomize individual rewards on their own.
     if world.settings.is_flag_enabled(flags.EnemyDrops):
         for enemy in world.enemies:
