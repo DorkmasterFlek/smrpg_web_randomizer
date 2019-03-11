@@ -43,6 +43,10 @@ class StarAllowedChest(Chest):
         return super().item_allowed(item) or isclass_or_instance(item, items.InvincibilityStar)
 
 
+class RoseTownGardenerChest(Chest):
+    """Subclass for the Lazy Shell chests in Rose Town."""
+
+
 class BowserDoorReward(Chest):
     """Subclass for Bowser door rewards because they can only be inventory items or you missed."""
 
@@ -176,14 +180,14 @@ class RoseTownStore2(Chest):
     item = items.FrogCoin
 
 
-class GardenerCloud1(Chest):
-    area = Area.RoseTown
+class GardenerCloud1(RoseTownGardenerChest):
+    area = Area.RoseTownClouds
     addresses = [0x14de24]
     item = items.LazyShellArmor
 
 
-class GardenerCloud2(Chest):
-    area = Area.RoseTown
+class GardenerCloud2(RoseTownGardenerChest):
+    area = Area.RoseTownClouds
     addresses = [0x14de28]
     item = items.LazyShellWeapon
 

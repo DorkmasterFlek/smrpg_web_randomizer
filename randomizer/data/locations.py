@@ -16,6 +16,7 @@ class Area(Enum):
     TadpolePond = auto()
     RoseWay = auto()
     RoseTown = auto()
+    RoseTownClouds = auto()
     ForestMaze = auto()
     MolevilleMines = auto()
     BoosterPass = auto()
