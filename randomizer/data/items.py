@@ -108,7 +108,7 @@ class Item:
     @property
     def is_key(self):
         """:rtype: bool"""
-        return not (self.is_equipment or self.consumable)
+        return not (self.is_equipment or self.consumable) and self.price == 0
 
     @property
     def is_frog_coin_item(self):

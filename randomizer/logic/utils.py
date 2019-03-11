@@ -1,9 +1,15 @@
 # Common utilities for outputting binary data for the patches, and shuffling stat values.
 
+import inspect
 import random
 
 # Amount to boost very small values when shuffling to give a bit more range for very small values.
 SMALL_BOOST_AMOUNT = 2.0
+
+
+def isclass_or_instance(obj_or_cls, classinfo):
+    """Helper function to check if an object is an instance of a class, or the class itself."""
+    return isinstance(obj_or_cls, classinfo) or (inspect.isclass(obj_or_cls) and issubclass(obj_or_cls, classinfo))
 
 
 class BitMapSet(set):

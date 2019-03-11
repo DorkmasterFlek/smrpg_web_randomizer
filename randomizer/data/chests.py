@@ -1,8 +1,7 @@
 # Data module for chest data.
 
-import inspect
-
 from randomizer.data import items
+from randomizer.logic.utils import isclass_or_instance
 from .locations import Area, ItemLocation
 
 
@@ -15,8 +14,7 @@ class Chest(ItemLocation):
 class NonCoinChest(Chest):
     """Subclass for chest that cannot contain coin items."""
 
-    @staticmethod
-    def item_allowed(item):
+    def item_allowed(self, item):
         """
 
         Args:
@@ -26,14 +24,29 @@ class NonCoinChest(Chest):
             bool: True if the given item is allowed to be placed in this spot, False otherwise.
 
         """
-        return not (isinstance(item, items.Coins) or (inspect.isclass(item) and issubclass(item, items.Coins)))
+        return super().item_allowed(item) and not isclass_or_instance(item, items.Coins)
+
+
+class StarAllowedChest(Chest):
+    """Subclass for chests that are in the same room as an invincibility star."""
+
+    def item_allowed(self, item):
+        """
+
+        Args:
+            item(randomizer.data.items.Item|type): Item to check.
+
+        Returns:
+            bool: True if the given item is allowed to be placed in this spot, False otherwise.
+
+        """
+        return super().item_allowed(item) or isclass_or_instance(item, items.InvincibilityStar)
 
 
 class BowserDoorReward(Chest):
-    """Subclass for Bowser door rewards because they can only be inventory items."""
+    """Subclass for Bowser door rewards because they can only be inventory items or you missed."""
 
-    @staticmethod
-    def item_allowed(item):
+    def item_allowed(self, item):
         """
 
         Args:
@@ -43,8 +56,8 @@ class BowserDoorReward(Chest):
             bool: True if the given item is allowed to be placed in this spot, False otherwise.
 
         """
-        return not (isinstance(item, items.ChestReward) or
-                    (inspect.isclass(item) and issubclass(item, items.ChestReward)))
+        return super().item_allowed(item) and (not isclass_or_instance(item, items.ChestReward) or
+                                               isclass_or_instance(item, items.YouMissed))
 
 
 # ****************************** Actual chest classes
@@ -109,13 +122,13 @@ class BanditsWay2(Chest):
     item = items.RecoveryMushroom
 
 
-class BanditsWayStarChest(Chest):
+class BanditsWayStarChest(StarAllowedChest):
     area = Area.BanditsWay
     addresses = [0x14964c]
     item = items.BanditsWayStar
 
 
-class BanditsWayDogJump(Chest):
+class BanditsWayDogJump(StarAllowedChest):
     area = Area.BanditsWay
     addresses = [0x149650]
     item = items.Flower
@@ -129,13 +142,13 @@ class BanditsWayCroco(Chest):
 
 # *** Kero Sewers
 
-class KeroSewersPandorite(Chest):
+class KeroSewersPandoriteRoom(Chest):
     area = Area.KeroSewers
     addresses = [0x149053]
     item = items.Flower
 
 
-class KeroSewersStarChest(Chest):
+class KeroSewersStarChest(StarAllowedChest):
     area = Area.KeroSewers
     addresses = [0x14901e]
     item = items.KeroSewersStar
@@ -255,7 +268,7 @@ class YosterIsleEntrance(Chest):
 
 # *** Moleville
 
-class MolevilleMinesStarChest(Chest):
+class MolevilleMinesStarChest(StarAllowedChest):
     area = Area.MolevilleMines
     addresses = [0x14c4af]
     item = items.MolevilleMinesStar
@@ -365,7 +378,7 @@ class MarrymoreInn(Chest):
 
 # *** Sea
 
-class SeaStarChest(Chest):
+class SeaStarChest(StarAllowedChest):
     area = Area.Sea
     addresses = [0x14a458]
     item = items.SeaStar
@@ -389,7 +402,7 @@ class SeaSaveRoom3(Chest):
     item = items.RecoveryMushroom
 
 
-class SeaMaxMushroom(Chest):
+class SeaSaveRoom4(Chest):
     area = Area.Sea
     addresses = [0x14a42f]
     item = items.MaxMushroom
@@ -495,19 +508,19 @@ class LandsEndShyAway(Chest):
     item = items.RecoveryMushroom
 
 
-class LandsEndStarChest1(Chest):
+class LandsEndStarChest1(StarAllowedChest):
     area = Area.LandsEnd
     addresses = [0x14c069]
     item = items.LandsEndVolcanoStar
 
 
-class LandsEndStarChest2(Chest):
+class LandsEndStarChest2(StarAllowedChest):
     area = Area.LandsEnd
     addresses = [0x14c02c]
     item = items.LandsEndStar2
 
 
-class LandsEndStarChest3(Chest):
+class LandsEndStarChest3(StarAllowedChest):
     area = Area.LandsEnd
     addresses = [0x14c030]
     item = items.LandsEndStar3
@@ -629,11 +642,11 @@ class NimbusLandShop(NonCoinChest):
     item = items.FrogCoin
 
 
-class NimbusCastleBeforeBirdo1(Chest):
+class NimbusCastleBeforeBirdo1(StarAllowedChest):
     area = Area.NimbusLand
     addresses = [0x14a088]
     item = items.Flower
-    skippable = True
+    missable = True
 
 
 class NimbusCastleBeforeBirdo2(Chest):
@@ -660,13 +673,13 @@ class NimbusCastleSingleGoldBird(Chest):
     item = items.RecoveryMushroom
 
 
-class NimbusCastleStarRoom1(Chest):
+class NimbusCastleStarChest(StarAllowedChest):
     area = Area.NimbusLand
     addresses = [0x14a1a3]
     item = items.NimbusLandStar
 
 
-class NimbusCastleStarRoom2(Chest):
+class NimbusCastleStarAfterValentina(Chest):
     area = Area.NimbusLand
     addresses = [0x14a1af]
     item = items.Flower
@@ -698,7 +711,7 @@ class BarrelVolcanoBeforeStar2(Chest):
     item = items.Coins100
 
 
-class BarrelVolcanoStarRoom(Chest):
+class BarrelVolcanoStarRoom(StarAllowedChest):
     area = Area.BarrelVolcano
     addresses = [0x14d5ce]
     item = items.LandsEndVolcanoStar
@@ -978,7 +991,7 @@ def get_default_chests(world):
         BanditsWayStarChest(world),
         BanditsWayDogJump(world),
         BanditsWayCroco(world),
-        KeroSewersPandorite(world),
+        KeroSewersPandoriteRoom(world),
         KeroSewersStarChest(world),
         RoseWayPlatform(world),
         RoseTownStore1(world),
@@ -1018,7 +1031,7 @@ def get_default_chests(world):
         SeaSaveRoom1(world),
         SeaSaveRoom2(world),
         SeaSaveRoom3(world),
-        SeaMaxMushroom(world),
+        SeaSaveRoom4(world),
         SunkenShipRatStairs(world),
         SunkenShipShop(world),
         SunkenShipCoins1(world),
@@ -1061,8 +1074,8 @@ def get_default_chests(world):
         NimbusCastleOutOfBounds1(world),
         NimbusCastleOutOfBounds2(world),
         NimbusCastleSingleGoldBird(world),
-        NimbusCastleStarRoom1(world),
-        NimbusCastleStarRoom2(world),
+        NimbusCastleStarChest(world),
+        NimbusCastleStarAfterValentina(world),
         BarrelVolcanoSecret1(world),
         BarrelVolcanoSecret2(world),
         BarrelVolcanoBeforeStar1(world),

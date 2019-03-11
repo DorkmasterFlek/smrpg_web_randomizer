@@ -2,6 +2,7 @@
 
 from enum import Enum, auto
 
+from randomizer.data import items
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 
@@ -40,7 +41,7 @@ class ItemLocation:
     area = Area.MariosPad
     addresses = []
     item = None
-    skippable = False
+    missable = False
 
     def __init__(self, world):
         """
@@ -88,8 +89,7 @@ class ItemLocation:
         """
         return True
 
-    @staticmethod
-    def item_allowed(item):
+    def item_allowed(self, item):
         """
 
         Args:
@@ -99,7 +99,12 @@ class ItemLocation:
             bool: True if the given item is allowed to be placed in this spot, False otherwise.
 
         """
-        return True
+        # If this is a missable location, it cannot contain a key item.
+        if self.missable and not utils.isclass_or_instance(item, items.ChestReward) and item.is_key:
+            return False
+
+        # Normal locations can be anything except an invincibility star.
+        return not utils.isclass_or_instance(item, items.InvincibilityStar)
 
     @property
     def has_item(self):

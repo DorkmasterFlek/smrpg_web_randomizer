@@ -25,4 +25,5 @@ def randomize_all(world):
         # Empty chests.
         elif shuffle_mode is flags.ChestShuffleEmpty:
             for chest in world.chest_locations:
-                chest.item = items.YouMissed
+                if chest.item_allowed(items.YouMissed):
+                    chest.item = items.YouMissed
