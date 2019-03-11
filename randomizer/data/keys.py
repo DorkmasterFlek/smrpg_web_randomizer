@@ -1,85 +1,29 @@
 # Key item randomization data for open mode.
 
-from randomizer.logic import utils
-from randomizer.logic.patch import Patch
 from . import items
+from .locations import Area, ItemLocation
 
 
-class KeyItemLocation:
+class KeyItemLocation(ItemLocation):
     """Class for randomizing which key item is gotten in different locations."""
-    addresses = []
-    item = None
-
-    def __str__(self):
-        return '<{}: item {}>'.format(self.__class__.__name__, self.item.__name__)
-
-    def __repr__(self):
-        return str(self)
-
-    @property
-    def name(self):
-        return self.__class__.__name__
-
-    def get_patch(self):
-        """
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = Patch()
-
-        for addr in self.addresses:
-            patch.add_data(addr, utils.ByteField(self.item.index).as_bytes())
-
-        return patch
-
-    @staticmethod
-    def can_access(inventory):
-        """
-
-        Args:
-            inventory(Inventory): Current inventory of collected items.
-
-        Returns:
-            bool: True if this location is accessible with the given inventory, False otherwise.
-
-        """
-        return True
-
-    @property
-    def has_item(self):
-        return self.item is not None
-
-
-class Inventory(list):
-    """List subclass for item inventory during key item shuffle logic."""
-
-    def has_item(self, item):
-        """
-
-        Args:
-            item: Item class to check for.
-
-        Returns:
-            bool: True if inventory contains this item, False otherwise.
-
-        """
-        return any([i for i in self if i == item])
+    pass
 
 
 # ********************************** Actual location classes.
-class MariosPad(KeyItemLocation):
+class MariosBed(KeyItemLocation):
+    area = Area.MariosPad
     addresses = [0x1e620f]
     item = items.DryBonesFlag
 
 
 class Croco1(KeyItemLocation):
+    area = Area.BanditsWay
     addresses = [0x1e94e1]
     item = items.RareFrogCoin
 
 
-class MushroomKingdom(KeyItemLocation):
+class MushroomKingdomShop(KeyItemLocation):
+    area = Area.MushroomKingdom
     addresses = [0x1e6610]
     item = items.CricketPie
 
@@ -88,7 +32,7 @@ class MushroomKingdom(KeyItemLocation):
         """
 
         Args:
-            inventory (Inventory):
+            inventory (randomizer.logic.keys.Inventory):
 
         Returns:
             bool: True if this location is accessible with the given inventory, False otherwise.
@@ -98,22 +42,26 @@ class MushroomKingdom(KeyItemLocation):
         return inventory.has_item(items.RareFrogCoin)
 
 
-class RoseTown(KeyItemLocation):
+class RoseTownSign(KeyItemLocation):
+    area = Area.RoseTown
     addresses = [0x1e6226, 0x1e623d]
     item = items.GreaperFlag
 
 
 class CricketJamChest(KeyItemLocation):
+    area = Area.KeroSewers
     addresses = [0x1e625b, 0x1e6266]
     item = items.CricketJam
 
 
-class MelodyBay1(KeyItemLocation):
+class MelodyBaySong1(KeyItemLocation):
+    area = Area.TadpolePond
     addresses = [0x1e6280]
     item = items.AltoCard
 
 
-class MelodyBay2(KeyItemLocation):
+class MelodyBaySong2(KeyItemLocation):
+    area = Area.TadpolePond
     addresses = [0x1e6295]
     item = items.AltoCard
 
@@ -122,17 +70,18 @@ class MelodyBay2(KeyItemLocation):
         """
 
         Args:
-            inventory (Inventory):
+            inventory (randomizer.logic.keys.Inventory):
 
         Returns:
             bool: True if this location is accessible with the given inventory, False otherwise.
 
         """
         # Songs must be played in order, and Bambino Bomb is needed to access this location (beat minecart minigame).
-        return MelodyBay1.can_access(inventory) and inventory.has_item(items.BambinoBomb)
+        return MelodyBaySong1.can_access(inventory) and inventory.has_item(items.BambinoBomb)
 
 
-class MelodyBay3(KeyItemLocation):
+class MelodyBaySong3(KeyItemLocation):
+    area = Area.TadpolePond
     addresses = [0x1e62ac]
     item = items.AltoCard
 
@@ -141,57 +90,66 @@ class MelodyBay3(KeyItemLocation):
         """
 
         Args:
-            inventory (Inventory):
+            inventory (randomizer.logic.keys.Inventory):
 
         Returns:
             bool: True if this location is accessible with the given inventory, False otherwise.
 
         """
         # Songs must be played in order.
-        return MelodyBay2.can_access(inventory)
+        return MelodyBaySong2.can_access(inventory)
 
 
-class YosterIsle(KeyItemLocation):
+class YosterIsleGoal(KeyItemLocation):
+    area = Area.YosterIsle
     addresses = [0x1e62c5]
     item = items.BigBooFlag
 
 
 class Croco2(KeyItemLocation):
+    area = Area.MolevilleMines
     addresses = [0x1e95ae]
     item = items.BambinoBomb
 
 
 class BoosterTowerAncestors(KeyItemLocation):
+    area = Area.BoosterTower
     addresses = [0x1e62df]
     item = items.ElderKey
 
 
 class BoosterTowerCheckerboard(KeyItemLocation):
+    area = Area.BoosterTower
     addresses = [0x1e62fe]
     item = items.RoomKey
 
 
-class SeasideTown(KeyItemLocation):
+class SeasideTownKey(KeyItemLocation):
+    area = Area.SeasideTown
     addresses = [0x1e6312]
     item = items.ShedKey
 
 
-class MonstroTown(KeyItemLocation):
+class MonstroTownKey(KeyItemLocation):
+    area = Area.MonstroTown
     addresses = [0x1e6326]
     item = items.TempleKey
 
 
 class Seed(KeyItemLocation):
+    area = Area.BeanValley
     addresses = [0x1e633a]
     item = items.Seed
 
 
 class NimbusLandCastleKey(KeyItemLocation):
+    area = Area.NimbusLand
     addresses = [0x1e635a]
     item = items.CastleKey1
 
 
 class Birdo(KeyItemLocation):
+    area = Area.NimbusLand
     addresses = [0x1e6378]
     item = items.CastleKey2
 
@@ -200,7 +158,7 @@ class Birdo(KeyItemLocation):
         """
 
         Args:
-            inventory (Inventory):
+            inventory (randomizer.logic.keys.Inventory):
 
         Returns:
             bool: True if this location is accessible with the given inventory, False otherwise.
@@ -211,6 +169,7 @@ class Birdo(KeyItemLocation):
 
 
 class Fertilizer(KeyItemLocation):
+    area = Area.NimbusLand
     addresses = [0x1e63a1]
     item = items.Fertilizer
 
@@ -219,7 +178,7 @@ class Fertilizer(KeyItemLocation):
         """
 
         Args:
-            inventory (Inventory):
+            inventory (randomizer.logic.keys.Inventory):
 
         Returns:
             bool: True if this location is accessible with the given inventory, False otherwise.
@@ -231,30 +190,33 @@ class Fertilizer(KeyItemLocation):
 
 # ********************* Default lists for the world.
 
-def get_default_key_item_locations():
+def get_default_key_item_locations(world):
     """Gets default key item locations.
 
+    Args:
+        world (randomizer.logic.main.GameWorld):
+
     Returns:
-        list[KeyItemLocation]: List of default key item locations.
+        list[ItemLocation]: List of default key item locations.
 
     """
     return [
-        MariosPad(),
-        Croco1(),
-        MushroomKingdom(),
-        RoseTown(),
-        CricketJamChest(),
-        MelodyBay1(),
-        MelodyBay2(),
-        MelodyBay3(),
-        YosterIsle(),
-        Croco2(),
-        BoosterTowerAncestors(),
-        BoosterTowerCheckerboard(),
-        SeasideTown(),
-        MonstroTown(),
-        Seed(),
-        NimbusLandCastleKey(),
-        Birdo(),
-        Fertilizer(),
+        MariosBed(world),
+        Croco1(world),
+        MushroomKingdomShop(world),
+        RoseTownSign(world),
+        CricketJamChest(world),
+        MelodyBaySong1(world),
+        MelodyBaySong2(world),
+        MelodyBaySong3(world),
+        YosterIsleGoal(world),
+        Croco2(world),
+        BoosterTowerAncestors(world),
+        BoosterTowerCheckerboard(world),
+        SeasideTownKey(world),
+        MonstroTownKey(world),
+        Seed(world),
+        NimbusLandCastleKey(world),
+        Birdo(world),
+        Fertilizer(world),
     ]

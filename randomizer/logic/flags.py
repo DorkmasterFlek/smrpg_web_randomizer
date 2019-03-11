@@ -10,6 +10,7 @@ class Flag:
     """Class representing a flag with its description, and possible values/choices/options."""
     name = ''
     description = ''
+    inverse_description = ''
     value = ''
     hard = False
     modes = ['linear', 'open']
@@ -29,7 +30,7 @@ class Flag:
             return mark_safe(markdown(cls.inverse_description, safe_mode='escape'))
         else:
             return mark_safe(markdown("(" + cls.name + ")", safe_mode='escape'))
-        
+
     @classmethod
     def available_in_mode(cls, mode):
         """
@@ -48,7 +49,7 @@ class Flag:
 
 class SevenStarHunt(Flag):
     name = 'Shuffle seven stars'
-    description = ("You must find seven Star Pieces instead of six to open the final area.")
+    description = "You must find seven Star Pieces instead of six to open the final area."
     inverse_description = "(You do not need to find a seventh Star Piece to open the final area.)"
     value = 'R7'
     modes = ['open']
@@ -58,7 +59,8 @@ class BowsersKeepOpen(Flag):
     name = "Include Bowser's Keep locations"
     description = ("Bowser's Keep is open from the start and the boss locations inside the keep may have Star Pieces.  "
                    "The Factory will be opened once you find all Star Pieces.")
-    inverse_description = "(Bowser's Keep will not contain any Star Pieces, and will be opened when you find all your Star Pieces.)"
+    inverse_description = ("(Bowser's Keep will not contain any Star Pieces, and will be opened when you find all your "
+                           "Star Pieces.)")
     value = 'Rk'
     modes = ['open']
 
@@ -74,7 +76,8 @@ class CulexStarShuffle(Flag):
 
 class StarPieceShuffle(Flag):
     name = 'Randomize star pieces'
-    description = ("Assigns six star pieces to random boss locations, excluding Culex's Lair, Bowser's Keep, and the Factory. Collect all the star pieces to open Bowser's Keep and progress to the end of the game.")
+    description = ("Assigns six star pieces to random boss locations, excluding Culex's Lair, Bowser's Keep, and the "
+                   "Factory. Collect all the star pieces to open Bowser's Keep and progress to the end of the game.")
     inverse_description = "(The star pieces will stay in their original locations.)"
     value = 'R'
     modes = ['open']
@@ -115,7 +118,8 @@ class KeyItemShuffle(Flag):
 class CharacterStats(Flag):
     name = 'Randomize character stats'
     description = "Stats for each character will be randomized."
-    inverse_description = "(The characters will retain their original attack, defense, magic attack, magic defense, and speed stats.)"
+    inverse_description = ("(The characters will retain their original attack, defense, magic attack, magic defense, "
+                           "and speed stats.)")
     value = 'Cs'
 
 
@@ -167,7 +171,8 @@ class ChooseStartingCharacter(Flag):
 class EnemyStats(Flag):
     name = 'Randomize enemy stats'
     description = "Enemy stats and immunities/weaknesses will be randomized."
-    inverse_description = "(The enemies will retain their original attack, defense, m.attack, m.defense, speed, weaknesses, and immunities.)"
+    inverse_description = ("(The enemies will retain their original attack, defense, m.attack, m.defense, speed, "
+                           "weaknesses, and immunities.)")
     value = 'Es'
 
 
@@ -188,7 +193,8 @@ class EnemyFormations(Flag):
 class EnemyAttacks(Flag):
     name = 'Randomize enemy attacks'
     description = "Enemy spells and attacks will have their power and potential status effects randomized."
-    inverse_description = "(Base power and status casts of enemy spells and attacks are unchanged from the original game.)"
+    inverse_description = ("(Base power and status casts of enemy spells and attacks are unchanged from the original "
+                           "game.)")
     value = 'Ea'
 
 
@@ -236,7 +242,8 @@ class BossShuffleMusic(Flag):
 
 class BossShuffle(Flag):
     name = 'Randomize bosses'
-    description = ("The positions of bosses are shuffled. By default, when a boss is moved, its stats are scaled to match its new location.")
+    description = ("The positions of bosses are shuffled. By default, when a boss is moved, its stats are scaled to "
+                   "match its new location.")
     inverse_description = "(Bosses will stay in their original locations.)"
     modes = ['open']
     value = 'B'
@@ -247,25 +254,56 @@ class BossShuffle(Flag):
     ]
 
 
-# ******** Item shuffle flags
+# ******** Chest shuffle flags
+
+class ChestShuffle1(Flag):
+    name = 'Basic shuffle'
+    description = 'Chest contents are the same as the original game, but shuffled within the same area.'
+    value = 'T1'
+
+
+# TODO: More chest shuffle flags here...
+
+class ChestShuffleEmpty(Flag):
+    name = 'Empty'
+    value = 'Tx'
+    hard = True
+
+
+class ChestShuffleFlag(Flag):
+    name = 'Randomize untrapped chest contents'
+    inverse_description = "(Treasure chest contents remain unchanged from the original game.)"
+    modes = ['open']
+    value = '@T'
+    choices = [
+        ChestShuffle1,
+        ChestShuffleEmpty,
+    ]
+
+
+# ******** Shop shuffle flags
 
 class ShopShuffleVanilla(Flag):
     name = "Vanilla shop inventory"
-    description = "Shops will only contain items that were available in the original game's shops, shuffled amongst each other."
+    description = ("Shops will only contain items that were available in the original game's shops, shuffled amongst "
+                   "each other.")
     inverse_description = "(Items that were not purchasable in the original game may still appear in shops.)"
     value = 'Sv'
+
 
 class ShopShuffleBalanced(Flag):
     name = "Biased shop inventory"
     description = "Shops that are harder to access will contain better items."
     inverse_description = "(The best items are not necessarily restricted to harder-to-access shops.)"
     value = 'Sb'
-    
+
+
 class ShopTierX(Flag):
     name = "Empty shops"
     description = "All shops contain only the Goodie Bag."
     value = 'Sx'
     hard = True
+
 
 class ShopTier1(Flag):
     name = "Restrict to worst items"
@@ -273,26 +311,30 @@ class ShopTier1(Flag):
     value = 'S1'
     hard = True
 
+
 class ShopTier2(Flag):
     name = "Restrict to weak items"
     description = "Only weak equipment and some support/healing items will appear in shops."
     value = 'S2'
-    
+
+
 class ShopTier3(Flag):
     name = "Exclude best items"
     description = "Out of all items that could appear in shops, the very best items will be left out."
     value = 'S3'
-        
+
+
 class ShopTier4(Flag):
     name = "Include all items"
     description = "Any non-key item may appear in a shop."
     value = 'S4'
-    
+
+
 class ShopShuffle(Flag):
     name = 'Randomize shops'
     description = "Shop contents and prices will be shuffled"
     inverse_description = "(Shop contents and item prices remain unchanged from the original game.)"
-    value = 'S'
+    value = '@S'
     choices = [
         ShopTier4,
         ShopTier3,
@@ -311,25 +353,32 @@ class FreeShops(Flag):
     description = "All shop items will cost 1 coin. You will start with 9999 coins and 99 frog coins."
     inverse_description = "(Shops are not free, and you start with 0 coins.)"
     value = '$'
-    
+
+
+# ******** Item shuffle flags
+
 class EquipmentStats(Flag):
     name = 'Randomize equipment stats'
     description = "Attack, defense, magic attack, magic defense, and speed granted by equipment will be randomized"
-    inverse_description = "(Attack, defense, magic attack, magic defense, and speed granted by equipment remain unchanged from the original game.)"
+    inverse_description = ("(Attack, defense, magic attack, magic defense, and speed granted by equipment remain "
+                           "unchanged from the original game.)")
     value = 'Qs'
+
 
 class EquipmentBuffs(Flag):
     name = 'Randomize equipment buffs'
     description = ("Special buffs granted by equipment will be randomized (attack/defense boost, "
                    "elemental/status immunities).  See Resources page for an explanation of these.")
-    inverse_description = "(Immunities and boost multipliers granted by equipment remain unchanged from the original game.)"
+    inverse_description = ("(Immunities and boost multipliers granted by equipment remain unchanged from the original "
+                           "game.)")
     value = 'Qb'
 
 
 class EquipmentCharacters(Flag):
     name = 'Randomize allowed characters'
     description = "Each equip's list of characters that can wear it will be randomized."
-    inverse_description = "(Each equip's list of characters that can wear it will remain unchanged from the original game.)"
+    inverse_description = ("(Each equip's list of characters that can wear it will remain unchanged from the original "
+                           "game.)")
     value = 'Qa'
 
 
@@ -338,7 +387,9 @@ class EquipmentNoSafetyChecks(Flag):
     description = ("Normally certain namesake items retain their protections: **Fearless Pin**, **Antidote Pin**, "
                    "**Trueform Pin**, and **Wakeup Pin**.  In addition, at least four equipment will have instant KO "
                    "protection.  This flag removes those checks.")
-    inverse_description = "(Namesake properties such as **Fearless Pin**, **Antidote Pin**, **Trueform Pin**, and **Wakeup Pin** remain intact, and at least four pieces of equipment will have instant KO protection.)"
+    inverse_description = ("(Namesake properties such as **Fearless Pin**, **Antidote Pin**, **Trueform Pin**, and "
+                           "**Wakeup Pin** remain intact, and at least four pieces of equipment will have instant "
+                           "KO protection.)")
     value = 'Q!'
     hard = True
 
@@ -359,7 +410,8 @@ class EquipmentShuffle(Flag):
 class ExperienceSharing(Flag):
     name = 'XP sharing'
     description = 'Earned experience points are not divided among your party members; each receives the full amount.'
-    inverse_description = "(Earned experience points from a battle are divided by 3, and granted to each recruited character.)"
+    inverse_description = ("(Earned experience points from a battle are divided by 3, and granted to each recruited "
+                           "character.)")
     value = 'Xs'
 
 
@@ -424,7 +476,8 @@ class StarExpChallenge(Flag):
 class NoGenoWhirlExor(Flag):
     name = 'No Geno Whirl on Exor'
     description = 'Fixes the Exor bug where he is vulnerable to Geno Whirl when the eyes are stunned.'
-    inverse_description = '(You may used a Timed Hit Geno Whirl to instantly KO Exor when its eye protection is removed.)'
+    inverse_description = ('(You may used a Timed Hit Geno Whirl to instantly KO Exor when its eye protection is '
+                           'removed.)')
     value = 'Ge'
     hard = True
 
@@ -435,17 +488,22 @@ class FixMagikoopa(Flag):
     inverse_description = '(Magikoopa will remain disabled for the remainder of the fight if King Bomb uses Big Bang.)'
     value = 'Gm'
 
+
 class NoMackSkip(Flag):
     name = "No Mack Skip"
     description = 'You will not be able to skip the boss in Mushroom Kingdom.'
     inverse_description = '(You may attempt to skip the boss in Mushroom Kingdom.)'
     value = 'Gs'
 
+
 class NoOHKO(Flag):
     name = "No instant KOs on boss allies"
-    description = 'You will not be able to use Geno Whirl or Pure Water to OHKO any allies to a boss (Mallow Clone, Mad Mallet, Fautso, etc).'
-    inverse_description = '(Some boss allies may be susceptible to Geno Whirl, and Belome 2\'s clones will still be susceptible to Pure Water.)'
+    description = ('You will not be able to use Geno Whirl or Pure Water to OHKO any allies to a boss (Mallow Clone, '
+                   'Mad Mallet, Fautso, etc).')
+    inverse_description = ('(Some boss allies may be susceptible to Geno Whirl, and Belome 2\'s clones will still be '
+                           'susceptible to Pure Water.)')
     value = 'Gk'
+
 
 class Glitches(Flag):
     name = 'Boss Glitch & Exploit Removals'
@@ -454,7 +512,7 @@ class Glitches(Flag):
     options = [
         FixMagikoopa,
         NoOHKO,
-        NoGenoWhirlExor
+        NoGenoWhirlExor,
     ]
 
 
@@ -488,6 +546,13 @@ class EnemiesCategory(FlagCategory):
     ]
 
 
+class ChestCategory(FlagCategory):
+    name = 'Treasures'
+    flags = [
+        ChestShuffleFlag,
+    ]
+
+
 class ShopsItemsCategory(FlagCategory):
     name = 'Shops'
     flags = [
@@ -501,6 +566,7 @@ class EquipsCategory(FlagCategory):
     flags = [
         EquipmentShuffle,
     ]
+
 
 class BattlesCategory(FlagCategory):
     name = 'Battles'
@@ -534,25 +600,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Csj Edf B S Qa Xs'
+    flags = 'K R Csj Edf B S4b Qa Xs'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf B S Qsa Xs'
+    flags = 'Ks R7 Cspjl Edf B S3b Qsa Xs'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc S Qsba Xs P1 Gm'
+    flags = 'Ks R7k Cspjl Edfsa Bc S2vb Qsba Xs P1 Gm'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
-    description = 'A highly chaotic shuffle with everything possible enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S Qsba! Xsx P2 Gme'
+    description = 'A highly chaotic shuffle with everything difficult enabled and helpful glitches disabled.'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S1vb Qsba! Xsx P2 Gme'
 
 
 # ************************************** Default lists for the site.
@@ -561,8 +627,9 @@ class ExpertPreset(Preset):
 CATEGORIES = (
     KeyItemsCategory,
     CharactersCategory,
-    EnemiesCategory,
+    ChestCategory,
     ShopsItemsCategory,
+    EnemiesCategory,
     EquipsCategory,
     BattlesCategory,
     ChallengesCategory,

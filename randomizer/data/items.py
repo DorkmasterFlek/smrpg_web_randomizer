@@ -1,11 +1,18 @@
 # Data module for item/shop data.
 
+import enum
 import random
 import math
 
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 from .characters import Mario, Mallow, Geno, Bowser, Peach
+
+
+class ItemShuffleType(enum.Enum):
+    """Enumeration for key item types for shuffling."""
+    Required = enum.auto()
+    Extra = enum.auto()
 
 
 class Item:
@@ -50,7 +57,7 @@ class Item:
     frog_coin_item = False
     rare = False
     basic = False
-    shuffle_type = utils.ItemShuffleType.Extra
+    shuffle_type = ItemShuffleType.Extra
     rank_value = 0
     rank_order = 0
     rank_order_reverse = 0
@@ -166,9 +173,6 @@ class Item:
 
         :rtype: float
         """
-        if self._rank is not None:
-            return self._rank
-
         if self.price == 0:
             if self.is_key:
                 self._rank = -1
@@ -1858,7 +1862,7 @@ class Elixir(Item):
     consumable = True
     price = 48
     vanilla_shop = True
-    hard_tier = 2 
+    hard_tier = 2
 
 
 class Megalixir(Item):
@@ -1936,7 +1940,7 @@ class RareFrogCoin(Item):
     order = 144
     item_type = 3
     rare = True
-    shuffle_type = utils.ItemShuffleType.Required
+    shuffle_type = ItemShuffleType.Required
 
 
 class Wallet(Item):
@@ -1971,7 +1975,7 @@ class CastleKey1(Item):
     order = 135
     item_type = 3
     rare = True
-    shuffle_type = utils.ItemShuffleType.Required
+    shuffle_type = ItemShuffleType.Required
 
 
 class CastleKey2(Item):
@@ -1979,7 +1983,7 @@ class CastleKey2(Item):
     order = 136
     item_type = 3
     rare = True
-    shuffle_type = utils.ItemShuffleType.Required
+    shuffle_type = ItemShuffleType.Required
 
 
 class BambinoBomb(Item):
@@ -1987,7 +1991,7 @@ class BambinoBomb(Item):
     order = 136
     item_type = 3
     rare = True
-    shuffle_type = utils.ItemShuffleType.Required
+    shuffle_type = ItemShuffleType.Required
 
 
 class SheepAttack(Item):
@@ -2259,6 +2263,110 @@ class StarEgg(Item):
     hard_tier = 4
 
 
+# ****************************** Chest content/rewards data classes
+
+class ChestReward(Item):
+    """Base class for chest-only rewards."""
+    pass
+
+
+# *** Coins
+
+class Coins(ChestReward):
+    """Base class for coins."""
+    pass
+
+
+class Coins5(Coins):
+    index = 192
+
+
+class Coins8(Coins):
+    index = 193
+
+
+class Coins10(Coins):
+    index = 194
+
+
+class Coins150(Coins):
+    index = 195
+
+
+class Coins100(Coins):
+    index = 196
+
+
+class Coins50(Coins):
+    index = 197
+
+
+class CoinsDoubleBig(Coins):
+    index = 209
+
+
+# *** Non-coin items (flower, frog coin, mushroom, miss)
+
+class NonCoins(ChestReward):
+    """Base class for non-coin bonuses (frog coin, flower, mushroom)."""
+    pass
+
+
+class Flower(NonCoins):
+    index = 198
+
+
+class RecoveryMushroom(NonCoins):
+    index = 199
+
+
+class FrogCoin(NonCoins):
+    index = 200
+
+
+class YouMissed(NonCoins):
+    index = 210
+
+
+# *** Invincibility stars
+
+class InvincibilityStar(ChestReward):
+    """Base class for invincibility stars."""
+    pass
+
+
+class BanditsWayStar(InvincibilityStar):
+    index = 201
+
+
+class KeroSewersStar(InvincibilityStar):
+    index = 202
+
+
+class MolevilleMinesStar(InvincibilityStar):
+    index = 203
+
+
+class SeaStar(InvincibilityStar):
+    index = 204
+
+
+class LandsEndVolcanoStar(InvincibilityStar):
+    index = 205
+
+
+class NimbusLandStar(InvincibilityStar):
+    index = 206
+
+
+class LandsEndStar2(InvincibilityStar):
+    index = 207
+
+
+class LandsEndStar3(InvincibilityStar):
+    index = 208
+
+
 # ************************** Shop data classes
 
 class Shop:
@@ -2438,8 +2546,9 @@ class MarrymoreShop(Shop):
     index = 5
     items = [SuperHammer, HandGun, WhompGlove, ChompShell, HappyShirt, HappyPants, HappyCape, HappyShell, BtubRing,
              MidMushroom, MapleSyrup]
+
     def is_item_allowed(self, item):
-        return item.consumable or (item.is_equipment)
+        return item.consumable or item.is_equipment
 
 
 class FrogCoinEmporiumShop(Shop):
@@ -2452,6 +2561,7 @@ class SeaShop(Shop):
     index = 7
     items = [HurlyGloves, SuperHammer, HandGun, WhompGlove, SailorShirt, SailorPants, SailorCape, NauticaDress,
              MidMushroom, MapleSyrup, PickMeUp, AbleJuice, FreshenUp]
+
     def is_item_allowed(self, item):
         return item.consumable or (item.is_armor or item.is_weapon)
 
@@ -2578,6 +2688,7 @@ class SeasideItemShop(Shop):
 class MonstroTownShop(Shop):
     index = 17
     items = [SpikedLink, CourageShell, MidMushroom, MapleSyrup, PickMeUp, AbleJuice, FreshenUp]
+
     def is_item_allowed(self, item):
         return item.consumable or (item.is_armor or item.is_weapon)
 
@@ -2637,6 +2748,7 @@ class NimbusLandItemWeaponShop(Shop):
     index = 21
     items = [MidMushroom, MapleSyrup, PickMeUp, AbleJuice, FreshenUp, MegaGlove, WarFan, HandCannon, StickyGlove,
              FuzzyShirt, FuzzyPants, FuzzyCape, FuzzyDress]
+
     def is_item_allowed(self, item):
         return item.consumable or (item.is_armor or item.is_weapon)
 
@@ -2644,6 +2756,7 @@ class NimbusLandItemWeaponShop(Shop):
 class CrocoShop1(Shop):
     index = 22
     items = [MidMushroom, MapleSyrup, PickMeUp, FreshenUp, FireShirt, FirePants, FireCape, FireShell, FireDress]
+
     def is_item_allowed(self, item):
         return item.consumable or item.is_armor
 
@@ -2651,6 +2764,7 @@ class CrocoShop1(Shop):
 class CrocoShop2(Shop):
     index = 23
     items = [MidMushroom, MapleSyrup, PickMeUp, FreshenUp, HeroShirt, PrincePants, StarCape, HealShell, RoyalDress]
+
     def is_item_allowed(self, item):
         return item.consumable or item.is_armor
 

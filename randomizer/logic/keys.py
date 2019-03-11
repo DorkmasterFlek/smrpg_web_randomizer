@@ -2,8 +2,25 @@
 
 import random
 
+import randomizer.data.items
 from randomizer.data import keys
-from . import flags, utils
+from . import flags
+
+
+class Inventory(list):
+    """List subclass for item inventory during key item shuffle logic."""
+
+    def has_item(self, item):
+        """
+
+        Args:
+            item: Item class to check for.
+
+        Returns:
+            bool: True if inventory contains this item, False otherwise.
+
+        """
+        return any([i for i in self if i == item])
 
 
 def _item_location_filter(world, location):
@@ -33,9 +50,9 @@ def _place_items(world, items, locations, base_inventory=None):
 
     """
     if base_inventory is None:
-        base_inventory = keys.Inventory()
+        base_inventory = Inventory()
 
-    remaining_fill_items = keys.Inventory(items)
+    remaining_fill_items = Inventory(items)
 
     if len(remaining_fill_items) > len([l for l in locations if not l.has_item]):
         raise ValueError("Trying to fill more items than available locations")
@@ -65,7 +82,7 @@ def _collect_items(world, collected=None):
         Inventory: Collected items.
 
     """
-    my_items = keys.Inventory()
+    my_items = Inventory()
     if collected is not None:
         my_items.extend(collected)
 
@@ -75,7 +92,7 @@ def _collect_items(world, collected=None):
     while True:
         search_locations = [l for l in available_locations if l.can_access(my_items)]
         available_locations = [l for l in available_locations if l not in search_locations]
-        found_items = keys.Inventory([l.item for l in search_locations])
+        found_items = Inventory([l.item for l in search_locations])
         my_items.extend(found_items)
         if len(found_items) == 0:
             break
@@ -95,10 +112,10 @@ def randomize_all(world):
         # Shuffle key item locations.
         if world.settings.is_flag_enabled(flags.KeyItemShuffle):
             locations_to_fill = [l for l in world.key_locations if _item_location_filter(world, l)]
-            required_items = keys.Inventory([l.item for l in locations_to_fill if
-                                             l.item.shuffle_type == utils.ItemShuffleType.Required])
-            extra_items = keys.Inventory([l.item for l in locations_to_fill if
-                                          l.item.shuffle_type == utils.ItemShuffleType.Extra])
+            required_items = Inventory([l.item for l in locations_to_fill if
+                                        l.item.shuffle_type == randomizer.data.items.ItemShuffleType.Required])
+            extra_items = Inventory([l.item for l in locations_to_fill if
+                                     l.item.shuffle_type == randomizer.data.items.ItemShuffleType.Extra])
 
             # Sanity check to make sure we're filling the right number of spots.
             if len(locations_to_fill) != len(required_items) + len(extra_items):
@@ -122,7 +139,7 @@ def randomize_all(world):
             _place_items(world, extra_items, locations_to_fill)
 
             # Sanity check to make sure we can collect all the items.
-            expected_items = keys.Inventory([l.item for l in world.key_locations])
+            expected_items = Inventory([l.item for l in world.key_locations])
             collected_items = _collect_items(world)
             if len(collected_items) != len(expected_items):
                 raise ValueError("Can't get all collectable items in world: {}".format(world.key_locations))

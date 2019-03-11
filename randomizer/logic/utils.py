@@ -1,16 +1,9 @@
 # Common utilities for outputting binary data for the patches, and shuffling stat values.
 
-import enum
 import random
 
 # Amount to boost very small values when shuffling to give a bit more range for very small values.
 SMALL_BOOST_AMOUNT = 2.0
-
-
-class ItemShuffleType(enum.Enum):
-    """Enumeration for key item types for shuffling."""
-    Required = enum.auto()
-    Extra = enum.auto()
 
 
 class BitMapSet(set):

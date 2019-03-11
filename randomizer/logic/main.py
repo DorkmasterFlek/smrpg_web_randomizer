@@ -7,6 +7,7 @@ import re
 from randomizer import data
 from . import bosses
 from . import characters
+from . import chests
 from . import enemies
 from . import flags
 from . import items
@@ -17,7 +18,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0beta13'
+VERSION = '8.0beta14'
 
 
 class Settings:
@@ -186,8 +187,9 @@ class GameWorld:
         self.enemy_formations_dict = dict((f.index, f) for f in self.enemy_formations)
         self.formation_packs_dict = dict((p.index, p) for p in self.formation_packs)
 
-        # Get key item data.
-        self.key_locations = data.keys.get_default_key_item_locations()
+        # Get item location data.
+        self.key_locations = data.keys.get_default_key_item_locations(self)
+        self.chest_locations = data.chests.get_default_chests(self)
 
         # Get boss location data.
         self.boss_locations = data.bosses.get_default_boss_locations(self)
@@ -257,6 +259,7 @@ class GameWorld:
         enemies.randomize_all(self)
         bosses.randomize_all(self)
         keys.randomize_all(self)
+        chests.randomize_all(self)
 
         # Rebuild hash after randomization.
         self._rebuild_hash()
@@ -346,10 +349,13 @@ class GameWorld:
 
         # Open mode specific data.
         if self.open_mode:
-            # Key item locations.
+            # Item locations.
             for location in self.key_locations:
                 # FIXME
                 # print(">>>>>>>> {}".format(location))
+                patch += location.get_patch()
+
+            for location in self.chest_locations:
                 patch += location.get_patch()
 
             # Boss locations.
