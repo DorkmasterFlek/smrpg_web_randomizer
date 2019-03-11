@@ -296,6 +296,8 @@
                 }
                 updateSeedDetailsFromPatch(patch);
                 rom.parseInfoFromPatch(patch);
+                // Scroll back to the top after generation is done.
+                $('html').animate({scrollTop: 0}, 500);
                 resolve(rom);
             });
         }
