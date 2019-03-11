@@ -266,6 +266,7 @@ class ChestShuffle1(Flag):
 
 class ChestShuffleEmpty(Flag):
     name = 'Empty'
+    description = 'Chests are empty.'
     value = 'Tx'
     hard = True
 
