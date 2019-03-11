@@ -64,6 +64,8 @@ class Enemy:
     ratio_evade = 1.0
     ratio_magic_evade = 1.0
     name_override = ''
+    
+    death_immune_override = False
 
     def __init__(self, world):
         """
@@ -4242,7 +4244,21 @@ class MarioClone(Enemy):
     ratio_speed = 5.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x3944CB, bytes([0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB]))
+
+        return patch
 
 class PeachClone(Enemy):
     index = 154
@@ -4276,7 +4292,21 @@ class PeachClone(Enemy):
     ratio_speed = 5.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x394537, bytes([0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB]))
+
+        return patch
 
 class BowserClone(Enemy):
     index = 155
@@ -4312,7 +4342,21 @@ class BowserClone(Enemy):
     ratio_speed = 3.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x394595, bytes([0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB]))
+
+        return patch
 
 class GenoClone(Enemy):
     index = 156
@@ -4349,6 +4393,21 @@ class GenoClone(Enemy):
     ratio_speed = 7.5
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x3945FB, bytes([0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB]))
+
+        return patch
 
 
 class MallowClone(Enemy):
@@ -4385,7 +4444,21 @@ class MallowClone(Enemy):
     ratio_speed = 3.5
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
+    
+    def get_patch(self):
+        """Extra patch data for this enemy.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        # Check if No OHKO flag is enabled.
+        if self.world.settings.is_flag_enabled(flags.NoOHKO):
+            patch.add_data(0x394663, bytes([0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB, 0xE0, 0xFB, 0xFB, 0xFB]))
+
+        return patch
 
 class Shyster(Enemy):
     index = 158

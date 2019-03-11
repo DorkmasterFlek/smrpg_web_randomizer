@@ -123,7 +123,7 @@ class CharacterJoinOrder(Flag):
     name = 'Randomize character join order'
     description = ("Characters join your party at the same spots, but the character you get there is randomized.  The "
                    "character that joins the party will have their stats and starting level scaled for that spot.")
-    inverse_description = "(You will start with Mario, Mallow, and Bowser, and must recruit Geno and Peach.)"
+    inverse_description = "(You will start with Mario, Mallow, and Geno, and must recruit Bowser and Peach.)"
     value = 'Cj'
 
 
@@ -435,14 +435,26 @@ class FixMagikoopa(Flag):
     inverse_description = '(Magikoopa will remain disabled for the remainder of the fight if King Bomb uses Big Bang.)'
     value = 'Gm'
 
+class NoMackSkip(Flag):
+    name = "No Mack Skip"
+    description = 'You will not be able to skip the boss in Mushroom Kingdom.'
+    inverse_description = '(You may attempt to skip the boss in Mushroom Kingdom.)'
+    value = 'Gs'
+
+class NoOHKO(Flag):
+    name = "No instant KOs on boss allies"
+    description = 'You will not be able to use Geno Whirl or Pure Water to OHKO any allies to a boss (Mallow Clone, Mad Mallet, Fautso, etc).'
+    inverse_description = '(Some boss allies may be susceptible to Geno Whirl, and Belome 2\'s clones will still be susceptible to Pure Water.)'
+    value = 'Gk'
 
 class Glitches(Flag):
-    name = 'Glitches'
+    name = 'Boss Glitch & Exploit Removals'
     modes = ['open']
     value = '@G'
     options = [
         FixMagikoopa,
-        NoGenoWhirlExor,
+        NoOHKO,
+        NoGenoWhirlExor
     ]
 
 

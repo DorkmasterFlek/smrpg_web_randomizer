@@ -449,7 +449,6 @@ def randomize_all(world):
                         assignments[shop.index].append(chosen_item)
                         done_already.add(chosen_item)
                 remaining = [i for i in unique_items if i not in done_already]
-                #print(remaining)
                             
             #Randomly assign anything to Yaridovich shop
             for shop in world.shops:
@@ -536,7 +535,6 @@ def randomize_all(world):
             # Sort the list of items by the ordering rank for display, and assign to the shop.
             for shop in world.shops:
                 shop.items = sorted(assignments[shop.index], key=lambda i: i.order)
-                print(shop)
             
     else:
         for shop in world.shops:
