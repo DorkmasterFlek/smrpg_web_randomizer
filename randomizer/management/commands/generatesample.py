@@ -124,7 +124,7 @@ class Command(BaseCommand):
         # Write key item shuffle stats.
         with open(key_items_file, 'w') as f:
             writer = csv.writer(f)
-            locations = get_default_key_item_locations()
+            locations = get_default_key_item_locations(GameWorld(0, Settings('open')))
             header = ['Item'] + [l.name for l in locations]
             writer.writerow(header)
 
