@@ -1,3 +1,4 @@
+<div class="row">
 <div class="col-md-6">
     <div>Mode: <span id="info-mode"></span></div>
     <div id="info-debug-mode" class="bg-info text-white">Debug Test Mode: <span>Yes</span></div>
@@ -9,9 +10,65 @@
     {% if show_permalink %}
         <div class="text-info">Permalink: <a id="info-permalink" href="" target="_blank">Link</a></div>
     {% endif %}
+    
+</div>
+<div class="col-md-6">
+{% for category in categories %}
+    {% for flag in category.flags %}
+                <div class="inline-flag-description flag-{{ flag.value }}" >
+                    <div class="display-cell">
+                        <div>{% if flag.value|slice:":1" == "@" %}
+                            {{ flag.value|last }}
+                        {% else %}
+                            {{ flag.value }}
+                        {% endif %}</div>
+                    </div>
+                    <div class="display-cell">
+                        {{ flag.description_as_markdown }}
+                    </div>
+                </div>
+                <div class="disabled-inline-flag-description flag-{{ flag.value }}">
+                    <div class="display-cell">
+                        <div>{% if flag.value|slice:":1" == "@" %}
+                            {{ flag.value|last }}
+                        {% else %}
+                            {{ flag.value }}
+                        {% endif %}</div>
+                    </div>
+                    <div class="display-cell">
+                        {{ flag.inverse_description_as_markdown }}
+                    </div>
+                </div>
+
+                {# Show flag choices, if any. #}
+                {% for choice in flag.choices %}
+                    <div class="inline-flag-description sub-flag choice flag-{{ choice.value }}" ><div class="display-cell"><div>{{ choice.value }}</div></div> <div class="display-cell">{{ choice.description_as_markdown }}</div></div>
+                {% endfor %}
+
+                {# Show other flag options, if any. #}
+                {% for option in flag.options %}
+                    <div class="inline-flag-description sub-flag flag-{{ option.value }}" ><div class="display-cell"><div>{{ option.value }}</div></div> <div class="display-cell">{{ option.description_as_markdown }}</div></div>
+                    <div class="disabled-inline-flag-description sub-flag flag-{{ option.value }}" ><div class="display-cell"><div>{{ option.value }}</div></div> <div class="display-cell">{{ option.inverse_description_as_markdown }}</div></div>
+                {% endfor %}
+    {% endfor %}
+{% endfor %}
+</div>
 </div>
 
 <script>
+jQuery.expr[':'].regex = function(elem, index, match) {
+    var matchParams = match[3].split(','),
+        validLabels = /^(data|css):/,
+        attr = {
+            method: matchParams[0].match(validLabels) ? 
+                        matchParams[0].split(':')[0] : 'attr',
+            property: matchParams.shift().replace(validLabels,'')
+        },
+        regexFlags = 'ig',
+        regex = new RegExp(matchParams.join('').replace(/^\s+|\s+$/g,''), regexFlags);
+    return regex.test(jQuery(elem)[attr.method](attr.property));
+}
+
     function updateSeedDetailsFromPatch(patch) {
         let seed = $('#info-seed');
         seed.text(patch.seed);
@@ -49,5 +106,46 @@
 
         $("#generate-container").hide();
         $("#seed-details").show();
+        
+        
+        
+        //show descriptions
+        var flag_sections = patch.flag_string.split(" ");
+        
+        var all_applied_flags = [];
+        flag_sections.forEach(function(section) {
+            parent_flag = section.charAt(0);
+            all_applied_flags.push(parent_flag);
+            for (i = 1; i < section.length; i++) {
+                all_applied_flags.push(parent_flag + section.charAt(i));
+            }
+        });
+            function toArray(obj) {
+              var array = [];
+              // iterate backwards ensuring that length is an UInt32
+              for (var i = obj.length >>> 0; i--;) { 
+                array[i] = obj[i];
+              }
+              return array;
+            }
+        $("div:regex(class,flag\-.?.$)").each(function(index, elem) {
+            element_flag_class = toArray($(elem)[0].classList).find(value => /^flag\-/.test(value));
+            matched_flag = element_flag_class.replace("flag-", "");
+            isolated_flag = matched_flag;
+            if (isolated_flag.charAt(0) == '@') isolated_flag = isolated_flag.replace("@", "");
+            if (all_applied_flags.indexOf(isolated_flag) == -1) {
+                $("[class*='flag-" + matched_flag + "'].inline-flag-description").hide();
+                if (!$(elem).hasClass("choice")) {
+                    $("[class*='flag-" + matched_flag + "'].disabled-inline-flag-description").show();
+                }
+            }
+            else {
+                $("[class*='flag-" + matched_flag + "'].inline-flag-description").show();
+                $("[class*='flag-" + matched_flag + "'].disabled-inline-flag-description").hide();
+            }
+        })
+        
     }
+    
+    
 </script>
