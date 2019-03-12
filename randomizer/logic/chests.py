@@ -63,7 +63,6 @@ def randomize_all(world):
                 item.hard_tier = 2
             else:
                 item.hard_tier = 1
-        print(item)
     
     
     #Get limitation of items allowed first
