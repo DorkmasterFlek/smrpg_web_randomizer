@@ -256,30 +256,110 @@ class BossShuffle(Flag):
 
 # ******** Chest shuffle flags
 
-class ChestShuffle1(Flag):
-    name = 'Basic shuffle'
-    description = 'Chest contents are the same as the original game, but shuffled within the same area.'
-    value = 'T1'
-
-
-# TODO: More chest shuffle flags here...
-
 class ChestShuffleEmpty(Flag):
     name = 'Empty'
     description = 'Chests are empty.'
     value = 'Tx'
     hard = True
 
+class ChestTier1(Flag):
+    name = "Restrict to worst items"
+    description = "Only the very worst items will appear in chests."
+    value = 'T1'
+    hard = True
+
+
+class ChestTier2(Flag):
+    name = "Restrict to weak items"
+    description = "Only weak equipment and some support/healing items will appear in chests."
+    value = 'T2'
+
+
+class ChestTier3(Flag):
+    name = "Exclude best items"
+    description = "Out of all items that could appear in chests, the very best items will be left out."
+    value = 'T3'
+
+
+class ChestTier4(Flag):
+    name = "Include all items"
+    description = "Any item may appear in a chest (besides key items)."
+    value = 'T4'
+
+class ChestShuffle1(Flag):
+    name = 'Vanilla chest shuffle'
+    description = 'Chest contents are the same as the original game, but shuffled within the same area.'
+    inverse_description = "(Items that were not originally in chests may appear in chests.)"
+    value = 'Tv'
+
+class ChestShuffleBiased(Flag):
+    name = 'Biased chest shuffle'
+    description = "Chests that are harder to access will contain better items."
+    inverse_description = "(The best items are not necessarily restricted to harder-to-access chests.)"
+    value = 'Tb'
+    
+class ChestExcludeCoins(Flag):
+    name = 'Exclude Coins'
+    description = "Chests will not contain coins."
+    inverse_description = "(Chests may contain coins.)"
+    value = 'Tc'
+    
+class ChestExcludeFrogCoins(Flag):
+    name = 'Exclude Frog Coins'
+    description = "Chests will not contain frog coins."
+    inverse_description = "(Chests may contain frog coins.)"
+    value = 'Tg'
+
+class ChestExcludeFlowers(Flag):
+    name = 'Exclude Flowers'
+    description = "Chests will not contain FP flowers."
+    inverse_description = "(Chests may contain FP flowers.)"
+    value = 'Tf'
+
+class ChestExcludeMushrooms(Flag):
+    name = 'Exclude Mushrooms'
+    description = "Chests will not contain heal mushrooms."
+    inverse_description = "(Chests may contain heal mushrooms.)"
+    value = 'Tm'
+
+class ChestIncludeEmpty(Flag):
+    name = 'Include Empty Chests'
+    description = "Some chests may be empty."
+    inverse_description = "(Chests will not be empty, unless you have Sv enabled.)"
+    value = 'Te'
+    hard = True
+
+class ChestIncludeKeyItems(Flag):
+    name = 'Include Key Items'
+    description = "Any chest may contain a key item."
+    inverse_description = "(Chests will not contain key items, with the exception of the Kero Sewers chest.)"
+    value = 'Tk'
+    hard = True
 
 class ChestShuffleFlag(Flag):
     name = 'Randomize untrapped chest contents'
-    inverse_description = "(Treasure chest contents remain unchanged from the original game.)"
+    description = 'Randomize untrapped chest contents (note that a small handful of chests cannot be included due to logic complications)'
+    inverse_description = "(Chest contents will remain unchanged from the original game.)"
     modes = ['open']
     value = '@T'
     choices = [
-        ChestShuffle1,
-        ChestShuffleEmpty,
+        ChestTier4,
+        ChestTier3,
+        ChestTier2,
+        ChestTier1,
+        ChestShuffleEmpty
     ]
+    options = [
+        ChestShuffle1,
+        ChestShuffleBiased,
+        ChestExcludeCoins,
+        ChestExcludeFrogCoins,
+        ChestExcludeFlowers,
+        ChestExcludeMushrooms,
+        ChestIncludeEmpty,
+        ChestIncludeKeyItems
+    ]
+    
 
 
 # ******** Shop shuffle flags
@@ -518,6 +598,8 @@ class Glitches(Flag):
     ]
 
 
+
+
 # ************************************** Category classes
 
 class FlagCategory:
@@ -548,8 +630,8 @@ class EnemiesCategory(FlagCategory):
     ]
 
 
-class ChestCategory(FlagCategory):
-    name = 'Treasures'
+class ChestRewardsCategory(FlagCategory):
+    name = 'Chests & Rewards'
     flags = [
         ChestShuffleFlag,
     ]
@@ -629,10 +711,10 @@ class ExpertPreset(Preset):
 CATEGORIES = (
     KeyItemsCategory,
     CharactersCategory,
-    ChestCategory,
     ShopsItemsCategory,
-    EnemiesCategory,
+    ChestRewardsCategory,
     EquipsCategory,
+    EnemiesCategory,
     BattlesCategory,
     ChallengesCategory,
     TweaksCategory,
