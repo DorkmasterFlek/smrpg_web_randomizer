@@ -240,6 +240,7 @@ def randomize_all(world):
                     item.hard_tier = 2
                 else:
                     item.hard_tier = 1
+            print(item)
 
         if world.settings.is_flag_enabled(flags.ShopTierX):
             for shop in world.shops:
