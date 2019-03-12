@@ -46,6 +46,10 @@ class StarAllowedChest(Chest):
 class RoseTownGardenerChest(Chest):
     """Subclass for the Lazy Shell chests in Rose Town."""
 
+    @staticmethod
+    def can_access(inventory):
+        return inventory.has_item(items.Seed) and inventory.has_item(items.Fertilizer)
+
 
 class BowserDoorReward(Chest):
     """Subclass for Bowser door rewards because they can only be inventory items or you missed."""
