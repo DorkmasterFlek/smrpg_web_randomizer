@@ -345,7 +345,7 @@ class ShopShuffle(Flag):
     ]
     options = [
         ShopShuffleVanilla,
-        ShopShuffleBalanced
+        ShopShuffleBalanced,
     ]
 
 
@@ -636,14 +636,6 @@ CATEGORIES = (
     ChallengesCategory,
     TweaksCategory,
 )
-
-# List of flags flattened out from categories, as well as all their options.
-FLAGS = []
-for category in CATEGORIES:
-    for flag in category.flags:
-        FLAGS.append(flag)
-        for option in flag.options:
-            FLAGS.append(option)
 
 # List of presets.
 PRESETS = (

@@ -109,79 +109,7 @@
                                     <div class="card-body">
                                         {# Show flags and options here. #}
                                         {% for flag in category.flags %}
-                                            <div class="flag-container {% for mode in flag.modes %} flag-{{ mode }}{% endfor %}">
-                                                <input type="checkbox" class="flag-form-input"
-                                                       id="flag-{{ flag.value }}" name="flag-{{ flag.value }}">
-                                                <div class="flag-checkbox-container">
-                                                    <label for="flag-{{ flag.value }}"
-                                                           class="flag-checkbox {% if flag.hard %}flag-checkbox-hard{% endif %}">
-                                                        {% if flag.value|slice:":1" == "@" %}
-                                                            ...
-                                                        {% else %}
-                                                            {{ flag.value }}
-                                                        {% endif %}
-                                                    </label>
-                                                </div>
-                                                <div class="flag-subsection-container">
-                                                    <label for="flag-{{ flag.value }}" class="flag-label">
-                                                        {{ flag.name }}
-                                                    </label>
-                                                    <div class="flag-subsection">
-                                                        <div class="flag-description">{{ flag.description_as_markdown }}</div>
-
-                                                        {# Show flag choices, if any. #}
-                                                        {% for choice in flag.choices %}
-                                                            <div class="flag-container {% for mode in choice.modes %} flag-{{ mode }}{% endfor %}">
-                                                                <input type="radio" class="flag-form-input"
-                                                                       id="flag-{{ choice.value }}"
-                                                                       name="flag-{{ flag.value }}-choice"
-                                                                       value="{{ choice.value }}">
-                                                                <div class="flag-radio-container">
-                                                                    <label for="flag-{{ choice.value }}"
-                                                                           class="flag-radio {% if choice.hard %}flag-radio-hard{% endif %}">
-                                                                        {{ choice.value }}
-                                                                    </label>
-                                                                </div>
-                                                                <div class="flag-subsection-container">
-                                                                    <label for="flag-{{ choice.value }}" class="flag-label">
-                                                                        {{ choice.name }}
-                                                                    </label>
-                                                                    <div class="flag-subsection">
-                                                                        <div class="flag-description">
-                                                                            {{ choice.description_as_markdown }}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        {% endfor %}
-
-                                                        {# Show other flag options, if any. #}
-                                                        {% for option in flag.options %}
-                                                            <div class="flag-container {% for mode in option.modes %} flag-{{ mode }}{% endfor %}">
-                                                                <input type="checkbox" class="flag-form-input"
-                                                                       id="flag-{{ option.value }}"
-                                                                       name="flag-{{ option.value }}">
-                                                                <div class="flag-checkbox-container">
-                                                                    <label for="flag-{{ option.value }}"
-                                                                           class="flag-checkbox {% if option.hard %}flag-checkbox-hard{% endif %}">
-                                                                        {{ option.value }}
-                                                                    </label>
-                                                                </div>
-                                                                <div class="flag-subsection-container">
-                                                                    <label for="flag-{{ option.value }}" class="flag-label">
-                                                                        {{ option.name }}
-                                                                    </label>
-                                                                    <div class="flag-subsection">
-                                                                        <div class="flag-description">
-                                                                            {{ option.description_as_markdown }}
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        {% endfor %}
-                                                    </div>
-                                                </div>
-                                            </div>
+                                            {% include 'randomizer/_show_flag_ui.html' with flag=flag choice_parent=None %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -337,6 +265,40 @@
             $('html').animate({scrollTop: $('#review-flags').offset().top}, 500);
         }
 
+        // Helper function to build flag string part for a specific flag and recursively handle choices and suboptions.
+        function buildFlagStringPart(flag, mode) {
+            if (flag.modes.includes(mode) && $('#flag-' + $.escapeSelector(flag.value)).is(':checked')) {
+                if (flag.value.startsWith('-')) {
+                    // Solo flag that begins with a dash.
+                    return flag.value;
+                } else {
+                    // Flag that may have a subsection of choices and/or options.
+                    let chars = [];
+
+                    for (let choice of flag.choices) {
+                        chars.push(buildFlagStringPart(choice, mode).slice(1));
+                    }
+
+                    for (let option of flag.options) {
+                        chars.push(buildFlagStringPart(option, mode).slice(1));
+                    }
+
+                    // If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
+                    if (flag.value.startsWith('@')) {
+                        if (chars.length) {
+                            return flag.value.slice(1) + chars.join('');
+                        } else {
+                            return '';
+                        }
+                    } else {
+                        return flag.value + chars.join('');
+                    }
+                }
+            } else {
+                return '';
+            }
+        }
+
         // Build flag string based on selected flags visible for this mode.
         function buildFlagString() {
             let mode = $('#mode').val();
@@ -344,36 +306,9 @@
 
             // Check each flag if it's selected, and check choices and/or options for it.
             for (let flag of FLAGS) {
-                if (flag.modes.includes(mode) && $('#flag-' + $.escapeSelector(flag.value)).is(':checked')) {
-                    if (flag.value.startsWith('-')) {
-                        // Solo flag that begins with a dash.
-                        flagStrings.push(flag.value);
-                    } else {
-                        // Flag that may have a subsection of choices and/or options.
-                        let chars = [];
-
-                        for (let choice of flag.choices) {
-                            if ($('#flag-' + $.escapeSelector(choice)).is(':checked')) {
-                                chars.push(choice.slice(1));
-                            }
-                        }
-
-                        for (let option of flag.options) {
-                            if ($('#flag-' + $.escapeSelector(option)).is(':checked')) {
-                                chars.push(option.slice(1));
-                            }
-                        }
-
-                        // If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
-                        if (flag.value.startsWith('@')) {
-                            if (chars.length) {
-                                flagStrings.push(flag.value.slice(1) + chars.join(''));
-                            }
-                        } else {
-                            flagStrings.push(flag.value.slice(0, 1) + chars.join(''));
-                        }
-                    }
-                }
+                let part = buildFlagStringPart(flag, mode);
+                if (part)
+                    flagStrings.push(part);
             }
 
             // Set flag string from selected flags.

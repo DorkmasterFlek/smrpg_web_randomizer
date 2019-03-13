@@ -52,22 +52,35 @@ class Settings:
                         form_data['flag-@{}-choice'.format(first)] = '{}{}'.format(first, char)
                         form_data['flag-{}{}'.format(first, char)] = True
 
-            # Get flags from form data.
+        # Get flags from form data.
         if form_data is not None:
             for category in flags.CATEGORIES:
                 for flag in category.flags:
-                    if flag.available_in_mode(self.mode):
-                        if form_data.get('flag-{}'.format(flag.value)):
-                            self._enabled_flags.add(flag)
+                    self._check_flag_from_form_data(flag, form_data)
 
-                            # Check for choices and/or options.
-                            for choice in flag.choices:
-                                if form_data.get('flag-{}-choice'.format(flag.value)) == choice.value:
-                                    self._enabled_flags.add(choice)
+    def _check_flag_from_form_data(self, flag, form_data):
+        """
 
-                            for option in flag.options:
-                                if form_data.get('flag-{}'.format(option.value)):
-                                    self._enabled_flags.add(option)
+        Args:
+            flag (randomizer.logic.flags.Flag): Flag to check if enabled.
+            form_data (dict): Form data dictionary.
+
+        """
+        if flag.available_in_mode(self.mode):
+            if form_data.get('flag-{}'.format(flag.value)):
+                self._enabled_flags.add(flag)
+
+                # Check for singular choice for this flag.
+                for choice in flag.choices:
+                    if form_data.get('flag-{}-choice'.format(flag.value)) == choice.value:
+                        self._enabled_flags.add(choice)
+
+                # Check other flags recursively.
+                for choice in flag.choices:
+                    self._check_flag_from_form_data(choice, form_data)
+
+                for option in flag.options:
+                    self._check_flag_from_form_data(option, form_data)
 
     @property
     def mode(self):
