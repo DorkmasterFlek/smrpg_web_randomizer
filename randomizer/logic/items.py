@@ -90,8 +90,9 @@ def _randomize_item(item):
 
     if item.world.settings.is_flag_enabled(flags.EquipmentCharacters):
         # Randomize which characters can equip this item.
-        # Geno can only equip his own weapons, and nobody else can equip his due to softlocks.
-        if not item.is_weapon or Geno not in item.equip_chars:
+        # Old linear mode logic: Geno can only equip his own weapons, and nobody else can equip his due to softlocks!
+        # This is fixed in open mode.
+        if item.world.open_mode or (not item.is_weapon or Geno not in item.equip_chars):
             # Pick random number of characters with lower numbers weighted heavier.
             new_chars = set()
             num_equippable = random.randint(1, random.randint(1, 5))
@@ -99,8 +100,8 @@ def _randomize_item(item):
             for _ in range(num_equippable):
                 char_choices = {Mario, Mallow, Geno, Bowser, Peach} - new_chars
 
-                # Geno can only equip his own weapons (we checked if this was one of his above).
-                if item.is_weapon and Geno in char_choices:
+                # Linear mode: Geno can only equip his own weapons (we checked if this was one of his above).
+                if not item.world.open_mode and item.is_weapon and Geno in char_choices:
                     char_choices.remove(Geno)
 
                 if not char_choices:
