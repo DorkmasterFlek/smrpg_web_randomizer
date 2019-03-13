@@ -113,7 +113,7 @@ def randomize_all(world):
             for chest in world.chest_locations:
                 if chest.item_allowed(items.YouMissed):
                     chest.item = items.YouMissed
-        else:
+        elif world.settings.is_flag_enabled(flags.ChestShuffleBiased) or world.settings.is_flag_enabled(flags.ChestShuffleChaos):
             finished_chests = []
             #Here I'm just figuring out the rough distribution of each type to target.
             #We can consider mutating these probabilities.
