@@ -265,28 +265,14 @@ label {
 .flag-description {
     font-size: 80%;
 }
-.display-table {
-    display: table;
-}
-.display-cell {
-    display: table-cell;
-    padding: 0 5px;
-}
 .inline-flag-description, .disabled-inline-flag-description {
-    display: table;
-    width: 100%;
-    margin-bottom: 10px;
-}
-.sub-flag {
-    padding-left: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-gap: 1rem;
 }
 .inline-flag-description .display-cell:first-child div, .disabled-inline-flag-description .display-cell:first-child div {
     color: white;
     text-align: center;
-    width: 25px;
-}
-.inline-flag-description p, .disabled-inline-flag-description p {
-    margin: 0;
 }
 .inline-flag-description .display-cell:first-child div {
     background-color: #17a2b8;
@@ -301,5 +287,5 @@ label {
     color: #adadad;
 }
 .inline-flag-description .display-cell:first-child, .disabled-inline-flag-description .display-cell:first-child {
-    width: 25px;
+    min-width: 1.5rem;
 }

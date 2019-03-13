@@ -54,7 +54,7 @@ class Command(BaseCommand):
         parser.add_argument('-o', '--output', dest='output_file', default='sample',
                             help='Output file name prefix.  Default: %(default)s')
 
-        parser.add_argument('-m', '--mode', dest='mode', default='open', choices=['standard', 'open'],
+        parser.add_argument('-m', '--mode', dest='mode', default='open', choices=['linear', 'open'],
                             help='Mode to use for samples.  Default: %(default)s')
 
         parser.add_argument('-f', '--flags', dest='flags', default=ALL_FLAGS,
@@ -75,10 +75,12 @@ class Command(BaseCommand):
         self.stdout.write("Key Item Locations: {}".format(key_items_file))
         key_item_stats = {}
 
+        settings = Settings(options['mode'], flag_string=options['flags'])
+
         for i in range(options['samples']):
             # Generate random full standard seed.
             seed = sysrand.getrandbits(32)
-            world = GameWorld(seed, Settings(options['mode'], flag_string=options['flags']))
+            world = GameWorld(seed, settings)
             try:
                 world.randomize()
             except Exception:
@@ -124,7 +126,7 @@ class Command(BaseCommand):
         # Write key item shuffle stats.
         with open(key_items_file, 'w') as f:
             writer = csv.writer(f)
-            locations = get_default_key_item_locations(GameWorld(0, Settings('open')))
+            locations = get_default_key_item_locations(GameWorld(0, settings))
             header = ['Item'] + [l.name for l in locations]
             writer.writerow(header)
 

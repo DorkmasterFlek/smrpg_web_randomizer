@@ -31,6 +31,29 @@ class RandomizerView(TemplateView):
     This gets common context data.
     """
 
+    def _build_flag_json_data(self, flag):
+        """
+
+        Args:
+            flag (randomizer.logic.flags.Flag): Flag class to build JSON data for.
+
+        Returns:
+            dict: Flag data.
+
+        """
+        d = {
+            'value': flag.value,
+            'modes': flag.modes,
+            'choices': [],
+            'options': [],
+        }
+        for choice in flag.choices:
+            d['choices'].append(self._build_flag_json_data(choice))
+        for option in flag.options:
+            d['options'].append(self._build_flag_json_data(option))
+
+        return d
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['version'] = VERSION
@@ -43,13 +66,7 @@ class RandomizerView(TemplateView):
         flags = []
         for category in CATEGORIES:
             for flag in category.flags:
-                d = {
-                    'value': flag.value,
-                    'modes': flag.modes,
-                    'choices': [c.value for c in flag.choices],
-                    'options': [o.value for o in flag.options],
-                }
-                flags.append(d)
+                flags.append(self._build_flag_json_data(flag))
         context['flags'] = flags
 
         return context
