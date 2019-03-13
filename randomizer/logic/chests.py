@@ -34,36 +34,6 @@ def randomize_all(world):
         world (randomizer.logic.main.GameWorld): Game world to randomize.
 
     """
-    #need to duplicate this from shop code in case shops aren't randomized and it doesn't run
-		# Calculate raw rank value
-    for item in world.items:
-        if item.is_equipment:
-            if item.index in (83, 148, 93):
-                item.arbitrary_value = 1
-            elif item.index == 88:
-                item.arbitrary_value = 2
-            elif item.index in (76, 79):
-                item.arbitrary_value = 1
-            elif item.index == 80:
-                item.arbitrary_value = 10
-            item.rank_value = item.attack * max(0, min(2, (item.attack + item.variance) / (1 if (item.attack - item.variance == 0) else (item.attack - item.variance)))) + max (0, item.magic_attack + item.magic_defense + item.defense + min (20, item.speed / 2)) + 10 * len(item.status_immunities) + 15 * len(item.elemental_immunities) + 7.5 * len(item.elemental_resistances) + 50 * (1 if item.prevent_ko else 0) + 30 * len(item.status_buffs) + 10 * item.arbitrary_value
-    #Calculate list position (used as a factor in pricing)
-    ranks = [item for item in world.items if item.is_equipment]
-    ranks.sort(key=lambda x: x.rank_value, reverse=True)
-    ranks_reverse = sorted(ranks, key=lambda x: x.rank_value)
-    for item in world.items:
-        if item.is_equipment:
-            item.rank_order = (ranks.index(item) + 1 if item in ranks else 0)
-            item.rank_order_reverse = (ranks_reverse.index(item) + 1 if item in ranks_reverse else 0)
-            if (item.rank_order <= 15):
-                item.hard_tier = 4
-            elif (item.rank_order <= 35):
-                item.hard_tier = 3
-            elif (item.rank_order <= 55):
-                item.hard_tier = 2
-            else:
-                item.hard_tier = 1
-    
     
     #Get limitation of items allowed first
     tiers_allowed = 4;
@@ -151,7 +121,10 @@ def randomize_all(world):
                 #denominator = total_chests
                 ########
                 denominator -= ratio_stars
+            
             #Then do key items.... in the future
+            
+            #Then make sure wallet is found in exactly 1 chest
             
             #then do the rest
             #biasing of items for chest
@@ -225,11 +198,11 @@ def randomize_all(world):
                     adjusted_denominator = ratio_items
                     if coins_allowed and chest.item_allowed(items.Coins150): adjusted_ratio_coins = ratio_coins
                     else: adjusted_ratio_coins = 0
-                    if flowers_allowed and chest.item_allowed(items.Flower): adjusted_ratio_flowers = math.floor(ratio_flowers / selected_tier)
+                    if flowers_allowed and chest.item_allowed(items.Flower): adjusted_ratio_flowers = math.floor(ratio_flowers / 1.5 / selected_tier)
                     else: adjusted_ratio_flowers = 0
-                    if mushrooms_allowed and chest.item_allowed(items.RecoveryMushroom): adjusted_ratio_mushrooms = math.floor(ratio_mushrooms / selected_tier)
+                    if mushrooms_allowed and chest.item_allowed(items.RecoveryMushroom): adjusted_ratio_mushrooms = math.floor(ratio_mushrooms / 1.5 / selected_tier)
                     else: adjusted_ratio_mushrooms = 0
-                    if frogcoins_allowed and chest.item_allowed(items.FrogCoin): adjusted_ratio_frogcoins = math.floor(ratio_frogcoins / selected_tier)
+                    if frogcoins_allowed and chest.item_allowed(items.FrogCoin): adjusted_ratio_frogcoins = math.floor(ratio_frogcoins / 1.5 / selected_tier)
                     else: adjusted_ratio_frogcoins = 0
                     if empty_allowed and chest.item_allowed(items.YouMissed): adjusted_ratio_empty = math.floor(ratio_empty / selected_tier)
                     else: adjusted_ratio_empty = 0
@@ -283,5 +256,39 @@ def randomize_all(world):
                         #print(str(selection) + "/" + str(denominator) + ": Item")
                 finished_chests.append(chest);
                 eligible_chests.remove(chest);
-                            
-                    
+            
+        if world.settings.is_flag_enabled(flags.ReplaceItems):
+            
+            def closest_coins(n):
+                num = n / 2
+                diff = abs(num - 5)
+                rv = items.Coins5
+                if (diff > abs(num - 8)):
+                    diff = abs(num - 8)
+                    rv = items.Coins8
+                if (diff > abs(num - 10)):
+                    diff = abs(num - 10)
+                    rv = items.Coins10
+                if (diff > abs(num - 20)):
+                    diff = abs(num - 20)
+                    rv = items.CoinsDoubleBig
+                if (diff > abs(num - 50)):
+                    diff = abs(num - 50)
+                    rv = items.Coins50
+                if (diff > abs(num - 100)):
+                    diff = abs(num - 100)
+                    rv = items.Coins100
+                if (diff > abs(num - 150)):
+                    diff = abs(num - 150)
+                    rv = items.Coins150
+                return rv
+        
+        
+            for chest in world.chest_locations:
+                if chest.item.hard_tier == 1 and hasattr(chest.item, 'price'):
+                    if chest.item_allowed(items.Coins150) and not chest.item.frog_coin_item:
+                        chest.item = closest_coins(chest.item.price)
+                    elif chest.item_allowed(items.FrogCoin) and chest.item.frog_coin_item:
+                        chest.item = item.FrogCoin
+            
+            

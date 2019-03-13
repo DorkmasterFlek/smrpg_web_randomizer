@@ -206,25 +206,18 @@ def randomize_all(world):
                          not item.prevent_ko]
             for item in random.sample(top_armor, 4 - instant_ko_items):
                 item.prevent_ko = True
-
-    # Shuffle shop contents and prices.
-    if world.settings.is_flag_enabled(flags.ShopShuffle):
-        assignments = {}
-
-        # ******************************* Phase 0: Calculate raw value to use as basis for pricing as well as Sb, Tb assignment
-
-		# Calculate raw rank value
-        for item in world.items:
-            if item.is_equipment:
-                if item.index in (83, 148, 93):
-                    item.arbitrary_value = 1
-                elif item.index == 88:
-                    item.arbitrary_value = 2
-                elif item.index in (76, 79):
-                    item.arbitrary_value = 1
-                elif item.index == 80:
-                    item.arbitrary_value = 10
-                item.rank_value = item.attack * max(0, min(2, (item.attack + item.variance) / (1 if (item.attack - item.variance == 0) else (item.attack - item.variance)))) + max (0, item.magic_attack + item.magic_defense + item.defense + min (20, item.speed / 2)) + 10 * len(item.status_immunities) + 15 * len(item.elemental_immunities) + 7.5 * len(item.elemental_resistances) + 50 * (1 if item.prevent_ko else 0) + 30 * len(item.status_buffs) + 10 * item.arbitrary_value
+        
+    for item in world.items:
+        if item.is_equipment:
+            if item.index in (83, 148, 93):
+                item.arbitrary_value = 1
+            elif item.index == 88:
+                item.arbitrary_value = 2
+            elif item.index in (76, 79):
+                item.arbitrary_value = 1
+            elif item.index == 80:
+                item.arbitrary_value = 10
+            item.rank_value = item.attack * max(0, min(2, (item.attack + item.variance) / (1 if (item.attack - item.variance == 0) else (item.attack - item.variance)))) + max (0, item.magic_attack + item.magic_defense + item.defense + min (20, item.speed / 2)) + 10 * len(item.status_immunities) + 15 * len(item.elemental_immunities) + 7.5 * len(item.elemental_resistances) + 50 * (1 if item.prevent_ko else 0) + 30 * len(item.status_buffs) + 10 * item.arbitrary_value
 
         #Calculate list position (used as a factor in pricing)
         ranks = [item for item in world.items if item.is_equipment]
@@ -243,6 +236,14 @@ def randomize_all(world):
                     item.hard_tier = 2
                 else:
                     item.hard_tier = 1
+
+    # Shuffle shop contents and prices.
+    if world.settings.is_flag_enabled(flags.ShopShuffle):
+        assignments = {}
+
+        # ******************************* Phase 0: Calculate raw value to use as basis for pricing as well as Sb, Tb assignment
+
+		# Calculate raw rank value
 
         if world.settings.is_flag_enabled(flags.ShopTierX):
             for shop in world.shops:
@@ -398,33 +399,45 @@ def randomize_all(world):
             for shop2 in world.shops:
                 if shop2.index == items.JuiceBarFull.index:
                     jbshop = shop2
-            #pick a handful of items for fourth partial bar, based on what's allowed in full juice bar
+            #pick 1-4 of items exclusive to full bar
             possibleJB3 = get_valid_items(item_reserve, jbshop, assignments[12])
-            partial4 = random.sample(possibleJB3, max(1,min(len(possibleJB3) - 2, random.randint(1, 4))))
+            if not (possibleJB3):
+                partial4 = random.sample([i for i in basic_items if i not in assignments[12]], max(1,min(len(possibleJB3) - 2, random.randint(1, 4))))
+            else:
+                partial4 = random.sample(possibleJB3, max(1,min(len(possibleJB3) - 2, random.randint(1, 4))))
             for item in partial4:
                 assignments[12].append(item)
                 if (item in unique_items):
                     done_already.add(item)
-            #pick a handful of items for third partial bar, based on what's allowed in full juice bar
+            #pick a handful of items for third partial bar, include in full bar
             possibleJB2 = get_valid_items(item_reserve, jbshop, assignments[12])
-            partial3 = random.sample(possibleJB2, max(1,min(len(possibleJB2) - 1, random.randint(1, 8 - len(partial4)))))
+            if not (possibleJB2):
+                partial3 = random.sample([i for i in basic_items if i not in assignments[12]], max(1,min(len(possibleJB2) - 1, random.randint(1, 8 - len(partial4)))))
+            else:
+                partial3 = random.sample(possibleJB2, max(1,min(len(possibleJB2) - 1, random.randint(1, 8 - len(partial4)))))
             for item in partial3:
                 assignments[11].append(item)
                 assignments[12].append(item)
                 if (item in unique_items):
                     done_already.add(item)
-            #pick a handful of items for second partial bar, based on what's allowed in full juice bar
+            #pick a handful of items for second partial bar, include in third and full bar
             possibleJB = get_valid_items(item_reserve, jbshop, assignments[12])
-            partial2 = random.sample(possibleJB, max(1,min(len(possibleJB), random.randint(1, 12 - (len(partial4) + len(partial3))))))
+            if not (possibleJB):
+                partial2 = random.sample([i for i in basic_items if i not in assignments[12]], max(1,min(len(possibleJB), random.randint(1, 12 - (len(partial4) + len(partial3))))))
+            else:
+                partial2 = random.sample(possibleJB, max(1,min(len(possibleJB), random.randint(1, 12 - (len(partial4) + len(partial3))))))
             for item in partial2:
                 assignments[10].append(item)
                 assignments[11].append(item)
                 assignments[12].append(item)
                 if (item in unique_items):
                     done_already.add(item)
-            #pick a handful of items for first partial bar, based on what's allowed in rose town shop
+            #pick a handful of items for first partial bar, include in all bard
             possibleJP = get_valid_items(item_reserve, jpshop, assignments[12])
-            partial1 = random.sample(possibleJP, min(len(possibleJP), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
+            if not (possibleJP):
+                partial1 = random.sample([i for i in basic_items if i not in assignments[12]], min(len(possibleJP), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
+            else:
+                partial1 = random.sample(possibleJP, min(len(possibleJP), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
             for item in partial1:
                 assignments[9].append(item)
                 assignments[10].append(item)
@@ -521,16 +534,16 @@ def randomize_all(world):
                             else:
                                 #Change constant to a lower value if items seem generally too expensive, or increase it if too cheap. Will affect better items more than bad ones
                                 price = math.ceil(item.rank_value * (1.5 + (item.rank_order_reverse / len(ranks_reverse))))
-                                price = utils.mutate_normal(price, minimum=2, maximum=9999)
+                                price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
                                 item.price = price
                         else:
                             if shop.frog_coin_shop:
                                 item.frog_coin_item = True
-                                price = utils.mutate_normal(item.price, minimum=2, maximum=9999)
+                                price = utils.mutate_normal(item.price, minimum=item.price*0.9, maximum=item.price*1.1)
                                 item.price = max(math.ceil(price / 25), 1)
                             else:
                                 price = min(9999, max(2, item.price))
-                                price = utils.mutate_normal(price, minimum=2, maximum=9999)
+                                price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
                                 item.price = price
 
 

@@ -357,6 +357,12 @@ class ChestShuffleFlag(Flag):
         ChestShuffle1,
         ChestShuffleEmpty,
     ]
+    
+class ReplaceItems(Flag):
+    name = 'Replace worst items with coins'
+    description = 'The lowest ranked items will be replaced with coins in chests.'
+    inverse_description = '(You may find low-ranked items in chests.)'
+    value = 'M'
 	
 class ChestExclusions(Flag):
     name = 'Exclude items from chests'
@@ -379,8 +385,6 @@ class ChestExclusions(Flag):
         ChestIncludeEmpty,
         ChestIncludeKeyItems
     ]
-    
-
 
 # ******** Shop shuffle flags
 
@@ -663,7 +667,8 @@ class ChestRewardsCategory(FlagCategory):
     name = 'Chests & Rewards'
     flags = [
         ChestShuffleFlag,
-		ChestExclusions
+		ChestExclusions,
+        ReplaceItems
     ]
 
 
