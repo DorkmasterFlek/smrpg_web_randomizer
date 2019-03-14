@@ -12,7 +12,7 @@
         </div>
     </div>
     <div class="display-cell">
-        {{ flag.description_as_markdown }}
+        {{ flag.description_or_name_as_markdown }}
 
         {# Show flag choices, if any. #}
         {% for choice in flag.choices %}
