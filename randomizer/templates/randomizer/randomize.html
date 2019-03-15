@@ -109,7 +109,7 @@
                                     <div class="card-body">
                                         {# Show flags and options here. #}
                                         {% for flag in category.flags %}
-                                            {% include 'randomizer/_show_flag_ui.html' with flag=flag choice_parent=None %}
+                                            {% include 'randomizer/_show_flag_ui.html' with flag=flag choice_parent=None is_radio=False %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -284,7 +284,7 @@
                     }
 
                     for (let option of flag.options) {
-                        chars.push(buildFlagStringPart(option, mode).slice(1));
+                        chars.push(buildFlagStringPart(option, mode, flag).slice(1));
                     }
 
                     // If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
