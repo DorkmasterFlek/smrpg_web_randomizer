@@ -35,8 +35,8 @@ class GenerateForm(forms.Form):
                 choices=[(c.value, c.value) for c in flag.choices], required=False)
 
         # Process choices for any suboptions.
-        for option in flag.options:
-            self._add_fields_from_flag(option)
+        for choice in flag.choices:
+            self._add_fields_from_flag(choice)
 
         # Process suboptions for this flag.
         for option in flag.options:
