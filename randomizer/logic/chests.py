@@ -95,6 +95,7 @@ def randomize_all(world):
             ratio_empty = len([chest for chest in world.chest_locations if chest.item == items.YouMissed])
             ratio_items = len([chest for chest in world.chest_locations if chest.item not in coins and chest.item not in stars and chest.item not in [items.FrogCoin, items.RecoveryMushroom, items.Flower, items.YouMissed]])
             denominator = ratio_items
+            #these are the relative ratios used to calculate distribution properties. this is where we build the denominator
             if coins_allowed: denominator += ratio_coins
             if flowers_allowed: denominator += ratio_flowers
             if mushrooms_allowed: denominator += ratio_mushrooms

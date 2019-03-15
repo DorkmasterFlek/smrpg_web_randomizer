@@ -191,8 +191,6 @@ def randomize_all(world):
     :type world: randomizer.logic.main.GameWorld
     """
     
-    ######PROBLEM: Juice bar sometimes doesnt generate in Sb Z2
-
     # Shuffle equipment stats and equip characters.
     for item in world.items:
         _randomize_item(item)
@@ -560,3 +558,9 @@ def randomize_all(world):
                         item.price = 1
                     else:
                         item.price = 1
+                        
+    
+    #if world.settings.is_flag_enabled(flags.PoisonMushroom):
+    #    for item in world.items:
+    #        if item.index == 175:
+    #            item.status_immunities = [7]
