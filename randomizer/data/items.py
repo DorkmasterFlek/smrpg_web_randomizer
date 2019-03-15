@@ -2257,9 +2257,9 @@ class Mushroom2(Item):
         # Check if No OHKO flag is enabled.
         if self.world.settings.is_flag_enabled(flags.PoisonMushroom):
             status = random.choice([0x80, 0x80, 0x20, 0x02, 0x01, 0x04, 0x40, 0x08])
-            if status == 0x80:
-                if random.choice([0,1]) == 1:
-                    patch.add_data(0x3A44DF, bytes([0x40]))
+            #if status == 0x80:
+            #    if random.choice([0,1]) == 1:
+            #        patch.add_data(0x3A44DF, bytes([0x40]))
             patch.add_data(0x3A0DA2, bytes([status]))
         
             #patch.add_data(0x3A44DF, bytes([0x40]))
