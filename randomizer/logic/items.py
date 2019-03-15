@@ -257,6 +257,16 @@ def randomize_all(world):
                 tiers_allowed = 3;
 
 
+            #Always exclude special equips from shops if Mx is set
+            if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
+                for item in world.items:
+                    if world.settings.is_flag_enabled(flags.MonstroTownLite):
+                        if item.index in [69, 81, 89, 94, 90]:
+                            item.hard_tier = 5
+                    elif world.settings.is_flag_enabled(flags.MonstroTownHard):
+                        if item.index in [69, 70, 74, 81, 89, 94, 90, 6, 11, 33]:
+                            item.hard_tier = 5
+
             #Establish an array for each shop's items
             for shop in world.shops:
                 assignments[shop.index] = []
@@ -267,14 +277,14 @@ def randomize_all(world):
             if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
                 #Sv and Sb - only allow the chosen highest tiers of items here
                 if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
-                    frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and ((tiers_allowed <= 3 and i.hard_tier == tiers_allowed) or (tiers_allowed == 4 and i.hard_tier > 2))]
+                    frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and ((tiers_allowed <= 3 and i.hard_tier == tiers_allowed) or (tiers_allowed == 4 and i.hard_tier > 2 and i.hard_tier <= 4))]
                 #No Sb - allow any item here, as long as permitted by tier exclusion flag
                 else:
                     frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and i.hard_tier <= tiers_allowed]
             #Sb only
             elif world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
                 #Only allow the chosen highest tiers of items here
-                frog_candidates = [i for i in world.items if i.price and ((tiers_allowed <= 3 and i.hard_tier == tiers_allowed) or (tiers_allowed == 4 and i.hard_tier > 2))]
+                frog_candidates = [i for i in world.items if i.price and ((tiers_allowed <= 3 and i.hard_tier == tiers_allowed) or (tiers_allowed == 4 and i.hard_tier > 2 and i.hard_tier <= 4))]
             #Allow anything within tier exclusion flag
             else:
                 frog_candidates = [i for i in world.items if i.price and i.hard_tier <= tiers_allowed]
@@ -339,16 +349,6 @@ def randomize_all(world):
             unique_items = [i for i in shop_items if not (i.consumable and not i.reuseable and i.basic)]
             basic_items = [i for i in shop_items if (i.consumable and not i.reuseable and i.basic)]
 
-            #Always exclude special equips from shops if Mx is set
-            if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
-                for item in world.items:
-                    if world.settings.is_flag_enabled(flags.MonstroTownLite):
-                        if item.index in [69, 81, 89, 94, 90]:
-                            item.hard_tier = 5
-                    elif world.settings.is_flag_enabled(flags.MonstroTownHard):
-                        if item.index in [69, 70, 74, 81, 89, 94, 90, 6, 11, 33]:
-                            item.hard_tier = 5
-
 
             #Function determining what can go in a shop, based on flags selected
             def get_valid_items(base, shop, exclude=[]):
@@ -362,7 +362,7 @@ def randomize_all(world):
                         #    valid_items = [i for i in base if i not in done_already and i.vanilla_shop and i not in exclude and shop.is_item_allowed(i)]
                     #Locked shops
                     elif (shop.index in [12, 13, 14, 15, 16, 18, 19, 23, 24] or (shop.index == 22 and not world.settings.is_flag_enabled(flags.BowsersKeepOpen))):
-                        valid_items = [i for i in base if i not in done_already and i.vanilla_shop and shop.is_item_allowed(i) and ((tiers_allowed <= 3 and i.hard_tier == tiers_allowed) or (tiers_allowed == 4 and i.hard_tier > 2))]
+                        valid_items = [i for i in base if i not in done_already and i.vanilla_shop and shop.is_item_allowed(i) and ((tiers_allowed <= 3 and i.hard_tier == tiers_allowed) or (tiers_allowed == 4 and i.hard_tier > 2 and i.hard_tier <= 4))]
                         #if not valid_items:
                         #    valid_items = [i for i in base if i not in done_already and i.vanilla_shop and i not in exclude and shop.is_item_allowed(i)]
                     #Missable shop
@@ -383,7 +383,7 @@ def randomize_all(world):
                         #    valid_items = [i for i in base if i not in done_already and i not in exclude and i.vanilla_shop and shop.is_item_allowed(i)]
                     #Locked shops
                     elif (shop.index in [12, 13, 14, 15, 16, 18, 19, 23, 24] or (shop.index == 22 and not world.settings.is_flag_enabled(flags.BowsersKeepOpen))):
-                        valid_items = [i for i in base if i not in done_already and i not in exclude and shop.is_item_allowed(i) and ((tiers_allowed <= 3 and i.hard_tier == tiers_allowed) or (tiers_allowed == 4 and i.hard_tier > 2))]
+                        valid_items = [i for i in base if i not in done_already and i not in exclude and shop.is_item_allowed(i) and ((tiers_allowed <= 3 and i.hard_tier == tiers_allowed) or (tiers_allowed == 4 and i.hard_tier > 2 and i.hard_tier <= 4))]
                         #if not valid_items:
                         #    valid_items = [i for i in base if i not in done_already and i not in exclude and i.vanilla_shop and shop.is_item_allowed(i)]
                     #Missable shop
@@ -492,8 +492,11 @@ def randomize_all(world):
                         if item.index == 102 and shop.index == 24:
                             if (item not in assignments[shop.index] and item in shop_items):
                                 assignments[shop.index].append(item)
-                    valid_consumables = basic_items
-                    max_remaining = min(15 - len(assignments[shop.index]), len(basic_items))
+                    if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
+                        valid_consumables = get_valid_items(basic_items, shop, assignments[shop.index])
+                    else:
+                        valid_consumables = basic_items
+                    max_remaining = min(15 - len(assignments[shop.index]), len(valid_consumables))
                     append_consumables = random.sample(valid_consumables, random.randint(1, max_remaining))
                     for item in append_consumables:
                         if (item not in assignments[shop.index]):

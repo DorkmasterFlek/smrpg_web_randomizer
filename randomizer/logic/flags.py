@@ -317,6 +317,29 @@ class ChestIncludeEmpty(Flag):
     description = "Some chests may be empty."
     inverse_description = "(Chests will not be empty, unless you have Sv enabled.)"
     value = 'Te'
+     
+class ChestKIInclude3DMaze(Flag):
+    name = 'Include 3D Maze'
+    inverse_description = "(3D Maze will not have a key item.)"
+    value = 'Td'
+
+class ChestKIIncludeCulex(Flag):
+    name = 'Include Culex\'s Lair'
+    inverse_description = "(Culex's lair will not have a key item.)"
+    value = 'Tu'
+    hard = True
+
+class ChestKIInclude30(Flag):
+    name = 'Include 30 Super Jumps'
+    inverse_description = "(30 Super Jumps will not have a key item.)"
+    value = 'Th'
+    hard = True
+    
+class ChestKIInclude100(Flag):
+    name = 'Include 100 Super Jumps'
+    inverse_description = "(100 Super Jumps will not have a key item.)"
+    value = 'Ti'
+    hard = True
 
 class ChestIncludeKeyItems(Flag):
     name = 'Include Key Items'
@@ -324,6 +347,12 @@ class ChestIncludeKeyItems(Flag):
     inverse_description = "(Chests and sidequest rewards will not contain key items, with the exception of the Kero Sewers chest.)"
     value = 'Tk'
     hard = True
+    options = [
+        ChestKIInclude3DMaze,
+        ChestKIIncludeCulex,
+        ChestKIInclude30,
+        ChestKIInclude100
+    ]
 
     
 class ChestShuffleEmpty(Flag):

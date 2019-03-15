@@ -1852,7 +1852,7 @@ class MukuCookie(Item):
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 69
     vanilla_shop = True
-    hard_tier = 2
+    hard_tier = 3
 
 
 class Elixir(Item):
@@ -2256,15 +2256,14 @@ class Mushroom2(Item):
 
         # Check if No OHKO flag is enabled.
         if self.world.settings.is_flag_enabled(flags.PoisonMushroom):
-            #status = random.choice([0x80, 0x80, 0x20, 0x02, 0x01, 0x04, 0x40, 0x08])
-            #if status == 0x80:
-            #    if random.choice([0,1]) == 1:
-            #        patch.add_data(0x3A44DF, bytes([0x40]))
-            #patch.add_data(0x3A0DA2, bytes([status]))
-            #patch.add_data(0x3A44DF, 0x40)
+            status = random.choice([0x80, 0x80, 0x20, 0x02, 0x01, 0x04, 0x40, 0x08])
+            if status == 0x80:
+                if random.choice([0,1]) == 1:
+                    patch.add_data(0x3A44DF, bytes([0x40]))
+            patch.add_data(0x3A0DA2, bytes([status]))
         
-            patch.add_data(0x3A44DF, bytes([0x40]))
-            patch.add_data(0x3A0DA2, bytes([0x80]))
+            #patch.add_data(0x3A44DF, bytes([0x40]))
+            #patch.add_data(0x3A0DA2, bytes([0x80]))
         return patch
 
 class StarEgg(Item):

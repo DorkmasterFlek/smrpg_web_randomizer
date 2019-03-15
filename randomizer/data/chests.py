@@ -827,14 +827,14 @@ class LandsEndChowPit1(Chest):
     area = locations.Area.LandsEnd
     addresses = [0x14a51c]
     item = items.KerokeroCola
-    access = 1
+    access = 2
 
 
 class LandsEndChowPit2(Chest):
     area = locations.Area.LandsEnd
     addresses = [0x14a528]
     item = items.FrogCoin
-    access = 1
+    access = 2
 
 
 class LandsEndBeeRoom(Chest):

@@ -3,7 +3,7 @@
 import random
 import math
 
-from randomizer.data import items, locations
+from randomizer.data import items, locations, chests
 from randomizer.logic import flags
 from . import utils
 
@@ -87,13 +87,13 @@ def randomize_all(world):
             finished_chests = []
             #Here I'm just figuring out the rough distribution of each type to target.
             #We can consider mutating these probabilities.
-            ratio_coins = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item in coins])
-            ratio_frogcoins = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item == items.FrogCoin]) - 2
-            ratio_mushrooms = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item == items.RecoveryMushroom])
-            ratio_flowers = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item == items.Flower]) - 8
-            ratio_stars = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item in stars])
-            ratio_empty = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item == items.YouMissed])
-            ratio_items = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item not in coins and chest.item not in stars and chest.item not in [items.FrogCoin, items.RecoveryMushroom, items.Flower, items.YouMissed]])
+            ratio_coins = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item in coins])
+            ratio_frogcoins = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item == items.FrogCoin]) - 2
+            ratio_mushrooms = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item == items.RecoveryMushroom])
+            ratio_flowers = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item == items.Flower]) - 8
+            ratio_stars = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item in stars])
+            ratio_empty = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item == items.YouMissed])
+            ratio_items = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item not in coins and chest.item not in stars and chest.item not in [items.FrogCoin, items.RecoveryMushroom, items.Flower, items.YouMissed]])
             denominator = ratio_items
             #these are the relative ratios used to calculate distribution properties. this is where we build the denominator
             if coins_allowed: denominator += ratio_coins
@@ -191,11 +191,31 @@ def randomize_all(world):
                         if (selector < 90): return 1
                         else: return 2
                     elif tiers_allowed == 1: return 1
-                
-            #future: will need exception for monstro town shuffle
-            eligible_chests = [chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest not in finished_chests]
-            eligible_rewards = [chest for chest in [i for i in world.chest_locations if i.instanceof(Reward)] if chest not in finished_chests]
+            
             excluded_items =  [129, 137, 138]
+            #Always exclude special equips from shops if Mx is set
+            if world.settings.is_flag_enabled(flags.MonstroTownLite):
+                monstro = [items.QuartzCharm, items.JinxBelt, items.SuperSuit, items.AttackScarf, items.GhostMedal]
+                monstroLocations = [i for i in world.chest_locations if (isinstance(i, chests.CulexReward) or isinstance(i, chests.JinxDojoReward) or isinstance(i, chests.SuperJumps30) or isinstance(i, chests.SuperJumps100) or isinstance(i, chests.ThreeMustyFears)) and i not in finished_chests]
+            elif world.settings.is_flag_enabled(flags.MonstroTownHard):
+                monstro = [items.QuartzCharm, items.JinxBelt, items.SuperSuit, items.AttackScarf, items.GhostMedal, items.FroggieStick, items.Chomp, items.ZoomShoes, items.LazyShellWeapon, items.LazyShellArmor]
+                monstroLocations = [i for i in world.chest_locations if (isinstance(i, chests.CulexReward) or isinstance(i, chests.JinxDojoReward) or isinstance(i, chests.SuperJumps30) or isinstance(i, chests.SuperJumps100) or isinstance(i, chests.ThreeMustyFears) or isinstance(i, chests.CricketPieReward) or isinstance(i, chests.BoosterTowerChomp) or isinstance(i, chests.BoosterTowerZoomShoes) or isinstance(i, chests.GardenerCloud1) or isinstance(i, chests.GardenerCloud2)) and i not in finished_chests]
+            else:
+                monstro = []
+                monstroLocations = []
+            while len(monstro) > 0:
+                item = random.choice(monstro)
+                location = random.choice(monstroLocations)
+                location.item = item
+                monstro.remove(item)
+                monstroLocations.remove(location)
+                finished_chests.append(location)
+                if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
+                    excluded_items.append(item.index)
+                            
+            #future: will need exception for monstro town shuffle
+            eligible_chests = [chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest not in finished_chests]
+            eligible_rewards = [chest for chest in [i for i in world.chest_locations if isinstance(i, chests.Reward)] if chest not in finished_chests]
             eligible_items = [i for i in world.items if i.index not in excluded_items and not i.is_key and i.hard_tier <= tiers_allowed]
             while len(eligible_chests) > 0:
                 chest = random.choice(eligible_chests)
@@ -280,7 +300,7 @@ def randomize_all(world):
                     else:
                         chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
                 finished_chests.append(chest);
-                eligible_chests.remove(chest);
+                eligible_rewards.remove(chest);
             
         if world.settings.is_flag_enabled(flags.ReplaceItems):
             
@@ -309,11 +329,10 @@ def randomize_all(world):
                 return rv
         
         
-            for chest in world.chest_locations:
+            for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)]:
                 if chest.item.hard_tier == 1 and hasattr(chest.item, 'price'):
                     if chest.item_allowed(items.Coins150) and not chest.item.frog_coin_item:
                         chest.item = closest_coins(chest.item.price)
                     elif chest.item_allowed(items.FrogCoin) and chest.item.frog_coin_item:
                         chest.item = item.FrogCoin
-            
             
