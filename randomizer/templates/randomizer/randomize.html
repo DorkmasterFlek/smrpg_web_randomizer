@@ -109,7 +109,7 @@
                                     <div class="card-body">
                                         {# Show flags and options here. #}
                                         {% for flag in category.flags %}
-                                            {% include 'randomizer/_show_flag_ui.html' with flag=flag choice_parent=None is_radio=False %}
+                                            {% include 'randomizer/_show_flag_ui.html' with flag=flag parent_value='' is_radio=False %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -266,10 +266,10 @@
         }
 
         // Helper function to build flag string part for a specific flag and recursively handle choices and suboptions.
-        function buildFlagStringPart(flag, mode, parent = null) {
+        function buildFlagStringPart(flag, mode, parent_value = '') {
             let idval = '#flag-' + $.escapeSelector(flag.value);
-            if (parent)
-                idval += '-' + $.escapeSelector(parent.value);
+            if (parent_value)
+                idval += $.escapeSelector(parent_value);
 
             if (flag.modes.includes(mode) && $(idval).is(':checked')) {
                 if (flag.value.startsWith('-')) {
@@ -280,11 +280,11 @@
                     let chars = [];
 
                     for (let choice of flag.choices) {
-                        chars.push(buildFlagStringPart(choice, mode, flag).slice(1));
+                        chars.push(buildFlagStringPart(choice, mode, '-' + flag.value + parent_value).slice(1));
                     }
 
                     for (let option of flag.options) {
-                        chars.push(buildFlagStringPart(option, mode, flag).slice(1));
+                        chars.push(buildFlagStringPart(option, mode, '-' + flag.value + parent_value).slice(1));
                     }
 
                     // If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.

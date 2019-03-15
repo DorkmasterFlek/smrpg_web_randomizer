@@ -20,23 +20,24 @@ class GenerateForm(forms.Form):
     mode = forms.ChoiceField(required=True, choices=MODES)
     debug_mode = forms.BooleanField(required=False, initial=False)
 
-    def _add_fields_from_flag(self, flag):
+    def _add_fields_from_flag(self, flag, parent_value=''):
         """
 
         Args:
             flag (randomizer.logic.flags.Flag): Flag to add form fields for.
+            parent_value (str): Parent string value for radio buttons.
 
         """
-        self.fields['flag-{0}'.format(flag.value)] = forms.BooleanField(required=False, initial=False)
+        self.fields['flag-{}'.format(flag.value)] = forms.BooleanField(required=False, initial=False)
 
         # Add choice radio field if any.
         if flag.choices:
-            self.fields['flag-{0}-choice'.format(flag.value)] = forms.ChoiceField(
+            self.fields['flag-{}{}-choice'.format(flag.value, parent_value)] = forms.ChoiceField(
                 choices=[(c.value, c.value) for c in flag.choices], required=False)
 
         # Process choices for any suboptions.
         for choice in flag.choices:
-            self._add_fields_from_flag(choice)
+            self._add_fields_from_flag(choice, parent_value='-' + flag.value)
 
         # Process suboptions for this flag.
         for option in flag.options:
