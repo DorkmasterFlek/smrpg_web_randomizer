@@ -247,14 +247,14 @@
             for (let flag of flags.split(' ')) {
                 if (flag.startsWith('-')) {
                     // Solo flag that begins with a dash.
-                    $('#flag-' + $.escapeSelector(flag)).prop('checked', true);
+                    $('.flag-' + $.escapeSelector(flag)).prop('checked', true);
                 } else {
                     // Flag that may have a subsection of choices and/or options.
                     let first = flag.slice(0, 1);
-                    $('#flag-' + $.escapeSelector('@' + first)).add('#flag-' + $.escapeSelector(first))
+                    $('.flag-' + $.escapeSelector('@' + first)).add('.flag-' + $.escapeSelector(first))
                         .prop('checked', true);
                     for (let char of flag.slice(1)) {
-                        $('#flag-' + $.escapeSelector(first + char)).prop('checked', true);
+                        $('.flag-' + $.escapeSelector(first + char)).prop('checked', true);
                     }
                 }
             }
@@ -266,8 +266,12 @@
         }
 
         // Helper function to build flag string part for a specific flag and recursively handle choices and suboptions.
-        function buildFlagStringPart(flag, mode) {
-            if (flag.modes.includes(mode) && $('#flag-' + $.escapeSelector(flag.value)).is(':checked')) {
+        function buildFlagStringPart(flag, mode, parent = null) {
+            let idval = '#flag-' + $.escapeSelector(flag.value);
+            if (parent)
+                idval += '-' + $.escapeSelector(parent.value);
+
+            if (flag.modes.includes(mode) && $(idval).is(':checked')) {
                 if (flag.value.startsWith('-')) {
                     // Solo flag that begins with a dash.
                     return flag.value;
@@ -276,7 +280,7 @@
                     let chars = [];
 
                     for (let choice of flag.choices) {
-                        chars.push(buildFlagStringPart(choice, mode).slice(1));
+                        chars.push(buildFlagStringPart(choice, mode, flag).slice(1));
                     }
 
                     for (let option of flag.options) {
