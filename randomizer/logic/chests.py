@@ -87,13 +87,13 @@ def randomize_all(world):
             finished_chests = []
             #Here I'm just figuring out the rough distribution of each type to target.
             #We can consider mutating these probabilities.
-            ratio_coins = len([chest for chest in world.chest_locations if chest.item in coins])
-            ratio_frogcoins = len([chest for chest in world.chest_locations if chest.item == items.FrogCoin]) - 2
-            ratio_mushrooms = len([chest for chest in world.chest_locations if chest.item == items.RecoveryMushroom])
-            ratio_flowers = len([chest for chest in world.chest_locations if chest.item == items.Flower]) - 8
-            ratio_stars = len([chest for chest in world.chest_locations if chest.item in stars])
-            ratio_empty = len([chest for chest in world.chest_locations if chest.item == items.YouMissed])
-            ratio_items = len([chest for chest in world.chest_locations if chest.item not in coins and chest.item not in stars and chest.item not in [items.FrogCoin, items.RecoveryMushroom, items.Flower, items.YouMissed]])
+            ratio_coins = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item in coins])
+            ratio_frogcoins = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item == items.FrogCoin]) - 2
+            ratio_mushrooms = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item == items.RecoveryMushroom])
+            ratio_flowers = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item == items.Flower]) - 8
+            ratio_stars = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item in stars])
+            ratio_empty = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item == items.YouMissed])
+            ratio_items = len([chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest.item not in coins and chest.item not in stars and chest.item not in [items.FrogCoin, items.RecoveryMushroom, items.Flower, items.YouMissed]])
             denominator = ratio_items
             #these are the relative ratios used to calculate distribution properties. this is where we build the denominator
             if coins_allowed: denominator += ratio_coins
@@ -126,6 +126,10 @@ def randomize_all(world):
             #Then do key items.... in the future
             
             #Then make sure wallet is found in exactly 1 chest
+            eligible_wallet_locations = [chest for chest in world.chest_locations if chest not in finished_chests]
+            chest = random.choice(eligible_wallet_locations)
+            chest.item = items.Wallet
+            finished_chests.append(chest)
             
             #then do the rest
             #biasing of items for chest
@@ -189,7 +193,8 @@ def randomize_all(world):
                     elif tiers_allowed == 1: return 1
                 
             #future: will need exception for monstro town shuffle
-            eligible_chests = [chest for chest in world.chest_locations if chest not in finished_chests]
+            eligible_chests = [chest for chest in [i for i in world.chest_locations if not i.instanceof(Reward)] if chest not in finished_chests]
+            eligible_rewards = [chest for chest in [i for i in world.chest_locations if i.instanceof(Reward)] if chest not in finished_chests]
             excluded_items =  [129, 137, 138]
             eligible_items = [i for i in world.items if i.index not in excluded_items and not i.is_key and i.hard_tier <= tiers_allowed]
             while len(eligible_chests) > 0:
@@ -255,6 +260,25 @@ def randomize_all(world):
                         else:
                             chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
                         #print(str(selection) + "/" + str(denominator) + ": Item")
+                finished_chests.append(chest);
+                eligible_chests.remove(chest);
+                
+            
+            while len(eligible_rewards) > 0:
+                chest = random.choice(eligible_rewards)
+                if biased:
+                    selected_tier = get_eligible_tier(chest.access)
+                    chest.item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
+                else:
+                    tier_selection = random.randint(1, 100)
+                    if tier_selection <= 35:
+                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                    elif tier_selection <= 65:
+                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                    elif tier_selection <= 85:
+                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                    else:
+                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
                 finished_chests.append(chest);
                 eligible_chests.remove(chest);
             

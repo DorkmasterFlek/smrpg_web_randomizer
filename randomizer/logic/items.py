@@ -339,6 +339,15 @@ def randomize_all(world):
             unique_items = [i for i in shop_items if not (i.consumable and not i.reuseable and i.basic)]
             basic_items = [i for i in shop_items if (i.consumable and not i.reuseable and i.basic)]
 
+            #Always exclude special equips from shops if Mx is set
+            if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
+                for item in world.items:
+                    if world.settings.is_flag_enabled(flags.MonstroTownLite):
+                        if item.index in [69, 81, 89, 94, 90]:
+                            item.hard_tier = 5
+                    elif world.settings.is_flag_enabled(flags.MonstroTownHard):
+                        if item.index in [69, 70, 74, 81, 89, 94, 90, 6, 11, 33]:
+                            item.hard_tier = 5
 
 
             #Function determining what can go in a shop, based on flags selected

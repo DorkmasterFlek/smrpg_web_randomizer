@@ -112,18 +112,21 @@ class ToadRescue1(Reward):
     area = locations.Area.MushroomWay
     addresses = [0x1efedc]
     item = items.HoneySyrup
+    access = 2
 
 
 class ToadRescue2(Reward):
     area = locations.Area.MushroomWay
     addresses = [0x1efe1e]
     item = items.FlowerTab
+    access = 2
 
 
 class HammerBrosReward(Reward):
     area = locations.Area.MushroomWay
     addresses = [0x1e94c4]
     item = items.Hammer
+    access = 3
 
 
 # *** Mushroom Kingdom
@@ -154,6 +157,7 @@ class WalletGuy1(Reward):
     addresses = [0x1e3765]
     item = items.FlowerTab
     missable = True
+    access = 3
 
 
 class WalletGuy2(Reward):
@@ -161,18 +165,21 @@ class WalletGuy2(Reward):
     addresses = [0x1e17de]
     item = items.FrogCoin
     missable = True
+    access = 3
 
 
 class MushroomKingdomStore(Reward):
     area = locations.Area.MushroomKingdom
     addresses = [0x1e65f8]
     item = items.PickMeUp
+    access = 1
 
 
 class PeachSurprise(Reward):
     area = locations.Area.MushroomKingdom
     addresses = [0x1e26b2]
     item = items.Mushroom
+    access = 1
 
 
 class InvasionFamily(Reward):
@@ -180,6 +187,7 @@ class InvasionFamily(Reward):
     addresses = [0x1e3a74]
     item = items.FlowerTab
     missable = True
+    access = 3
 
 
 class InvasionGuestRoom(Reward):
@@ -187,6 +195,7 @@ class InvasionGuestRoom(Reward):
     addresses = [0x1e3373]
     item = items.WakeUpPin
     missable = True
+    access = 3
 
 
 class InvasionGuard(Reward):
@@ -194,6 +203,7 @@ class InvasionGuard(Reward):
     addresses = [0x1e3514]
     item = items.FlowerTab
     missable = True
+    access = 3
 
 
 # *** Bandit's Way
@@ -237,6 +247,7 @@ class Croco1Reward(Reward):
     area = locations.Area.BanditsWay
     addresses = [0x1e94f0]
     item = items.Wallet
+    access = 3
 
 
 # *** Kero Sewers
@@ -259,6 +270,7 @@ class PandoriteReward(Reward):
     area = locations.Area.KeroSewers
     addresses = [0x1e950d]
     item = items.TrueformPin
+    access = 3
 
 
 # *** Midas River
@@ -267,6 +279,7 @@ class MidasRiverFirstTime(Reward):
     area = locations.Area.MidasRiver
     addresses = [0x205fd3]
     item = items.NokNokShell
+    access = 3
 
 
 # *** Tadpole Pond
@@ -275,6 +288,7 @@ class CricketPieReward(Reward):
     area = locations.Area.TadpolePond
     addresses = [0x1e6636]
     item = items.FroggieStick
+    access = 3
 
     @staticmethod
     def can_access(inventory):
@@ -285,6 +299,7 @@ class CricketJamReward(Reward):
     area = locations.Area.TadpolePond
     addresses = [0x1e6642]
     item = items.FrogCoin
+    access = 3
 
     @staticmethod
     def can_access(inventory):
@@ -345,12 +360,14 @@ class RoseTownToad(Reward):
     addresses = [0x1e6030]
     item = items.FlowerTab
     missable = True
+    access = 2
 
 
 class Gaz(Reward):
     area = locations.Area.RoseTown
     addresses = [0x1e61ff]
     item = items.FingerShot
+    access = 1
 
 
 # *** Forest Maze
@@ -438,12 +455,14 @@ class GoombaThumping1(Reward):
     area = locations.Area.PipeVault
     addresses = [0x1e2f9c]
     item = items.FlowerTab
+    access = 2
 
 
 class GoombaThumping2(Reward):
     area = locations.Area.PipeVault
     addresses = [0x1e3fae]
     item = items.FlowerJar
+    access = 2
 
 
 # *** Yo'ster Isle
@@ -462,18 +481,21 @@ class TreasureSeller1(Reward):
     area = locations.Area.Moleville
     addresses = [0x1f8ca5]
     item = items.LuckyJewel
+    access = 2
 
 
 class TreasureSeller2(Reward):
     area = locations.Area.Moleville
     addresses = [0x1f8cd1]
     item = items.MysteryEgg
+    access = 3
 
 
 class TreasureSeller3(Reward):
     area = locations.Area.Moleville
     addresses = [0x1f8cfd]
     item = items.FryingPan
+    access = 4
 
 
 # *** Moleville Mines
@@ -511,6 +533,7 @@ class CrocoFlunkie1(Reward):
     addresses = [0x1e961a]
     item = items.FlowerTab
     missable = True
+    access = 2
 
 
 class CrocoFlunkie2(Reward):
@@ -518,6 +541,7 @@ class CrocoFlunkie2(Reward):
     addresses = [0x1e9673]
     item = items.FlowerTab
     missable = True
+    access = 2
 
 
 class CrocoFlunkie3(Reward):
@@ -525,6 +549,7 @@ class CrocoFlunkie3(Reward):
     addresses = [0x1e96ca]
     item = items.FlowerTab
     missable = True
+    access = 2
 
 
 # *** Booster Pass
@@ -584,6 +609,7 @@ class BoosterTowerMasher(Chest):
     area = locations.Area.BoosterTower
     addresses = [0x1f9ce9]
     item = items.Masher
+    access = 2
 
 
 class BoosterTowerParachute(Chest):
@@ -626,18 +652,21 @@ class BoosterTowerRailway(Reward):
     area = locations.Area.BoosterTower
     addresses = [0x1ee468]
     item = items.FlowerTab
+    access = 1
 
 
 class BoosterTowerChomp(Reward):
     area = locations.Area.BoosterTower
     addresses = [0x1ee27b]
     item = items.Chomp
+    access = 3
 
 
 class BoosterTowerCurtainGame(Reward):
     area = locations.Area.BoosterTower
     addresses = [0x1ef49b]
     item = items.Amulet
+    access = 3
 
 
 # *** Marrymore
@@ -655,6 +684,7 @@ class SeasideTownRescue(Reward):
     area = locations.Area.SeasideTown
     addresses = [0x1ed6c7]
     item = items.FlowerBox
+    access = 3
 
     @staticmethod
     def can_access(inventory):
@@ -767,18 +797,21 @@ class SunkenShip3DMaze(Reward):
     area = locations.Area.SunkenShip
     addresses = [0x203b30]
     item = items.RoyalSyrup
+    access = 3
 
 
 class SunkenShipCannonballPuzzle(Reward):
     area = locations.Area.SunkenShip
     addresses = [0x203b57]
     item = items.Mushroom
+    access = 2
 
 
 class SunkenShipHidonReward(Reward):
     area = locations.Area.SunkenShip
     addresses = [0x1e979c]
     item = items.SafetyBadge
+    access = 3
 
 
 # *** Land's End
@@ -857,6 +890,7 @@ class TroopaClimb(Reward):
     area = locations.Area.LandsEnd
     addresses = [0x1f5282]
     item = items.TroopaPin
+    access = 3
 
 
 # *** Belome Temple
@@ -900,18 +934,21 @@ class BelomeTempleTreasure1(Reward):
     area = locations.Area.BelomeTemple
     addresses = [0x1f4fba]
     item = items.RoyalSyrup
+    access = 3
 
 
 class BelomeTempleTreasure2(Reward):
     area = locations.Area.BelomeTemple
     addresses = [0x1f4fc0]
     item = items.MaxMushroom
+    access = 3
 
 
 class BelomeTempleTreasure3(Reward):
     area = locations.Area.BelomeTemple
     addresses = [0x1f4fc6]
     item = items.FireBomb
+    access = 3
 
 
 # *** Monstro Town
@@ -927,30 +964,35 @@ class JinxDojoReward(Reward):
     area = locations.Area.MonstroTown
     addresses = [0x1e982a]
     item = items.JinxBelt
+    access = 4
 
 
 class CulexReward(Reward):
     area = locations.Area.MonstroTown
     addresses = [0x1e98bf]
     item = items.QuartzCharm
+    access = 4
 
 
 class SuperJumps30(Reward):
     area = locations.Area.MonstroTown
     addresses = [0x1f6b41, 0x1f6b6a]
     item = items.AttackScarf
+    access = 4
 
 
 class SuperJumps100(Reward):
     area = locations.Area.MonstroTown
     addresses = [0x1f6b8f]
     item = items.SuperSuit
+    access = 4
 
 
 class ThreeMustyFears(Reward):
     area = locations.Area.MonstroTown
     addresses = [0x1f7160]
     item = items.GhostMedal
+    access = 4
 
     @staticmethod
     def can_access(inventory):
@@ -1109,6 +1151,7 @@ class DodoReward(Reward):
     area = locations.Area.NimbusLand
     addresses = [0x20936a]
     item = items.Feather
+    access = 2
 
 
 class NimbusLandPrisoners(Reward):
@@ -1116,12 +1159,14 @@ class NimbusLandPrisoners(Reward):
     addresses = [0x20a9c5]
     item = items.FlowerJar
     missable = True
+    access = 2
 
 
 class NimbusLandSignalRing(Reward):
     area = locations.Area.NimbusLand
     addresses = [0x20a456]
     item = items.SignalRing
+    access = 4
 
     @staticmethod
     def can_access(inventory):
@@ -1132,6 +1177,7 @@ class NimbusLandCellar(Reward):
     area = locations.Area.NimbusLand
     addresses = [0x1ea732]
     item = items.FlowerJar
+    access = 4
 
     @staticmethod
     def can_access(inventory):
@@ -1470,6 +1516,7 @@ class FactoryToadGift(Reward):
     area = locations.Area.Factory
     addresses = [0x1ff7ed]
     item = items.RockCandy
+    access = 4
 
 
 # ********************* Default objects for world
