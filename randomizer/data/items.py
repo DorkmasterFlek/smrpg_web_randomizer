@@ -313,24 +313,26 @@ class Item:
         if self.is_equipment or self.include_stats_in_patch:
             data = bytearray()
 
-            # Item type and instant KO protection.
-            flags = self.item_type
-            if self.prevent_ko:
-                flags |= 1 << 7
-            data += utils.ByteField(flags).as_bytes()
+            # Only include initial item type and inflict/protect flags for equipment.
+            if self.is_equipment:
+                # Item type and instant KO protection.
+                flags = self.item_type
+                if self.prevent_ko:
+                    flags |= 1 << 7
+                data += utils.ByteField(flags).as_bytes()
 
-            # Inflict/protect flags for status ailments/buffs.
-            flags = 0
-            if self.status_immunities:
-                flags += 1 << 0
-            if self.status_buffs:
-                flags += 1 << 1
-            data += utils.ByteField(flags).as_bytes()
+                # Inflict/protect flags for status ailments/buffs.
+                flags = 0
+                if self.status_immunities:
+                    flags += 1 << 0
+                if self.status_buffs:
+                    flags += 1 << 1
+                data += utils.ByteField(flags).as_bytes()
 
-            # Which characters can equip
-            data += utils.BitMapSet(1, [c.index for c in self.equip_chars]).as_bytes()
+                # Which characters can equip
+                data += utils.BitMapSet(1, [c.index for c in self.equip_chars]).as_bytes()
 
-            patch.add_data(base_addr, data)
+                patch.add_data(base_addr, data)
 
             # Stats and special properties.
             data = bytearray()
