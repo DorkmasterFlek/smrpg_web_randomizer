@@ -58,27 +58,26 @@ class Settings:
                 for flag in category.flags:
                     self._check_flag_from_form_data(flag, form_data)
 
-    def _check_flag_from_form_data(self, flag, form_data):
+    def _check_flag_from_form_data(self, flag, form_data, selected_choice=False):
         """
 
         Args:
             flag (randomizer.logic.flags.Flag): Flag to check if enabled.
             form_data (dict): Form data dictionary.
+            selected_choice (bool): True if flag is a selected choice from a previous level, False otherwise.
 
         """
         if flag.available_in_mode(self.mode):
-            if form_data.get('flag-{}'.format(flag.value)):
+            if form_data.get('flag-{}'.format(flag.value)) or selected_choice:
                 self._enabled_flags.add(flag)
 
                 # Check for singular choice for this flag.
                 for choice in flag.choices:
                     if form_data.get('flag-{}-choice'.format(flag.value)) == choice.value:
                         self._enabled_flags.add(choice)
+                        self._check_flag_from_form_data(choice, form_data, selected_choice=True)
 
-                # Check other flags recursively.
-                for choice in flag.choices:
-                    self._check_flag_from_form_data(choice, form_data)
-
+                # Check other options recursively.
                 for option in flag.options:
                     self._check_flag_from_form_data(option, form_data)
 
@@ -92,6 +91,41 @@ class Settings:
         """:rtype: bool"""
         return self._debug_mode
 
+    def _build_flag_string_part(self, flag):
+        """
+
+        Args:
+            flag (randomizer.logic.flags.Flag): Flag to process.
+
+        Returns:
+            str: Flag string piece for this flag.
+
+        """
+        if self.is_flag_enabled(flag):
+            # Solo flag that begins with a dash.
+            if flag.value.startswith('-'):
+                return flag.value
+            # Flag that may have a subsection of choices and/or options.
+            else:
+                chars = []
+
+                for choice in flag.choices:
+                    chars.append(self._build_flag_string_part(choice)[1:])
+
+                for option in flag.options:
+                    chars.append(self._build_flag_string_part(option)[1:])
+
+                # If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
+                if flag.value.startswith('@'):
+                    if chars:
+                        return flag.value[1:] + ''.join(chars)
+                    else:
+                        return ''
+                else:
+                    return flag.value + ''.join(chars)
+        else:
+            return ''
+
     @property
     def flag_string(self):
         """
@@ -102,28 +136,7 @@ class Settings:
 
         for category in flags.CATEGORIES:
             for flag in category.flags:
-                if self.is_flag_enabled(flag):
-                    # Solo flag that begins with a dash.
-                    if flag.value.startswith('-'):
-                        flag_strings.append(flag.value)
-                    # Flag that may have a subsection of choices and/or options.
-                    else:
-                        chars = []
-
-                        choice = self.get_flag_choice(flag)
-                        if choice:
-                            chars.append(choice.value[1:])
-
-                        for option in flag.options:
-                            if self.is_flag_enabled(option):
-                                chars.append(option.value[1:])
-
-                        # If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
-                        if flag.value.startswith('@'):
-                            if chars:
-                                flag_strings.append(flag.value[1:] + ''.join(chars))
-                        else:
-                            flag_strings.append(flag.value[:1] + ''.join(chars))
+                flag_strings.append(self._build_flag_string_part(flag))
 
         return ' '.join(flag_strings)
 
