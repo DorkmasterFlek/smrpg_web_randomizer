@@ -13,11 +13,13 @@ class Area(Enum):
     MushroomKingdom = auto()
     BanditsWay = auto()
     KeroSewers = auto()
+    MidasRiver = auto()
     TadpolePond = auto()
     RoseWay = auto()
     RoseTown = auto()
     RoseTownClouds = auto()
     ForestMaze = auto()
+    Moleville = auto()
     MolevilleMines = auto()
     BoosterPass = auto()
     BoosterTower = auto()
@@ -115,3 +117,33 @@ class ItemLocation:
     @property
     def has_item(self):
         return self.item is not None
+
+
+# *** Helper functions to check access to certain areas.
+
+def can_access_birdo(inventory):
+    """
+
+    Args:
+        inventory (randomizer.logic.keys.Inventory):
+
+    Returns:
+        bool: True if this location is accessible with the given inventory, False otherwise.
+
+    """
+    # Castle Key 1 is needed to access this location.
+    return inventory.has_item(items.CastleKey1)
+
+
+def can_access_nimbus_castle_back(inventory):
+    """
+
+    Args:
+        inventory (randomizer.logic.keys.Inventory):
+
+    Returns:
+        bool: True if this location is accessible with the given inventory, False otherwise.
+
+    """
+    # Castle Key 2 is needed to access this location, plus defeating Birdo.
+    return can_access_birdo(inventory) and inventory.has_item(items.CastleKey2)
