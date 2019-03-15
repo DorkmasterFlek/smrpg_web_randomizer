@@ -572,7 +572,7 @@ def randomize_all(world):
                         item.price = 1
                         
     
-    #if world.settings.is_flag_enabled(flags.PoisonMushroom):
-    #    for item in world.items:
-    #        if item.index == 175:
-    #            item.status_immunities = [7]
+    if world.settings.is_flag_enabled(flags.PoisonMushroom):
+        for item in world.items:
+            if item.index == 175:
+                item.status_immunities = [random.randint(0,7)]
