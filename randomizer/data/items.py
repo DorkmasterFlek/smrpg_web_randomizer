@@ -65,6 +65,10 @@ class Item:
     vanilla_shop = False
     hard_tier = 0
 
+    # Flag to override whether we include the item stats in the patch data.  By default, we only include equipment but
+    # a small handful of consumable items have their effects shuffled as well.
+    include_stats_in_patch = False
+
     def __init__(self, world):
         """
 
@@ -305,7 +309,7 @@ class Item:
             return patch
 
         # Only modify equipment properties.
-        if self.is_equipment:
+        if self.is_equipment or self.include_stats_in_patch:
             data = bytearray()
 
             # Item type and instant KO protection.
@@ -2249,6 +2253,7 @@ class Mushroom2(Item):
     basic = True
     vanilla_shop = True
     hard_tier = 1
+    include_stats_in_patch = True
 
 
 class StarEgg(Item):
