@@ -12,6 +12,7 @@
             <form id="config">
                 {% csrf_token %}
                 <input type="hidden" name="region" id="region" value=""/>
+                <input type="hidden" name="flags" id="flags" value=""/>
 
                 <div class="card-header bg-success text-white">
                     <h3 class="card-title">Generate Randomized Game (v{{ version|default:'UNKNOWN' }})</h3>
@@ -109,7 +110,7 @@
                                     <div class="card-body">
                                         {# Show flags and options here. #}
                                         {% for flag in category.flags %}
-                                            {% include 'randomizer/_show_flag_ui.html' with flag=flag parent_value='' is_radio=False %}
+                                            {% include 'randomizer/_show_flag_ui.html' with flag=flag parent_value='' is_radio=False checked=False %}
                                         {% endfor %}
                                     </div>
                                 </div>
@@ -240,8 +241,8 @@
                 }
             }
 
-            // Clear all the options first.
-            $('.flag-form-input').prop('checked', false);
+            // Clear all the checkbox options first.  Leave radio buttons alone.
+            $('.flag-form-input-checkbox').prop('checked', false);
 
             // Parse flag string and set flags on the page.
             for (let flag of flags.split(' ')) {
@@ -318,6 +319,7 @@
             // Set flag string from selected flags.
             let flagString = flagStrings.join(' ');
             $('#flag-string').val(flagString);
+            $('#flags').val(flagString);
 
             // Save current flags in local storage.
             localforage.setItem("rom.flags", flagString);
