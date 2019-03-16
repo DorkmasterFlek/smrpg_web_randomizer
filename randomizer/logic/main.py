@@ -58,7 +58,7 @@ class Settings:
                 for flag in category.flags:
                     self._check_flag_from_form_data(flag, form_data)
 
-    def _check_flag_from_form_data(self, flag, form_data, selected_choice=False):
+    def _check_flag_from_form_data(self, flag, form_data, parent_value='', selected_choice=False):
         """
 
         Args:
@@ -68,14 +68,15 @@ class Settings:
 
         """
         if flag.available_in_mode(self.mode):
-            if form_data.get('flag-{}'.format(flag.value)) or selected_choice:
+            if form_data.get('flag-{}{}'.format(flag.value, parent_value)) or selected_choice:
                 self._enabled_flags.add(flag)
 
                 # Check for singular choice for this flag.
                 for choice in flag.choices:
-                    if form_data.get('flag-{}-choice'.format(flag.value)) == choice.value:
+                    if form_data.get('flag-{}{}-choice'.format(flag.value, parent_value)) == choice.value:
                         self._enabled_flags.add(choice)
-                        self._check_flag_from_form_data(choice, form_data, selected_choice=True)
+                        self._check_flag_from_form_data(choice, form_data, parent_value='-' + flag.value,
+                                                        selected_choice=True)
 
                 # Check other options recursively.
                 for option in flag.options:

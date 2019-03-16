@@ -3,15 +3,15 @@
 <div class="flag-container {% for mode in flag.modes %} flag-{{ mode }}{% endfor %}">
     {% if is_radio %}
         <input type="radio" class="flag-form-input flag-{{ flag.value }}"
-               id="flag-{{ flag.value }}{% if choice_parent %}-{{ choice_parent.value }}{% endif %}"
-               name="flag-{{ choice_parent.value }}-choice" value="{{ flag.value }}">
+               id="flag-{{ flag.value }}{{ parent_value }}"
+               name="flag{{ parent_value }}-choice" value="{{ flag.value }}">
     {% else %}
         <input type="checkbox" class="flag-form-input flag-{{ flag.value }}"
-               id="flag-{{ flag.value }}{% if choice_parent %}-{{ choice_parent.value }}{% endif %}"
+               id="flag-{{ flag.value }}{{ parent_value }}"
                name="flag-{{ flag.value }}">
     {% endif %}
     <div class="flag-{% if is_radio %}radio{% else %}checkbox{% endif %}-container">
-        <label for="flag-{{ flag.value }}{% if choice_parent %}-{{ choice_parent.value }}{% endif %}"
+        <label for="flag-{{ flag.value }}{{ parent_value }}"
             {% if is_radio %}
                 class="flag-radio {% if choice.hard %}flag-radio-hard{% endif %}"
             {% else %}
@@ -27,7 +27,7 @@
         </label>
     </div>
     <div class="flag-subsection-container">
-        <label for="flag-{{ flag.value }}{% if choice_parent %}-{{ choice_parent.value }}{% endif %}" class="flag-label">
+        <label for="flag-{{ flag.value }}{{ parent_value }}" class="flag-label">
             {{ flag.name }}
         </label>
         <div class="flag-subsection">
@@ -35,12 +35,12 @@
 
             {# Show flag choices, if any. #}
             {% for choice in flag.choices %}
-                {% include 'randomizer/_show_flag_ui.html' with flag=choice choice_parent=flag is_radio=True %}
+                {% include 'randomizer/_show_flag_ui.html' with flag=choice parent_value='-'|add:flag.value|add:parent_value is_radio=True %}
             {% endfor %}
 
             {# Show other flag options, if any. #}
             {% for option in flag.options %}
-                {% include 'randomizer/_show_flag_ui.html' with flag=option choice_parent=flag is_radio=False %}
+                {% include 'randomizer/_show_flag_ui.html' with flag=option parent_value='-'|add:flag.value|add:parent_value is_radio=False %}
             {% endfor %}
         </div>
     </div>
