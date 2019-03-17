@@ -203,6 +203,18 @@ def randomize_all(world):
             else:
                 monstro = []
                 monstroLocations = []
+            chance = random.randint(1,10)
+            #30% chance that 100 super jump will have the best of the 10 items
+            if chance <= 3 and len(monstro) > 0:
+                monstro.sort(key=lambda x: x.rank_value, reverse=True)
+                item = monstro[1]
+                location = [i for i in monstroLocations if isinstance(i, chests.SuperJumps100)][0]
+                location.item = item
+                monstro.remove(item)
+                monstroLocations.remove(location)
+                finished_chests.append(location)
+                if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
+                    excluded_items.append(item.index)
             while len(monstro) > 0:
                 item = random.choice(monstro)
                 location = random.choice(monstroLocations)
@@ -214,8 +226,8 @@ def randomize_all(world):
                     excluded_items.append(item.index)
                             
             #future: will need exception for monstro town shuffle
-            eligible_chests = [chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest not in finished_chests]
-            eligible_rewards = [chest for chest in [i for i in world.chest_locations if isinstance(i, chests.Reward)] if chest not in finished_chests]
+            eligible_chests = [chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward) and not isinstance(i, chests.BowserDoorReward)] if chest not in finished_chests]
+            eligible_rewards = [chest for chest in [i for i in world.chest_locations if (isinstance(i, chests.Reward) or isinstance(i, chests.BowserDoorReward))] if chest not in finished_chests]
             eligible_items = [i for i in world.items if i.index not in excluded_items and not i.is_key and i.hard_tier <= tiers_allowed]
             while len(eligible_chests) > 0:
                 chest = random.choice(eligible_chests)
@@ -292,15 +304,17 @@ def randomize_all(world):
                 else:
                     tier_selection = random.randint(1, 100)
                     if tier_selection <= 35:
-                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                    elif tier_selection <= 65:
+                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                    elif tier_selection <= 60:
                         chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
                     elif tier_selection <= 85:
-                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
-                    else:
                         chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
+                    else:
+                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
                 finished_chests.append(chest);
                 eligible_rewards.remove(chest);
+                print(chest)
+                print(chest.item)
             
         if world.settings.is_flag_enabled(flags.ReplaceItems):
             
@@ -334,5 +348,5 @@ def randomize_all(world):
                     if chest.item_allowed(items.Coins150) and not chest.item.frog_coin_item:
                         chest.item = closest_coins(chest.item.price)
                     elif chest.item_allowed(items.FrogCoin) and chest.item.frog_coin_item:
-                        chest.item = item.FrogCoin
+                        chest.item = items.FrogCoin
             

@@ -215,7 +215,7 @@ def randomize_all(world):
                 item.arbitrary_value = 1
             elif item.index == 80:
                 item.arbitrary_value = 10
-            item.rank_value = item.attack * max(0, min(2, (item.attack + item.variance) / (1 if (item.attack - item.variance == 0) else (item.attack - item.variance)))) + max (0, item.magic_attack + item.magic_defense + item.defense + min (20, item.speed / 2)) + 10 * len(item.status_immunities) + 15 * len(item.elemental_immunities) + 7.5 * len(item.elemental_resistances) + 50 * (1 if item.prevent_ko else 0) + 30 * len(item.status_buffs) + 10 * item.arbitrary_value
+            item.rank_value = item.attack * max(0, min(2, (item.attack + item.variance) / (1 if (item.attack - item.variance == 0) else (item.attack - item.variance)))) + max (0, (item.magic_attack / (2 if item.magic_attack < 0 else 1)) + (item.magic_defense / (2 if item.magic_defense < 0 else 1)) + (item.defense / (2 if item.defense < 0 else 1)) + min (20, item.speed / 2)) + 10 * len(item.status_immunities) + 15 * len(item.elemental_immunities) + 7.5 * len(item.elemental_resistances) + 50 * (1 if item.prevent_ko else 0) + 30 * len(item.status_buffs) + 10 * item.arbitrary_value
 
         #Calculate list position (used as a factor in pricing)
         ranks = [item for item in world.items if item.is_equipment]
@@ -497,10 +497,11 @@ def randomize_all(world):
                     else:
                         valid_consumables = basic_items
                     max_remaining = min(15 - len(assignments[shop.index]), len(valid_consumables))
-                    append_consumables = random.sample(valid_consumables, random.randint(1, max_remaining))
-                    for item in append_consumables:
-                        if (item not in assignments[shop.index]):
-                            assignments[shop.index].append(item)
+                    if max_remaining > 0:
+                        append_consumables = random.sample(valid_consumables, random.randint(1, max_remaining))
+                        for item in append_consumables:
+                            if (item not in assignments[shop.index]):
+                                assignments[shop.index].append(item)
 
             #Randomly assign anything to shops with space remaining
             done_already.clear()
@@ -543,8 +544,8 @@ def randomize_all(world):
                                 item.price = max(math.ceil(item.rank_value / 5), 1)
                             else:
                                 #Change constant to a lower value if items seem generally too expensive, or increase it if too cheap. Will affect better items more than bad ones
-                                price = math.ceil(item.rank_value * (1.5 + (item.rank_order_reverse / len(ranks_reverse))))
-                                price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
+                                price = math.ceil(item.rank_value * (2 + (item.rank_order_reverse / len(ranks_reverse))))
+                                price = utils.mutate_normal(price, minimum=price*0.9, maximum=price*1.1)
                                 item.price = price
                         else:
                             if shop.frog_coin_shop:

@@ -98,7 +98,7 @@ class MushroomWay3(Chest):
     area = locations.Area.MushroomWay
     addresses = [0x14b3da]
     item = items.Flower
-    access = 1
+    access = 2
 
 
 class MushroomWay4(Chest):
@@ -179,7 +179,7 @@ class PeachSurprise(Reward):
     area = locations.Area.MushroomKingdom
     addresses = [0x1e26b2]
     item = items.Mushroom
-    access = 1
+    access = 2
 
 
 class InvasionFamily(Reward):
@@ -233,7 +233,7 @@ class BanditsWayDogJump(StarAllowedChest):
     area = locations.Area.BanditsWay
     addresses = [0x149650]
     item = items.Flower
-    access = 2
+    access = 3
 
 
 class BanditsWayCroco(Chest):
@@ -360,14 +360,14 @@ class RoseTownToad(Reward):
     addresses = [0x1e6030]
     item = items.FlowerTab
     missable = True
-    access = 2
+    access = 3
 
 
 class Gaz(Reward):
     area = locations.Area.RoseTown
     addresses = [0x1e61ff]
     item = items.FingerShot
-    access = 1
+    access = 3
 
 
 # *** Forest Maze
@@ -397,21 +397,21 @@ class ForestMazeUnderground2(Chest):
     area = locations.Area.ForestMaze
     addresses = [0x14bba1]
     item = items.Flower
-    access = 2
+    access = 3
 
 
 class ForestMazeUnderground3(Chest):
     area = locations.Area.ForestMaze
     addresses = [0x14bba5]
     item = items.YouMissed
-    access = 1
+    access = 2
 
 
 class ForestMazeRedEssence(Chest):
     area = locations.Area.ForestMaze
     addresses = [0x14b841]
     item = items.RedEssence
-    access = 1
+    access = 2
 
 
 # *** Pipe Vault
@@ -420,21 +420,21 @@ class PipeVaultSlide1(Chest):
     area = locations.Area.PipeVault
     addresses = [0x14a2b7]
     item = items.Flower
-    access = 1
+    access = 2
 
 
 class PipeVaultSlide2(Chest):
     area = locations.Area.PipeVault
     addresses = [0x14a2c3]
     item = items.FrogCoin
-    access = 1
+    access = 2
 
 
 class PipeVaultSlide3(Chest):
     area = locations.Area.PipeVault
     addresses = [0x14a2cf]
     item = items.FrogCoin
-    access = 1
+    access = 2
 
 
 class PipeVaultNippers1(Chest):
@@ -455,14 +455,14 @@ class GoombaThumping1(Reward):
     area = locations.Area.PipeVault
     addresses = [0x1e2f9c]
     item = items.FlowerTab
-    access = 2
+    access = 3
 
 
 class GoombaThumping2(Reward):
     area = locations.Area.PipeVault
     addresses = [0x1e3fae]
     item = items.FlowerJar
-    access = 2
+    access = 3
 
 
 # *** Yo'ster Isle
@@ -471,7 +471,7 @@ class YosterIsleEntrance(Chest):
     area = locations.Area.YosterIsle
     addresses = [0x148b39]
     item = items.FrogCoin
-    access = 2
+    access = 3
 
 
 # *** Moleville
@@ -533,7 +533,7 @@ class CrocoFlunkie1(Reward):
     addresses = [0x1e961a]
     item = items.FlowerTab
     missable = True
-    access = 2
+    access = 3
 
 
 class CrocoFlunkie2(Reward):
@@ -541,7 +541,7 @@ class CrocoFlunkie2(Reward):
     addresses = [0x1e9673]
     item = items.FlowerTab
     missable = True
-    access = 2
+    access = 3
 
 
 class CrocoFlunkie3(Reward):
@@ -549,7 +549,7 @@ class CrocoFlunkie3(Reward):
     addresses = [0x1e96ca]
     item = items.FlowerTab
     missable = True
-    access = 2
+    access = 3
 
 
 # *** Booster Pass
@@ -572,21 +572,21 @@ class BoosterPassSecret1(Chest):
     area = locations.Area.BoosterPass
     addresses = [0x14da32]
     item = items.FrogCoin
-    access = 2
+    access = 3
 
 
 class BoosterPassSecret2(Chest):
     area = locations.Area.BoosterPass
     addresses = [0x14da36]
     item = items.Flower
-    access = 2
+    access = 3
 
 
 class BoosterPassSecret3(Chest):
     area = locations.Area.BoosterPass
     addresses = [0x14da42]
     item = items.KerokeroCola
-    access = 2
+    access = 3
 
 
 # *** Booster Tower
@@ -605,11 +605,11 @@ class BoosterTowerThwomp(Chest):
     access = 1
 
 
-class BoosterTowerMasher(Chest):
+class BoosterTowerMasher(Reward):
     area = locations.Area.BoosterTower
     addresses = [0x1f9ce9]
     item = items.Masher
-    access = 2
+    access = 3
 
 
 class BoosterTowerParachute(Chest):
@@ -652,7 +652,7 @@ class BoosterTowerRailway(Reward):
     area = locations.Area.BoosterTower
     addresses = [0x1ee468]
     item = items.FlowerTab
-    access = 1
+    access = 2
 
 
 class BoosterTowerChomp(Reward):
@@ -725,7 +725,7 @@ class SeaSaveRoom4(Chest):
     area = locations.Area.Sea
     addresses = [0x14a42f]
     item = items.MaxMushroom
-    access = 1
+    access = 2
 
 
 # *** Sunken Ship
@@ -741,7 +741,7 @@ class SunkenShipShop(Chest):
     area = locations.Area.SunkenShip
     addresses = [0x14ac70]
     item = items.Coins100
-    access = 2
+    access = 3
 
 
 class SunkenShipCoins1(Chest):
@@ -811,7 +811,7 @@ class SunkenShipHidonReward(Reward):
     area = locations.Area.SunkenShip
     addresses = [0x1e979c]
     item = items.SafetyBadge
-    access = 3
+    access = 4
 
 
 # *** Land's End
@@ -841,7 +841,7 @@ class LandsEndBeeRoom(Chest):
     area = locations.Area.LandsEnd
     addresses = [0x14a5a2]
     item = items.FrogCoin
-    access = 1
+    access = 2
 
 
 class LandsEndSecret1(Chest):
@@ -1006,7 +1006,7 @@ class BeanValley1(Chest):
     area = locations.Area.BeanValley
     addresses = [0x14bde3]
     item = items.Flower
-    access = 1
+    access = 2
 
 
 class BeanValley2(Chest):
@@ -1151,7 +1151,7 @@ class DodoReward(Reward):
     area = locations.Area.NimbusLand
     addresses = [0x20936a]
     item = items.Feather
-    access = 2
+    access = 3
 
 
 class NimbusLandPrisoners(Reward):
@@ -1159,7 +1159,7 @@ class NimbusLandPrisoners(Reward):
     addresses = [0x20a9c5]
     item = items.FlowerJar
     missable = True
-    access = 2
+    access = 3
 
 
 class NimbusLandSignalRing(Reward):
@@ -1190,14 +1190,14 @@ class BarrelVolcanoSecret1(Chest):
     area = locations.Area.BarrelVolcano
     addresses = [0x14d048]
     item = items.Flower
-    access = 1
+    access = 2
 
 
 class BarrelVolcanoSecret2(Chest):
     area = locations.Area.BarrelVolcano
     addresses = [0x14d04c]
     item = items.Flower
-    access = 1
+    access = 2
 
 
 class BarrelVolcanoBeforeStar1(Chest):
@@ -1409,14 +1409,14 @@ class BowsersKeepDoorReward1(BowserDoorReward):
     area = locations.Area.BowsersKeep
     addresses = [0x204bfc]
     item = items.SonicCymbal
-    access = 2
+    access = 4
 
 
 class BowsersKeepDoorReward2(BowserDoorReward):
     area = locations.Area.BowsersKeep
     addresses = [0x204c02]
     item = items.SuperSlap
-    access = 2
+    access = 4
 
 
 class BowsersKeepDoorReward3(BowserDoorReward):
@@ -1430,14 +1430,14 @@ class BowsersKeepDoorReward4(BowserDoorReward):
     area = locations.Area.BowsersKeep
     addresses = [0x204c0e]
     item = items.StarGun
-    access = 2
+    access = 4
 
 
 class BowsersKeepDoorReward5(BowserDoorReward):
     area = locations.Area.BowsersKeep
     addresses = [0x204c14]
     item = items.RockCandy
-    access = 2
+    access = 4
 
 
 class BowsersKeepDoorReward6(BowserDoorReward):
