@@ -172,6 +172,14 @@ def randomize_all(world):
                             else:
                                 enemy.xp = 0
                                 enemy.coins = 0
+                        # For Countdown fight, use the Ding-A-Lings because Countdown disables himself.
+                        elif location.formation.index == 295:
+                            if isinstance(enemy, enemies.DingALing):
+                                enemy.xp = min(int(round(stats['xp'] / 2)), 0xffff)
+                                enemy.coins = min(int(round(stats['coins'] / 2)), 255)
+                            else:
+                                enemy.xp = 0
+                                enemy.coins = 0
                         # Otherwise give the first enemy all the XP/coins, except for Hammer Bros that need half.
                         elif i == 0:
                             if isinstance(enemy, enemies.HammerBro):
