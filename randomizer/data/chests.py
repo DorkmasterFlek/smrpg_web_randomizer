@@ -1367,7 +1367,7 @@ class BowsersKeepRotatingPlatforms1(Chest):
     area = locations.Area.BowsersKeep
     addresses = [0x14e3ff]
     item = items.Flower
-    access = 3
+    access = 2
 
 
 class BowsersKeepRotatingPlatforms2(Chest):
@@ -1388,7 +1388,7 @@ class BowsersKeepRotatingPlatforms4(Chest):
     area = locations.Area.BowsersKeep
     addresses = [0x14e413]
     item = items.RoyalSyrup
-    access = 3
+    access = 2
 
 
 class BowsersKeepRotatingPlatforms5(Chest):
@@ -1402,7 +1402,7 @@ class BowsersKeepRotatingPlatforms6(Chest):
     area = locations.Area.BowsersKeep
     addresses = [0x14e41b]
     item = items.KerokeroCola
-    access = 3
+    access = 2
 
 
 class BowsersKeepDoorReward1(BowserDoorReward):
