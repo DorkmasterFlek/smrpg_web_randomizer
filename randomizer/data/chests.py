@@ -469,21 +469,21 @@ class MolevilleMinesPunchinello2(Chest):
 
 class CrocoFlunkie1(Reward):
     area = locations.Area.MolevilleMines
-    addresses = [0x1e961a]
+    addresses = [0x202073]
     item = items.FlowerTab
     missable = True
 
 
 class CrocoFlunkie2(Reward):
     area = locations.Area.MolevilleMines
-    addresses = [0x1e9673]
+    addresses = [0x2020cc]
     item = items.FlowerTab
     missable = True
 
 
 class CrocoFlunkie3(Reward):
     area = locations.Area.MolevilleMines
-    addresses = [0x1e96ca]
+    addresses = [0x202123]
     item = items.FlowerTab
     missable = True
 
