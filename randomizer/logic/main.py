@@ -22,13 +22,12 @@ VERSION = '8.0beta14'
 
 
 class Settings:
-    def __init__(self, mode, debug_mode=False, form_data=None, flag_string=None):
+    def __init__(self, mode, debug_mode=False, flag_string=''):
         """Provide either form data fields or flag string to set flags on creation.
 
         Args:
             mode (str): Should be standard or open.
             debug_mode (bool): Debug flag.
-            form_data (dict): Form data dict if getting settings from form submission.
             flag_string (str): Flag string if parsing flags from string.
         """
         self._mode = mode
@@ -36,51 +35,55 @@ class Settings:
         self._enabled_flags = set()
 
         # If flag string provided, make fake form data based on it to parse.
-        if flag_string is not None:
-            form_data = {}
-            for flag in flag_string.split():
-                if flag.startswith('-'):
-                    # Solo flag that begins with a dash.
-                    form_data['flag-{}'.format(flag)] = True
-                elif flag:
-                    # Flag that may have a subsection of choices and/or options.
-                    first = flag[0]
-                    form_data['flag-{}'.format(first)] = True
-                    form_data['flag-@{}'.format(first)] = True
-
-                    for char in flag[1:]:
-                        form_data['flag-@{}-choice'.format(first)] = '{}{}'.format(first, char)
-                        form_data['flag-{}{}'.format(first, char)] = True
+        flag_data = {}
+        for flag in flag_string.split():
+            if flag.startswith('-'):
+                # Solo flag that begins with a dash.
+                flag_data[flag] = True
+            elif flag:
+                # Flag that may have a subsection of choices and/or options.
+                flag_data[flag[0]] = [c for c in flag[1:]]
 
         # Get flags from form data.
-        if form_data is not None:
-            for category in flags.CATEGORIES:
-                for flag in category.flags:
-                    self._check_flag_from_form_data(flag, form_data)
+        for category in flags.CATEGORIES:
+            for flag in category.flags:
+                self._check_flag_from_form_data(flag, flag_data)
 
-    def _check_flag_from_form_data(self, flag, form_data, parent_value='', selected_choice=False):
+    def _check_flag_from_form_data(self, flag, flag_data):
         """
 
         Args:
             flag (randomizer.logic.flags.Flag): Flag to check if enabled.
-            form_data (dict): Form data dictionary.
-            selected_choice (bool): True if flag is a selected choice from a previous level, False otherwise.
+            flag_data (dict): Form data dictionary.
 
         """
         if flag.available_in_mode(self.mode):
-            if form_data.get('flag-{}{}'.format(flag.value, parent_value)) or selected_choice:
-                self._enabled_flags.add(flag)
+            if flag.value.startswith('-'):
+                # Solo flag that begins with a dash.
+                if flag_data.get(flag.value):
+                    self._enabled_flags.add(flag)
+            else:
+                # Flag that may be on its own with choices and/or suboptions.
+                if flag.value.startswith('@'):
+                    if flag.value[1:] in flag_data:
+                        self._enabled_flags.add(flag)
+                else:
+                    char = flag.value[0]
+                    rest = flag.value[1:]
 
-                # Check for singular choice for this flag.
+                    # Single character flag, just check if it's enabled.  Otherwise, make sure the small char is there.
+                    if rest:
+                        if rest in flag_data.get(char, []):
+                            self._enabled_flags.add(flag)
+                    elif char in flag_data:
+                        self._enabled_flags.add(flag)
+
+            # If flag was enabled, check choices/options recursively.
+            if self.is_flag_enabled(flag):
                 for choice in flag.choices:
-                    if form_data.get('flag-{}{}-choice'.format(flag.value, parent_value)) == choice.value:
-                        self._enabled_flags.add(choice)
-                        self._check_flag_from_form_data(choice, form_data, parent_value='-' + flag.value,
-                                                        selected_choice=True)
-
-                # Check other options recursively.
+                    self._check_flag_from_form_data(choice, flag_data)
                 for option in flag.options:
-                    self._check_flag_from_form_data(option, form_data)
+                    self._check_flag_from_form_data(option, flag_data)
 
     @property
     def mode(self):

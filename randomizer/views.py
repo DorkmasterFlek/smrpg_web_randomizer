@@ -134,11 +134,8 @@ class GenerateView(FormView):
         mode = data['mode']
         debug_mode = bool(data['debug_mode'])
 
-        # Get custom flags.
-        form_flags = dict((k, v) for k, v in data.items() if k.startswith('flag-'))
-
         # Build game world, randomize it, and generate the patch.
-        world = GameWorld(seed, Settings(mode, debug_mode, form_flags))
+        world = GameWorld(seed, Settings(mode, debug_mode, data['flags']))
         world.randomize()
         patches = {'US': world.build_patch()}
 
