@@ -282,31 +282,31 @@ class ChestTier4(Flag):
     value = 'T4'
     
 class ChestExcludeCoins(Flag):
-    name = 'Exclude Coins'
+    name = 'No Coins'
     description = "Chests will not contain coins."
     inverse_description = "(Chests may contain coins.)"
     value = 'Ty'
     
 class ChestExcludeFrogCoins(Flag):
-    name = 'Exclude Frog Coins'
+    name = 'No Frog Coins'
     description = "Chests will not contain frog coins."
     inverse_description = "(Chests may contain frog coins.)"
     value = 'Tg'
 
 class ChestExcludeFlowers(Flag):
-    name = 'Exclude Flowers'
+    name = 'No Flowers'
     description = "Chests will not contain FP flowers."
     inverse_description = "(Chests may contain FP flowers.)"
     value = 'Tf'
 
 class ChestExcludeMushrooms(Flag):
-    name = 'Exclude Mushrooms'
+    name = 'No Recovery Mushrooms'
     description = "Chests will not contain heal mushrooms."
     inverse_description = "(Chests may contain heal mushrooms.)"
     value = 'Tm'
 
 class ChestExcludeStars(Flag):
-    name = 'Exclude Stars'
+    name = 'No Stars'
     description = "Chests will not contain invincibility stars."
     inverse_description = "(Chests may contain stars.)"
     value = 'Ts'
@@ -448,6 +448,7 @@ class MonstroExcludeElsewhere(Flag):
     name = 'Exclude elsewhere'
     description = 'The items shuffled by your selected option will not appear in any shops or any other chests or reward spots.'
     value = 'Mx'
+    hard = True
 	
 class MonstroTownShuffle(Flag):
     name = 'Monstro Town Shuffle'

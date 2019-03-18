@@ -123,14 +123,6 @@ def randomize_all(world):
                 ########
                 denominator -= ratio_stars
             
-            #Then do key items.... in the future
-            
-            #Then make sure wallet is found in exactly 1 chest
-            eligible_wallet_locations = [chest for chest in world.chest_locations if chest not in finished_chests]
-            chest = random.choice(eligible_wallet_locations)
-            chest.item = items.Wallet
-            finished_chests.append(chest)
-            
             #then do the rest
             #biasing of items for chest
             def get_eligible_tier(chest_tier):
@@ -225,7 +217,16 @@ def randomize_all(world):
                 if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
                     excluded_items.append(item.index)
                             
-            #future: will need exception for monstro town shuffle
+            
+            #Then do key items.... in the future
+            
+            #Then make sure wallet is found in exactly 1 chest
+            eligible_wallet_locations = [chest for chest in world.chest_locations if chest not in finished_chests]
+            chest = random.choice(eligible_wallet_locations)
+            chest.item = items.Wallet
+            finished_chests.append(chest)
+            
+            #then do the rest
             eligible_chests = [chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward) and not isinstance(i, chests.BowserDoorReward)] if chest not in finished_chests]
             eligible_rewards = [chest for chest in [i for i in world.chest_locations if (isinstance(i, chests.Reward) or isinstance(i, chests.BowserDoorReward))] if chest not in finished_chests]
             eligible_items = [i for i in world.items if i.index not in excluded_items and not i.is_key and i.hard_tier <= tiers_allowed]
@@ -283,15 +284,29 @@ def randomize_all(world):
                         #print(str(selection) + "/" + str(denominator) + ": Coins")
                     else:
                         tier_selection = random.randint(1, 100)
-                        if tier_selection <= 35:
+                        if tiers_allowed == 4:
+                            if tier_selection <= 35:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                            elif tier_selection <= 65:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                            elif tier_selection <= 85:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                            else:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
+                        elif tiers_allowed == 3:
+                            if tier_selection <= 40:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                            elif tier_selection <= 75:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                            else:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                        elif tiers_allowed == 2:
+                            if tier_selection <= 50:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                            else:
+                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                        elif tiers_allowed == 1:
                             chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                        elif tier_selection <= 65:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                        elif tier_selection <= 85:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
-                        else:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
-                        #print(str(selection) + "/" + str(denominator) + ": Item")
                 finished_chests.append(chest);
                 eligible_chests.remove(chest);
                 
@@ -303,13 +318,28 @@ def randomize_all(world):
                     chest.item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
                 else:
                     tier_selection = random.randint(1, 100)
-                    if tier_selection <= 35:
-                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
-                    elif tier_selection <= 60:
-                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                    elif tier_selection <= 85:
-                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
-                    else:
+                    if tiers_allowed == 4:
+                        if tier_selection <= 35:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                        elif tier_selection <= 60:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                        elif tier_selection <= 85:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
+                        else:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                    elif tiers_allowed == 3:
+                        if tier_selection <= 30:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                        elif tier_selection <= 60:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                        else:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                    elif tiers_allowed == 2:
+                        if tier_selection <= 50:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                        else:
+                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                    elif tiers_allowed == 1:
                         chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
                 finished_chests.append(chest);
                 eligible_rewards.remove(chest);
