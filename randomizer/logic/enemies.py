@@ -92,7 +92,6 @@ def _randomize_enemy(enemy):
     enemy.fp = utils.mutate_normal(enemy.fp, minimum=1)
     enemy.evade = utils.mutate_normal(enemy.evade, minimum=0, maximum=100)
     enemy.magic_evade = utils.mutate_normal(enemy.magic_evade, minimum=0, maximum=100)
-    
 
     if enemy.boss:
         for attr, old_val in old_stats.items():
@@ -113,13 +112,24 @@ def _randomize_enemy(enemy):
         enemy.morph_chance = random.randint(0, 3)
 
     # Shuffle elemental resistances and status immunities.  Keep the same number but randomize them for now.
-    enemy.status_immunities = random.sample(range(0, 4), len(enemy.status_immunities))
+    # Keep the total number of elemental/status immunities the same, but mix them together with max 4 of each kind.
+    total_immunities = len(enemy.status_immunities) + len(enemy.resistances)
+    new_status_immunities = random.randint(max(0, total_immunities - 4), min(total_immunities, 4))
+    new_resistances = total_immunities - new_status_immunities
+
+    # Sanity check to make sure we don't have more than the max.
+    if new_status_immunities > 4 or new_status_immunities < 0:
+        raise ValueError("{}: invalid new_status_immunities {}".format(enemy, new_status_immunities))
+    if new_resistances > 4 or new_resistances < 0:
+        raise ValueError("{}: invalid new_resistances {}".format(enemy, new_resistances))
+
+    enemy.status_immunities = random.sample(range(0, 4), new_status_immunities)
 
     # Make a 50/50 chance to prioritize elemental immunities over weaknesses or vice versa.
     # Allow earth (jump) to be in both however, because they can be weak to jump while immune to it.
     # Jump Shoes bypass the immunity and they'll take double damage.
     if utils.coin_flip():
-        enemy.resistances = random.sample(range(4, 8), len(enemy.resistances))
+        enemy.resistances = random.sample(range(4, 8), new_resistances)
         potential_weaknesses = set(range(4, 8)) - set(enemy.resistances)
         potential_weaknesses.add(7)
         enemy.weaknesses = random.sample(potential_weaknesses, min(len(enemy.weaknesses), len(potential_weaknesses)))
@@ -127,8 +137,7 @@ def _randomize_enemy(enemy):
         enemy.weaknesses = random.sample(range(4, 8), len(enemy.weaknesses))
         potential_resistances = set(range(4, 8)) - set(enemy.weaknesses)
         potential_resistances.add(7)
-        enemy.resistances = random.sample(potential_resistances,
-                                          min(len(enemy.resistances), len(potential_resistances)))
+        enemy.resistances = random.sample(potential_resistances, min(new_resistances, len(potential_resistances)))
 
     # Randomize flower bonus type and chance for this enemy.
     enemy.flower_bonus_type = random.randint(1, 5)
@@ -234,8 +243,7 @@ def randomize_all(world):
             _randomize_enemy_attack(attack)
 
     if world.settings.is_flag_enabled(flags.EnemyStats):
-    
-    
+
         # *** Shuffle enemy stats ***
         # Start with inter-shuffling some stats between non-boss enemies around the same rank as each other.
         candidates = [m for m in world.enemies if not m.boss]
@@ -336,10 +344,9 @@ def randomize_all(world):
         for enemy in world.enemies:
             if not enemy.boss:
                 enemy.xp = 0
-                
-    
-    #if Gk is set, dont let any agent in a boss fight be hit by OHKO
+
+    # If Gk is set, dont let any agent in a boss fight be hit by OHKO
     if world.settings.is_flag_enabled(flags.NoOHKO):
         for enemy in world.enemies:
-            if enemy.index in [3, 25, 47, 67, 68, 75, 93, 103, 184, 189, 209, 213, 225, 233, 229, 211, 228, 245, 210, 207, 199, 200, 157, 153, 156, 155, 154, 205, 52, 246, 230, 134, 194, 215, 50, 221, 252, 222, 253, 243, 223, 240, 241, 255, 151, 149, 150, 152, 220, 219, 114, 56, 137, 191, 190, 187, 51, 74, 27, 87, 179, 195, 196, 218, 249, 216, 192, 193, 224, 33, 76, 204, 23, 208, 251, 226, 188]:
+            if enemy.boss or isinstance(enemy, (enemies.Pounder, enemies.Poundette)):
                 enemy.death_immune = True
