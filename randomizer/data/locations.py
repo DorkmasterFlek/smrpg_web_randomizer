@@ -56,8 +56,13 @@ class ItemLocation:
         self.world = world
 
     def __str__(self):
-        return '<{}: item {}>'.format(self.__class__.__name__, self.item.__name__)
+    
+        try:
+            return '<{}: item {}>'.format(self.__class__.__name__, self.item.__name__)
+        except:
+            return '<{}: item {}>'.format(self.__class__.__name__, str(self.item.hard_tier) + " tier item")
 
+        
     def __repr__(self):
         return str(self)
 

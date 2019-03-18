@@ -355,6 +355,10 @@ class GameWorld:
             patch.add_data(0x3a00db, utils.ByteField(9999, num_bytes=2).as_bytes())
             patch.add_data(0x3a00df, utils.ByteField(99, num_bytes=2).as_bytes())
 
+        # No Mack Skip flag
+        if self.settings.is_flag_enabled(flags.NoMackSkip):
+            patch.add_data(0x14ca6c, bytes([0xA5]))
+            
         # Items
         for item in self.items:
             patch += item.get_patch()

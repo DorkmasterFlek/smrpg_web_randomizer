@@ -4,7 +4,8 @@ import enum
 import random
 import math
 
-from randomizer.logic import utils
+from randomizer.logic import flags, utils
+from randomizer.logic import flags, utils
 from randomizer.logic.patch import Patch
 from .characters import Mario, Mallow, Geno, Bowser, Peach
 
@@ -1857,7 +1858,7 @@ class MukuCookie(Item):
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 69
     vanilla_shop = True
-    hard_tier = 2
+    hard_tier = 3
 
 
 class Elixir(Item):
@@ -2281,97 +2282,119 @@ class ChestReward(Item):
 
 class Coins(ChestReward):
     """Base class for coins."""
+    hard_tier = 0
     pass
 
 
 class Coins5(Coins):
     index = 192
+    hard_tier = 1
 
 
 class Coins8(Coins):
     index = 193
+    hard_tier = 1
 
 
 class Coins10(Coins):
     index = 194
+    hard_tier = 1
 
 
 class Coins150(Coins):
     index = 195
+    hard_tier = 2
 
 
 class Coins100(Coins):
     index = 196
+    hard_tier = 2
 
 
 class Coins50(Coins):
     index = 197
+    hard_tier = 2
 
 
 class CoinsDoubleBig(Coins):
     index = 209
+    hard_tier = 1
 
 
 # *** Non-coin items (flower, frog coin, mushroom, miss)
 
 class NonCoins(ChestReward):
     """Base class for non-coin bonuses (frog coin, flower, mushroom)."""
+    hard_tier = 0
     pass
 
 
 class Flower(NonCoins):
     index = 198
+    hard_tier = 1
 
 
 class RecoveryMushroom(NonCoins):
     index = 199
+    hard_tier = 1
 
 
 class FrogCoin(NonCoins):
     index = 200
+    hard_tier = 1
 
 
 class YouMissed(NonCoins):
     index = 210
+    hard_tier = 1
 
 
 # *** Invincibility stars
 
 class InvincibilityStar(ChestReward):
     """Base class for invincibility stars."""
+    hard_tier = 0
     pass
 
 
 class BanditsWayStar(InvincibilityStar):
     index = 201
+    hard_tier = 1
 
 
 class KeroSewersStar(InvincibilityStar):
     index = 202
+    hard_tier = 1
 
 
 class MolevilleMinesStar(InvincibilityStar):
     index = 203
+    hard_tier = 2
 
 
 class SeaStar(InvincibilityStar):
     index = 204
+    hard_tier = 3
 
 
 class LandsEndVolcanoStar(InvincibilityStar):
     index = 205
+    hard_tier = 4
 
 
 class NimbusLandStar(InvincibilityStar):
     index = 206
+    hard_tier = 2
 
 
 class LandsEndStar2(InvincibilityStar):
     index = 207
+    hard_tier = 3
 
 
 class LandsEndStar3(InvincibilityStar):
     index = 208
+    hard_tier = 3
 
 
 # ************************** Shop data classes
