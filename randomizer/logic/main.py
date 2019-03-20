@@ -358,7 +358,7 @@ class GameWorld:
         # No Mack Skip flag
         if self.settings.is_flag_enabled(flags.NoMackSkip):
             patch.add_data(0x14ca6c, bytes([0xA5]))
-            
+
         # Items
         for item in self.items:
             patch += item.get_patch()
@@ -385,12 +385,14 @@ class GameWorld:
         if self.open_mode:
             # Item locations.
             for location in self.key_locations:
-                # FIXME
-                # print(">>>>>>>> {}".format(location))
                 patch += location.get_patch()
 
             for location in self.chest_locations:
                 patch += location.get_patch()
+
+            # FIXME
+            # for location in self.key_locations + self.chest_locations:
+            #     print(">>>>>>>> {}".format(location))
 
             # Boss locations.
             for boss in self.boss_locations:

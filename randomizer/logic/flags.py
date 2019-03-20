@@ -280,7 +280,8 @@ class ChestTier2(Flag):
 
 class ChestTier3(Flag):
     name = "Exclude best items"
-    description = "Out of all items that could appear in chests and as sidequest rewards, the very best items will be left out."
+    description = ("Out of all items that could appear in chests and as sidequest rewards, the very best items will be "
+                   "left out.")
     value = 'T3'
 
 
@@ -288,18 +289,21 @@ class ChestTier4(Flag):
     name = "Include all items"
     description = "Any item may appear in a chest or sidequest reward (besides key items)."
     value = 'T4'
-    
+
+
 class ChestExcludeCoins(Flag):
     name = 'No Coins'
     description = "Chests will not contain coins."
     inverse_description = "(Chests may contain coins.)"
     value = 'Ty'
-    
+
+
 class ChestExcludeFrogCoins(Flag):
     name = 'No Frog Coins'
     description = "Chests will not contain frog coins."
     inverse_description = "(Chests may contain frog coins.)"
     value = 'Tg'
+
 
 class ChestExcludeFlowers(Flag):
     name = 'No Flowers'
@@ -307,22 +311,26 @@ class ChestExcludeFlowers(Flag):
     inverse_description = "(Chests may contain FP flowers.)"
     value = 'Tf'
 
+
 class ChestExcludeMushrooms(Flag):
     name = 'No Recovery Mushrooms'
     description = "Chests will not contain heal mushrooms."
     inverse_description = "(Chests may contain heal mushrooms.)"
     value = 'Tm'
-    
+
+
 class ChestExcludeStars(Flag):
     name = 'No Stars'
     description = "Chests will not contain invincibility stars."
     value = 'T!'
     hard = True
-    
+
+
 class ChestRandomizeStars(Flag):
     name = 'Shuffle Stars'
     description = "The number and locations of EXP stars are randomized."
     value = 'Tr'
+
 
 class ChestStarShuffle(Flag):
     name = 'EXP Stars'
@@ -332,11 +340,13 @@ class ChestStarShuffle(Flag):
         ChestRandomizeStars,
         ChestExcludeStars
     ]
-    
+
+
 class ChestKIInclude3DMaze(Flag):
     name = 'Include 3D Maze'
     inverse_description = "(3D Maze will not have a key item.)"
     value = 'Td'
+
 
 class ChestKIIncludeCulex(Flag):
     name = 'Include Culex\'s Lair'
@@ -344,22 +354,26 @@ class ChestKIIncludeCulex(Flag):
     value = 'Tu'
     hard = True
 
+
 class ChestKIInclude30(Flag):
     name = 'Include 30 Super Jumps'
     inverse_description = "(30 Super Jumps will not have a key item.)"
     value = 'Th'
     hard = True
-    
+
+
 class ChestKIInclude100(Flag):
     name = 'Include 100 Super Jumps'
     inverse_description = "(100 Super Jumps will not have a key item.)"
     value = 'Ti'
     hard = True
 
+
 class ChestIncludeKeyItems(Flag):
     name = 'Include Key Items'
     description = "Any chest or sidequest reward may contain a key item."
-    inverse_description = "(Chests and sidequest rewards will not contain key items, with the exception of the Kero Sewers chest.)"
+    inverse_description = ("(Chests and sidequest rewards will not contain key items, with the exception of the "
+                           "Kero Sewers chest.)")
     value = 'Tk'
     hard = True
     options = [
@@ -369,16 +383,18 @@ class ChestIncludeKeyItems(Flag):
         ChestKIInclude100
     ]
 
-    
+
 class ChestShuffleEmpty(Flag):
     name = 'Empty chests'
     description = 'All chests give the "You missed!" cutscene, and sidequest rewards give you nothing.'
     value = 'Tx'
     hard = True
 
+
 class ChestShuffle1(Flag):
     name = 'Vanilla shuffle'
-    description = 'Chest and sidequest reward contents are the same as the original game, but shuffled within the same area.'
+    description = ('Chest and sidequest reward contents are the same as the original game, but shuffled within the '
+                   'same area.')
     value = 'Tv'
     choices = [
         ChestTier4,
@@ -392,8 +408,8 @@ class ChestShuffle1(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestExcludeStars,
-        ChestIncludeKeyItems
     ]
+
 
 class ChestShuffleBiased(Flag):
     name = 'Biased shuffle'
@@ -410,8 +426,10 @@ class ChestShuffleBiased(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestStarShuffle,
-        ChestIncludeKeyItems
+        # TODO: Allow this once mixing logic is done.
+        # ChestIncludeKeyItems,
     ]
+
 
 class ChestShuffleChaos(Flag):
     name = 'Chaotic shuffle'
@@ -429,9 +447,11 @@ class ChestShuffleChaos(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestStarShuffle,
-        ChestIncludeKeyItems
+        # TODO: Allow this once mixing logic is done.
+        # ChestIncludeKeyItems,
     ]
-    
+
+
 class ChestShuffleFlag(Flag):
     name = 'Randomize untrapped chest contents & sidequest rewards'
     description = '(note that some locations will not be affected)'
@@ -444,26 +464,34 @@ class ChestShuffleFlag(Flag):
         ChestShuffle1,
         ChestShuffleEmpty,
     ]
-    
+
+
 class MonstroTownLite(Flag):
     name = 'Monstro rewards only'
-    description = 'The Super Suit, Attack Scarf, Quartz Charm, Jinx Belt, and Ghost Medal locations will be shuffled within each other.'
+    description = ('The Super Suit, Attack Scarf, Quartz Charm, Jinx Belt, and Ghost Medal locations will be shuffled '
+                   'within each other.')
     value = 'M1'
-	
+
+
 class MonstroTownHard(Flag):
     name = 'Monstro rewards and key item rewards'
-    description = 'The Super Suit, Attack Scarf, Quartz Charm, Jinx Belt, Ghost Medal, FroggieStick, Zoom Shoes, Chomp, Lazy Shell Weapon, and Lazy Shell Armor locations will be shuffled within each other.'
+    description = ('The Super Suit, Attack Scarf, Quartz Charm, Jinx Belt, Ghost Medal, FroggieStick, Zoom Shoes, '
+                   'Chomp, Lazy Shell Weapon, and Lazy Shell Armor locations will be shuffled within each other.')
     value = 'M2'
-	
+
+
 class MonstroExcludeElsewhere(Flag):
     name = 'Exclude elsewhere'
-    description = 'The items shuffled by your selected option will not appear in any shops or any other chests or reward spots.'
+    description = ('The items shuffled by your selected option will not appear in any shops or any other chests or '
+                   'reward spots.')
     value = 'Mx'
     hard = True
-	
+
+
 class MonstroTownShuffle(Flag):
     name = 'Monstro Town Shuffle'
-    description = 'Randomize the locations of some special equips. These equips will not appear anywhere else in the game.'
+    description = ('Randomize the locations of some special equips. These equips will not appear anywhere else in the '
+                   'game.')
     inverse_description = '(The Monstro Town and key item equip rewards will not be shuffled within each other.)'
     value = 'M'
     choices = [
@@ -473,13 +501,14 @@ class MonstroTownShuffle(Flag):
     options = [
         MonstroExcludeElsewhere
     ]
-    
+
+
 class ReplaceItems(Flag):
     name = 'Replace worst chest items with coins'
     description = 'The lowest ranked items will be replaced with coins in chests.'
     inverse_description = '(You may find low-ranked items in chests.)'
     value = '$'
-	
+
 
 # ******** Shop shuffle flags
 
@@ -502,11 +531,13 @@ class ShopTier3(Flag):
     description = "Out of all items that could appear in shops, the very best items will be left out."
     value = 'S3'
 
+
 class ShopTier4(Flag):
     name = "Include all items"
     description = "Any non-key item may appear in a shop."
     value = 'S4'
-    
+
+
 class ShopShuffleVanilla(Flag):
     name = "Vanilla shop inventory"
     description = ("Shops will only contain items that were available in the original game's shops, shuffled amongst "
@@ -530,6 +561,7 @@ class ShopShuffleBalanced(Flag):
         ShopTier2
     ]
 
+
 class ShopShuffleChaotic(Flag):
     name = "Chaotic shop inventory"
     description = "Any shop may contain anything."
@@ -540,6 +572,7 @@ class ShopShuffleChaotic(Flag):
         ShopTier2,
         ShopTier1
     ]
+
 
 class ShopTierX(Flag):
     name = "Empty shops"
@@ -728,7 +761,8 @@ class Glitches(Flag):
         NoOHKO,
         NoGenoWhirlExor,
     ]
-    
+
+
 class PoisonMushroom(Flag):
     name = 'Change Fake Mushroom\'s Status'
     description = 'Randomize the status effect inflicted on a party member with the Fake Mushroom.'
@@ -803,6 +837,7 @@ class ChallengesCategory(FlagCategory):
     flags = [
         StarExpChallenge,
     ]
+
 
 class TweaksCategory(FlagCategory):
     name = 'Tweaks'

@@ -22,7 +22,7 @@ class Croco1(KeyItemLocation):
     item = items.RareFrogCoin
 
 
-class MushroomKingdomShop(KeyItemLocation):
+class RareFrogCoinReward(KeyItemLocation):
     area = locations.Area.MushroomKingdom
     addresses = [0x1e6610]
     item = items.CricketPie
@@ -59,7 +59,7 @@ class MelodyBaySong2(KeyItemLocation):
     @staticmethod
     def can_access(inventory):
         # Songs must be played in order, and Bambino Bomb is needed to access this location (beat minecart minigame).
-        return MelodyBaySong1.can_access(inventory) and inventory.has_item(items.BambinoBomb)
+        return MelodyBaySong1.can_access(inventory) and locations.can_access_mines_back(inventory)
 
 
 class MelodyBaySong3(KeyItemLocation):
@@ -138,7 +138,7 @@ class Fertilizer(KeyItemLocation):
 
     @staticmethod
     def can_access(inventory):
-        return locations.can_access_nimbus_castle_back(inventory)
+        return locations.can_clear_nimbus_castle(inventory)
 
 
 # ********************* Default lists for the world.
@@ -156,7 +156,7 @@ def get_default_key_item_locations(world):
     return [
         MariosBed(world),
         Croco1(world),
-        MushroomKingdomShop(world),
+        RareFrogCoinReward(world),
         RoseTownSign(world),
         CricketJamChest(world),
         MelodyBaySong1(world),
