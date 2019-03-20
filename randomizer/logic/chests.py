@@ -106,19 +106,22 @@ def randomize_all(world):
             #How should items vs non-items be balanced?
             #Do stars first
             if stars_allowed:
-                eligible_chests = [chest for chest in world.chest_locations if chest.item_allowed(items.BanditsWayStar)]
-                #randomize how many stars there will be - usually close to vanilla #
-                numStars = utils.mutate_normal(min(len(eligible_chests), math.floor(ratio_stars / denominator * total_chests)), minimum=1, maximum=len(eligible_chests))
-                if numStars > len(eligible_chests): numStars = len(eligible_chests)
-                while len(finished_chests) < numStars:
-                    chest = random.choice(eligible_chests)
-                    if biased: chest.item = random.choice([star for star in stars if star.hard_tier == chest.access])
-                    else: chest.item = random.choice([star for star in stars])
-                    finished_chests.append(chest);
-                    eligible_chests.remove(chest);
-                ####balance testing#####
-                #denominator = total_chests
-                ########
+                if world.settings.is_flag_enabled(flags.ChestRandomizeStars):
+                    eligible_chests = [chest for chest in world.chest_locations if chest.item_allowed(items.BanditsWayStar)]
+                    #randomize how many stars there will be - usually close to vanilla #
+                    numStars = utils.mutate_normal(min(len(eligible_chests), math.floor(ratio_stars / denominator * total_chests)), minimum=1, maximum=len(eligible_chests))
+                    if numStars > len(eligible_chests): numStars = len(eligible_chests)
+                    while len(finished_chests) < numStars:
+                        chest = random.choice(eligible_chests)
+                        if biased: chest.item = random.choice([star for star in stars if star.hard_tier == chest.access])
+                        else: chest.item = random.choice([star for star in stars])
+                else:
+                    
+                    eligible_chests = [chest for chest in world.chest_locations if chest.item.index >= 201 and chest.item.index <= 208]
+                    for chest in eligible_chests:
+                        finished_chests.append(chest);
+                    for chest in eligible_chests:
+                        eligible_chests.remove(chest);
                 denominator -= ratio_stars
             
             #then do the rest

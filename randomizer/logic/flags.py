@@ -312,13 +312,26 @@ class ChestExcludeMushrooms(Flag):
     description = "Chests will not contain heal mushrooms."
     inverse_description = "(Chests may contain heal mushrooms.)"
     value = 'Tm'
-
+    
 class ChestExcludeStars(Flag):
     name = 'No Stars'
     description = "Chests will not contain invincibility stars."
-    inverse_description = "(Chests may contain stars.)"
-    value = 'Ts'
+    value = 'T!'
     hard = True
+    
+class ChestRandomizeStars(Flag):
+    name = 'Shuffle Stars'
+    description = "The number and locations of EXP stars are randomized."
+    value = 'Tr'
+
+class ChestStarShuffle(Flag):
+    name = 'EXP Stars'
+    inverse_description = "(EXP stars are not affected by chest shuffle.)"
+    value = 'Ts'
+    choices = [
+        ChestRandomizeStars,
+        ChestExcludeStars
+    ]
     
 class ChestKIInclude3DMaze(Flag):
     name = 'Include 3D Maze'
@@ -396,7 +409,7 @@ class ChestShuffleBiased(Flag):
         ChestExcludeFrogCoins,
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
-        ChestExcludeStars,
+        ChestStarShuffle,
         ChestIncludeKeyItems
     ]
 
@@ -415,7 +428,7 @@ class ChestShuffleChaos(Flag):
         ChestExcludeFrogCoins,
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
-        ChestExcludeStars,
+        ChestStarShuffle,
         ChestIncludeKeyItems
     ]
     
