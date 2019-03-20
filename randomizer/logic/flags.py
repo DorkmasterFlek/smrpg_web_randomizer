@@ -312,12 +312,6 @@ class ChestExcludeStars(Flag):
     value = 'Ts'
     hard = True
     
-class ChestIncludeEmpty(Flag):
-    name = 'Include Empty Chests'
-    description = "Some chests may be empty."
-    inverse_description = "(Chests will not be empty, unless you have Sv enabled.)"
-    value = 'Te'
-     
 class ChestKIInclude3DMaze(Flag):
     name = 'Include 3D Maze'
     inverse_description = "(3D Maze will not have a key item.)"
@@ -377,7 +371,6 @@ class ChestShuffle1(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestExcludeStars,
-        ChestIncludeEmpty,
         ChestIncludeKeyItems
     ]
 
@@ -397,7 +390,6 @@ class ChestShuffleBiased(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestExcludeStars,
-        ChestIncludeEmpty,
         ChestIncludeKeyItems
     ]
 
@@ -417,7 +409,6 @@ class ChestShuffleChaos(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestExcludeStars,
-        ChestIncludeEmpty,
         ChestIncludeKeyItems
     ]
     

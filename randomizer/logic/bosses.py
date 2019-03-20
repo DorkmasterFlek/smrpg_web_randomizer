@@ -87,7 +87,6 @@ def randomize_all(world):
                 location_stats = []
                 for location in locations:
                     elist = location.formation.stat_total_enemies
-
                     # HP
                     # For Exor fight, only count Exor and average of Left + Right Eye mandatory HP.
                     if any(e for e in elist if isinstance(e, enemies.Exor)):
@@ -99,6 +98,8 @@ def randomize_all(world):
                             elif isinstance(e, (enemies.LeftEye, enemies.RightEye)):
                                 eyes += e.hp
                         hp += int(eyes / 2)
+                        xp = sum(e.xp for e in elist if isinstance(e, enemies.Exor))
+                        coins = sum(e.coins for e in elist if isinstance(e, enemies.Exor))
                     # For Cloaker/Domino, count average HP of each phase of the fight.
                     elif any(e for e in elist if isinstance(e, enemies.Cloaker)):
                         dudes = 0
@@ -109,13 +110,62 @@ def randomize_all(world):
                             elif isinstance(e, (enemies.Earthlink, enemies.MadAdder)):
                                 sneks += e.hp
                         hp = int(round((dudes / 2) + (sneks / 2)))
-                    # Anything else, just sum all HP.
+                        xp = sum(e.xp for e in elist if isinstance(e, enemies.Cloaker) or isinstance(e, enemies.Domino))
+                        coins = sum(e.coins for e in elist if isinstance(e, enemies.Cloaker) or isinstance(e, enemies.Domino))
+                    # For Dodo/Valentina, count 40% of Dodo's HP.
+                    elif any(e for e in elist if isinstance(e, enemies.Valentina)):
+                        dodo = 0
+                        valentina = 0
+                        for e in elist:
+                            if isinstance(e, (enemies.Dodo)):
+                                dodo += e.hp / 40
+                            elif isinstance(e, (enemies.Earthlink, enemies.MadAdder)):
+                                valentina += e.hp
+                        hp = int(round(dodo + valentina))
+                        xp = sum(e.xp for e in elist)
+                        coins = sum(e.coins for e in elist)
+                    # For King Calimari, need special exp calc
+                    elif any(e for e in elist if isinstance(e, enemies.KingCalamari)):
+                        hp = sum(e.hp for e in elist)
+                        xp = sum(e.xp for e in elist if isinstance(e, enemies.KingCalamari))
+                        coins = sum(e.coins for e in elist if isinstance(e, enemies.KingCalamari))
+                    # For Megasmilax, need special exp calc
+                    elif any(e for e in elist if isinstance(e, enemies.Megasmilax)):
+                        hp = sum(e.hp for e in elist)
+                        xp = sum(e.xp for e in elist if isinstance(e, enemies.Megasmilax))
+                        coins = sum(e.coins for e in elist if isinstance(e, enemies.Megasmilax))
+                    # For Axems, need special exp calc
+                    elif any(e for e in elist if isinstance(e, enemies.AxemRangers)):
+                        hp = sum(e.hp for e in elist)
+                        xp = sum(e.xp for e in elist if isinstance(e, enemies.AxemRangers))
+                        coins = sum(e.coins for e in elist if isinstance(e, enemies.AxemRangers))
+                    # For Belome 2, need special exp calc
+                    elif any(e for e in elist if isinstance(e, enemies.Belome2)):
+                        hp = sum(e.hp for e in elist)
+                        xp = sum(e.xp for e in world.enemies if isinstance(e, enemies.Belome2) or isinstance(e, enemies.MarioClone))
+                        coins = sum(e.coins for e in world.enemies if isinstance(e, enemies.Belome2) or isinstance(e, enemies.MarioClone))
+                    # For Culex, need special exp calc
+                    elif any(e for e in elist if isinstance(e, enemies.Culex)):
+                        hp = sum(e.hp for e in elist)
+                        xp = sum(e.xp for e in world.enemies if isinstance(e, enemies.Culex) or isinstance(e, enemies.WindCrystal) or isinstance(e, enemies.WaterCrystal) or isinstance(e, enemies.FireCrystal) or isinstance(e, enemies.EarthCrystal))
+                        coins = sum(e.coins for e in world.enemies if isinstance(e, enemies.Culex) or isinstance(e, enemies.WindCrystal) or isinstance(e, enemies.WaterCrystal) or isinstance(e, enemies.FireCrystal) or isinstance(e, enemies.EarthCrystal))
+                    # For Johnny, need special exp calc
+                    elif any(e for e in elist if isinstance(e, enemies.Johnny)):
+                        hp = sum(e.hp for e in elist)
+                        xp = 0
+                        coins = 0
+                        for e in world.enemies:
+                            if isinstance(e, (enemies.Johnny)):
+                                xp += e.xp
+                                coins += e.coins
+                            elif isinstance(e, (enemies.BandanaBlue)):
+                                xp += 4 * e.xp
+                                coins += 4 * e.coins
+                    # Anything else, just sum all HP/xp/coins.
                     else:
                         hp = sum(e.hp for e in elist)
-
-                    # For exp and coin rewards, just sum all the enemies.
-                    xp = sum(e.xp for e in elist)
-                    coins = sum(e.coins for e in elist)
+                        xp = sum(e.xp for e in elist)
+                        coins = sum(e.coins for e in elist)
 
                     # For other stats, if there's an anchor then take that enemy's stats.  Otherwise average them.
                     anchor = location.formation.shuffle_anchor

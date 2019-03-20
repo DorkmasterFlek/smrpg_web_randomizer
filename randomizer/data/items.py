@@ -2009,7 +2009,7 @@ class SheepAttack(Item):
     reuseable = True
     price = 150
     rare = True
-    hard_tier = 4
+    hard_tier = 2
 
 
 class CarboCookie(Item):
@@ -2059,7 +2059,7 @@ class LambsLure(Item):
     reuseable = True
     price = 40
     rare = True
-    hard_tier = 3
+    hard_tier = 2
 
 
 class FrightBomb(Item):
@@ -2081,7 +2081,7 @@ class MysteryEgg(Item):
     reuseable = True
     price = 200
     rare = True
-    hard_tier = 2
+    hard_tier = 1
 
 
 class BeetleBox(Item):

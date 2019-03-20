@@ -48,7 +48,6 @@ def randomize_all(world):
     frogcoins_allowed = not world.settings.is_flag_enabled(flags.ChestExcludeFrogCoins)
     mushrooms_allowed = not world.settings.is_flag_enabled(flags.ChestExcludeMushrooms)
     stars_allowed = not world.settings.is_flag_enabled(flags.ChestExcludeStars)
-    empty_allowed = world.settings.is_flag_enabled(flags.ChestIncludeEmpty)
     
     biased = world.settings.is_flag_enabled(flags.ChestShuffleBiased)
     #add key item check here
@@ -85,6 +84,7 @@ def randomize_all(world):
                     chest.item = items.YouMissed
         elif world.settings.is_flag_enabled(flags.ChestShuffleBiased) or world.settings.is_flag_enabled(flags.ChestShuffleChaos):
             finished_chests = []
+            items_already_in_chests = []
             #Here I'm just figuring out the rough distribution of each type to target.
             #We can consider mutating these probabilities.
             ratio_coins = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item in coins])
@@ -92,7 +92,6 @@ def randomize_all(world):
             ratio_mushrooms = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item == items.RecoveryMushroom])
             ratio_flowers = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item == items.Flower]) - 8
             ratio_stars = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item in stars])
-            ratio_empty = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item == items.YouMissed])
             ratio_items = len([chest for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)] if chest.item not in coins and chest.item not in stars and chest.item not in [items.FrogCoin, items.RecoveryMushroom, items.Flower, items.YouMissed]])
             denominator = ratio_items
             #these are the relative ratios used to calculate distribution properties. this is where we build the denominator
@@ -101,9 +100,8 @@ def randomize_all(world):
             if mushrooms_allowed: denominator += ratio_mushrooms
             if stars_allowed: denominator += ratio_stars
             if frogcoins_allowed: denominator += ratio_frogcoins
-            if empty_allowed: denominator += ratio_empty
             #factor in KIs allowed here
-            total_chests = ratio_coins + ratio_frogcoins + ratio_mushrooms + ratio_flowers + ratio_stars + ratio_empty + ratio_items
+            total_chests = ratio_coins + ratio_frogcoins + ratio_mushrooms + ratio_flowers + ratio_stars + ratio_items
             item_pool = [i for i in world.items if i.hard_tier <= tiers_allowed];
             #How should items vs non-items be balanced?
             #Do stars first
@@ -207,6 +205,7 @@ def randomize_all(world):
                 finished_chests.append(location)
                 if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
                     excluded_items.append(item.index)
+                items_already_in_chests.append(item)
             while len(monstro) > 0:
                 item = random.choice(monstro)
                 location = random.choice(monstroLocations)
@@ -216,6 +215,7 @@ def randomize_all(world):
                 finished_chests.append(location)
                 if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
                     excluded_items.append(item.index)
+                items_already_in_chests.append(item)
                             
             
             #Then do key items.... in the future
@@ -224,6 +224,12 @@ def randomize_all(world):
             eligible_wallet_locations = [chest for chest in world.chest_locations if chest not in finished_chests]
             chest = random.choice(eligible_wallet_locations)
             chest.item = items.Wallet
+            finished_chests.append(chest)
+            
+            #Then make sure "You Missed" is found in exactly 1 chest
+            eligible_empty_locations = [chest for chest in world.chest_locations if chest not in finished_chests and not isinstance(chest, chests.Reward) and chest.item_allowed(items.YouMissed)]
+            chest = random.choice(eligible_empty_locations)
+            chest.item = items.YouMissed
             finished_chests.append(chest)
             
             #then do the rest
@@ -243,9 +249,7 @@ def randomize_all(world):
                     else: adjusted_ratio_mushrooms = 0
                     if frogcoins_allowed and chest.item_allowed(items.FrogCoin): adjusted_ratio_frogcoins = math.floor(ratio_frogcoins / 1.5 / selected_tier)
                     else: adjusted_ratio_frogcoins = 0
-                    if empty_allowed and chest.item_allowed(items.YouMissed): adjusted_ratio_empty = math.floor(ratio_empty / selected_tier)
-                    else: adjusted_ratio_empty = 0
-                    adjusted_denominator += adjusted_ratio_coins + adjusted_ratio_flowers + adjusted_ratio_mushrooms + adjusted_ratio_frogcoins + adjusted_ratio_empty
+                    adjusted_denominator += adjusted_ratio_coins + adjusted_ratio_flowers + adjusted_ratio_mushrooms + adjusted_ratio_frogcoins
                     selection = random.randint(1, adjusted_denominator)
                     if flowers_allowed and chest.item_allowed(items.Flower) and selection < adjusted_ratio_flowers:
                         chest.item = items.Flower
@@ -256,14 +260,23 @@ def randomize_all(world):
                     elif frogcoins_allowed and chest.item_allowed(items.FrogCoin) and selection < adjusted_ratio_flowers + adjusted_ratio_mushrooms + adjusted_ratio_frogcoins:
                         chest.item = items.FrogCoin
                         #print(str(selection) + "/" + str(denominator) + ": Frog Coin" + str(selected_tier))
-                    elif empty_allowed and chest.item_allowed(items.YouMissed) and selection < adjusted_ratio_flowers + adjusted_ratio_mushrooms + adjusted_ratio_frogcoins + adjusted_ratio_empty:
-                        chest.item = items.YouMissed
-                        #print(str(selection) + "/" + str(denominator) + ": Empty" + str(selected_tier))
-                    elif coins_allowed and selected_tier <= 2 and chest.item_allowed(items.Coins150) and selection < adjusted_ratio_flowers + adjusted_ratio_mushrooms + adjusted_ratio_frogcoins + adjusted_ratio_empty + adjusted_ratio_coins:
+                    elif coins_allowed and selected_tier <= 2 and chest.item_allowed(items.Coins150) and selection < adjusted_ratio_flowers + adjusted_ratio_mushrooms + adjusted_ratio_frogcoins + adjusted_ratio_coins:
                         chest.item = random.choice([i for i in coins if i.hard_tier == selected_tier])
                         #print(str(selection) + "/" + str(denominator) + ": Coins" + str(selected_tier))
                     else: 
-                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
+                        #If item already exists in another location, 50% chance of rerolling for this chest
+                        proceed_repeat_item = False
+                        while not proceed_repeat_item:
+                            check_item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
+                            if check_item not in items_already_in_chests or not check_item.is_equipment:
+                                items_already_in_chests.append(check_item)
+                                chest.item = check_item
+                                proceed_repeat_item = True
+                            else:
+                                fifty = random.choice([0, 1])
+                                if fifty == 0:
+                                    chest.item = check_item
+                                    proceed_repeat_item = True
                         #print(str(selection) + "/" + str(denominator) + ": Item" + str(selected_tier))
                 else:
                     selection = random.randint(1, denominator)
@@ -276,76 +289,92 @@ def randomize_all(world):
                     elif frogcoins_allowed and chest.item_allowed(items.FrogCoin) and selection < ratio_flowers / 1.5 + ratio_mushrooms / 1.5 + ratio_frogcoins / 1.5:
                         chest.item = items.FrogCoin
                         #print(str(selection) + "/" + str(denominator) + ": Frog Coin")
-                    elif empty_allowed and chest.item_allowed(items.YouMissed) and selection < ratio_flowers / 1.5 + ratio_mushrooms / 1.5 + ratio_frogcoins / 1.5 + ratio_empty:
-                        chest.item = items.YouMissed
-                        #print(str(selection) + "/" + str(denominator) + ": Empty")
-                    elif coins_allowed and chest.item_allowed(items.Coins150) and selection < ratio_flowers / 1.5 + ratio_mushrooms / 1.5 + ratio_frogcoins / 1.5 + ratio_empty + ratio_coins:
+                    elif coins_allowed and chest.item_allowed(items.Coins150) and selection < ratio_flowers / 1.5 + ratio_mushrooms / 1.5 + ratio_frogcoins / 1.5 + ratio_coins:
                         chest.item = random.choice(coins)
                         #print(str(selection) + "/" + str(denominator) + ": Coins")
                     else:
                         tier_selection = random.randint(1, 100)
-                        if tiers_allowed == 4:
-                            if tier_selection <= 35:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                            elif tier_selection <= 65:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                            elif tier_selection <= 85:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                        proceed_repeat_item = False
+                        while not proceed_repeat_item:
+                            if tiers_allowed == 4:
+                                if tier_selection <= 35:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                                elif tier_selection <= 65:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                                elif tier_selection <= 85:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                                else:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 4])
+                            elif tiers_allowed == 3:
+                                if tier_selection <= 40:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                                elif tier_selection <= 75:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                                else:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                            elif tiers_allowed == 2:
+                                if tier_selection <= 50:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                                else:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                            elif tiers_allowed == 1:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                            if check_item not in items_already_in_chests or not check_item.is_equipment:
+                                items_already_in_chests.append(check_item)
+                                chest.item = check_item
+                                proceed_repeat_item = True
                             else:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
-                        elif tiers_allowed == 3:
-                            if tier_selection <= 40:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                            elif tier_selection <= 75:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                            else:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
-                        elif tiers_allowed == 2:
-                            if tier_selection <= 50:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                            else:
-                                chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                        elif tiers_allowed == 1:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                                fifty = random.choice([0, 1])
+                                if fifty == 0:
+                                    chest.item = check_item
+                                    proceed_repeat_item = True
                 finished_chests.append(chest);
                 eligible_chests.remove(chest);
-                
             
             while len(eligible_rewards) > 0:
                 chest = random.choice(eligible_rewards)
-                if biased:
-                    selected_tier = get_eligible_tier(chest.access)
-                    chest.item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
-                else:
-                    tier_selection = random.randint(1, 100)
-                    if tiers_allowed == 4:
-                        if tier_selection <= 35:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
-                        elif tier_selection <= 60:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                        elif tier_selection <= 85:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 4])
-                        else:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                    elif tiers_allowed == 3:
-                        if tier_selection <= 30:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                        elif tier_selection <= 60:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                        else:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 3])
-                    elif tiers_allowed == 2:
-                        if tier_selection <= 50:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                        else:
-                            chest.item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                    elif tiers_allowed == 1:
-                        chest.item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                proceed_repeat_item = False
+                while not proceed_repeat_item:
+                    if biased:
+                        selected_tier = get_eligible_tier(chest.access)
+                        check_item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
+                    else:
+                        tier_selection = random.randint(1, 100)
+                        if tiers_allowed == 4:
+                            if tier_selection <= 35:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                            elif tier_selection <= 60:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                            elif tier_selection <= 85:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 4])
+                            else:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                        elif tiers_allowed == 3:
+                            if tier_selection <= 30:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                            elif tier_selection <= 60:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                            else:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                        elif tiers_allowed == 2:
+                            if tier_selection <= 50:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                            else:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                        elif tiers_allowed == 1:
+                            check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                    if check_item not in items_already_in_chests or not check_item.is_equipment:
+                        items_already_in_chests.append(check_item)
+                        chest.item = check_item
+                        proceed_repeat_item = True
+                    else:
+                        fifty = random.choice([0, 1])
+                        if fifty == 0:
+                            chest.item = check_item
+                            proceed_repeat_item = True
                 finished_chests.append(chest);
                 eligible_rewards.remove(chest);
-                print(chest)
-                print(chest.item)
-            
+        
         if world.settings.is_flag_enabled(flags.ReplaceItems):
             
             def closest_coins(n):
