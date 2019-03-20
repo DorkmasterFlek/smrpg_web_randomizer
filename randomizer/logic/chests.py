@@ -115,6 +115,8 @@ def randomize_all(world):
                         chest = random.choice(eligible_chests)
                         if biased: chest.item = random.choice([star for star in stars if star.hard_tier == chest.access])
                         else: chest.item = random.choice([star for star in stars])
+                        finished_chests.append(chest);
+                        eligible_chests.remove(chest);
                 else:
                     
                     eligible_chests = [chest for chest in world.chest_locations if chest.item.index >= 201 and chest.item.index <= 208]
@@ -333,6 +335,9 @@ def randomize_all(world):
                                     proceed_repeat_item = True
                 finished_chests.append(chest);
                 eligible_chests.remove(chest);
+            
+            finished_chests.append([i for i in world.chest_locations if isinstance(i, chests.CricketJamReward)]);
+            eligible_rewards.remove([i for i in eligible_rewards if isinstance(i, chests.CricketJamReward)][0]);
             
             while len(eligible_rewards) > 0:
                 chest = random.choice(eligible_rewards)
