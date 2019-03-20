@@ -481,14 +481,14 @@ class TreasureSeller1(Reward):
     area = locations.Area.Moleville
     addresses = [0x1f8ca5]
     item = items.LuckyJewel
-    access = 2
+    access = 4
 
 
 class TreasureSeller2(Reward):
     area = locations.Area.Moleville
     addresses = [0x1f8cd1]
     item = items.MysteryEgg
-    access = 3
+    access = 4
 
 
 class TreasureSeller3(Reward):
