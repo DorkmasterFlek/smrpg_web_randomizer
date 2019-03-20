@@ -19,14 +19,22 @@ class Flag:
 
     @classmethod
     def description_as_markdown(cls):
-        if hasattr(cls, 'description') and cls.description:
+        return mark_safe(markdown(cls.description, safe_mode='escape'))
+
+    @classmethod
+    def description_or_name_as_markdown(cls):
+        if cls.description:
             return mark_safe(markdown(cls.description, safe_mode='escape'))
         else:
             return mark_safe(markdown(cls.name, safe_mode='escape'))
 
     @classmethod
     def inverse_description_as_markdown(cls):
-        if hasattr(cls, 'inverse_description'):
+        return mark_safe(markdown(cls.inverse_description, safe_mode='escape'))
+
+    @classmethod
+    def inverse_description_or_name_as_markdown(cls):
+        if cls.inverse_description:
             return mark_safe(markdown(cls.inverse_description, safe_mode='escape'))
         else:
             return mark_safe(markdown("(" + cls.name + ")", safe_mode='escape'))
@@ -304,20 +312,27 @@ class ChestExcludeMushrooms(Flag):
     description = "Chests will not contain heal mushrooms."
     inverse_description = "(Chests may contain heal mushrooms.)"
     value = 'Tm'
-
+    
 class ChestExcludeStars(Flag):
     name = 'No Stars'
     description = "Chests will not contain invincibility stars."
-    inverse_description = "(Chests may contain stars.)"
-    value = 'Ts'
+    value = 'T!'
     hard = True
     
-class ChestIncludeEmpty(Flag):
-    name = 'Include Empty Chests'
-    description = "Some chests may be empty."
-    inverse_description = "(Chests will not be empty, unless you have Sv enabled.)"
-    value = 'Te'
-     
+class ChestRandomizeStars(Flag):
+    name = 'Shuffle Stars'
+    description = "The number and locations of EXP stars are randomized."
+    value = 'Tr'
+
+class ChestStarShuffle(Flag):
+    name = 'EXP Stars'
+    inverse_description = "(EXP stars are not affected by chest shuffle.)"
+    value = 'Ts'
+    choices = [
+        ChestRandomizeStars,
+        ChestExcludeStars
+    ]
+    
 class ChestKIInclude3DMaze(Flag):
     name = 'Include 3D Maze'
     inverse_description = "(3D Maze will not have a key item.)"
@@ -377,7 +392,6 @@ class ChestShuffle1(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestExcludeStars,
-        ChestIncludeEmpty,
         ChestIncludeKeyItems
     ]
 
@@ -388,16 +402,14 @@ class ChestShuffleBiased(Flag):
     choices = [
         ChestTier4,
         ChestTier3,
-        ChestTier2,
-        ChestTier1,
+        ChestTier2
     ]
     options = [
         ChestExcludeCoins,
         ChestExcludeFrogCoins,
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
-        ChestExcludeStars,
-        ChestIncludeEmpty,
+        ChestStarShuffle,
         ChestIncludeKeyItems
     ]
 
@@ -416,8 +428,7 @@ class ChestShuffleChaos(Flag):
         ChestExcludeFrogCoins,
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
-        ChestExcludeStars,
-        ChestIncludeEmpty,
+        ChestStarShuffle,
         ChestIncludeKeyItems
     ]
     
@@ -516,8 +527,7 @@ class ShopShuffleBalanced(Flag):
     choices = [
         ShopTier4,
         ShopTier3,
-        ShopTier2,
-        ShopTier1
+        ShopTier2
     ]
 
 class ShopShuffleChaotic(Flag):
