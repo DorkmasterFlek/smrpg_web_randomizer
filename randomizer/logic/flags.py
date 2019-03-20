@@ -19,14 +19,22 @@ class Flag:
 
     @classmethod
     def description_as_markdown(cls):
-        if hasattr(cls, 'description') and cls.description:
+        return mark_safe(markdown(cls.description, safe_mode='escape'))
+
+    @classmethod
+    def description_or_name_as_markdown(cls):
+        if cls.description:
             return mark_safe(markdown(cls.description, safe_mode='escape'))
         else:
             return mark_safe(markdown(cls.name, safe_mode='escape'))
 
     @classmethod
     def inverse_description_as_markdown(cls):
-        if hasattr(cls, 'inverse_description'):
+        return mark_safe(markdown(cls.inverse_description, safe_mode='escape'))
+
+    @classmethod
+    def inverse_description_or_name_as_markdown(cls):
+        if cls.inverse_description:
             return mark_safe(markdown(cls.inverse_description, safe_mode='escape'))
         else:
             return mark_safe(markdown("(" + cls.name + ")", safe_mode='escape'))
@@ -381,8 +389,7 @@ class ChestShuffleBiased(Flag):
     choices = [
         ChestTier4,
         ChestTier3,
-        ChestTier2,
-        ChestTier1,
+        ChestTier2
     ]
     options = [
         ChestExcludeCoins,
@@ -507,8 +514,7 @@ class ShopShuffleBalanced(Flag):
     choices = [
         ShopTier4,
         ShopTier3,
-        ShopTier2,
-        ShopTier1
+        ShopTier2
     ]
 
 class ShopShuffleChaotic(Flag):
