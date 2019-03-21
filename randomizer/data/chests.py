@@ -3,6 +3,7 @@
 from randomizer.data import items
 from randomizer.logic.utils import isclass_or_instance
 from . import locations
+import random
 
 
 # ******* Chest location classes
@@ -329,12 +330,19 @@ class CricketJamReward(Reward):
     def can_access(inventory):
         return inventory.has_item(items.CricketJam)
 
+    #def get_patch(self):
+    #    patch = super().get_patch()
+    #
+    #    # Extra bytes needed to enable this spot to use the regular item granting subroutine.
+    #    patch.add_data(0x1e6631, bytes([0x40, 0x66]))
+    #
+    #    return patch
+    
     def get_patch(self):
         patch = super().get_patch()
-
-        # Extra bytes needed to enable this spot to use the regular item granting subroutine.
-        patch.add_data(0x1e6631, bytes([0x40, 0x66]))
-
+        
+        patch.add_data(0x1e6650, bytes([random.randint(5,random.randint(10,20))]))
+        
         return patch
 
 
