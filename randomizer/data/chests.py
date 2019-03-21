@@ -208,7 +208,7 @@ class PeachSurprise(Reward):
 
 class InvasionFamily(Reward):
     area = locations.Area.MushroomKingdom
-    addresses = [0x1e3a74]
+    addresses = [0x1e3a74, 0x1e39b9]
     item = items.FlowerTab
     missable = True
     access = 3
