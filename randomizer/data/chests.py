@@ -325,24 +325,22 @@ class CricketJamReward(Reward):
     addresses = [0x1e6642]
     item = items.FrogCoin
     access = 3
+    num_frog_coins = 10
 
     @staticmethod
     def can_access(inventory):
         return inventory.has_item(items.CricketJam)
 
-    #def get_patch(self):
-    #    patch = super().get_patch()
-    #
-    #    # Extra bytes needed to enable this spot to use the regular item granting subroutine.
-    #    patch.add_data(0x1e6631, bytes([0x40, 0x66]))
-    #
-    #    return patch
-    
     def get_patch(self):
         patch = super().get_patch()
-        
-        patch.add_data(0x1e6650, bytes([random.randint(5,random.randint(10,20))]))
-        
+
+        # If we're giving frog coins at this spot, write the number of frog coins to a special address.
+        if isclass_or_instance(self.item, items.FrogCoin):
+            patch.add_data(0x1e6650, self.num_frog_coins)
+        # Otherwise extra bytes are needed to enable this spot to use the regular item granting subroutine.
+        else:
+            patch.add_data(0x1e6631, bytes([0x40, 0x66]))
+
         return patch
 
 

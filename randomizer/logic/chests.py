@@ -433,51 +433,53 @@ def randomize_all(world):
                 finished_chests.append(chest)
                 eligible_chests.remove(chest)
 
-            finished_chests.append([i for i in world.chest_locations if isinstance(i, chests.CricketJamReward)])
-            eligible_rewards.remove([i for i in eligible_rewards if isinstance(i, chests.CricketJamReward)][0])
-
             while len(eligible_rewards) > 0:
                 chest = random.choice(eligible_rewards)
-                proceed_repeat_item = False
-                while not proceed_repeat_item:
-                    if biased:
-                        selected_tier = get_eligible_tier(chest.access)
-                        check_item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
-                    else:
-                        tier_selection = random.randint(1, 100)
-                        if tiers_allowed == 4:
-                            if tier_selection <= 35:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
-                            elif tier_selection <= 60:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                            elif tier_selection <= 85:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 4])
-                            else:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                        elif tiers_allowed == 3:
-                            if tier_selection <= 30:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                            elif tier_selection <= 60:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                            else:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
-                        elif tiers_allowed == 2:
-                            if tier_selection <= 50:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                            else:
-                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                        else:
-                            check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
 
-                    if check_item not in items_already_in_chests or not check_item.is_equipment:
-                        items_already_in_chests.append(check_item)
-                        chest.item = check_item
-                        proceed_repeat_item = True
-                    else:
-                        fifty = random.choice([0, 1])
-                        if fifty == 0:
+                # For Cricket Jam reward, always give frog coins for now!  Just randomize the number.
+                if isinstance(chest, chests.CricketJamReward):
+                    chest.num_frog_coins = random.randint(5, random.randint(10, 20))
+                else:
+                    proceed_repeat_item = False
+                    while not proceed_repeat_item:
+                        if biased:
+                            selected_tier = get_eligible_tier(chest.access)
+                            check_item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
+                        else:
+                            tier_selection = random.randint(1, 100)
+                            if tiers_allowed == 4:
+                                if tier_selection <= 35:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                                elif tier_selection <= 60:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                                elif tier_selection <= 85:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 4])
+                                else:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                            elif tiers_allowed == 3:
+                                if tier_selection <= 30:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                                elif tier_selection <= 60:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                                else:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
+                            elif tiers_allowed == 2:
+                                if tier_selection <= 50:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+                                else:
+                                    check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+                            else:
+                                check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
+
+                        if check_item not in items_already_in_chests or not check_item.is_equipment:
+                            items_already_in_chests.append(check_item)
                             chest.item = check_item
                             proceed_repeat_item = True
+                        else:
+                            fifty = random.choice([0, 1])
+                            if fifty == 0:
+                                chest.item = check_item
+                                proceed_repeat_item = True
 
                 finished_chests.append(chest)
                 eligible_rewards.remove(chest)
