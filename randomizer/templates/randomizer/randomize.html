@@ -281,6 +281,7 @@
                     let rest = '';
                     if (flag.value.startsWith('@')) {
                         char = flag.value.slice(1, 2);
+                        flagStrings.get('@').push(char);
                     } else {
                         char = flag.value.slice(0, 1);
                         rest = flag.value.slice(1);
@@ -310,6 +311,7 @@
         function buildFlagString() {
             let mode = $('#mode').val();
             let flagStrings = new Map();
+            flagStrings.set('@', []);
 
             // Check each flag if it's selected, and check choices and/or options for it.
             for (let flag of FLAGS) {
@@ -318,11 +320,15 @@
 
             // Set flag string from selected flags.
             let flagString = '';
-            for (let [key, value] of flagStrings) {
-                if (key.startsWith('-')) {
-                    flagString += key + ' ';
-                } else {
-                    flagString += key + value.join('') + ' ';
+            for (let [key, vals] of flagStrings) {
+                if (key !== '@') {
+                    if (key.startsWith('-')) {
+                        flagString += key + ' ';
+                    } else {
+                        if (vals.length > 0 || !flagStrings.get('@').includes(key)) {
+                            flagString += key + vals.join('') + ' ';
+                        }
+                    }
                 }
             }
 

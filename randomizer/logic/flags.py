@@ -860,25 +860,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Csj Edf B Tc4yg Sc4 Qa Xs'
+    flags = 'K R Csj Edf B Tc4yg M1 Sc4 Qa Xs'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf B Tc3yg Sb4 Qsa Xs'
+    flags = 'Ks R7 Cspjl Edf B Tc3yg M1 Sb4 Qsa Xs'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc Tb2 Sb2 Qsba Xs P1 Gm -fakeout'
+    flags = 'Ks R7k Cspjl Edfsa Bc Tb2 M2 Sb2 Qsba Xs P1 Gm -fakeout'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything difficult enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tv1 Sv1 Qsba! Xsx P2 Gme -fakeout'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tv1 M2x Sv1 Qsba! Xsx P2 Gme -fakeout'
 
 
 # ************************************** Default lists for the site.

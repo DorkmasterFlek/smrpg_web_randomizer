@@ -118,6 +118,7 @@ class Settings:
                 rest = ''
                 if flag.value.startswith('@'):
                     char = flag.value[1]
+                    flag_strings['@'].append(char)
                 else:
                     char = flag.value[0]
                     rest = flag.value[1:]
@@ -141,6 +142,7 @@ class Settings:
             str: Computed flag string for these settings.
         """
         flag_strings = collections.OrderedDict()
+        flag_strings['@'] = []
 
         for category in flags.CATEGORIES:
             for flag in category.flags:
@@ -148,10 +150,11 @@ class Settings:
 
         flag_string = ''
         for key, vals in flag_strings.items():
-            if key.startswith('-'):
-                flag_string += key + ' '
-            else:
-                flag_string += key + ''.join(vals) + ' '
+            if key != '@':
+                if key.startswith('-'):
+                    flag_string += key + ' '
+                elif vals or key not in flag_strings['@']:
+                    flag_string += key + ''.join(vals) + ' '
 
         return flag_string.strip()
 
