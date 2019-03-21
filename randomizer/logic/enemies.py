@@ -3,7 +3,7 @@
 import random
 from functools import reduce
 
-from randomizer.data import enemies
+from randomizer.data import bosses, enemies
 from randomizer.data.formations import FormationMember
 from . import flags, utils
 
@@ -341,8 +341,14 @@ def randomize_all(world):
 
     # No XP from regular encounters.
     if world.settings.is_flag_enabled(flags.ExperienceNoRegular):
+        boss_enemies = set()
+        for location in world.boss_locations:
+            if isinstance(location, bosses.BossLocation):
+                for member in location.formation.members:
+                    boss_enemies.add(member.enemy)
+
         for enemy in world.enemies:
-            if not enemy.boss:
+            if not enemy.boss or enemy not in boss_enemies:
                 enemy.xp = 0
 
     # If Gk is set, dont let any agent in a boss fight be hit by OHKO
