@@ -338,7 +338,7 @@ class ChestStarShuffle(Flag):
     value = 'Ts'
     choices = [
         ChestRandomizeStars,
-        ChestExcludeStars
+        ChestExcludeStars,
     ]
 
 
@@ -380,7 +380,7 @@ class ChestIncludeKeyItems(Flag):
         ChestKIInclude3DMaze,
         ChestKIIncludeCulex,
         ChestKIInclude30,
-        ChestKIInclude100
+        ChestKIInclude100,
     ]
 
 
@@ -494,13 +494,13 @@ class MonstroTownShuffle(Flag):
                    'game.')
     inverse_description = '(The Monstro Town and key item equip rewards will not be shuffled within each other.)'
     modes = ['open']
-    value = 'M'
+    value = '@M'
     choices = [
         MonstroTownLite,
-        MonstroTownHard
+        MonstroTownHard,
     ]
     options = [
-        MonstroExcludeElsewhere
+        MonstroExcludeElsewhere,
     ]
 
 
@@ -600,7 +600,7 @@ class FreeShops(Flag):
     name = "'Free' Shops"
     description = "All shop items will cost 1 coin. You will start with 9999 coins and 99 frog coins."
     inverse_description = "(Shops are not free, and you start with 0 coins.)"
-    value = '-freeshops'
+    value = 'Sf'
 
 
 # ******** Item shuffle flags
@@ -770,7 +770,7 @@ class PoisonMushroom(Flag):
     description = 'Randomize the status effect inflicted on a party member with the Fake Mushroom.'
     inverse_description = '(The Fake Mushroom will always turn you into a mushroom.)'
     mode = ['open']
-    value = 'W'
+    value = '-fakeout'
 
 
 # ************************************** Category classes
@@ -808,7 +808,7 @@ class ChestCategory(FlagCategory):
     flags = [
         ChestShuffleFlag,
         ReplaceItems,
-        MonstroTownShuffle
+        MonstroTownShuffle,
     ]
 
 
@@ -845,7 +845,7 @@ class TweaksCategory(FlagCategory):
     name = 'Tweaks'
     flags = [
         Glitches,
-        PoisonMushroom
+        PoisonMushroom,
     ]
 
 
@@ -860,25 +860,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Csj Edf B S4b Qa Xs'
+    flags = 'K R Csj Edf B Tc4yg Sc4 Qa Xs'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf B S3b Qsa Xs'
+    flags = 'Ks R7 Cspjl Edf B Tc3yg Sb4 Qsa Xs'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc S2vb Qsba Xs P1 Gm'
+    flags = 'Ks R7k Cspjl Edfsa Bc Tb2 Sb2 Qsba Xs P1 Gm -fakeout'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything difficult enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs S1vb Qsba! Xsx P2 Gme'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tv1 Sv1 Qsba! Xsx P2 Gme -fakeout'
 
 
 # ************************************** Default lists for the site.

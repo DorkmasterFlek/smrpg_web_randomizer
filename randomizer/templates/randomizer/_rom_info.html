@@ -70,10 +70,14 @@ jQuery.expr[':'].regex = function(elem, index, match) {
 
         let all_applied_flags = [];
         flag_sections.forEach(function(section) {
-            let parent_flag = section.charAt(0);
-            all_applied_flags.push(parent_flag);
-            for (let i = 1; i < section.length; i++) {
-                all_applied_flags.push(parent_flag + section.charAt(i));
+            if (section.startsWith('-')) {
+                all_applied_flags.push(section);
+            } else {
+                let parent_flag = section.charAt(0);
+                all_applied_flags.push(parent_flag);
+                for (let i = 1; i < section.length; i++) {
+                    all_applied_flags.push(parent_flag + section.charAt(i));
+                }
             }
         });
             function toArray(obj) {
@@ -84,7 +88,7 @@ jQuery.expr[':'].regex = function(elem, index, match) {
               }
               return array;
             }
-        $("div:regex(class,flag\-.?.$)").each(function(index, elem) {
+        $("div:regex(class,flag\-)").each(function(index, elem) {
             let element_flag_class = toArray($(elem)[0].classList).find(value => /^flag-/.test(value));
             let matched_flag = element_flag_class.replace("flag-", "");
             let isolated_flag = matched_flag;
