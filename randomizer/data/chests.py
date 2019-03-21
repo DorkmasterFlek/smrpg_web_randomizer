@@ -3,7 +3,6 @@
 from randomizer.data import items
 from randomizer.logic.utils import isclass_or_instance
 from . import locations
-import random
 
 
 # ******* Chest location classes
