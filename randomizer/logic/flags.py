@@ -302,7 +302,7 @@ class ChestExcludeFrogCoins(Flag):
     name = 'No Frog Coins'
     description = "Chests will not contain frog coins."
     inverse_description = "(Chests may contain frog coins.)"
-    value = 'Tg'
+    value = 'Tz'
 
 
 class ChestExcludeFlowers(Flag):
@@ -493,6 +493,7 @@ class MonstroTownShuffle(Flag):
     description = ('Randomize the locations of some special equips. These equips will not appear anywhere else in the '
                    'game.')
     inverse_description = '(The Monstro Town and key item equip rewards will not be shuffled within each other.)'
+    modes = ['open']
     value = 'M'
     choices = [
         MonstroTownLite,
@@ -507,7 +508,8 @@ class ReplaceItems(Flag):
     name = 'Replace worst chest items with coins'
     description = 'The lowest ranked items will be replaced with coins in chests.'
     inverse_description = '(You may find low-ranked items in chests.)'
-    value = '$'
+    modes = ['open']
+    value = 'Tg'
 
 
 # ******** Shop shuffle flags
@@ -598,7 +600,7 @@ class FreeShops(Flag):
     name = "'Free' Shops"
     description = "All shop items will cost 1 coin. You will start with 9999 coins and 99 frog coins."
     inverse_description = "(Shops are not free, and you start with 0 coins.)"
-    value = 'F'
+    value = '-freeshops'
 
 
 # ******** Item shuffle flags

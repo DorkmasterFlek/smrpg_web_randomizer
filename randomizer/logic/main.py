@@ -42,7 +42,9 @@ class Settings:
                 flag_data[flag] = True
             elif flag:
                 # Flag that may have a subsection of choices and/or options.
-                flag_data[flag[0]] = [c for c in flag[1:]]
+                if flag[0] not in flag_data:
+                    flag_data[flag[0]] = []
+                flag_data[flag[0]] += [c for c in flag[1:]]
 
         # Get flags from form data.
         for category in flags.CATEGORIES:
