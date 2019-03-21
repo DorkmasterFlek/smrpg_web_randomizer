@@ -348,5 +348,5 @@ def randomize_all(world):
     # If Gk is set, dont let any agent in a boss fight be hit by OHKO
     if world.settings.is_flag_enabled(flags.NoOHKO):
         for enemy in world.enemies:
-            if enemy.boss or isinstance(enemy, (enemies.Pounder, enemies.Poundette)):
+            if enemy.boss:
                 enemy.death_immune = True

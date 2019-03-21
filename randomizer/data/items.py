@@ -4,8 +4,7 @@ import enum
 import random
 import math
 
-from randomizer.logic import flags, utils
-from randomizer.logic import flags, utils
+from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 from .characters import Mario, Mallow, Geno, Bowser, Peach
 
@@ -316,18 +315,18 @@ class Item:
             # Only include initial item type and inflict/protect flags for equipment.
             if self.is_equipment:
                 # Item type and instant KO protection.
-                flags = self.item_type
+                val = self.item_type
                 if self.prevent_ko:
-                    flags |= 1 << 7
-                data += utils.ByteField(flags).as_bytes()
+                    val |= 1 << 7
+                data += utils.ByteField(val).as_bytes()
 
                 # Inflict/protect flags for status ailments/buffs.
-                flags = 0
+                val = 0
                 if self.status_immunities:
-                    flags += 1 << 0
+                    val += 1 << 0
                 if self.status_buffs:
-                    flags += 1 << 1
-                data += utils.ByteField(flags).as_bytes()
+                    val += 1 << 1
+                data += utils.ByteField(val).as_bytes()
 
                 # Which characters can equip
                 data += utils.BitMapSet(1, [c.index for c in self.equip_chars]).as_bytes()
@@ -1903,6 +1902,7 @@ class TempleKey(Item):
     order = 150
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class GoodieBag(Item):
@@ -1964,6 +1964,7 @@ class CricketPie(Item):
     order = 138
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class RockCandy(Item):
@@ -2028,6 +2029,7 @@ class ShinyStone(Item):
     price = 4
     rare = True
     hard_tier = 2
+    shuffle_type = ItemShuffleType.Required
 
 
 class RoomKey(Item):
@@ -2035,6 +2037,7 @@ class RoomKey(Item):
     order = 145
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class ElderKey(Item):
@@ -2042,6 +2045,7 @@ class ElderKey(Item):
     order = 140
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class ShedKey(Item):
@@ -2049,6 +2053,7 @@ class ShedKey(Item):
     order = 147
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class LambsLure(Item):
@@ -2198,6 +2203,7 @@ class Seed(Item):
     item_type = 3
     rare = True
     hard_tier = 3
+    shuffle_type = ItemShuffleType.Required
 
 
 class Fertilizer(Item):
@@ -2206,6 +2212,7 @@ class Fertilizer(Item):
     item_type = 3
     rare = True
     hard_tier = 3
+    shuffle_type = ItemShuffleType.Required
 
 
 class BigBooFlag(Item):
@@ -2213,6 +2220,7 @@ class BigBooFlag(Item):
     order = 132
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class DryBonesFlag(Item):
@@ -2220,6 +2228,7 @@ class DryBonesFlag(Item):
     order = 139
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class GreaperFlag(Item):
@@ -2227,6 +2236,7 @@ class GreaperFlag(Item):
     order = 143
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class CricketJam(Item):
@@ -2234,6 +2244,7 @@ class CricketJam(Item):
     order = 137
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class BrightCard(Item):
@@ -2283,7 +2294,6 @@ class ChestReward(Item):
 class Coins(ChestReward):
     """Base class for coins."""
     hard_tier = 0
-    pass
 
 
 class Coins5(Coins):

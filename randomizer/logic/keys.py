@@ -3,7 +3,7 @@
 import random
 
 import randomizer.data.items
-from randomizer.data import keys
+from randomizer.data import chests, keys
 from . import flags
 
 
@@ -28,14 +28,26 @@ def _item_location_filter(world, location):
 
     Args:
         world (randomizer.logic.main.GameWorld):
-        location (KeyItemLocation):
+        location (randomizer.data.locations.ItemLocation):
 
     Returns:
         bool:
     """
+    # Don't include Seed/Fertilizer spots unless enabled.
     if (isinstance(location, (keys.Seed, keys.Fertilizer)) and
             not world.settings.is_flag_enabled(flags.IncludeSeedFertilizer)):
         return False
+
+    # Check if including chests.
+    if (isinstance(location, (chests.Chest, chests.Reward)) and
+            not world.settings.is_flag_enabled(flags.ChestIncludeKeyItems)):
+        return False
+
+    # Don't put key items in missable locations.
+    if location.missable:
+        return False
+
+    # Everything else is fine.
     return True
 
 
@@ -45,7 +57,7 @@ def _place_items(world, items, locations, base_inventory=None):
     Args:
         world (randomizer.logic.main.GameWorld):
         items (Inventory):
-        locations (list[KeyItemLocation]):
+        locations (list[randomizer.data.locations.ItemLocation]):
         base_inventory (Inventory):
 
     """
@@ -75,7 +87,7 @@ def _collect_items(world, collected=None):
     """Collect the available items in the world.
 
     Args:
-        world (randomizer.logic.main.GameWorld):
+        world (randomizer.logic.main.GameWorld): Game world
         collected (Inventory): Already collected items to start.
 
     Returns:
@@ -86,7 +98,7 @@ def _collect_items(world, collected=None):
     if collected is not None:
         my_items.extend(collected)
 
-    available_locations = [l for l in world.key_locations if l.has_item]
+    available_locations = [l for l in world.key_locations + world.chest_locations if l.has_item]
 
     # Search all locations and collect items until we can't get any more.
     while True:
@@ -110,36 +122,55 @@ def randomize_all(world):
     # Open mode-specific shuffles.
     if world.open_mode:
         # Shuffle key item locations.
-        if world.settings.is_flag_enabled(flags.KeyItemShuffle):
+        if (world.settings.is_flag_enabled(flags.KeyItemShuffle) and
+                not world.settings.is_flag_enabled(flags.ChestIncludeKeyItems)):
             locations_to_fill = [l for l in world.key_locations if _item_location_filter(world, l)]
             required_items = Inventory([l.item for l in locations_to_fill if
                                         l.item.shuffle_type == randomizer.data.items.ItemShuffleType.Required])
             extra_items = Inventory([l.item for l in locations_to_fill if
                                      l.item.shuffle_type == randomizer.data.items.ItemShuffleType.Extra])
 
-            # Sanity check to make sure we're filling the right number of spots.
-            if len(locations_to_fill) != len(required_items) + len(extra_items):
-                raise ValueError("Locations length doesn't match number of items.")
+            # Fill in locations.
+            fill_locations(world, locations_to_fill, required_items, extra_items)
 
-            # Clear existing items to start.
-            for location in locations_to_fill:
-                location.item = None
 
-            # Shuffle locations, required items and extra items.
-            random.shuffle(locations_to_fill)
-            random.shuffle(required_items)
-            random.shuffle(extra_items)
+def fill_locations(world, locations_to_fill, required_items, extra_items=None):
+    """Fill the given locations with the given required and extra items.
 
-            # Place required items first.
-            _place_items(world, required_items, locations_to_fill)
+    Args:
+        world (randomizer.logic.main.GameWorld): Game world to randomize.
+        locations_to_fill (list[randomizer.data.locations.ItemLocation]): Locations to fill.
+        required_items (Inventory): Required items to place.
+        extra_items (Inventory): Extra items to place.
 
-            # Reverse remaining empty locations, then fill extra items.
-            locations_to_fill = [l for l in locations_to_fill if not l.has_item]
-            locations_to_fill.reverse()
-            _place_items(world, extra_items, locations_to_fill)
+    """
+    if extra_items is None:
+        extra_items = Inventory()
 
-            # Sanity check to make sure we can collect all the items.
-            expected_items = Inventory([l.item for l in world.key_locations])
-            collected_items = _collect_items(world)
-            if len(collected_items) != len(expected_items):
-                raise ValueError("Can't get all collectable items in world: {}".format(world.key_locations))
+    # Sanity check to make sure we're filling the right number of spots.
+    if len(locations_to_fill) != len(required_items) + len(extra_items):
+        raise ValueError("Locations length doesn't match number of items.")
+
+    # Clear existing items to start.
+    for location in locations_to_fill:
+        location.item = None
+
+    # Shuffle locations, required items and extra items.
+    random.shuffle(locations_to_fill)
+    random.shuffle(required_items)
+    random.shuffle(extra_items)
+
+    # Place required items first.
+    _place_items(world, required_items, locations_to_fill)
+
+    # Reverse remaining empty locations, then fill extra items.
+    locations_to_fill = [l for l in locations_to_fill if not l.has_item]
+    locations_to_fill.reverse()
+    _place_items(world, extra_items, locations_to_fill)
+
+    # Sanity check to make sure we can collect all the items.
+    collected_items = set(_collect_items(world))
+    leftover = set(required_items + extra_items) - collected_items
+    if leftover:
+        raise ValueError("Items leftover from collection: {!r}, leftover {!r}".format(
+            locations_to_fill, leftover))

@@ -1,5 +1,6 @@
 # Main randomizer logic module that the front end calls.
 
+import collections
 import hashlib
 import random
 import re
@@ -42,7 +43,9 @@ class Settings:
                 flag_data[flag] = True
             elif flag:
                 # Flag that may have a subsection of choices and/or options.
-                flag_data[flag[0]] = [c for c in flag[1:]]
+                if flag[0] not in flag_data:
+                    flag_data[flag[0]] = []
+                flag_data[flag[0]] += [c for c in flag[1:]]
 
         # Get flags from form data.
         for category in flags.CATEGORIES:
@@ -95,11 +98,12 @@ class Settings:
         """:rtype: bool"""
         return self._debug_mode
 
-    def _build_flag_string_part(self, flag):
+    def _build_flag_string_part(self, flag, flag_strings):
         """
 
         Args:
             flag (randomizer.logic.flags.Flag): Flag to process.
+            flag_strings (dict): Dictionary for flag strings.
 
         Returns:
             str: Flag string piece for this flag.
@@ -108,27 +112,27 @@ class Settings:
         if self.is_flag_enabled(flag):
             # Solo flag that begins with a dash.
             if flag.value.startswith('-'):
-                return flag.value
+                flag_strings[flag.value] = True
             # Flag that may have a subsection of choices and/or options.
             else:
-                chars = []
+                rest = ''
+                if flag.value.startswith('@'):
+                    char = flag.value[1]
+                else:
+                    char = flag.value[0]
+                    rest = flag.value[1:]
+
+                # Check if this key is in the map yet.
+                if char not in flag_strings:
+                    flag_strings[char] = []
+                if rest:
+                    flag_strings[char].append(rest)
 
                 for choice in flag.choices:
-                    chars.append(self._build_flag_string_part(choice)[1:])
+                    self._build_flag_string_part(choice, flag_strings)
 
                 for option in flag.options:
-                    chars.append(self._build_flag_string_part(option)[1:])
-
-                # If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
-                if flag.value.startswith('@'):
-                    if chars:
-                        return flag.value[1:] + ''.join(chars)
-                    else:
-                        return ''
-                else:
-                    return flag.value + ''.join(chars)
-        else:
-            return ''
+                    self._build_flag_string_part(option, flag_strings)
 
     @property
     def flag_string(self):
@@ -136,13 +140,20 @@ class Settings:
         Returns:
             str: Computed flag string for these settings.
         """
-        flag_strings = []
+        flag_strings = collections.OrderedDict()
 
         for category in flags.CATEGORIES:
             for flag in category.flags:
-                flag_strings.append(self._build_flag_string_part(flag))
+                self._build_flag_string_part(flag, flag_strings)
 
-        return ' '.join(flag_strings)
+        flag_string = ''
+        for key, vals in flag_strings.items():
+            if key.startswith('-'):
+                flag_string += key + ' '
+            else:
+                flag_string += key + ''.join(vals) + ' '
+
+        return flag_string.strip()
 
     def is_flag_enabled(self, flag):
         """
@@ -358,7 +369,7 @@ class GameWorld:
         # No Mack Skip flag
         if self.settings.is_flag_enabled(flags.NoMackSkip):
             patch.add_data(0x14ca6c, bytes([0xA5]))
-            
+
         # Items
         for item in self.items:
             patch += item.get_patch()
@@ -385,12 +396,14 @@ class GameWorld:
         if self.open_mode:
             # Item locations.
             for location in self.key_locations:
-                # FIXME
-                # print(">>>>>>>> {}".format(location))
                 patch += location.get_patch()
 
             for location in self.chest_locations:
                 patch += location.get_patch()
+
+            # FIXME
+            # for location in self.key_locations + self.chest_locations:
+            #     print(">>>>>>>> {}".format(location))
 
             # Boss locations.
             for boss in self.boss_locations:

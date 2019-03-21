@@ -1,6 +1,7 @@
 # Data module for areas and location data and base classes for key item/chest shuffle..
 
 from enum import Enum, auto
+from inspect import isclass
 
 from randomizer.data import items
 from randomizer.logic import utils
@@ -56,13 +57,14 @@ class ItemLocation:
         self.world = world
 
     def __str__(self):
-    
-        try:
-            return '<{}: item {}>'.format(self.__class__.__name__, self.item.__name__)
-        except:
-            return '<{}: item {}>'.format(self.__class__.__name__, str(self.item.hard_tier) + " tier item")
+        if isinstance(self.item, items.Item):
+            item_str = self.item.name
+        elif isclass(self.item):
+            item_str = self.item.__name__
+        else:
+            item_str = str(self.item)
+        return '<{}: item {}>'.format(self.__class__.__name__, item_str)
 
-        
     def __repr__(self):
         return str(self)
 
@@ -121,6 +123,20 @@ class ItemLocation:
 
 # *** Helper functions to check access to certain areas.
 
+def can_access_mines_back(inventory):
+    """
+
+    Args:
+        inventory (randomizer.logic.keys.Inventory):
+
+    Returns:
+        bool: True if this location is accessible with the given inventory, False otherwise.
+
+    """
+    # Bambino Bomb is needed to access this location.
+    return inventory.has_item(items.BambinoBomb)
+
+
 def can_access_birdo(inventory):
     """
 
@@ -135,7 +151,7 @@ def can_access_birdo(inventory):
     return inventory.has_item(items.CastleKey1)
 
 
-def can_access_nimbus_castle_back(inventory):
+def can_clear_nimbus_castle(inventory):
     """
 
     Args:

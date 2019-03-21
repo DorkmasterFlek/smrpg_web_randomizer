@@ -3,7 +3,6 @@
 from randomizer.data import items
 from randomizer.logic.utils import isclass_or_instance
 from . import locations
-import random
 
 
 # ******* Chest location classes
@@ -54,6 +53,14 @@ class RoseTownGardenerChest(Chest):
         return inventory.has_item(items.Seed) and inventory.has_item(items.Fertilizer)
 
 
+class MolevilleMinesBackChest(Chest):
+    """Subclass for the back chests in Moleville Mines requiring Bambino Bomb to access."""
+
+    @staticmethod
+    def can_access(inventory):
+        return locations.can_access_mines_back(inventory)
+
+
 class BowserDoorReward(Chest):
     """Subclass for Bowser door rewards because they can only be inventory items or you missed."""
 
@@ -75,6 +82,22 @@ class BowserDoorReward(Chest):
 
 class Reward(locations.ItemLocation):
     """Subclass for NPC reward location."""
+
+
+class TreasureSellerReward(Reward):
+    """Subclass for Moleville treasure seller NPC to check access.  Need to beat mines to unlock this."""
+
+    @staticmethod
+    def can_access(inventory):
+        return locations.can_access_mines_back(inventory)
+
+
+class BelomeTempleTreasure(Reward):
+    """Subclass for Belome Temple rewards."""
+
+    @staticmethod
+    def can_access(inventory):
+        return inventory.has_item(items.TempleKey)
 
 
 # ****************************** Actual chest classes
@@ -185,7 +208,7 @@ class PeachSurprise(Reward):
 
 class InvasionFamily(Reward):
     area = locations.Area.MushroomKingdom
-    addresses = [0x1e3a74]
+    addresses = [0x1e3a74, 0x1e39b9]
     item = items.FlowerTab
     missable = True
     access = 3
@@ -301,24 +324,22 @@ class CricketJamReward(Reward):
     addresses = [0x1e6642]
     item = items.FrogCoin
     access = 3
+    num_frog_coins = 10
 
     @staticmethod
     def can_access(inventory):
         return inventory.has_item(items.CricketJam)
 
-    #def get_patch(self):
-    #    patch = super().get_patch()
-    #
-    #    # Extra bytes needed to enable this spot to use the regular item granting subroutine.
-    #    patch.add_data(0x1e6631, bytes([0x40, 0x66]))
-    #
-    #    return patch
-    
     def get_patch(self):
         patch = super().get_patch()
-        
-        patch.add_data(0x1e6650, bytes([random.randint(5,random.randint(10,20))]))
-        
+
+        # If we're giving frog coins at this spot, write the number of frog coins to a special address.
+        if isclass_or_instance(self.item, items.FrogCoin):
+            patch.add_data(0x1e6650, self.num_frog_coins)
+        # Otherwise extra bytes are needed to enable this spot to use the regular item granting subroutine.
+        else:
+            patch.add_data(0x1e6631, bytes([0x40, 0x66]))
+
         return patch
 
 
@@ -485,21 +506,21 @@ class YosterIsleEntrance(Chest):
 # *** Moleville
 
 
-class TreasureSeller1(Reward):
+class TreasureSeller1(TreasureSellerReward):
     area = locations.Area.Moleville
     addresses = [0x1f8ca5]
     item = items.LuckyJewel
     access = 4
 
 
-class TreasureSeller2(Reward):
+class TreasureSeller2(TreasureSellerReward):
     area = locations.Area.Moleville
     addresses = [0x1f8cd1]
     item = items.MysteryEgg
     access = 4
 
 
-class TreasureSeller3(Reward):
+class TreasureSeller3(TreasureSellerReward):
     area = locations.Area.Moleville
     addresses = [0x1f8cfd]
     item = items.FryingPan
@@ -508,28 +529,28 @@ class TreasureSeller3(Reward):
 
 # *** Moleville Mines
 
-class MolevilleMinesStarChest(StarAllowedChest):
+class MolevilleMinesStarChest(MolevilleMinesBackChest, StarAllowedChest):
     area = locations.Area.MolevilleMines
     addresses = [0x14c4af]
     item = items.MolevilleMinesStar
     access = 3
 
 
-class MolevilleMinesCoins(Chest):
+class MolevilleMinesCoins(MolevilleMinesBackChest):
     area = locations.Area.MolevilleMines
     addresses = [0x14c3c6]
     item = items.Coins150
     access = 3
 
 
-class MolevilleMinesPunchinello1(Chest):
+class MolevilleMinesPunchinello1(MolevilleMinesBackChest):
     area = locations.Area.MolevilleMines
     addresses = [0x14c546]
     item = items.RecoveryMushroom
     access = 3
 
 
-class MolevilleMinesPunchinello2(Chest):
+class MolevilleMinesPunchinello2(MolevilleMinesBackChest):
     area = locations.Area.MolevilleMines
     addresses = [0x14c552]
     item = items.Flower
@@ -634,6 +655,10 @@ class BoosterTowerZoomShoes(Chest):
     access = 3
     ms_override = True
 
+    @staticmethod
+    def can_access(inventory):
+        return inventory.has_item(items.RoomKey)
+
 
 class BoosterTowerTop1(NonCoinChest):
     area = locations.Area.BoosterTower
@@ -668,6 +693,10 @@ class BoosterTowerChomp(Reward):
     addresses = [0x1ee27b]
     item = items.Chomp
     access = 3
+
+    @staticmethod
+    def can_access(inventory):
+        return inventory.has_item(items.ElderKey)
 
 
 class BoosterTowerCurtainGame(Reward):
@@ -938,21 +967,21 @@ class BelomeTempleAfterFortune4(Chest):
     access = 2
 
 
-class BelomeTempleTreasure1(Reward):
+class BelomeTempleTreasure1(BelomeTempleTreasure):
     area = locations.Area.BelomeTemple
     addresses = [0x1f4fba]
     item = items.RoyalSyrup
     access = 3
 
 
-class BelomeTempleTreasure2(Reward):
+class BelomeTempleTreasure2(BelomeTempleTreasure):
     area = locations.Area.BelomeTemple
     addresses = [0x1f4fc0]
     item = items.MaxMushroom
     access = 3
 
 
-class BelomeTempleTreasure3(Reward):
+class BelomeTempleTreasure3(BelomeTempleTreasure):
     area = locations.Area.BelomeTemple
     addresses = [0x1f4fc6]
     item = items.FireBomb
@@ -980,6 +1009,10 @@ class CulexReward(Reward):
     addresses = [0x1e98bf]
     item = items.QuartzCharm
     access = 4
+
+    @staticmethod
+    def can_access(inventory):
+        return inventory.has_item(items.ShinyStone)
 
 
 class SuperJumps30(Reward):
@@ -1096,7 +1129,7 @@ class NimbusLandShop(NonCoinChest):
     access = 1
 
 
-class NimbusCastleBeforeBirdo1(StarAllowedChest):
+class NimbusCastleBeforeBirdo1(Chest):
     area = locations.Area.NimbusLand
     addresses = [0x14a088]
     item = items.Flower
@@ -1141,7 +1174,7 @@ class NimbusCastleStarChest(StarAllowedChest):
 
     @staticmethod
     def can_access(inventory):
-        return locations.can_access_nimbus_castle_back(inventory)
+        return locations.can_clear_nimbus_castle(inventory)
 
 
 class NimbusCastleStarAfterValentina(Chest):
@@ -1152,7 +1185,7 @@ class NimbusCastleStarAfterValentina(Chest):
 
     @staticmethod
     def can_access(inventory):
-        return locations.can_access_nimbus_castle_back(inventory)
+        return locations.can_clear_nimbus_castle(inventory)
 
 
 class DodoReward(Reward):
@@ -1178,7 +1211,7 @@ class NimbusLandSignalRing(Reward):
 
     @staticmethod
     def can_access(inventory):
-        return locations.can_access_nimbus_castle_back(inventory)
+        return locations.can_clear_nimbus_castle(inventory)
 
 
 class NimbusLandCellar(Reward):
@@ -1189,7 +1222,7 @@ class NimbusLandCellar(Reward):
 
     @staticmethod
     def can_access(inventory):
-        return locations.can_access_nimbus_castle_back(inventory)
+        return locations.can_clear_nimbus_castle(inventory)
 
 
 # *** Barrel Volcano

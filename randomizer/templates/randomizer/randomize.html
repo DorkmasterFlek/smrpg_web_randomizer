@@ -267,7 +267,7 @@
         }
 
         // Helper function to build flag string part for a specific flag and recursively handle choices and suboptions.
-        function buildFlagStringPart(flag, mode, parent_value = '') {
+        function buildFlagStringPart(flag, mode, flagStrings, parent_value = '') {
             let idval = '#flag-' + $.escapeSelector(flag.value);
             if (parent_value)
                 idval += $.escapeSelector(parent_value);
@@ -275,49 +275,57 @@
             if (flag.modes.includes(mode) && $(idval).is(':checked')) {
                 if (flag.value.startsWith('-')) {
                     // Solo flag that begins with a dash.
-                    return flag.value;
+                    flagStrings.set(flag.value, true);
                 } else {
-                    // Flag that may have a subsection of choices and/or options.
-                    let chars = [];
+                    let char;
+                    let rest = '';
+                    if (flag.value.startsWith('@')) {
+                        char = flag.value.slice(1, 2);
+                    } else {
+                        char = flag.value.slice(0, 1);
+                        rest = flag.value.slice(1);
+                    }
 
+                    // Check if this key is in the map yet.
+                    if (!flagStrings.has(char)) {
+                        flagStrings.set(char, []);
+                    }
+                    if (rest) {
+                        flagStrings.get(char).push(rest);
+                    }
+
+                    // Flag that may have a subsection of choices and/or options.
                     for (let choice of flag.choices) {
-                        chars.push(buildFlagStringPart(choice, mode, '-' + flag.value + parent_value).slice(1));
+                        buildFlagStringPart(choice, mode, flagStrings, '-' + flag.value + parent_value);
                     }
 
                     for (let option of flag.options) {
-                        chars.push(buildFlagStringPart(option, mode, '-' + flag.value + parent_value).slice(1));
-                    }
-
-                    // If flag begins with @, it doesn't do anything on its own.  Must have some option enabled.
-                    if (flag.value.startsWith('@')) {
-                        if (chars.length) {
-                            return flag.value.slice(1) + chars.join('');
-                        } else {
-                            return '';
-                        }
-                    } else {
-                        return flag.value + chars.join('');
+                        buildFlagStringPart(option, mode, flagStrings, '-' + flag.value + parent_value);
                     }
                 }
-            } else {
-                return '';
             }
         }
 
         // Build flag string based on selected flags visible for this mode.
         function buildFlagString() {
             let mode = $('#mode').val();
-            let flagStrings = [];
+            let flagStrings = new Map();
 
             // Check each flag if it's selected, and check choices and/or options for it.
             for (let flag of FLAGS) {
-                let part = buildFlagStringPart(flag, mode);
-                if (part)
-                    flagStrings.push(part);
+                buildFlagStringPart(flag, mode, flagStrings);
             }
 
             // Set flag string from selected flags.
-            let flagString = flagStrings.join(' ');
+            let flagString = '';
+            for (let [key, value] of flagStrings) {
+                if (key.startsWith('-')) {
+                    flagString += key + ' ';
+                } else {
+                    flagString += key + value.join('') + ' ';
+                }
+            }
+
             $('#flag-string').val(flagString);
             $('#flags').val(flagString);
 
