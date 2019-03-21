@@ -3,9 +3,18 @@
 import collections
 import random
 
-from randomizer.data import characters, spells
+from randomizer.data import characters, spells, palettes
 from randomizer.logic import flags, utils
 
+#palettes?
+#def _choose_palette(world):
+#have palettes as a property of world
+#or maybe not even??? have Palettes object
+#draw colour data from world palette and apply it to character
+#copy palette into character class (make new property)
+#get_patch method of character applies palette
+#add get_patch method to enemies to change names of clones
+#god i hope this makes sense when im sober
 
 # Move this to character classes instead!
 def _randomize_learned_spells(world):
@@ -343,6 +352,18 @@ def randomize_all(world):
 
     :type world: randomizer.logic.main.GameWorld
     """
+    
+    #Palettes!!!!
+    #world.characters[0].palette = random.choice([...])
+    #world.characters[1].palette = random.choice([...])
+    #world.characters[2].palette = random.choice([...])
+    #world.characters[3].palette = random.choice([...])
+    #world.characters[4].palette = random.choice([...])
+    
+    
+    
+    
+    
     # Shuffle learned spells for all characters.
     if world.settings.is_flag_enabled(flags.CharacterLearnedSpells):
         _randomize_learned_spells(world)

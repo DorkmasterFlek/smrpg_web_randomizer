@@ -736,7 +736,6 @@ class PoisonMushroom(Flag):
     mode = ['open']
     value = 'W'
 
-
 # ************************************** Category classes
 
 class FlagCategory:
@@ -810,7 +809,7 @@ class TweaksCategory(FlagCategory):
         Glitches,
         PoisonMushroom
     ]
-
+    
 
 # ************************************** Preset classes
 
@@ -856,7 +855,7 @@ CATEGORIES = (
     EquipsCategory,
     BattlesCategory,
     ChallengesCategory,
-    TweaksCategory,
+    TweaksCategory
 )
 
 # List of presets.
