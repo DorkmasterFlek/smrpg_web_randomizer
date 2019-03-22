@@ -117,9 +117,9 @@ def randomize_all(world):
                         dodo = 0
                         valentina = 0
                         for e in elist:
-                            if isinstance(e, (enemies.Dodo)):
-                                dodo += e.hp / 40
-                            elif isinstance(e, (enemies.Earthlink, enemies.MadAdder)):
+                            if isinstance(e, enemies.Dodo):
+                                dodo += e.hp * 0.4
+                            elif isinstance(e, enemies.Valentina):
                                 valentina += e.hp
                         hp = int(round(dodo + valentina))
                         xp = sum(e.xp for e in elist)
