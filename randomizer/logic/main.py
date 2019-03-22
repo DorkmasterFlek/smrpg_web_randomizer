@@ -37,7 +37,7 @@ class Settings:
 
         # If flag string provided, make fake form data based on it to parse.
         flag_data = {}
-        for flag in flag_string.split():
+        for flag in flag_string.strip().split():
             if flag.startswith('-'):
                 # Solo flag that begins with a dash.
                 flag_data[flag] = True
@@ -51,6 +51,14 @@ class Settings:
         for category in flags.CATEGORIES:
             for flag in category.flags:
                 self._check_flag_from_form_data(flag, flag_data)
+
+        # Sanity check.
+        if debug_mode:
+            provided_parts = set(flag_string.strip().split())
+            parsed_parts = set(self.flag_string.split())
+            if provided_parts != parsed_parts:
+                raise ValueError("Generated flags {!r} don't match provided {!r} - difference: {!r}".format(
+                    parsed_parts, provided_parts, provided_parts - parsed_parts))
 
     def _check_flag_from_form_data(self, flag, flag_data):
         """
@@ -68,7 +76,7 @@ class Settings:
             else:
                 # Flag that may be on its own with choices and/or suboptions.
                 if flag.value.startswith('@'):
-                    if flag.value[1:] in flag_data:
+                    if flag.value[1] in flag_data:
                         self._enabled_flags.add(flag)
                 else:
                     char = flag.value[0]
