@@ -332,12 +332,13 @@ def randomize_all(world):
         for formation in world.enemy_formations:
             _randomize_formation(formation)
 
-    # XP sharing.
-    # Quick and dirty method: Just triple all XP on enemies since it gets split in three.
-    # Later on, we'll have to do something else for this if we have a mode where you start with one character...
-    if world.settings.is_flag_enabled(flags.ExperienceBoost):
+    # XP boost.
+    if world.settings.is_flag_enabled(flags.ExperienceBoost2x):
         for enemy in world.enemies:
             enemy.xp *= 2
+    elif world.settings.is_flag_enabled(flags.ExperienceBoost3x):
+        for enemy in world.enemies:
+            enemy.xp *= 3
 
     # No XP from regular encounters.
     if world.settings.is_flag_enabled(flags.ExperienceNoRegular):

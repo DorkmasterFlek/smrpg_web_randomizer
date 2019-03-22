@@ -655,28 +655,35 @@ class EquipmentShuffle(Flag):
 
 # ******** Experience
 
+class ExperienceBoost2x(Flag):
+    name = 'Double XP'
+    description = 'XP is doubled'
+    value = 'X2'
+
+
+class ExperienceBoost3x(Flag):
+    name = 'Triple XP'
+    description = 'XP is tripled to simulate no XP split'
+    value = 'X3'
+
+
 class ExperienceBoost(Flag):
     name = 'XP boost'
-    description = 'Earned experience points are doubled for faster levelling.'
+    description = 'Earned experience points are increased for faster levelling.'
     inverse_description = "(Earned experience points are the same as the vanilla game.)"
-    value = 'Xb'
+    value = '@X'
+    choices = [
+        ExperienceBoost2x,
+        ExperienceBoost3x,
+    ]
 
 
 class ExperienceNoRegular(Flag):
     name = 'No XP from regular encounters'
-    description = 'Bosses still award XP.'
-    inverse_description = "(You will receive EXP from non-boss fights.)"
+    description = 'Only bosses will award XP.'
+    inverse_description = "(You will receive EXP from all fights normally.)"
     value = 'Xx'
     hard = True
-
-
-class ExperienceFlag(Flag):
-    name = 'Experience'
-    value = '@X'
-    options = [
-        ExperienceBoost,
-        ExperienceNoRegular,
-    ]
 
 
 # ******** Star exp progression challenge
@@ -829,7 +836,8 @@ class EquipsCategory(FlagCategory):
 class BattlesCategory(FlagCategory):
     name = 'Battles'
     flags = [
-        ExperienceFlag,
+        ExperienceBoost,
+        ExperienceNoRegular,
     ]
 
 
@@ -859,25 +867,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Csj Edf B Tc4yg M1 Sc4 Qa Xb'
+    flags = 'K R Csj Edf B Tc4yg M1 Sc4 Qa X2'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf B Tc3yg M1 Sb4 Qsa Xb'
+    flags = 'Ks R7 Cspjl Edf B Tc3yg M1 Sb4 Qsa X2'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc Tb2 M2 Sb2 Qsba Xb P1 Gm -fakeout'
+    flags = 'Ks R7k Cspjl Edfsa Bc Tb2 M2 Sb2 Qsba X2 P1 Gm -fakeout'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything difficult enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tv1 M2x Sv1 Qsba! Xbx P2 Gme -fakeout'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tv1 M2x Sv1 Qsba! X2x P2 Gme -fakeout'
 
 
 # ************************************** Default lists for the site.
