@@ -725,6 +725,42 @@ class StarExpChallenge(Flag):
     ]
 
 
+# ******** Minigame challenges
+
+
+class BallSolitaireShuffle(Flag):
+    name = 'Randomize Ball Solitaire'
+    description = 'The layout for the Ball Solitaire minigame will be randomized.'
+    inverse_description = '(Ball Solitaire minigame will be the same as vanilla.)'
+    value = 'Nb'
+
+
+class MagicButtonShuffle(Flag):
+    name = 'Randomize Magic Buttons'
+    description = 'The layout for the Magic Buttons minigame will be randomized.'
+    inverse_description = '(Magic Buttons minigame will be the same as vanilla.)'
+    value = 'Nm'
+
+
+class QuizShuffle(Flag):
+    name = 'Randomize Dr. Topper quiz'
+    description = 'The question pool for the Dr. Topper quiz will include new unique questions.'
+    inverse_description = '(Dr. Topper quiz question pool will be the same as vanilla.)'
+    value = 'Nq'
+
+
+class Minigames(Flag):
+    name = 'Minigames'
+    modes = ['open']
+    value = '@N'
+    options = [
+        BallSolitaireShuffle,
+        MagicButtonShuffle,
+        # TODO: Uncomment this when the quiz shuffle is implemented!
+        # QuizShuffle,
+    ]
+
+
 # ******** Glitches
 
 class NoGenoWhirlExor(Flag):
@@ -845,6 +881,7 @@ class ChallengesCategory(FlagCategory):
     name = 'Challenges'
     flags = [
         StarExpChallenge,
+        Minigames,
     ]
 
 

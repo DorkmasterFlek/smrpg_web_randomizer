@@ -6,6 +6,7 @@ from . import characters
 from . import chests
 from . import enemies
 from . import formations
+from . import games
 from . import items
 from . import keys
 from . import locations

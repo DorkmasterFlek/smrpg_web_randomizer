@@ -11,6 +11,7 @@ from . import characters
 from . import chests
 from . import enemies
 from . import flags
+from . import games
 from . import items
 from . import keys
 from . import map
@@ -19,7 +20,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0beta15'
+VERSION = '8.0beta16'
 
 
 class Settings:
@@ -246,6 +247,10 @@ class GameWorld:
         # Get boss location data.
         self.boss_locations = data.bosses.get_default_boss_locations(self)
 
+        # Minigame data.
+        self.ball_solitaire = data.games.BallSolitaireGame(self)
+        self.magic_buttons = data.games.MagicButtonsGame(self)
+
     @property
     def open_mode(self):
         """Check if this game world is Open mode.
@@ -312,6 +317,7 @@ class GameWorld:
         bosses.randomize_all(self)
         keys.randomize_all(self)
         chests.randomize_all(self)
+        games.randomize_all(self)
 
         # Rebuild hash after randomization.
         self._rebuild_hash()
@@ -447,6 +453,10 @@ class GameWorld:
                 patch.add_data(0x39bc4e, utils.ByteField(exps[5]).as_bytes())  # 5 stars
                 patch.add_data(0x39bc52, utils.ByteField(exps[6]).as_bytes())  # 6/7 stars
                 patch.add_data(0x1fd32d, utils.ByteField(0xa0).as_bytes())  # Enable flag
+
+            # Minigames
+            patch += self.ball_solitaire.get_patch()
+            patch += self.magic_buttons.get_patch()
 
         # Unlock the whole map if in debug mode in standard.
         if self.debug_mode and not self.open_mode:
