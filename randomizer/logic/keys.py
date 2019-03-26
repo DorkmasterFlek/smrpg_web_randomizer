@@ -4,6 +4,7 @@ import random
 
 import randomizer.data.items
 from randomizer.data import chests, keys
+from randomizer.data.locations import Area
 from . import flags
 
 
@@ -23,7 +24,7 @@ class Inventory(list):
         return any([i for i in self if i == item])
 
 
-def _item_location_filter(world, location):
+def item_location_filter(world, location):
     """Filter function for key item locations based on whether Seed/Fertilizer are included.
 
     Args:
@@ -43,8 +44,29 @@ def _item_location_filter(world, location):
             not world.settings.is_flag_enabled(flags.ChestIncludeKeyItems)):
         return False
 
+    # Check flags for extra locations: 3D maze, super jump rewards, Culex.
+    if isinstance(location, chests.SunkenShip3DMaze) and not world.settings.is_flag_enabled(flags.ChestKIInclude3DMaze):
+        return False
+
+    if isinstance(location, chests.CulexReward) and not world.settings.is_flag_enabled(flags.ChestKIIncludeCulex):
+        return False
+
+    if isinstance(location, chests.SuperJumps30) and not world.settings.is_flag_enabled(flags.ChestKIInclude30):
+        return False
+
+    if isinstance(location, chests.SuperJumps100) and not world.settings.is_flag_enabled(flags.ChestKIInclude100):
+        return False
+
     # Don't put key items in missable locations.
     if location.missable:
+        return False
+
+    # Exclude anything in the factory by default.
+    if location.area == Area.Factory:
+        return False
+
+    # Exclude Bowser's Keep if not open.
+    if location.area == Area.BowsersKeep and not world.settings.is_flag_enabled(flags.BowsersKeepOpen):
         return False
 
     # Everything else is fine.
@@ -124,7 +146,7 @@ def randomize_all(world):
         # Shuffle key item locations.
         if (world.settings.is_flag_enabled(flags.KeyItemShuffle) and
                 not world.settings.is_flag_enabled(flags.ChestIncludeKeyItems)):
-            locations_to_fill = [l for l in world.key_locations if _item_location_filter(world, l)]
+            locations_to_fill = [l for l in world.key_locations if item_location_filter(world, l)]
             required_items = Inventory([l.item for l in locations_to_fill if
                                         l.item.shuffle_type == randomizer.data.items.ItemShuffleType.Required])
             extra_items = Inventory([l.item for l in locations_to_fill if
@@ -148,8 +170,8 @@ def fill_locations(world, locations_to_fill, required_items, extra_items=None):
         extra_items = Inventory()
 
     # Sanity check to make sure we're filling the right number of spots.
-    if len(locations_to_fill) != len(required_items) + len(extra_items):
-        raise ValueError("Locations length doesn't match number of items.")
+    if len(locations_to_fill) < len(required_items) + len(extra_items):
+        raise ValueError("Not enough locations for number of items.")
 
     # Clear existing items to start.
     for location in locations_to_fill:

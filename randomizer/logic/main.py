@@ -412,15 +412,15 @@ class GameWorld:
         # Open mode specific data.
         if self.open_mode:
             # Item locations.
+            # FIXME
+            # for location in self.key_locations + self.chest_locations:
+            #     print(">>>>>>>> {}".format(location))
+
             for location in self.key_locations:
                 patch += location.get_patch()
 
             for location in self.chest_locations:
                 patch += location.get_patch()
-
-            # FIXME
-            # for location in self.key_locations + self.chest_locations:
-            #     print(">>>>>>>> {}".format(location))
 
             # Boss locations.
             for boss in self.boss_locations:

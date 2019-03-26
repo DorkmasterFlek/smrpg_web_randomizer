@@ -9,7 +9,6 @@ from . import locations
 
 class Chest(locations.ItemLocation):
     """Subclass for treasure chest location."""
-    access = 0
     ms_override = False
 
 

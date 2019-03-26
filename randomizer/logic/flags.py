@@ -371,7 +371,7 @@ class ChestKIInclude100(Flag):
 
 class ChestIncludeKeyItems(Flag):
     name = 'Include Key Items'
-    description = "Any chest or sidequest reward may contain a key item."
+    description = "Shuffled chests or sidequest rewards may contain a key item."
     inverse_description = ("(Chests and sidequest rewards will not contain key items, with the exception of the "
                            "Kero Sewers chest.)")
     value = 'Tk'
@@ -426,8 +426,7 @@ class ChestShuffleBiased(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestStarShuffle,
-        # TODO: Allow this once mixing logic is done.
-        # ChestIncludeKeyItems,
+        ChestIncludeKeyItems,
     ]
 
 
@@ -447,8 +446,7 @@ class ChestShuffleChaos(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestStarShuffle,
-        # TODO: Allow this once mixing logic is done.
-        # ChestIncludeKeyItems,
+        ChestIncludeKeyItems,
     ]
 
 
@@ -916,13 +914,13 @@ class IntermediatePreset(Preset):
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc Tb2 M2 Sb2 Qsba X2 P1 Gm -fakeout'
+    flags = 'Ks R7k Cspjl Edfsa Bc Tb2kd M2 Sb2 Qsba X2 P1 Gm -fakeout'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything difficult enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tv1 M2x Sv1 Qsba! X2x P2 Gme -fakeout'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tb2kduhi M2x Sv1 Qsba! X2x P2 Gme -fakeout'
 
 
 # ************************************** Default lists for the site.
