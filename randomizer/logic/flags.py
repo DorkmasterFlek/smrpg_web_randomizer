@@ -784,7 +784,7 @@ class Glitches(Flag):
 
 class PoisonMushroom(Flag):
     name = 'Change Fake Mushroom\'s Status'
-    description = 'Randomize the status effect inflicted on a party member with the Fake Mushroom.'
+    description = 'Randomize the status effect inflicted on a party member with the Fake Mushroom. It will only give one status effect per seed, which has a 1/8 chance of being Invincibility.'
     inverse_description = '(The Fake Mushroom will always turn you into a mushroom.)'
     mode = ['open']
     value = '-fakeout'
