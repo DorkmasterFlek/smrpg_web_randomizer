@@ -517,7 +517,7 @@ class ReplaceItems(Flag):
     description = 'The lowest ranked items will be replaced with coins in chests.'
     inverse_description = '(You may find low-ranked items in chests.)'
     modes = ['open']
-    value = 'Tg'
+    value = '$'
 
 
 # ******** Shop shuffle flags
@@ -625,7 +625,7 @@ class FreeShops(Flag):
     name = "'Free' Shops"
     description = "All shop items will cost 1 coin. You will start with 9999 coins and 99 frog coins."
     inverse_description = "(Shops are not free, and you start with 0 coins.)"
-    value = 'Sf'
+    value = '-freeshops'
 
 
 # ******** Item shuffle flags
@@ -692,7 +692,7 @@ class ExperienceNoRegular(Flag):
     name = 'No XP from regular encounters'
     description = 'Bosses still award XP.'
     inverse_description = "(You will receive EXP from non-boss fights.)"
-    value = 'Xx'
+    value = '-noexp'
     hard = True
 
 
