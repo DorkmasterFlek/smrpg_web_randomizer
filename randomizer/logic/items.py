@@ -661,9 +661,11 @@ def randomize_all(world):
                                 price = utils.mutate_normal(item.price, minimum=item.price*0.9, maximum=item.price*1.1)
                                 item.price = max(math.ceil(price / 25), 1)
                             else:
-                                price = min(9999, max(2, item.price))
-                                price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
-                                item.price = price
+                                #muku cooki price should never change
+                                if item.index != 120:
+                                    price = min(9999, max(2, item.price))
+                                    price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
+                                    item.price = price
 
             # Sort the list of items by the ordering rank for display, and assign to the shop.
             for shop in world.shops:
