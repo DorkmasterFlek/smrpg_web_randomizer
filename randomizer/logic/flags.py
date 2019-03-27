@@ -290,6 +290,12 @@ class ChestTier4(Flag):
     description = "Any item may appear in a chest or sidequest reward (besides key items)."
     value = 'T4'
 
+class ChestExcludeRewards(Flag):
+    name = 'Exclude sidequest reward spots'
+    description = "Only actual treasure chests will be shuffled, sidequest reward spots will be left alone."
+    inverse_description = "(Sidequest rewards are randomized.)"
+    value = 'Tr'
+
 
 class ChestExcludeCoins(Flag):
     name = 'No Coins'
@@ -421,6 +427,7 @@ class ChestShuffleBiased(Flag):
         ChestTier2
     ]
     options = [
+        ChestExcludeRewards,
         ChestExcludeCoins,
         ChestExcludeFrogCoins,
         ChestExcludeFlowers,
@@ -442,6 +449,7 @@ class ChestShuffleChaos(Flag):
         ChestTier1,
     ]
     options = [
+        ChestExcludeRewards,
         ChestExcludeCoins,
         ChestExcludeFrogCoins,
         ChestExcludeFlowers,
@@ -484,15 +492,15 @@ class MonstroExcludeElsewhere(Flag):
     name = 'Exclude elsewhere'
     description = ('The items shuffled by your selected option will not appear in any shops or any other chests or '
                    'reward spots.')
+    inverse_description = ('(The items listed under the M flag may still appear in shops and other chests.)')
     value = 'Mx'
     hard = True
 
 
 class MonstroTownShuffle(Flag):
     name = 'Monstro Town Shuffle'
-    description = ('Randomize the locations of some special equips. These equips will not appear anywhere else in the '
-                   'game.')
-    inverse_description = '(The Monstro Town and key item equip rewards will not be shuffled within each other.)'
+    description = ('Randomize the locations of some special equips. This flag overrides all T flags except Tx.')
+    inverse_description = '(The Monstro Town and key item equip rewards are shuffled the same as all other chest/reward slots.)'
     modes = ['open']
     value = '@M'
     choices = [
