@@ -572,17 +572,23 @@ def randomize_all(world):
                     for item in yarid_items:
                         assignments[shop.index].append(item)
 
-            # Assign each consumable to one shop by default
-            for item in basic_items:
-                eligible_shops = [s for s in world.shops if isinstance(
-                    s, (items.MushroomKingdomShop, items.RoseTownItemShop, items.MolevilleShop, items.MarrymoreShop,
-                        items.SeaShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
-                        items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1, items.CrocoShop2,
-                        items.ToadShop)) and len(assignments[s.index]) < 15 and item in get_valid_items(basic_items, s, assignments[s.index])]
-                if eligible_shops:
-                    shop = random.choice(eligible_shops)
-                    if item not in assignments[shop.index]:
-                        assignments[shop.index].append(item)
+            if not world.settings.is_flag_enabled(flags.ShopNotGuaranteed):
+                # guarantee pick me up in toad shop if not full
+                for item in world.items:
+                    if item.index == 102 and shop.index == 24:
+                        if item not in assignments[shop.index] and item in shop_items:
+                            assignments[shop.index].append(item)
+                # Assign each consumable to one shop by default
+                for item in basic_items:
+                    eligible_shops = [s for s in world.shops if isinstance(
+                        s, (items.MushroomKingdomShop, items.RoseTownItemShop, items.MolevilleShop, items.MarrymoreShop,
+                            items.SeaShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
+                            items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1, items.CrocoShop2,
+                            items.ToadShop)) and len(assignments[s.index]) < 15 and item in get_valid_items(basic_items, s, assignments[s.index])]
+                    if eligible_shops:
+                        shop = random.choice(eligible_shops)
+                        if item not in assignments[shop.index]:
+                            assignments[shop.index].append(item)
 
             # Assign random consumables to shops that have space left and can have consumables
             for shop in [s for s in world.shops if isinstance(
@@ -591,7 +597,6 @@ def randomize_all(world):
                         items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1, items.CrocoShop2,
                         items.ToadShop))]:
                 if len(assignments[shop.index]) < 15:
-                    # guarantee pick me up in toad shop if not full
                     if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
                         valid_consumables = get_valid_items(basic_items, shop, assignments[shop.index])
                     else:

@@ -540,6 +540,14 @@ class ShopTier4(Flag):
     value = 'S4'
 
 
+class ShopNotGuaranteed(Flag):
+    name = "Items not guaranteed"
+    description = "Some items may not appear in shops at all."
+    inverse_description = "(Every item, except for key items and the Wallet, will appear in at least 1 shop.)"
+    value = 'Sn'
+    hard = True
+
+
 class ShopShuffleVanilla(Flag):
     name = "Vanilla shop inventory"
     description = ("Shops will only contain items that were available in the original game's shops, shuffled amongst "
@@ -550,6 +558,9 @@ class ShopShuffleVanilla(Flag):
         ShopTier3,
         ShopTier2,
         ShopTier1
+    ]
+    options = [
+        ShopNotGuaranteed
     ]
 
 
@@ -562,6 +573,9 @@ class ShopShuffleBalanced(Flag):
         ShopTier3,
         ShopTier2
     ]
+    options = [
+        ShopNotGuaranteed
+    ]
 
 
 class ShopShuffleChaotic(Flag):
@@ -573,6 +587,9 @@ class ShopShuffleChaotic(Flag):
         ShopTier3,
         ShopTier2,
         ShopTier1
+    ]
+    options = [
+        ShopNotGuaranteed
     ]
 
 
