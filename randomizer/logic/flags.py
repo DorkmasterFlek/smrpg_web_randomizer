@@ -377,7 +377,7 @@ class ChestKIInclude100(Flag):
 
 class ChestIncludeKeyItems(Flag):
     name = 'Include Key Items'
-    description = "Any chest or sidequest reward may contain a key item."
+    description = "Shuffled chests or sidequest rewards may contain a key item."
     inverse_description = ("(Chests and sidequest rewards will not contain key items, with the exception of the "
                            "Kero Sewers chest.)")
     value = 'Tk'
@@ -433,8 +433,7 @@ class ChestShuffleBiased(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestStarShuffle,
-        # TODO: Allow this once mixing logic is done.
-        # ChestIncludeKeyItems,
+        ChestIncludeKeyItems,
     ]
 
 
@@ -455,8 +454,7 @@ class ChestShuffleChaos(Flag):
         ChestExcludeFlowers,
         ChestExcludeMushrooms,
         ChestStarShuffle,
-        # TODO: Allow this once mixing logic is done.
-        # ChestIncludeKeyItems,
+        ChestIncludeKeyItems,
     ]
 
 
@@ -680,13 +678,27 @@ class EquipmentShuffle(Flag):
 
 # ******** Experience
 
-class ExperienceSharing(Flag):
-    name = 'XP sharing'
-    description = 'Earned experience points are not divided among your party members; each receives the full amount.'
-    inverse_description = ("(Earned experience points from a battle are divided by 3, and granted to each recruited "
-                           "character.)")
-    value = 'Xs'
+class ExperienceBoost2x(Flag):
+    name = 'Double XP'
+    description = 'XP is doubled'
+    value = 'X2'
 
+class ExperienceBoost3x(Flag):
+    name = 'Triple XP'
+    description = 'XP is tripled to simulate no XP split'
+    value = 'X3'
+
+
+
+class ExperienceBoost(Flag):
+    name = 'XP boost'
+    description = 'Earned experience points are increased for faster levelling.'
+    inverse_description = "(Earned experience points are the same as the vanilla game.)"
+    value = '@X'
+    choices = [
+        ExperienceBoost2x,
+        ExperienceBoost3x,
+    ]
 
 class ExperienceNoRegular(Flag):
     name = 'No XP from regular encounters'
@@ -694,16 +706,6 @@ class ExperienceNoRegular(Flag):
     inverse_description = "(You will receive EXP from non-boss fights.)"
     value = '-noexp'
     hard = True
-
-
-class ExperienceFlag(Flag):
-    name = 'Experience'
-    value = '@X'
-    options = [
-        ExperienceSharing,
-        ExperienceNoRegular,
-    ]
-
 
 # ******** Star exp progression challenge
 
@@ -741,6 +743,42 @@ class StarExpChallenge(Flag):
     choices = [
         StarExp1,
         StarExp2,
+    ]
+
+
+# ******** Minigame challenges
+
+
+class BallSolitaireShuffle(Flag):
+    name = 'Randomize Ball Solitaire'
+    description = 'The layout for the Ball Solitaire minigame will be randomized.'
+    inverse_description = '(Ball Solitaire minigame will be the same as vanilla.)'
+    value = 'Nb'
+
+
+class MagicButtonShuffle(Flag):
+    name = 'Randomize Magic Buttons'
+    description = 'The layout for the Magic Buttons minigame will be randomized.'
+    inverse_description = '(Magic Buttons minigame will be the same as vanilla.)'
+    value = 'Nm'
+
+
+class QuizShuffle(Flag):
+    name = 'Randomize Dr. Topper quiz'
+    description = 'The question pool for the Dr. Topper quiz will include new unique questions.'
+    inverse_description = '(Dr. Topper quiz question pool will be the same as vanilla.)'
+    value = 'Nq'
+
+
+class Minigames(Flag):
+    name = 'Minigames'
+    modes = ['open']
+    value = '@N'
+    options = [
+        BallSolitaireShuffle,
+        MagicButtonShuffle,
+        # TODO: Uncomment this when the quiz shuffle is implemented!
+        # QuizShuffle,
     ]
 
 
@@ -920,7 +958,8 @@ class EquipsCategory(FlagCategory):
 class BattlesCategory(FlagCategory):
     name = 'Battles'
     flags = [
-        ExperienceFlag,
+        ExperienceBoost,
+        ExperienceNoRegular,
     ]
 
 
@@ -928,6 +967,7 @@ class ChallengesCategory(FlagCategory):
     name = 'Challenges'
     flags = [
         StarExpChallenge,
+        Minigames,
     ]
 
 
@@ -953,25 +993,25 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Csj Edf B Tc4yg Sc4 Qa Xs'
+    flags = 'K R Csj Edf B Tc4yg M1 Sc4 Qa X2'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf B Tc3yg Sb4 Qsa Xs'
+    flags = 'Ks R7 Cspjl Edf B Tc3yg M1 Sb4 Qsa X2'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc Tb2 Sb2 Qsba Xs P1 Gm -fakeout'
+    flags = 'Ks R7k Cspjl Edfsa Bc Tb2kd M2 Sb2 Qsba X2 P1 Gm -fakeout'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything difficult enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tv1 Sv1 Qsba! Xsx P2 Gme -fakeout'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tb2kduhi M2x Sv1 Qsba! X2x P2 Gme -fakeout'
 
 
 # ************************************** Default lists for the site.

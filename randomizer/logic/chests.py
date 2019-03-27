@@ -1,10 +1,11 @@
 # Chest randomization logic.
 
-import random
 import math
+import random
 
 from randomizer.data import items, locations, chests
-from randomizer.logic import flags
+from randomizer.data.keys import KeyItemLocation
+from randomizer.logic import flags, keys
 from . import utils
 
 
@@ -51,7 +52,7 @@ def randomize_all(world):
     stars_allowed = not world.settings.is_flag_enabled(flags.ChestExcludeStars)
 
     biased = world.settings.is_flag_enabled(flags.ChestShuffleBiased)
-    # TODO: Add key item check here
+    include_key_items = world.settings.is_flag_enabled(flags.ChestIncludeKeyItems)
 
     coins = [items.Coins5, items.Coins8, items.Coins10, items.Coins150, items.Coins100, items.Coins50,
              items.CoinsDoubleBig]
@@ -293,6 +294,7 @@ def randomize_all(world):
                 if world.settings.is_flag_enabled(flags.MonstroExcludeElsewhere):
                     excluded_items.append(item.index)
                 items_already_in_chests.append(item)
+
             while len(monstro) > 0:
                 item = random.choice(monstro)
                 location = random.choice(monstro_locations)
@@ -304,28 +306,60 @@ def randomize_all(world):
                     excluded_items.append(item.index)
                 items_already_in_chests.append(item)
 
-            # TODO: Then do key items.... in the future
+            # Then do key items....
+            leftover_key_locations = []
+            if include_key_items:
+                key_item_locations = [l for l in world.key_locations if keys.item_location_filter(world, l)]
+
+                # Get items to place only from vanilla key item locations, not including other chests/rewards.
+                required_items = keys.Inventory([l.item for l in key_item_locations if
+                                                l.item.shuffle_type == items.ItemShuffleType.Required])
+                extra_items = keys.Inventory([l.item for l in key_item_locations if
+                                             l.item.shuffle_type == items.ItemShuffleType.Extra])
+
+                # Now add all the chest/reward spots to the location list if they haven't been done yet.
+                # This excludes the Monstro Town locations if the M flag is on above.
+                if not world.settings.is_flag_enabled(flags.ChestExcludeRewards):
+                    chest_locations = [l for l in world.chest_locations if l not in finished_chests and
+                                   keys.item_location_filter(world, l)]
+                else:
+                    chest_locations = [l for l in world.chest_locations if l not in finished_chests and
+                                   keys.item_location_filter(world, l) and not isinstance(l, chests.Reward)]
+
+                eligible_key_locations = key_item_locations + chest_locations
+
+                # Do the fill, and mark any selected chests as done.
+                keys.fill_locations(world, eligible_key_locations, required_items, extra_items)
+                for location in eligible_key_locations:
+                    if location.has_item:
+                        finished_chests.append(location)
+                    else:
+                        leftover_key_locations.append(location)
+
+            # Chest/reward list plus leftover key item locations from mixing shuffle.
+            # Use this for all logic past this point!
+            chests_plus_leftovers = world.chest_locations + leftover_key_locations
 
             # Then make sure wallet is found in exactly 1 chest
             if not world.settings.is_flag_enabled(flags.ChestExcludeRewards):
-                eligible_wallet_locations = [chest for chest in world.chest_locations if chest not in finished_chests]
+                eligible_wallet_locations = [chest for chest in chests_plus_leftovers if chest not in finished_chests]
                 chest = random.choice(eligible_wallet_locations)
                 chest.item = items.Wallet
                 finished_chests.append(chest)
 
             # Then make sure "You Missed" is found in exactly 1 chest
-            eligible_empty_locations = [chest for chest in world.chest_locations if chest not in finished_chests and
+            eligible_empty_locations = [chest for chest in chests_plus_leftovers if chest not in finished_chests and
                                         not isinstance(chest, chests.Reward) and chest.item_allowed(items.YouMissed)]
             chest = random.choice(eligible_empty_locations)
             chest.item = items.YouMissed
             finished_chests.append(chest)
 
             # Then do the rest
-            eligible_chests = [chest for chest in world.chest_locations if
-                               not isinstance(chest, (chests.Reward, chests.BowserDoorReward)) and
+            eligible_chests = [chest for chest in chests_plus_leftovers if
+                               not isinstance(chest, (chests.Reward, chests.BowserDoorReward, KeyItemLocation)) and
                                chest not in finished_chests]
-            eligible_rewards = [chest for chest in world.chest_locations if
-                                isinstance(chest, (chests.Reward, chests.BowserDoorReward)) and
+            eligible_rewards = [chest for chest in chests_plus_leftovers if
+                                isinstance(chest, (chests.Reward, chests.BowserDoorReward, KeyItemLocation)) and
                                 chest not in finished_chests]
             eligible_items = [i for i in world.items if i.index not in excluded_items and not i.is_key and
                               i.hard_tier <= tiers_allowed]
@@ -444,6 +478,7 @@ def randomize_all(world):
 
                     # For Cricket Jam reward, always give frog coins for now!  Just randomize the number.
                     if isinstance(chest, chests.CricketJamReward):
+                        chest.item = items.FrogCoin
                         chest.num_frog_coins = random.randint(5, random.randint(10, 20))
                     else:
                         proceed_repeat_item = False
@@ -474,6 +509,7 @@ def randomize_all(world):
                                         check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
                                     else:
                                         check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
+
                                 else:
                                     check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
 
@@ -490,6 +526,7 @@ def randomize_all(world):
                     finished_chests.append(chest)
                     eligible_rewards.remove(chest)
 
+        # Replace any sellable items with closest coin equivalent.
         if world.settings.is_flag_enabled(flags.ReplaceItems):
 
             def closest_coins(n):
@@ -516,7 +553,7 @@ def randomize_all(world):
                 return rv
 
             for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)]:
-                if chest.item.hard_tier == 1 and hasattr(chest.item, 'price'):
+                if chest.item.hard_tier == 1 and not chest.item.is_key and chest.item.price > 0:
                     if chest.item_allowed(items.Coins150) and not chest.item.frog_coin_item:
                         chest.item = closest_coins(chest.item.price)
                     elif chest.item_allowed(items.FrogCoin) and chest.item.frog_coin_item:

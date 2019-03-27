@@ -24,13 +24,13 @@ def _randomize_spell(spell):
 
         spell.status_effects = random.sample(effects, len(spell.status_effects))
 
-    # Don't shuffle power for Geno Boost, it causes problems if it deals damage.
-    if not isinstance(spell, spells.GenoBoost):
+    # Don't shuffle power for certain spells that cause problems if they deal damage.
+    if not isinstance(spell, (spells.GenoBoost, spells.Shredder, spells.SleepyTime, spells.Mute, spells.Psychopath)):
         spell.power = utils.mutate_normal(spell.power)
 
-    # Don't shuffle hit rate for healing spells or Geno Boost.  We don't want those to ever be able to miss.
+    # Don't shuffle hit rate for certain spells or Geno Boost.  We don't want those to ever be able to miss.
     if not isinstance(spell, (spells.GenoBoost, spells.Therapy, spells.GroupHug, spells.HPRain, spells.Recover,
-                              spells.MegaRecover)):
+                              spells.MegaRecover, spells.Shredder, spells.Psychopath)):
         # If the spell is instant death, cap hit rate at 99% so items that protect from this actually work.
         # Protection forces the attack to miss, but 100% hit rate can't "miss" so it hits anyway.
         if spell.instant_ko:

@@ -46,6 +46,7 @@ class ItemLocation:
     addresses = []
     item = None
     missable = False
+    access = 0
 
     def __init__(self, world):
         """

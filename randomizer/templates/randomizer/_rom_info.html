@@ -22,18 +22,6 @@
 </div>
 
 <script>
-jQuery.expr[':'].regex = function(elem, index, match) {
-    let matchParams = match[3].split(','),
-        validLabels = /^(data|css):/,
-        attr = {
-            method: matchParams[0].match(validLabels) ? matchParams[0].split(':')[0] : 'attr',
-            property: matchParams.shift().replace(validLabels, '')
-        },
-        regexFlags = 'ig',
-        regex = new RegExp(matchParams.join('').replace(/^\s+|\s+$/g, ''), regexFlags);
-    return regex.test(jQuery(elem)[attr.method](attr.property));
-};
-
     function updateSeedDetailsFromPatch(patch) {
         let seed = $('#info-seed');
         seed.text(patch.seed);
@@ -63,48 +51,39 @@ jQuery.expr[':'].regex = function(elem, index, match) {
         $("#generate-container").hide();
         $("#seed-details").show();
 
-
-
-        //show descriptions
+        // Parse flag sections.
         let flag_sections = patch.flag_string.split(" ");
 
-        let all_applied_flags = [];
+        let all_applied_flags = new Map();
         flag_sections.forEach(function(section) {
             if (section.startsWith('-')) {
-                all_applied_flags.push(section);
+                all_applied_flags.set(section, true);
             } else {
                 let parent_flag = section.charAt(0);
-                all_applied_flags.push(parent_flag);
+                if (!all_applied_flags.has(parent_flag))
+                    all_applied_flags.set(parent_flag, []);
                 for (let i = 1; i < section.length; i++) {
-                    all_applied_flags.push(parent_flag + section.charAt(i));
+                    all_applied_flags.get(parent_flag).push(section.charAt(i));
                 }
             }
         });
-            function toArray(obj) {
-              let array = [];
-                // iterate backwards ensuring that length is an UInt32
-              for (let i = obj.length >>> 0; i--;) {
-                array[i] = obj[i];
-              }
-              return array;
-            }
-        $("div:regex(class,flag\-)").each(function(index, elem) {
-            let element_flag_class = toArray($(elem)[0].classList).find(value => /^flag-/.test(value));
-            let matched_flag = element_flag_class.replace("flag-", "");
-            let isolated_flag = matched_flag;
-            if (isolated_flag.charAt(0) === '@') isolated_flag = isolated_flag.replace("@", "");
-            if (all_applied_flags.indexOf(isolated_flag) === -1) {
-                $("[class*='flag-" + matched_flag + "'].inline-flag-description").hide();
-                if (!$(elem).hasClass("choice")) {
-                    $("[class*='flag-" + matched_flag + "'].disabled-inline-flag-description").show();
+
+        // Hide all flag descriptions to start, then show the ones that are enabled.
+        $('.inline-flag-description').hide();
+        $('.disabled-inline-flag-description').show();
+
+        for (let [parent_flag, chars] of all_applied_flags) {
+            $('.inline-flag-description.flag-' + parent_flag).show();
+            $('.disabled-inline-flag-description.flag-' + parent_flag).hide();
+            if (!parent_flag.startsWith('-')) {
+                for (let char of chars) {
+                    $('.inline-flag-description.flag-' + $.escapeSelector('@' + parent_flag)).show();
+                    $('.disabled-inline-flag-description.flag-' + $.escapeSelector('@' + parent_flag)).hide();
+                    $('.inline-flag-description.flag-' + parent_flag + char).show();
+                    $('.disabled-inline-flag-description.flag-' + parent_flag + char).hide();
                 }
             }
-            else {
-                $("[class*='flag-" + matched_flag + "'].inline-flag-description").show();
-                $("[class*='flag-" + matched_flag + "'].disabled-inline-flag-description").hide();
-            }
-        })
-
+        }
     }
 
 

@@ -7,8 +7,8 @@ import string
 import tempfile
 import shutil
 
-import Wii
-import nlzss
+#import Wii
+#import nlzss
 
 from django.conf import settings
 from django.db import transaction

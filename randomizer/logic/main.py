@@ -12,6 +12,7 @@ from . import characters
 from . import chests
 from . import enemies
 from . import flags
+from . import games
 from . import items
 from . import keys
 from . import map
@@ -20,7 +21,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.0beta14'
+VERSION = '8.0beta16'
 
 
 class Settings:
@@ -38,7 +39,7 @@ class Settings:
 
         # If flag string provided, make fake form data based on it to parse.
         flag_data = {}
-        for flag in flag_string.split():
+        for flag in flag_string.strip().split():
             if flag.startswith('-'):
                 # Solo flag that begins with a dash.
                 flag_data[flag] = True
@@ -52,6 +53,14 @@ class Settings:
         for category in flags.CATEGORIES:
             for flag in category.flags:
                 self._check_flag_from_form_data(flag, flag_data)
+
+        # Sanity check.
+        if debug_mode:
+            provided_parts = set(flag_string.strip().split())
+            parsed_parts = set(self.flag_string.split())
+            if provided_parts != parsed_parts:
+                raise ValueError("Generated flags {!r} don't match provided {!r} - difference: {!r}".format(
+                    parsed_parts, provided_parts, provided_parts - parsed_parts))
 
     def _check_flag_from_form_data(self, flag, flag_data):
         """
@@ -69,7 +78,7 @@ class Settings:
             else:
                 # Flag that may be on its own with choices and/or suboptions.
                 if flag.value.startswith('@'):
-                    if flag.value[1:] in flag_data:
+                    if flag.value[1] in flag_data:
                         self._enabled_flags.add(flag)
                 else:
                     char = flag.value[0]
@@ -119,6 +128,7 @@ class Settings:
                 rest = ''
                 if flag.value.startswith('@'):
                     char = flag.value[1]
+                    flag_strings['@'].append(char)
                 else:
                     char = flag.value[0]
                     rest = flag.value[1:]
@@ -142,6 +152,7 @@ class Settings:
             str: Computed flag string for these settings.
         """
         flag_strings = collections.OrderedDict()
+        flag_strings['@'] = []
 
         for category in flags.CATEGORIES:
             for flag in category.flags:
@@ -149,10 +160,11 @@ class Settings:
 
         flag_string = ''
         for key, vals in flag_strings.items():
-            if key.startswith('-'):
-                flag_string += key + ' '
-            else:
-                flag_string += key + ''.join(vals) + ' '
+            if key != '@':
+                if key.startswith('-'):
+                    flag_string += key + ' '
+                elif vals or key not in flag_strings['@']:
+                    flag_string += key + ''.join(vals) + ' '
 
         return flag_string.strip()
 
@@ -236,6 +248,10 @@ class GameWorld:
         # Get boss location data.
         self.boss_locations = data.bosses.get_default_boss_locations(self)
 
+        # Minigame data.
+        self.ball_solitaire = data.games.BallSolitaireGame(self)
+        self.magic_buttons = data.games.MagicButtonsGame(self)
+
     @property
     def open_mode(self):
         """Check if this game world is Open mode.
@@ -302,6 +318,7 @@ class GameWorld:
         bosses.randomize_all(self)
         keys.randomize_all(self)
         chests.randomize_all(self)
+        games.randomize_all(self)
 
         # Rebuild hash after randomization.
         self._rebuild_hash()
@@ -396,15 +413,15 @@ class GameWorld:
         # Open mode specific data.
         if self.open_mode:
             # Item locations.
+            # FIXME
+            # for location in self.key_locations + self.chest_locations:
+            #     print(">>>>>>>> {}".format(location))
+
             for location in self.key_locations:
                 patch += location.get_patch()
 
             for location in self.chest_locations:
                 patch += location.get_patch()
-
-            # FIXME
-            # for location in self.key_locations + self.chest_locations:
-            #     print(">>>>>>>> {}".format(location))
 
             # Boss locations.
             for boss in self.boss_locations:
@@ -437,6 +454,10 @@ class GameWorld:
                 patch.add_data(0x39bc4e, utils.ByteField(exps[5]).as_bytes())  # 5 stars
                 patch.add_data(0x39bc52, utils.ByteField(exps[6]).as_bytes())  # 6/7 stars
                 patch.add_data(0x1fd32d, utils.ByteField(0xa0).as_bytes())  # Enable flag
+
+            # Minigames
+            patch += self.ball_solitaire.get_patch()
+            patch += self.magic_buttons.get_patch()
 
         # Unlock the whole map if in debug mode in standard.
         if self.debug_mode and not self.open_mode:
