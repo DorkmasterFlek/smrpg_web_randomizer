@@ -162,9 +162,9 @@ def randomize_all(world):
                 selector = random.randint(1, 100)
                 if chest_tier == 4:
                     if tiers_allowed == 4:
-                        if selector < 85:
+                        if selector < 88:
                             return 4
-                        elif selector < 93:
+                        elif selector < 94:
                             return 3
                         elif selector < 98:
                             return 2
