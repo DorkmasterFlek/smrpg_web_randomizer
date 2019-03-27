@@ -5250,6 +5250,35 @@ class Bundt(Enemy):
     ratio_magic_defense = 1.25
     ratio_speed = 1.0
 
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
+
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        if self.world.settings.is_flag_enabled(flags.PaletteSwaps):
+            bytes = [];
+            for colour in ["A88878", "906858", "906858", "684838", "504028", "382018", "382010", "382818", "201800", "484020", "483020", "805848", "483020", "806050", "181818"]:
+                #sanitize to multiples of 8
+                r = 8 * round(int(colour[0:2], 16) / 8)
+                g = 8 * round(int(colour[2:4], 16) / 8)
+                b = 8 * round(int(colour[4:6], 16) / 8)
+                r = int(r / 8)
+                g = int(g / 4)
+                b = int(b / 2)
+                r = format(r, 'x').zfill(2)
+                g = format(g, 'x').zfill(2)
+                b = format(b, 'x').zfill(2)
+                bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
+                bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
+                bytes.append(hex(int(bytestring1, 16)))
+                bytes.append(hex(int(bytestring2, 16)))
+            patch.add_data(0x2547AC, bytes)
+        return patch
+
 
 class Jinx1(Enemy):
     index = 195
@@ -5920,7 +5949,35 @@ class Raspberry(Enemy):
     ratio_magic_attack = 1.0714
     ratio_magic_defense = 0.75
     ratio_speed = 1.0
+    
+    def get_patch(self):
+        """Update battle event triggers based on HP to use shuffled HP value instead.
 
+        Returns:
+            randomizer.logic.patch.Patch: Patch data
+
+        """
+        patch = super().get_patch()
+
+        if self.world.settings.is_flag_enabled(flags.PaletteSwaps):
+            bytes = [];
+            for colour in ["A88878", "806858", "704838", "685040", "604838", "503828", "685040", "684028", "482820", "584028", "684838", "382820", "402010", "583828", "281808"]:
+                #sanitize to multiples of 8
+                r = 8 * round(int(colour[0:2], 16) / 8)
+                g = 8 * round(int(colour[2:4], 16) / 8)
+                b = 8 * round(int(colour[4:6], 16) / 8)
+                r = int(r / 8)
+                g = int(g / 4)
+                b = int(b / 2)
+                r = format(r, 'x').zfill(2)
+                g = format(g, 'x').zfill(2)
+                b = format(b, 'x').zfill(2)
+                bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
+                bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
+                bytes.append(hex(int(bytestring1, 16)))
+                bytes.append(hex(int(bytestring2, 16)))
+            patch.add_data(0x254770, bytes)
+        return patch
 
 class KingCalamari(Enemy):
     index = 216

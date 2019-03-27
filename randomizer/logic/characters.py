@@ -354,14 +354,14 @@ def randomize_all(world):
     """
     
     #Palettes!!!!
-    #world.characters[0].palette = random.choice([...])
-    #world.characters[1].palette = random.choice([...])
-    #world.characters[2].palette = random.choice([...])
-    #world.characters[3].palette = random.choice([...])
-    #world.characters[4].palette = random.choice([...])
-    
-    
-    
+    if world.settings.is_flag_enabled(flags.PaletteSwaps):
+        world.characters[0].palette = random.choice([palettes.MarioJumpman, palettes.MarioFireMario, palettes.MarioLuigi, palettes.MarioFireLuigi, palettes.MarioWario, palettes.MarioWaluigi, palettes.MarioBuilder, palettes.MarioMegaman, palettes.MarioGrey, palettes.MarioZombie, palettes.MarioSponge, palettes.MarioPretzel, palettes.MarioMarlon])
+        world.characters[1].palette = random.choice([palettes.MallowMokura, palettes.MallowFrog, palettes.MallowPalom, palettes.MallowPorom, palettes.MallowCloud, palettes.MallowStormy, palettes.MallowLight, palettes.MallowWater, palettes.MallowRed, palettes.MallowMint, palettes.MallowDemon])
+        world.characters[2].palette = random.choice([palettes.GenoPink, palettes.GenoMagikoopa, palettes.GenoMagikoopaRed, palettes.GenoLink, palettes.GenoVlados, palettes.GenoLight, palettes.GenoPurple, palettes.GenoGrey])
+        world.characters[3].palette = random.choice([palettes.BowserDrybone, palettes.BowserCulex, palettes.BowserWabowser, palettes.BowserRed, palettes.BowserPink, palettes.BowserDark, palettes.BowserKronk, palettes.BowserZeccet, palettes.BowserDJN])
+        world.characters[4].palette = random.choice([palettes.ToadstoolDaisy, palettes.ToadstoolRosalina, palettes.ToadstoolPauline, palettes.ToadstoolPalutena, palettes.ToadstoolKumatora, palettes.ToadstoolTia, palettes.ToadstoolKairi, palettes.ToadstoolLeena, palettes.ToadstoolEmeralda, palettes.ToadstoolMiku, palettes.ToadstoolJasmine, palettes.ToadstoolKotori, palettes.ToadstoolZombie, palettes.ToadstoolBlood, palettes.ToadstoolDemon, palettes.ToadstoolRed, palettes.ToadstoolGreen, palettes.ToadstoolBlue, palettes.ToadstoolBlack])
+        
+        
     
     
     # Shuffle learned spells for all characters.

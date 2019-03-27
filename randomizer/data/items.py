@@ -465,6 +465,7 @@ class NokNokShell(Item):
     attack = 20
     variance = 2
     price = 20
+    vanilla_shop = True
 
 
 class PunchGlove(Item):

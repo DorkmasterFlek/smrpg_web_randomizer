@@ -143,6 +143,11 @@ def randomize_all(world):
                             chest.item = random.choice([star for star in stars])
                         finished_chests.append(chest)
                         eligible_chests.remove(chest)
+                        #Don't allow 2 stars in same bandits way room
+                        if (isinstance(chest, chests.BanditsWayCroco) or isinstance(chest, chests.BanditsWayDogJump)):
+                            for c in eligible_chests:
+                                if (isinstance(c, chests.BanditsWayCroco) or isinstance(c, chests.BanditsWayDogJump)):
+                                    eligible_chests.remove(c)
                 else:
                     eligible_chests = [chest for chest in world.chest_locations if 201 <= chest.item.index <= 208]
                     for chest in eligible_chests:
@@ -365,19 +370,18 @@ def randomize_all(world):
                           adjusted_ratio_coins):
                         chest.item = random.choice([i for i in coins if i.hard_tier == selected_tier])
                     else:
-                        # If item already exists in another location, 50% chance of rerolling for this chest
+                        # 50% chance of rerolling if item is an equip
                         proceed_repeat_item = False
                         while not proceed_repeat_item:
                             check_item = random.choice([i for i in eligible_items if i.hard_tier == selected_tier])
-                            if check_item not in items_already_in_chests or not check_item.is_equipment:
-                                items_already_in_chests.append(check_item)
-                                chest.item = check_item
-                                proceed_repeat_item = True
-                            else:
+                            if check_item.is_equipment:
                                 fifty = random.choice([0, 1])
                                 if fifty == 0:
                                     chest.item = check_item
                                     proceed_repeat_item = True
+                            else:
+                                chest.item = check_item
+                                proceed_repeat_item = True
                 else:
                     selection = random.randint(1, denominator)
                     if flowers_allowed and chest.item_allowed(items.Flower) and selection < ratio_flowers / 1.5:
@@ -397,11 +401,11 @@ def randomize_all(world):
                         proceed_repeat_item = False
                         while not proceed_repeat_item:
                             if tiers_allowed == 4:
-                                if tier_selection <= 35:
+                                if tier_selection <= 40:
                                     check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
-                                elif tier_selection <= 65:
+                                elif tier_selection <= 70:
                                     check_item = random.choice([i for i in eligible_items if i.hard_tier == 2])
-                                elif tier_selection <= 85:
+                                elif tier_selection <= 90:
                                     check_item = random.choice([i for i in eligible_items if i.hard_tier == 3])
                                 else:
                                     check_item = random.choice([i for i in eligible_items if i.hard_tier == 4])
@@ -420,18 +424,20 @@ def randomize_all(world):
                             else:
                                 check_item = random.choice([i for i in eligible_items if i.hard_tier == 1])
 
-                            if check_item not in items_already_in_chests or not check_item.is_equipment:
-                                items_already_in_chests.append(check_item)
-                                chest.item = check_item
-                                proceed_repeat_item = True
-                            else:
+                            # 50% chance of rerolling if item is an equip
+                            if check_item.is_equipment:
                                 fifty = random.choice([0, 1])
                                 if fifty == 0:
                                     chest.item = check_item
                                     proceed_repeat_item = True
+                            else:
+                                chest.item = check_item
+                                proceed_repeat_item = True
 
                 finished_chests.append(chest)
                 eligible_chests.remove(chest)
+
+
 
             while len(eligible_rewards) > 0:
                 chest = random.choice(eligible_rewards)

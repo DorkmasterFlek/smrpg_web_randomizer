@@ -4,6 +4,7 @@ import collections
 import hashlib
 import random
 import re
+import inspect
 
 from randomizer import data
 from . import bosses
@@ -440,6 +441,176 @@ class GameWorld:
         # Unlock the whole map if in debug mode in standard.
         if self.debug_mode and not self.open_mode:
             patch += map.unlock_world_map()
+
+        # bowsers keep doors
+        if self.settings.is_flag_enabled(flags.ShuffleBowsersKeep):
+
+            # def find_subclasses(module, clazz):
+            #     return [
+            #         cls
+            #         for name, cls in inspect.getmembers(module)
+            #         if inspect.isclass(cls) and issubclass(cls, clazz) and cls != clazz
+            #     ]
+            # all_rooms = find_subclasses(data.locations, data.locations.BowserRoom)
+            # shuffleable_rooms = [i for i in all_rooms if not i.is_final]
+            # last_rooms = [i for i in all_rooms if i.is_final]
+            #
+            # rooms = random.sample(shuffleable_rooms, 3)
+            # rooms.append(random.choice(last_rooms))
+            # #print(rooms)
+            #
+            # #set croco's room to lead to the first randomized room
+            # patch.add_data(0x1D46AE, [rooms[0].relative_room_id])
+            # patch.add_data(0x1D46B3, [rooms[0].start_x, rooms[0].start_y, rooms[0].start_z + 0xE0])
+            #
+            # #next rooms
+            # for index, room in enumerate(rooms):
+            #     if index+1 < len(rooms):
+            #         patch.add_data(rooms[index].next_room_address, [rooms[index+1].relative_room_id])
+            #         patch.add_data(rooms[index].next_coord_address, [rooms[index+1].start_x, rooms[index+1].start_y, rooms[index+1].start_z + 0xE0])
+            # #make final room always go to final chest
+            # #todo: really need a way to make any room avaiable in any slot
+            # patch.add_data(0x204CB1, [0xBE, 0x81, 0x10])
+            #
+            # #remove backward exits
+            # for i in rooms:
+            #     if i.backward_exit_byte > 0:
+            #         patch.add_data(i.backward_exit_byte, 15)
+            #     if i.backward_event_byte > 0:
+            #         patch.add_data(i.backward_event_byte, 15)
+            #
+            # #death spawn in croco room
+            # patch.add_data(0x2050D8, [0xC4])
+            # patch.add_data(0x2050DA, [0x09, 0x5D])
+            #
+            # #exclude any chests in unused bowser door rooms from world.chest_locations
+            # for i in all_rooms:
+            #     if i not in rooms:
+            #         if i == data.locations.BowserDoorInvisible:
+            #             for c in self.chest_locations:
+            #                 if (i == data.locations.BowserDoorInvisible and (isinstance(c, data.chests.BowsersKeepInvisibleBridge1) or isinstance(c, data.chests.BowsersKeepInvisibleBridge2) or isinstance(c, data.chests.BowsersKeepInvisibleBridge3) or isinstance(c, data.chests.BowsersKeepInvisibleBridge4))) or (i == data.locations.BowserDoorXY and (isinstance(c, data.chests.BowsersKeepMovingPlatforms1) or isinstance(c, data.chests.BowsersKeepMovingPlatforms2) or isinstance(c, data.chests.BowsersKeepMovingPlatforms3) or isinstance(c, data.chests.BowsersKeepMovingPlatforms4))) or (i == data.locations.BowserDoorZ and isinstance(c, data.chests.BowsersKeepElevatorPlatforms)) or (i == data.locations.BowserDoorCannonball and (isinstance(c, data.chests.BowsersKeepCannonballRoom1) or isinstance(c, data.chests.BowsersKeepCannonballRoom2) or isinstance(c, data.chests.BowsersKeepCannonballRoom3) or isinstance(c, data.chests.BowsersKeepCannonballRoom4) or isinstance(c, data.chests.BowsersKeepCannonballRoom5))) or (i == data.locations.BowserDoorRotating and (isinstance(c, data.chests.BowsersKeepRotatingPlatforms1) or isinstance(c, data.chests.BowsersKeepRotatingPlatforms2) or isinstance(c, data.chests.BowsersKeepRotatingPlatforms3) or isinstance(c, data.chests.BowsersKeepRotatingPlatforms4) or isinstance(c, data.chests.BowsersKeepRotatingPlatforms5) or isinstance(c, data.chests.BowsersKeepRotatingPlatforms6))):
+            #                     self.chest_locations.remove(c)
+            # #need to update this to include prize chests once we figure that out
+            #
+
+
+            def find_subclasses(module, clazz):
+                return [
+                    cls
+                    for name, cls in inspect.getmembers(module)
+                    if inspect.isclass(cls) and issubclass(cls, clazz) and cls != clazz
+                ]
+
+            all_rooms = find_subclasses(data.locations, data.locations.BowserRoom)
+            doors = [[], [], [], [], [], []]
+            assigned_rooms = []
+
+            #remove backward exits
+            for i in all_rooms:
+                if i.backward_exit_byte > 0:
+                    patch.add_data(i.backward_exit_byte, 15)
+                if i.backward_event_byte > 0:
+                    patch.add_data(i.backward_event_byte, 15)
+                if i.is_final:
+                    patch.add_data(i.change_event_byte, [0x4C, 0x81])
+
+            for i in range(0, len(doors)):
+                for j in range(0,3):
+                    room = random.choice([r for r in all_rooms if r not in assigned_rooms])
+                    doors[i].append(room)
+                    assigned_rooms.append(room)
+
+            #patch hard exits so they always go to twin rooms
+            patch.add_data(0x1D40D5, [0x41, 0xA1, 0x93, 0x1C, 0x05, 0x00, 0x00, 0xE0, 0x81, 0x24, 0xA1, 0x9B, 0x56, 0x02, 0x00, 0x00, 0xE0])
+            patch.add_data(0x1D4307, [0x2B, 0xA1, 0x96, 0x19, 0x00, 0x00, 0x00])
+            patch.add_data(0x1D46E4, [0x27, 0xA1, 0x92, 0x1B, 0x03, 0x00, 0x00, 0xE0, 0x81, 0x42, 0xA1, 0x87, 0x76, 0x02, 0x1A, 0x58, 0x62, 0x81, 0x25, 0xA1, 0x95, 0x56, 0x02, 0x00, 0x00, 0xE0, 0x81, 0x28, 0xA1, 0x96, 0x19, 0x00, 0x00, 0x00, 0xE0, 0x81, 0x29, 0xA1, 0x96, 0x19, 0x00, 0x00, 0x00, 0xE0, 0x81, 0x2A, 0xA1, 0x96, 0x19, 0x00, 0x00, 0x00])
+            #patch event exits so they always go to twin rooms
+            patch.add_data(0x204E8D, [0x8C, 0x80, 0x00, 0x00, 0xE0, 0xFE, 0x68, 0x00, 0x81, 0x00, 0x00])
+            patch.add_data(0x20502A, [0x9C, 0x80, 0x00, 0x00])
+            patch.add_data(0x205285, [0xDA, 0x80, 0x00, 0x00])
+
+            #patch twin rooms and final rooms so that they always run event 332 on load
+            patch.add_data(0x20ED2E, [0x4C, 0x01])
+            patch.add_data(0x20EDD3, [0x4C, 0x01])
+            patch.add_data(0x20F0EE, [0x4C, 0x01])
+            patch.add_data(0x20F2A4, [0x4C, 0x01])
+            patch.add_data(0x20F38C, [0x4C, 0x01])
+            patch.add_data(0x20F38F, [0x4C, 0x01])
+            patch.add_data(0x20F392, [0x4C, 0x01])
+            patch.add_data(0x20F395, [0x4C, 0x01])
+            patch.add_data(0x20F398, [0x4C, 0x01])
+            patch.add_data(0x20F39B, [0x4C, 0x01])
+            patch.add_data(0x20F39E, [0x4C, 0x01])
+            patch.add_data(0x20F3A1, [0x4C, 0x01])
+            patch.add_data(0x20F703, [0x4C, 0x81])
+            patch.add_data(0x20FB6C, [0x4C, 0x81])
+            patch.add_data(0x20FB75, [0x4C, 0x81])
+            patch.add_data(0x20FBDE, [0x4C, 0x81])
+            patch.add_data(0x20FC11, [0x4C, 0x81])
+            patch.add_data(0x20FC1D, [0x4C, 0x81])
+
+            #remove music from twin rooms
+            patch.add_data(0x20ED2D, [0x42])
+            patch.add_data(0x20EDD2, [0x42])
+            patch.add_data(0x20F0ED, [0x42])
+            patch.add_data(0x20F2A3, [0x42])
+            patch.add_data(0x20F38B, [0x42])
+            patch.add_data(0x20F38E, [0x42])
+            patch.add_data(0x20F391, [0x42])
+            patch.add_data(0x20F394, [0x42])
+            patch.add_data(0x20F397, [0x42])
+            patch.add_data(0x20F39A, [0x42])
+            patch.add_data(0x20F39D, [0x42])
+            patch.add_data(0x20F3A0, [0x42])
+
+            #create a patch that modifies event 322 to be usable for keep reward chest rooms and rooms with hard exits
+            #create conditions that allow you to run an event for rooms that by default are a finishing room or a hard exit room
+            event_patch_data = [0xC3, 0xE2, 0xD2, 0x01, 0xEC, 0x22, 0xE2, 0xD4, 0x01, 0xF3, 0x22, 0xE2, 0xC8, 0x01, 0xFA, 0x22, 0xE2, 0xC7, 0x01, 0x01, 0x23, 0xE2, 0xCD, 0x01, 0x08, 0x23, 0xE2, 0x79, 0x01, 0x0F, 0x23, 0xE2, 0x24, 0x01, 0x16, 0x23, 0xE2, 0x25, 0x01, 0x1D, 0x23, 0xE2, 0x26, 0x01, 0x24, 0x23, 0xE2, 0x27, 0x01, 0x2B, 0x23, 0xE2, 0x28, 0x01, 0x32, 0x23, 0xE2, 0x29, 0x01, 0x39, 0x23, 0xE2, 0x2A, 0x01, 0x40, 0x23, 0xE2, 0x2B, 0x01, 0x47, 0x23, 0xE2, 0x8C, 0x00, 0x4E, 0x23, 0xE2, 0x9C, 0x00, 0x55, 0x23, 0xE2, 0xDA, 0x00, 0x5C, 0x23, 0xE2, 0x00, 0x01, 0x63, 0x23, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE, 0x68, 0xBE, 0x81, 0x0F, 0x0F, 0xE0, 0xFE]
+            patch.add_data(0x1E2291, event_patch_data)
+            i = 0x1E2291 + len(event_patch_data)
+            while i < 0x1E24C6:
+                patch.add_data(i, 0x9B)
+                i += 1
+            patch.add_data(0x1E24C6, 0xFE)
+
+            #loop thru rooms to determine which exits should be loading 3350 or 332
+            #if index in door is < 2, twin rooms should be using event 332 as entrance event, and finisher rooms should be using event 332 as exit event
+            #if index in door is 3, twin rooms should be using event 3350 as entrance event, and finisher rooms should be using event 3350 as exit event
+
+            initial_door_room_addresses = [0x205CCD, 0x205CD4, 0x205CDB, 0x205CE2, 0x205CE9, 0x205CF0]
+            initial_door_coord_addresses = [0x205CCF, 0x205CD6, 0x205CDD, 0x205CE4, 0x205CEB, 0x205CF2]
+            for index, door in enumerate(doors):
+                #set bowser door # to this room
+                patch.add_data(initial_door_room_addresses[index], [door[0].relative_room_id])
+                patch.add_data(initial_door_coord_addresses[index], [door[0].start_x, door[0].start_y, door[0].start_z + 0xE0])
+                for j in range(0,len(door)):
+                    #patch room to switch twin room entrance event, or current room's exit event, to 3350 (load reward chest)
+                    if j+1 == len(door):
+                        if door[j].is_final:
+                            patch.add_data(door[j].change_event_byte, [0x16, 0x8D])
+                        else:
+                            patch.add_data(door[j].change_event_byte, [0x16, 0x0D])
+                    #patch room to change event 322 to make this room's twin room or exit condition load the next room in the array
+                    else:
+                        patch.add_data(door[j].next_room_address, [door[j+1].relative_room_id])
+                        print(door[j+1], hex(door[j].next_coord_address), [door[j+1].start_x, door[j+1].start_y, door[j+1].start_z + 0xE0])
+                        patch.add_data(door[j].next_coord_address, [door[j+1].start_x, door[j+1].start_y, door[j+1].start_z + 0xE0])
+
+            print(doors)
+
+        # required doors to reach magikoopa
+        if self.settings.is_flag_enabled(flags.BowsersKeep1):
+            patch.add_data(0x204CAD, 1)
+        elif self.settings.is_flag_enabled(flags.BowsersKeep2):
+            patch.add_data(0x204CAD, 2)
+        elif self.settings.is_flag_enabled(flags.BowsersKeep3):
+            patch.add_data(0x204CAD, 3)
+        elif self.settings.is_flag_enabled(flags.BowsersKeep4):
+            patch.add_data(0x204CAD, 4)
+        elif self.settings.is_flag_enabled(flags.BowsersKeep5):
+            patch.add_data(0x204CAD, 5)
+        elif self.settings.is_flag_enabled(flags.BowsersKeep6):
+            patch.add_data(0x204CAD, 6)
 
         # Choose character for the file select screen.
         i = int(self.hash, 16) % 5
