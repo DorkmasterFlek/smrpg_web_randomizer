@@ -150,7 +150,7 @@ def randomize_all(world):
                                 if (isinstance(c, chests.BanditsWayCroco) or isinstance(c, chests.BanditsWayDogJump)):
                                     eligible_chests.remove(c)
                 else:
-                    eligible_chests = [chest for chest in world.chest_locations if 201 <= chest.item.index <= 208]
+                    eligible_chests = [chest for chest in world.chest_locations if 201 <= chest.item.index and chest.item.index <= 208]
                     for chest in eligible_chests:
                         finished_chests.append(chest)
                     for chest in eligible_chests:
@@ -553,8 +553,9 @@ def randomize_all(world):
                 return rv
 
             for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)]:
-                if chest.item.hard_tier == 1 and not chest.item.is_key and chest.item.price > 0:
+                if chest.item.hard_tier == 1 and chest.item.is_key and chest.item.price > 0:
                     if chest.item_allowed(items.Coins150) and not chest.item.frog_coin_item:
                         chest.item = closest_coins(chest.item.price)
                     elif chest.item_allowed(items.FrogCoin) and chest.item.frog_coin_item:
                         chest.item = items.FrogCoin
+                print(chest)
