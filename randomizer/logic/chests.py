@@ -558,4 +558,3 @@ def randomize_all(world):
                         chest.item = closest_coins(chest.item.price)
                     elif chest.item_allowed(items.FrogCoin) and chest.item.frog_coin_item:
                         chest.item = items.FrogCoin
-                print(chest)
