@@ -255,6 +255,9 @@ def randomize_all(world):
 
         # Calculate raw rank value
 
+        # Exclude wallet, shiny stone, carbo cookie
+        excluded_items = [129, 137, 138]
+
         if world.settings.is_flag_enabled(flags.ShopTierX):
             for shop in world.shops:
                 shop.items = [i for i in world.items if i.index == 125]
@@ -290,20 +293,20 @@ def randomize_all(world):
                 if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
                     frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and
                                        ((3 >= tiers_allowed == i.hard_tier) or
-                                        (tiers_allowed == 4 and 2 < i.hard_tier <= 4))]
+                                        (tiers_allowed == 4 and 2 < i.hard_tier <= 4)) and i not in excluded_items]
                 # No Sb - allow any item here, as long as permitted by tier exclusion flag
                 else:
                     frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and
-                                       i.hard_tier <= tiers_allowed]
+                                       i.hard_tier <= tiers_allowed and i not in excluded_items]
             # Sb only
             elif world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
                 # Only allow the chosen highest tiers of items here
                 frog_candidates = [i for i in world.items if i.price and
                                    ((3 >= tiers_allowed == i.hard_tier) or
-                                    (tiers_allowed == 4 and 2 < i.hard_tier <= 4))]
+                                    (tiers_allowed == 4 and 2 < i.hard_tier <= 4)) and i not in excluded_items]
             # Allow anything within tier exclusion flag
             else:
-                frog_candidates = [i for i in world.items if i.price and i.hard_tier <= tiers_allowed]
+                frog_candidates = [i for i in world.items if i.price and i.hard_tier <= tiers_allowed and i not in excluded_items]
             # Pick 25 items to be in the frog coin shops total.
             frog_chosen = random.sample(frog_candidates, min(len(frog_candidates), 25))
             disciple_shop = 3
@@ -338,8 +341,6 @@ def randomize_all(world):
 
             # Collect remaining items that aren't in frog coin shops and aren't key items.
 
-            # Exclude wallet, shiny stone, carbo cookie
-            excluded_items = [129, 137, 138]
 
             if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
                 shop_items = [i for i in world.items if
