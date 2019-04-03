@@ -140,6 +140,7 @@ class BowserRoom:
     jump_address = []
     jump_to_address = 0
     memory_700A_jump_address = 0
+    needs_manual_run_on_exit = False
 class BowserDoorQuiz(BowserRoom):
     relative_room_id = 0xD0
     next_room_address = 0x1E234F
@@ -154,6 +155,7 @@ class BowserDoorQuiz(BowserRoom):
     jump_to_address = 0x1E22B4
     memory_700A_jump_address = 0x1E2293
     memory_700A_load_address = 0x1E2302
+    needs_manual_run_on_exit = True
 class BowserDoorBarrel(BowserRoom):
     relative_room_id = 0xCF
     next_room_address = 0x1E2356
@@ -168,6 +170,7 @@ class BowserDoorBarrel(BowserRoom):
     jump_to_address = 0x1E22B9
     memory_700A_jump_address = 0x1E2299
     memory_700A_load_address = 0x1E2313
+    needs_manual_run_on_exit = True
 class BowserDoorMarathon(BowserRoom):
     relative_room_id = 0xD2
     next_room_address = 0x1E22ED
@@ -196,6 +199,7 @@ class BowserDoorCoin(BowserRoom):
     jump_to_address = 0x1E22BE
     memory_700A_jump_address = 0x1E22A5
     memory_700A_load_address = 0x1E2332
+    needs_manual_run_on_exit = True
 class BowserDoorButton(BowserRoom):
     relative_room_id = 0xD1
     next_room_address = 0x1E2364
@@ -210,6 +214,7 @@ class BowserDoorButton(BowserRoom):
     jump_to_address = 0x1E22C3
     memory_700A_jump_address = 0x1E22AB
     memory_700A_load_address = 0x1E2343
+    needs_manual_run_on_exit = True
 class BowserDoorSolitaire(BowserRoom):
     relative_room_id = 0xD4
     next_room_address = 0x1E22F4
@@ -239,6 +244,7 @@ class BowserDoorInvisible(BowserRoom):
     jump_to_address = 0x1E22C8
     memory_700A_jump_address = 0x1E22B7
     memory_700A_load_address = 0x1E2369
+    needs_manual_run_on_exit = True
 class BowserDoorXY(BowserRoom):
     relative_room_id = 0xCA
     next_room_address = 0x1E231E
@@ -256,6 +262,7 @@ class BowserDoorXY(BowserRoom):
     jump_to_address = 0x1E22CD
     memory_700A_jump_address = 0x1E22BD
     memory_700A_load_address = 0x1E237A
+    needs_manual_run_on_exit = True
 class BowserDoorDonkey(BowserRoom):
     relative_room_id = 0xC8
     next_room_address = 0x1E22FB
@@ -286,6 +293,7 @@ class BowserDoorZ(BowserRoom):
     jump_to_address = 0x1E22D2
     memory_700A_jump_address = 0x1E22C9
     memory_700A_load_address = 0x1E239C
+    needs_manual_run_on_exit = True
 class BowserDoorCannonball(BowserRoom):
     relative_room_id = 0xC9
     next_room_address = 0x1E232C
@@ -302,6 +310,7 @@ class BowserDoorCannonball(BowserRoom):
     jump_to_address = 0x1E22D7
     memory_700A_jump_address = 0x1E22CF
     memory_700A_load_address = 0x1E23AD
+    needs_manual_run_on_exit = True
 class BowserDoorRotating(BowserRoom):
     relative_room_id = 0xC7
     next_room_address = 0x1E2302
@@ -332,6 +341,7 @@ class BowserDoorTerraCotta(BowserRoom):
     jump_to_address = 0x1E22DC
     memory_700A_jump_address = 0x1E22DB
     memory_700A_load_address = 0x1E23CF
+    needs_manual_run_on_exit = True
 class BowserDoorAlleyRat(BowserRoom):
     relative_room_id = 0xCC
     next_room_address = 0x1E233A
@@ -346,6 +356,7 @@ class BowserDoorAlleyRat(BowserRoom):
     jump_to_address = 0x1E22E1
     memory_700A_jump_address = 0x1E22E1
     memory_700A_load_address = 0x1E23E0
+    needs_manual_run_on_exit = True
 class BowserDoorBobomb(BowserRoom):
     relative_room_id = 0xCD
     next_room_address = 0x1E2309
@@ -374,6 +385,7 @@ class BowserDoorGuGoomba(BowserRoom):
     jump_to_address = 0x1E22E6
     memory_700A_jump_address = 0x1E22ED
     memory_700A_load_address = 0x1E2402
+    needs_manual_run_on_exit = True
 class BowserDoorChewy(BowserRoom):
     relative_room_id = 0x78
     next_room_address = 0x1E2348
@@ -388,6 +400,7 @@ class BowserDoorChewy(BowserRoom):
     jump_to_address = 0x1E22EB
     memory_700A_jump_address = 0x1E22F3
     memory_700A_load_address = 0x1E2413
+    needs_manual_run_on_exit = True
 class BowserDoorSparky(BowserRoom):
     relative_room_id = 0x79
     next_room_address = 0x1E2310
