@@ -143,7 +143,7 @@ class ToadstoolPalette(Palette):
 #mario palettes
 class MarioJumpman(MarioPalette):
     colours = ["F8F8F8", "F8C880", "C08848", "A86848", "783830", "3838E0", "0000D8", "101090", "600000", "B83838", "A00000", "581818", "D8D8E0", "888898", "181818"]
-    poison_colours = []
+    poison_colours = ["A8A8F8", "A888A8", "805050", "683050", "400828", "0808F8", "0000F8", "0000C0", "300000", "700838", "600000", "280000", "9090F8", "5050D0", "000000", ]
     underwater_colours = []
     name = "Jumpman"
 class MarioFireMario(MarioPalette):
@@ -158,6 +158,8 @@ class MarioLuigi(MarioPalette):
     name = "Luigi"
 class MarioFireLuigi(MarioPalette):
     colours = ["F8F8F8", "F8C880", "C08848", "A86848", "783830", "F8F8F8", "E8E8E8", "B8B8B8", "600000", "389830", "388838", "207820", "D8D8D8", "988888", "181818"]
+    poison_colours = ["A8A8F8", "A888A8", "805050", "683050", "481028", "A8A8F8", "9898F8", "7070F8", "300000", "106028", "105038", "004818", "9090F8", "6050B0", "000000"]
+    underwater_colours = []
     name = "Fire Luigi"
 class MarioWario(MarioPalette):
     colours = ["F8F8F8", "F0B8A8", "C08870", "A86860", "783830", "F8D848", "D0B020", "A88010", "604800", "9038B0", "780090", "480060", "F0E8D8", "989078", "181818"]
@@ -176,33 +178,34 @@ class MarioBuilder(MarioPalette):
     name = "Builder"
 class MarioMegaman(MarioPalette):
     colours = ["F8F8F8", "F8C880", "C08848", "A86848", "783830", "18A0F8", "1018F8", "0018E0", "000088", "3838E0", "0000D8", "000060", "E0D8D8", "988888", "181818"]
-    poison_colours = []
-    underwater_colours = []
+    poison_colours = ["f8f8f8", "b870e0", "8848c8", "502858", "783830", "380838", "501850", "281858", "9018B0", "500058", "280058", "000028", "9890D8", "6858A0", "181818"]
+    underwater_colours = ["f8f8f8", "b8d0f8", "98b0f8", "6870c8", "000068", "0050b0", "0000a0", "000060", "000050", "101080", "000030", "000028", "4000a8", "886088", "181818"]
     name = "Megaman"
 class MarioGrey(MarioPalette):
     colours = ["F8F8F8", "F8C880", "C08848", "A86848", "783830", "18A0F8", "1018F8", "0018E0", "000088", "3838E0", "0000D8", "000060", "E0D8D8", "988888", "181818"]
-    poison_colours = []
-    underwater_colours = []
+    poison_colours = ["A8A8F8", "A888A8", "805850", "684050", "481828", "8890F8", "7080F8", "6068D0", "300000", "001850", "001048", "001028", "9898F8", "6058B0", "000000"]
+    underwater_colours = ["82829a", "826a5e", "664a42", "5a3a42", "422236", "6e6e86", "5e627a", "52526a", "36051e", "1a2242", "161e3e", "121a36", "76728a", "524a62", "12122a"]
     name = "Grey"
     rename_character = False
 class MarioZombie(MarioPalette):
     colours = ["E8E0B8", "98A860", "607048", "484828", "383830", "A88050", "886848", "704000", "602000", "781818", "600000", "200000", "E0D8D8", "988888", "181818"]
-    poison_colours = []
-    underwater_colours = []
-    name = "Zombie"
-    rename_character = False
+    poison_colours = ["F8A8F8", "A880A8", "685080", "503048", "382050", "C06090", "984880", "802800", "481000", "881020", "680000", "200000", "F8A0F8", "A860F8", "181020"]
+    underwater_colours = ["74708D", "4C5462", "303856", "242446", "1C1C4A", "54405A", "443456", "382032", "201032", "3C103E", "300032", "100032", "706C9D", "4C4475", "0C0C3E"]
+    name = "Zombio"
 class MarioSponge(MarioPalette):
     colours = ["F8F8F8", "F8C8A0", "C09868", "A86848", "785848", "E88038", "C06000", "984800", "600000", "505050", "303030", "000000", "E0D8D8", "988888", "181818"]
-    poison_colours = []
-    underwater_colours = []
+    poison_colours = ["F8C0F8", "F898F8", "D870C0", "C04880", "883880", "F86060", "D84800", "A83000", "680000", "583090", "302050", "000000", "F8A0F8", "A860F8", "181020"]
+    underwater_colours = ["7C7CAD", "7C6481", "604C65", "543456", "3C2C56", "74404E", "603032", "4C2432", "300032", "28285A", "18184A", "000032", "706C9D", "4C4475", "0C0C3E"]
     name = "Sponge"
 class MarioPretzel(MarioPalette):
     colours = ["F8F8F8", "F8E0C8", "B8A898", "A88078", "785848", "905818", "703800", "402000", "300000", "505050", "303030", "000000", "E0D8D8", "988888", "181818"]
+    poison_colours = ["F8C0F8", "F8A8F8", "D080F8", "C060D8", "883880", "A03820", "802000", "481000", "300000", "583090", "302050", "000000", "F8A0F8", "A860F8", "181020"]
+    underwater_colours = ["7C7CAD", "7C7095", "5C547D", "54406D", "3C2C56", "482C3E", "381C32", "201032", "180032", "28285A", "18184A", "000032", "706C9D", "4C4475", "0C0C3E"]
     name = "Pretzel"
 class MarioMarlon(MarioPalette):
     colours = ["F8F8F8", "A06830", "805818", "684018", "402000", "C03098", "A03068", "701048", "480020", "404058", "303048", "202038", "E0D8D8", "988888", "181818"]
-    poison_colours = []
-    underwater_colours = []
+    poison_colours = ["F0A0F8", "903850", "683030", "602020", "300800", "B810F8", "9010B8", "600080", "380030", "302098", "281080", "100858", "D090F8", "9058F0", "080020"]
+    underwater_colours = ["7C7CAD", "50344A", "3C2842", "34203E", "201032", "60187D", "501865", "380856", "240042", "20205E", "181856", "10104E", "706C9D", "4C4475", "0C0C3E"]
     name = "Marlon"
 #mallow palettes
 class MallowMokura(MallowPalette):
@@ -226,15 +229,15 @@ class MallowPorom(MallowPalette):
     underwater_colours = ["78749d", "786c91", "786079", "64485e", "201c46", "344842", "28303e", "20103a", "180c36", "681c4e", "58083a", "3a0537", "504062", "483452", "200436"]
     name = "Porom"
 class MallowCloud(MallowPalette):
-    colours = []
-    poison_colours = []
+    colours = ["F8F8F8", "F0F0F0", "D8D8D8", "A0A0A0", "404040", "6868F8", "282890", "000060", "000048", "D0D0D0", "000070", "6868F8", "8888A0", "484868", "181818"]
+    poison_colours = ["C0B0F8", "B8A0F8", "A090F8", "6860B8", "201030", "3838F8", "000098", "000060", "000038", "9890F0", "000070", "3838F8", "5850B8", "202068", "000000"]
     underwater_colours = []
     name = "Cloud"
     rename_character = False
 class MallowStormy(MallowPalette):
     colours = ["E8E8F8", "C8C8D8", "B8B8C8", "808090", "484858", "8060C8", "502868", "302078", "101050", "E0E840", "C8A818", "605030", "8088C8", "686888", "181818"]
-    poison_colours = []
-    underwater_colours = []
+    poison_colours = ["F8A8F8", "E098F8", "D088F8", "9060F8", "5030A0", "9048F8", "5818C0", "3010D8", "100090", "F8A870", "E08020", "683050", "9060F8", "7048F8", "181020"]
+    underwater_colours = ["7474AD", "64649D", "5C5C95", "404079", "24245E", "403095", "281465", "18106D", "08085A", "707452", "64543E", "30284A", "404495", "343475", "0C0C3E"]
     name = "Stormy"
     rename_character = False
 class MallowLight(MallowPalette):
@@ -245,7 +248,7 @@ class MallowLight(MallowPalette):
     rename_character = False
 class MallowWater(MallowPalette):
     colours = ["F8F8F8", "70D0E0", "58B8C8", "388090", "105878", "6868D0", "282848", "382038", "100810", "E8E8F8", "6868D0", "282848", "388090", "186070", "181818"]
-    poison_colours = []
+    poison_colours = ["E0B8F8", "5898E8", "4088D0", "205890", "003070", "5040D8", "100840", "200828", "000000", "D0A8F8", "5040D8", "100840", "205890", "004068", "000008"]
     underwater_colours = []
     name = "Water"
     rename_character = False
@@ -263,8 +266,8 @@ class MallowMint(MallowPalette):
     rename_character = False
 class MallowDemon(MallowPalette):
     colours = ["403038", "283030", "282028", "201018", "182018", "081010", "182020", "182020", "300810", "000000", "100000", "101810", "181810", "181818", "F81818"]
-    poison_colours = []
-    underwater_colours = []
+    poison_colours = ["485028", "305028", "303828", "282820", "283820", "182818", "283820", "283820", "381818", "101010", "201010", "202818", "282818", "282820", "E02820"]
+    underwater_colours = ["20184d", "141849", "141045", "10083d", "0c103d", "040839", "0c1041", "180439", "000031", "080031", "080c39", "0c0c39", "0c0c3d", "7c0c3d", "1818F8"]
     name = "Demon"
     rename_character = False
 #geno palettes
@@ -290,31 +293,31 @@ class GenoLink(GenoPalette):
     name = "Zelda"
 class GenoVlados(GenoPalette):
     colours = ["F8E0E0", "B0B0B0", "808080", "606060", "202018", "B01818", "800000", "680000", "200000", "D0C8D0", "D0C8D0", "383838", "B0A090", "686868", "181818"]
-    poison_colours = []
-    underwater_colours = []
-    name = "Vlados"
+    poison_colours = ["E8A8F8", "A088F8", "7060E8", "5848A8", "181020", "A01020", "700000", "600000", "180000", "C098F8", "9068F8", "302060", "A070F8", "6048C0", "101020"]
+    underwater_colours = ["7C70A1", "585889", "404071", "303062", "10103E", "580C3E", "400032", "340032", "100032", "686499", "4C487D", "1C1C4E", "585079", "343465", "0C0C3E"]
+    name = "Vlador"
 class GenoLight(GenoPalette):
     colours = ["F8F8F8", "F0D8D8", "C08030", "804818", "402810", "00C0C0", "009090", "007070", "004848", "F8C0C0", "F85050", "682020", "A06838", "686060", "181818"]
-    poison_colours = []
+    poison_colours = ["D8A0F8", "D090E8", "A85038", "703020", "382018", "0880D0", "0858A0", "084880", "083050", "D880D0", "D83858", "581828", "904040", "584068", "181020"]
     underwater_colours = []
     name = "Light"
     rename_character = False
 class GenoPurple(GenoPalette):
     colours = ["F8F8F8", "F8E8B0", "E09870", "985010", "502818", "A848F8", "8828D8", "6818B8", "481878", "C08870", "F87800", "603000", "908888", "686060", "181818"]
-    poison_colours = []
+    poison_colours = ["A8F8F8", "A8F0F0", "989890", "604800", "201808", "6840F8", "5018F8", "3008F8", "200898", "808890", "A87000", "302000", "5888B0", "305870", "000808"]
     underwater_colours = []
     name = "Purple"
     rename_character = False
 class GenoGrey(GenoPalette):
-    colours = []
-    poison_colours = []
-    underwater_colours = []
+    colours = ["F8F8F8", "F0D860", "C08030", "804818", "402810", "A8B8B8", "98A8A8", "809090", "606868", "F8C000", "F85000", "682018", "B0A090", "686070", "181818"]
+    poison_colours = ["A878F8", "A07058", "804020", "501800", "180800", "6860C0", "6050A8", "504890", "303060", "A86000", "A82000", "300800", "705090", "302868", "000000"]
+    underwater_colours = ["7c7cad", "786c61", "604049", "40243d", "201439", "545c8d", "4c5485", "404879", "303465", "7c6031", "7c2831", "34103d", "585079", "343069", "0c0c3d"]
     name = "Grey"
     rename_character = False
 #bowser palettes
 class BowserDrybone(BowserPalette):
     colours = ["F8F0F0", "E8E0B0", "F0E8C0", "B81010", "501818", "383030", "202020", "181010", "201818", "C8B8A0", "988870", "200808", "908080", "604040", "181818"]
-    poison_colours = []
+    poison_colours = ["C098F8", "B890D0", "C090F0", "880000", "280000", "180828", "000008", "000000", "000000", "9870C0", "685080", "000000", "604090", "381838", "000000"]
     underwater_colours = []
     name = "Dry Bone"
 class BowserCulex(BowserPalette):
@@ -330,15 +333,9 @@ class BowserWabowser(BowserPalette):
     name = "Wabowser"
 class BowserRed(BowserPalette):
     colours = ["F8F8F8", "D0D0D0", "F0C8C8", "B83838", "503838", "A83830", "782020", "481810", "202828", "C88080", "884848", "884848", "909090", "606060", "181818"]
-    poison_colours = []
+    poison_colours = ["B8E0F8", "98B8F8", "B8A8F8", "802038", "282038", "702028", "500018", "200000", "000820", "9068A8", "582850", "582850", "6070C0", "304070", "000000"]
     underwater_colours = []
     name = "Red"
-    rename_character = False
-class BowserPink(BowserPalette):
-    colours = ["F8F8F8", "F0A8A8", "E89088", "A86060", "501818", "E89088", "B86060", "501818", "200000", "A05860", "883030", "600808", "F8D0D0", "E08890", "200000"]
-    poison_colours = []
-    underwater_colours = []
-    name = "Pink"
     rename_character = False
 class BowserDark(BowserPalette):
     colours = ["F8F8F8", "F8F850", "F0C830", "B83810", "503818", "000000", "000000", "000000", "000000", "C88020", "884820", "201008", "909080", "606040", "181818"]
@@ -348,9 +345,9 @@ class BowserDark(BowserPalette):
     rename_character = False
 class BowserKronk(BowserPalette):
     colours = ["F8F080", "D8B8A0", "B89068", "383838", "181010", "D82830", "A81820", "600000", "300000", "886848", "704830", "201008", "D0B060", "806820", "482810"]
-    poison_colours = []
-    underwater_colours = []
-    name = "Dark"
+    poison_colours = ["F8B0F8", "F888F8", "D068E0", "382070", "180018", "F81860", "C01038", "680000", "300000", "984898", "803060", "200000", "E888D0", "904838", "501818"]
+    underwater_colours = ["7C7871", "6C5C81", "5C4865", "1C1C4E", "0C083A", "6C144A", "540C42", "300032", "180032", "443456", "38244A", "100836", "685862", "403442", "24143A"]
+    name = "Korush"
 class BowserZeccet(BowserPalette):
     colours = ["F8F8F8", "f8d8b0", "e0b088", "703038", "481e24", "c84858", "a04068", "683858", "482840", "b08860", "886048", "201008", "909080", "606040", "181818"]
     poison_colours = ["A8F8F8", "A8E0F8", "98B0B0", "382038", "201018", "883868", "603088", "302868", "201848", "708870", "505850", "000000", "5890A8", "305848", "000000"]
@@ -364,7 +361,7 @@ class BowserDJN(BowserPalette):
 #toadstool palettes
 class ToadstoolDaisy(ToadstoolPalette):
     colours = ["F8F8F8", "E09870", "A86048", "402800", "502818", "F8C810", "F8A018", "D08800", "700000", "A85000", "903800", "0898A0", "C8C8D0", "786860", "181818"]
-    poison_colours = []
+    poison_colours = ["A8A8F8", "A898F0", "986090", "180800", "200808", "A88800", "A86008", "885000", "400000", "682000", "581000", "0060D8", "8888F8", "483070", "000008"]
     underwater_colours = []
     name = "Daisy"
 class ToadstoolPauline(ToadstoolPalette):
@@ -383,9 +380,9 @@ class ToadstoolPalutena(ToadstoolPalette):
     underwater_colours = ["747095", "706881", "704c69", "102842", "0c143e", "7878a5", "606095", "501442", "2c204e", "385c62", "204452", "481442", "685862", "5c4832", "0c0c3e"]
     name = "Palutena"
 class ToadstoolKumatora(ToadstoolPalette):
-    colours = ["F8F8F8", "F8C8C0", "E09870", "B02080", "282058", "70C0F8", "6090E0", "5070D0", "A82058", "F898F8", "E848B0", "380000", "A0A8C8", "686898", "181818"]
-    poison_colours = ["A8F8B0", "A8E888", "98A848", "701050", "001028", "38E0B0", "30A0A0", "288090", "681028", "A8A8B0", "A04870", "100000", "60C888", "386860", "000000"]
-    underwater_colours = ["7c7cad", "7c6491", "704c69", "581071", "14105e", "3860ad", "3048a1", "283899", "54105e", "7c4cad", "742489", "1c0032", "505495", "34347d", "0c0c3e"]
+    colours = ["F8C8C0", "F8C8C0", "E09870", "B02080", "282058", "70C0F8", "6090E0", "5070D0", "A82058", "F898F8", "E848B0", "380000", "E09870", "A87848", "181818"]
+    poison_colours = ["A8E888", "A8E888", "98A848", "701050", "001028", "38E0B0", "30A0A0", "288090", "681028", "A8A8B0", "A04870", "100000", "98A848", "807020", "000000"]
+    underwater_colours = ["7c6491", "7c6491", "704c69", "581071", "14105e", "3860ad", "3048a1", "283899", "54105e", "7c4cad", "742489", "1c0032", "704c69", "1a1a70", "0c0c3e"]
     name = "Kumatora"
 class ToadstoolTia(ToadstoolPalette):
     colours = ["D8D0B8", "D8D0B8", "E4AB8B", "4060A0", "3B0857", "E67CA0", "F4518A", "D82E67", "B0B0B0", "90B0F8", "5888F0", "9F5C29", "E4AB8B", "C87840", "181818"]
@@ -399,8 +396,8 @@ class ToadstoolKairi(ToadstoolPalette):
     name = "Kairi"
 class ToadstoolLeena(ToadstoolPalette):
     colours = ["F8F8F8", "F8C088", "E09870", "A84800", "502818", "F83838", "C80808", "900000", "700000", "F8A060", "D87020", "706000", "D0B078", "A07840", "601818"]
-    poison_colours = []
-    underwater_colours = []
+    poison_colours = ["F0A0F8", "F080F8", "D060C8", "982800", "502818", "F02060", "C00000", "880000", "600000", "F068B0", "C84030", "603800", "C070E0", "905070", "580020", ]
+    underwater_colours = ["7C7CAD", "7C6075", "704C69", "542432", "28143E", "7C1C4E", "640436", "480032", "380032", "7C5062", "6C3842", "383032", "68586D", "503C52", "300C3E"]
     name = "Leena"
 class ToadstoolEmeralda(ToadstoolPalette):
     colours = ["F8E1D5", "E2C56C", "B67342", "47594C", "232323", "8D3121", "522118", "313131", "232323", "73B65A", "4A8463", "8B5E2E", "BB9A89", "A1877A", "181818"]
@@ -424,20 +421,20 @@ class ToadstoolKotori(ToadstoolPalette):
     name = "Kotori"
 class ToadstoolZombie(ToadstoolPalette):
     colours = ["F8E0D0", "A0C090", "809850", "385040", "000000", "987868", "806050", "604028", "101010", "689028", "486838", "700000", "C0A888", "785840", "181818"]
-    poison_colours = []
-    underwater_colours = []
+    poison_colours = ["F8A8F8", "B090F8", "907090", "383070", "000000", "A858C0", "904890", "682848", "100018", "706848", "504860", "800000", "D880F8", "8848A8", "181020"]
+    underwater_colours = ["7C7099", "506079", "404C5A", "1C2852", "000032", "4C3C65", "40305A", "302046", "08083A", "344846", "24344E", "380032", "605475", "3C3462", "0C0C3E"]
     name = "Zombie"
     rename_character = False
 class ToadstoolBlood(ToadstoolPalette):
     colours = ["F8F8F8", "F8E8B0", "E09870", "985010", "602818", "F8F8F8", "D00000", "900000", "700000", "F8D038", "F88820", "3838D0", "D0C8C8", "786860", "300000"]
-    poison_colours = []
+    poison_colours = ["9898F8", "9890B8", "885868", "481800", "200000", "9898F8", "800000", "480000", "300000", "988020", "984808", "0808E0", "8080D8", "383058", "000000"]
     underwater_colours = []
     name = "Blood Peach"
     rename_character = False
 class ToadstoolDemon(ToadstoolPalette):
-    colours = []
-    poison_colours = []
-    underwater_colours = []
+    colours = ["503810", "483010", "402810", "302008", "281808", "201008", "181008", "080808", "000008", "182008", "000000", "E0B820", "000000", "000000", "000000"]
+    poison_colours = ["202800", "202000", "181800", "101000", "000000", "000000", "000000", "000000", "000000", "001000", "000000", "98C018", "000000", "000000", "000000"]
+    underwater_colours = ["2e2226", "2a1e26", "261a26", "1e1622", "1a1222", "1a1222", "120e22", "090922", "050522", "121622", "05051e", "76622e", "05051e", "05051e", "05051e"]
     name = "Demon"
     rename_character = False
 class ToadstoolRed(ToadstoolPalette):
@@ -447,20 +444,20 @@ class ToadstoolRed(ToadstoolPalette):
     name = "Red"
     rename_character = False
 class ToadstoolGreen(ToadstoolPalette):
-    colours = []
-    poison_colours = []
-    underwater_colours = []
+    colours = ["F8F8F8", "F8E8B0", "E09870", "985010", "181818", "00D000", "48B800", "388800", "700000", "F8D038", "F88820", "3838D0", "D0C8C8", "786860", "181818"]
+    poison_colours = ["A8A8F8", "A898F8", "986090", "602000", "000000", "008800", "207000", "105000", "380000", "A88838", "A85018", "1010F8", "8888F8", "483070", "000000"]
+    underwater_colours = ["A8A8F8", "A898F8", "986090", "602000", "000000", "008800", "207000", "105000", "380000", "A88838", "A85018", "1010F8", "8888F8", "483070", "000000"]
     name = "Green"
     rename_character = False
 class ToadstoolBlue(ToadstoolPalette):
-    colours = []
-    poison_colours = []
-    underwater_colours = []
+    colours = ["F8F8F8", "F8E8B0", "E09870", "985010", "181818", "00C0F8 ", "0090E0 ", "0070D0 ", "004878", "F8D038", "F88820", "3838D0", "D0C8C8", "786860", "181818"]
+    poison_colours = ["A8F8A8", "A8F870", "989838", "604800", "000000", "00C8A8", "009098", "006888", "003848", "A8D810", "A88800", "102888", "88D088", "486030", "000000"]
+    underwater_colours = ["7c7cad", "7c7489", "704c69", "4c2839", "0c0c3d", "0060ad", "0048a1", "003899", "00246d", "7c684d", "7c4441", "1c1c99", "686495", "3c3461", "0c0c3d"]
     name = "Blue"
     rename_character = False
 class ToadstoolBlack(ToadstoolPalette):
-    colours = []
-    poison_colours = []
-    underwater_colours = []
+    colours = ["F8F8F8", "F8E8B0", "E09870", "985010", "181818", "284050", "203040", "182028", "700000", "F8D038", "F88820", "3838D0", "D0C8C8", "786860", "181818"]
+    poison_colours = ["A8F8F8", "A8F8B0", "989868", "604800", "000000", "003048", "002030", "001018", "380000", "A8D828", "A88810", "1028D8", "88D0D0", "486058", "000000"]
+    underwater_colours = ["7c7cad", "7c7489", "704c69", "4c2839", "0c0c3d", "142059", "101851", "0c1045", "380031", "7c684d", "7c4441", "1c1c99", "686495", "3c3461", "0c0c3d"]
     name = "Black"
     rename_character = False
