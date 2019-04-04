@@ -73,14 +73,14 @@
         $('.disabled-inline-flag-description').show();
 
         for (let [parent_flag, chars] of all_applied_flags) {
-            $('.inline-flag-description.flag-' + parent_flag).show();
-            $('.disabled-inline-flag-description.flag-' + parent_flag).hide();
+            $('.inline-flag-description.flag-' + $.escapeSelector(parent_flag)).show();
+            $('.disabled-inline-flag-description.flag-' + $.escapeSelector(parent_flag)).hide();
             if (!parent_flag.startsWith('-')) {
                 for (let char of chars) {
                     $('.inline-flag-description.flag-' + $.escapeSelector('@' + parent_flag)).show();
                     $('.disabled-inline-flag-description.flag-' + $.escapeSelector('@' + parent_flag)).hide();
-                    $('.inline-flag-description.flag-' + parent_flag + char).show();
-                    $('.disabled-inline-flag-description.flag-' + parent_flag + char).hide();
+                    $('.inline-flag-description.flag-' + $.escapeSelector(parent_flag + char)).show();
+                    $('.disabled-inline-flag-description.flag-' + $.escapeSelector(parent_flag + char)).hide();
                 }
             }
         }

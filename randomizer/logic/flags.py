@@ -1011,7 +1011,7 @@ class AdvancedPreset(Preset):
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything difficult enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tb2kduhi M2x Sv1 Qsba! X2x P2 Gme -fakeout'
+    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tb2kduhi M2x Sv1 Qsba! X2x P2 Gsmke -fakeout'
 
 
 # ************************************** Default lists for the site.
