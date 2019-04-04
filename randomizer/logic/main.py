@@ -773,17 +773,6 @@ class GameWorld:
         elif self.settings.is_flag_enabled(flags.BowsersKeep6):
             patch.add_data(0x204CAD, 6)
 
-        # Wasn't sure where to put this -
-        # disabled the opening cutscene for bowsers keep 2
-        patch.add_data(0x1F8AF7, [0x71, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0x9B, 0xFE])
-        # disable the door explanation
-        sixdoor_patch = [0x9B, 0x9B, 0x9B, 0x9B, 0x9B]
-        patch.add_data(0x205C36, sixdoor_patch)
-        #i = 0x205C42 + len(sixdoor_patch)
-        #while i <= 0x205CA3:
-        #    patch.add_data(i, 0x9B)
-        #    i += 1
-
         # Choose character for the file select screen.
         i = int(self.hash, 16) % 5
         file_select_char_bytes = [0, 7, 13, 25, 19]
