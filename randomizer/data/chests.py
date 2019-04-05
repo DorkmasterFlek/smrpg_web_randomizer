@@ -180,7 +180,7 @@ class WalletGuy1(Reward):
     addresses = [0x1e3765]
     item = items.FlowerTab
     missable = True
-    access = 3
+    access = 4
 
 
 class WalletGuy2(Reward):
@@ -188,7 +188,7 @@ class WalletGuy2(Reward):
     addresses = [0x1e17de]
     item = items.FrogCoin
     missable = True
-    access = 3
+    access = 4
 
 
 class MushroomKingdomStore(Reward):

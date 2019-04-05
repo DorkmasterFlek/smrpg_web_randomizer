@@ -255,6 +255,9 @@ def randomize_all(world):
 
         # Calculate raw rank value
 
+        # Exclude wallet, shiny stone, carbo cookie
+        excluded_items = [129, 137, 138]
+
         if world.settings.is_flag_enabled(flags.ShopTierX):
             for shop in world.shops:
                 shop.items = [i for i in world.items if i.index == 125]
@@ -290,20 +293,20 @@ def randomize_all(world):
                 if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
                     frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and
                                        ((3 >= tiers_allowed == i.hard_tier) or
-                                        (tiers_allowed == 4 and 2 < i.hard_tier <= 4))]
+                                        (tiers_allowed == 4 and 2 < i.hard_tier <= 4)) and i not in excluded_items]
                 # No Sb - allow any item here, as long as permitted by tier exclusion flag
                 else:
                     frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and
-                                       i.hard_tier <= tiers_allowed]
+                                       i.hard_tier <= tiers_allowed and i not in excluded_items]
             # Sb only
             elif world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
                 # Only allow the chosen highest tiers of items here
                 frog_candidates = [i for i in world.items if i.price and
                                    ((3 >= tiers_allowed == i.hard_tier) or
-                                    (tiers_allowed == 4 and 2 < i.hard_tier <= 4))]
+                                    (tiers_allowed == 4 and 2 < i.hard_tier <= 4)) and i not in excluded_items]
             # Allow anything within tier exclusion flag
             else:
-                frog_candidates = [i for i in world.items if i.price and i.hard_tier <= tiers_allowed]
+                frog_candidates = [i for i in world.items if i.price and i.hard_tier <= tiers_allowed and i not in excluded_items]
             # Pick 25 items to be in the frog coin shops total.
             frog_chosen = random.sample(frog_candidates, min(len(frog_candidates), 25))
             disciple_shop = 3
@@ -338,8 +341,6 @@ def randomize_all(world):
 
             # Collect remaining items that aren't in frog coin shops and aren't key items.
 
-            # Exclude wallet, shiny stone, carbo cookie
-            excluded_items = [129, 137, 138]
 
             if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
                 shop_items = [i for i in world.items if
@@ -463,10 +464,16 @@ def randomize_all(world):
             # pick 1-4 of items exclusive to full bar
             possible_jb3 = get_valid_items(item_reserve, jbshop, assignments[12])
             if not possible_jb3:
-                partial4 = random.sample([i for i in basic_items if i not in assignments[12]],
+                try:
+                    partial4 = random.sample([i for i in basic_items if i not in assignments[12]],
                                          max(1, min(len(possible_jb3) - 2, random.randint(1, 4))))
+                except:
+                    pass
             else:
-                partial4 = random.sample(possible_jb3, max(1, min(len(possible_jb3) - 2, random.randint(1, 4))))
+                try:
+                    partial4 = random.sample(possible_jb3, max(1, min(len(possible_jb3) - 2, random.randint(1, 4))))
+                except:
+                    pass
 
             for item in partial4:
                 assignments[12].append(item)
@@ -476,11 +483,17 @@ def randomize_all(world):
             # pick a handful of items for third partial bar, include in full bar
             possible_jb2 = get_valid_items(item_reserve, jbshop, assignments[12])
             if not possible_jb2:
-                partial3 = random.sample([i for i in basic_items if i not in assignments[12]],
+                try:
+                    partial3 = random.sample([i for i in basic_items if i not in assignments[12]],
                                          max(1, min(len(possible_jb2) - 1, random.randint(1, 8 - len(partial4)))))
+                except:
+                    pass
             else:
-                partial3 = random.sample(possible_jb2,
+                try:
+                    partial3 = random.sample(possible_jb2,
                                          max(1, min(len(possible_jb2) - 1, random.randint(1, 8 - len(partial4)))))
+                except:
+                    pass
 
             for item in partial3:
                 assignments[11].append(item)
@@ -491,11 +504,17 @@ def randomize_all(world):
             # pick a handful of items for second partial bar, include in third and full bar
             possible_jb = get_valid_items(item_reserve, jbshop, assignments[12])
             if not possible_jb:
-                partial2 = random.sample([i for i in basic_items if i not in assignments[12]], max(1, min(
+                try:
+                    partial2 = random.sample([i for i in basic_items if i not in assignments[12]], max(1, min(
                     len(possible_jb), random.randint(1, 12 - (len(partial4) + len(partial3))))))
+                except:
+                    pass
             else:
-                partial2 = random.sample(possible_jb, max(1, min(
-                    len(possible_jb), random.randint(1, 12 - (len(partial4) + len(partial3))))))
+                try:
+                    partial2 = random.sample(possible_jb, max(1, min(
+                        len(possible_jb), random.randint(1, 12 - (len(partial4) + len(partial3))))))
+                except:
+                    pass
 
             for item in partial2:
                 assignments[10].append(item)
@@ -507,11 +526,17 @@ def randomize_all(world):
             # pick a handful of items for first partial bar, include in all bard
             possible_jp = get_valid_items(item_reserve, jpshop, assignments[12])
             if not possible_jp:
-                partial1 = random.sample([i for i in basic_items if i not in assignments[12]], min(
-                    len(possible_jp), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
+                try:
+                    partial1 = random.sample([i for i in basic_items if i not in assignments[12]], min(
+                        len(possible_jp), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
+                except:
+                    pass
             else:
-                partial1 = random.sample(possible_jp, min(
-                    len(possible_jp), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
+                try:
+                    partial1 = random.sample(possible_jp, min(
+                        len(possible_jp), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
+                except:
+                    pass
 
             for item in partial1:
                 assignments[9].append(item)
@@ -521,24 +546,6 @@ def randomize_all(world):
                 if item in unique_items:
                     done_already.add(item)
 
-            # Randomly assign unique items until they've all been assigned.
-            while len(done_already) < len(unique_items):
-                # Get a random shop - avoided simple looping to prevent biasing against lategame shops
-                shop = random.choice([s for s in world.shops if isinstance(
-                    s, (items.MushroomKingdomShop, items.RoseTownArmorShop, items.RoseTownItemShop, items.MolevilleShop,
-                        items.MarrymoreShop, items.SeaShop, items.SeasideWeaponShop, items.SeasideAccessoryShop,
-                        items.SeasideArmorShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
-                        items.HinopioShop, items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1,
-                        items.CrocoShop2, items.ToadShop))])
-
-                if len(assignments[shop.index]) < 15:
-                    # Get all remaining items that can go in this shop
-                    valid_items = get_valid_items(unique_items, shop)
-                    # Pick one at random
-                    if valid_items:
-                        chosen_item = random.choice(valid_items)
-                        assignments[shop.index].append(chosen_item)
-                        done_already.add(chosen_item)
 
             # Randomly assign anything to Yaridovich shop
             for shop in world.shops:
@@ -548,28 +555,42 @@ def randomize_all(world):
                     for item in yarid_items:
                         assignments[shop.index].append(item)
 
-            # Assign random consumables to shops that have space left and can have consumables
-            for shop in [s for s in world.shops if isinstance(
-                    s, (items.MushroomKingdomShop, items.RoseTownItemShop, items.MolevilleShop, items.MarrymoreShop,
-                        items.SeaShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
-                        items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1, items.CrocoShop2,
-                        items.ToadShop))]:
-                if len(assignments[shop.index]) < 15:
-                    # guarantee pick me up in toad shop if not full
-                    for item in world.items:
-                        if item.index == 102 and shop.index == 24:
-                            if item not in assignments[shop.index] and item in shop_items:
-                                assignments[shop.index].append(item)
-                    if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
-                        valid_consumables = get_valid_items(basic_items, shop, assignments[shop.index])
-                    else:
-                        valid_consumables = basic_items
-                    max_remaining = min(15 - len(assignments[shop.index]), len(valid_consumables))
-                    if max_remaining > 0:
-                        append_consumables = random.sample(valid_consumables, random.randint(1, max_remaining))
-                        for item in append_consumables:
-                            if item not in assignments[shop.index]:
-                                assignments[shop.index].append(item)
+            if not world.settings.is_flag_enabled(flags.ShopNotGuaranteed):
+                # Randomly assign unique items until they've all been assigned.
+                while len(done_already) < len(unique_items):
+                    # Get a random shop - avoided simple looping to prevent biasing against lategame shops
+                    shop = random.choice([s for s in world.shops if isinstance(
+                        s, (
+                        items.MushroomKingdomShop, items.RoseTownArmorShop, items.RoseTownItemShop, items.MolevilleShop,
+                        items.MarrymoreShop, items.SeaShop, items.SeasideWeaponShop, items.SeasideAccessoryShop,
+                        items.SeasideArmorShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
+                        items.HinopioShop, items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1,
+                        items.CrocoShop2, items.ToadShop))])
+
+                    if len(assignments[shop.index]) < 15:
+                        # Get all remaining items that can go in this shop
+                        valid_items = get_valid_items(unique_items, shop, done_already)
+                        # Pick one at random
+                        if valid_items:
+                            chosen_item = random.choice(valid_items)
+                            assignments[shop.index].append(chosen_item)
+                            done_already.add(chosen_item)
+                # guarantee pick me up in toad shop if not full
+                for item in world.items:
+                    if item.index == 102 and shop.index == 24:
+                        if item not in assignments[shop.index] and item in shop_items:
+                            assignments[shop.index].append(item)
+                # Assign each consumable to one shop by default
+                for item in basic_items:
+                    eligible_shops = [s for s in world.shops if isinstance(
+                        s, (items.MushroomKingdomShop, items.RoseTownItemShop, items.MolevilleShop, items.MarrymoreShop,
+                            items.SeaShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
+                            items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1, items.CrocoShop2,
+                            items.ToadShop)) and len(assignments[s.index]) < 15 and item in get_valid_items(basic_items, s, assignments[s.index])]
+                    if eligible_shops:
+                        shop = random.choice(eligible_shops)
+                        if item not in assignments[shop.index]:
+                            assignments[shop.index].append(item)
 
             # Randomly assign anything to shops with space remaining
             done_already.clear()
@@ -579,9 +600,13 @@ def randomize_all(world):
                         valid_items = get_valid_items(unique_items, shop, assignments[shop.index])
                         if valid_items:
                             max_remaining = min(15 - len(assignments[shop.index]), len(valid_items))
-                            append_items = random.sample(valid_items, random.randint(1, max_remaining))
-                            for item in append_items:
-                                assignments[shop.index].append(item)
+                            if max_remaining > 0:
+                                if not world.settings.is_flag_enabled(flags.ShopNotGuaranteed):
+                                    append_items = random.sample(valid_items, random.randint(1, random.randint(1, random.randint(1, random.randint(1, max_remaining)))))
+                                else:
+                                    append_items = random.sample(valid_items, random.randint(1, random.randint(1, max_remaining)))
+                                for item in append_items:
+                                    assignments[shop.index].append(item)
 
             # Loop through shops to find any that are empty, and just add Pick Me Up
             for shop in world.shops:
@@ -624,9 +649,11 @@ def randomize_all(world):
                                 price = utils.mutate_normal(item.price, minimum=item.price*0.9, maximum=item.price*1.1)
                                 item.price = max(math.ceil(price / 25), 1)
                             else:
-                                price = min(9999, max(2, item.price))
-                                price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
-                                item.price = price
+                                #muku cooki price should never change
+                                if item.index != 120:
+                                    price = min(9999, max(2, item.price))
+                                    price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
+                                    item.price = price
 
             # Sort the list of items by the ordering rank for display, and assign to the shop.
             for shop in world.shops:

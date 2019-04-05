@@ -290,6 +290,12 @@ class ChestTier4(Flag):
     description = "Any item may appear in a chest or sidequest reward (besides key items)."
     value = 'T4'
 
+class ChestExcludeRewards(Flag):
+    name = 'Exclude sidequest reward spots'
+    description = "Only actual treasure chests will be shuffled, sidequest reward spots will be left alone."
+    inverse_description = "(Sidequest rewards are randomized.)"
+    value = 'Tn'
+
 
 class ChestExcludeCoins(Flag):
     name = 'No Coins'
@@ -421,6 +427,7 @@ class ChestShuffleBiased(Flag):
         ChestTier2
     ]
     options = [
+        ChestExcludeRewards,
         ChestExcludeCoins,
         ChestExcludeFrogCoins,
         ChestExcludeFlowers,
@@ -441,6 +448,7 @@ class ChestShuffleChaos(Flag):
         ChestTier1,
     ]
     options = [
+        ChestExcludeRewards,
         ChestExcludeCoins,
         ChestExcludeFrogCoins,
         ChestExcludeFlowers,
@@ -482,15 +490,15 @@ class MonstroExcludeElsewhere(Flag):
     name = 'Exclude elsewhere'
     description = ('The items shuffled by your selected option will not appear in any shops or any other chests or '
                    'reward spots.')
+    inverse_description = ('(The items listed under the M flag may still appear in shops and other chests.)')
     value = 'Mx'
     hard = True
 
 
 class MonstroTownShuffle(Flag):
     name = 'Monstro Town Shuffle'
-    description = ('Randomize the locations of some special equips. These equips will not appear anywhere else in the '
-                   'game.')
-    inverse_description = '(The Monstro Town and key item equip rewards will not be shuffled within each other.)'
+    description = ('Randomize the locations of some special equips. This flag overrides all T flags except Tx.')
+    inverse_description = '(The Monstro Town and key item equip rewards are shuffled the same as all other chest/reward slots.)'
     modes = ['open']
     value = '@M'
     choices = [
@@ -507,7 +515,7 @@ class ReplaceItems(Flag):
     description = 'The lowest ranked items will be replaced with coins in chests.'
     inverse_description = '(You may find low-ranked items in chests.)'
     modes = ['open']
-    value = 'Tg'
+    value = '$'
 
 
 # ******** Shop shuffle flags
@@ -538,6 +546,14 @@ class ShopTier4(Flag):
     value = 'S4'
 
 
+class ShopNotGuaranteed(Flag):
+    name = "Items not guaranteed"
+    description = "Some items may not appear in shops at all."
+    inverse_description = "(Every item, except for key items and the Wallet, will appear in at least 1 shop.)"
+    value = 'Sn'
+    hard = True
+
+
 class ShopShuffleVanilla(Flag):
     name = "Vanilla shop inventory"
     description = ("Shops will only contain items that were available in the original game's shops, shuffled amongst "
@@ -548,6 +564,9 @@ class ShopShuffleVanilla(Flag):
         ShopTier3,
         ShopTier2,
         ShopTier1
+    ]
+    options = [
+        ShopNotGuaranteed
     ]
 
 
@@ -560,6 +579,9 @@ class ShopShuffleBalanced(Flag):
         ShopTier3,
         ShopTier2
     ]
+    options = [
+        ShopNotGuaranteed
+    ]
 
 
 class ShopShuffleChaotic(Flag):
@@ -571,6 +593,9 @@ class ShopShuffleChaotic(Flag):
         ShopTier3,
         ShopTier2,
         ShopTier1
+    ]
+    options = [
+        ShopNotGuaranteed
     ]
 
 
@@ -598,7 +623,7 @@ class FreeShops(Flag):
     name = "'Free' Shops"
     description = "All shop items will cost 1 coin. You will start with 9999 coins and 99 frog coins."
     inverse_description = "(Shops are not free, and you start with 0 coins.)"
-    value = 'Sf'
+    value = '-freeshops'
 
 
 # ******** Item shuffle flags
@@ -658,11 +683,11 @@ class ExperienceBoost2x(Flag):
     description = 'XP is doubled'
     value = 'X2'
 
-
 class ExperienceBoost3x(Flag):
     name = 'Triple XP'
     description = 'XP is tripled to simulate no XP split'
     value = 'X3'
+
 
 
 class ExperienceBoost(Flag):
@@ -675,14 +700,12 @@ class ExperienceBoost(Flag):
         ExperienceBoost3x,
     ]
 
-
 class ExperienceNoRegular(Flag):
     name = 'No XP from regular encounters'
-    description = 'Only bosses will award XP.'
-    inverse_description = "(You will receive EXP from all fights normally.)"
-    value = 'Xx'
+    description = 'Bosses still award XP.'
+    inverse_description = "(You will receive EXP from non-boss fights.)"
+    value = '-noexp'
     hard = True
-
 
 # ******** Star exp progression challenge
 
@@ -807,11 +830,75 @@ class Glitches(Flag):
 
 class PoisonMushroom(Flag):
     name = 'Change Fake Mushroom\'s Status'
-    description = 'Randomize the status effect inflicted on a party member with the Fake Mushroom.'
+    description = 'Randomize the status effect inflicted on a party member with the Fake Mushroom. It will only give one status effect per seed, which has a 1/8 chance of being Invincibility.'
     inverse_description = '(The Fake Mushroom will always turn you into a mushroom.)'
     mode = ['open']
     value = '-fakeout'
 
+
+class BowsersKeep1(Flag):
+    name = '1 Bowser Door'
+    description = 'You must complete 1 door in Bowser\'s Keep to proceed to the first boss fight.'
+    mode = ['open']
+    value = 'D1'
+class BowsersKeep2(Flag):
+    name = '2 Bowser Doors'
+    description = 'You must complete 2 doors in Bowser\'s Keep to proceed to the first boss fight.'
+    mode = ['open']
+    value = 'D2'
+class BowsersKeep3(Flag):
+    name = '3 Bowser Doors'
+    description = 'You must complete 3 doors in Bowser\'s Keep to proceed to the first boss fight.'
+    mode = ['open']
+    value = 'D3'
+class BowsersKeep4(Flag):
+    name = '4 Bowser Doors'
+    description = 'You must complete 4 doors in Bowser\'s Keep to proceed to the first boss fight.'
+    mode = ['open']
+    value = 'D4'
+class BowsersKeep5(Flag):
+    name = '5 Bowser Doors'
+    description = 'You must complete 5 doors in Bowser\'s Keep to proceed to the first boss fight.'
+    mode = ['open']
+    value = 'D5'
+    hard = True
+class BowsersKeep6(Flag):
+    name = '6 Bowser Doors'
+    description = 'You must complete all 6 doors in Bowser\'s Keep to proceed to the first boss fight.'
+    mode = ['open']
+    value = 'D6'
+    hard = True
+
+
+class ShuffleBowsersKeep(Flag):
+    name = 'Shuffle Bowser\'s Keep'
+    description = 'Each of the 6 Bowser\'s Keep doors will contain 3 random rooms from any of the original 6 doors.'
+    inverse_description = '(Bowser\'s Keep door contents have not changed, but their order is still subject to in-game RNG.)'
+    mode = ['open']
+    value = 'Ds'
+
+class RandomizeBowsersKeep(Flag):
+    name = 'Randomize Bowser\'s Keep Door Contents'
+    choices = [
+        BowsersKeep1,
+        BowsersKeep2,
+        BowsersKeep3,
+        BowsersKeep4,
+        BowsersKeep5,
+        BowsersKeep6
+    ]
+    options = [
+        ShuffleBowsersKeep
+    ]
+    mode = ['open']
+    value = '@D'
+
+class PaletteSwaps(Flag):
+    name = 'Palette Swaps'
+    description = 'Your party members get a change of wardrobe!'
+    inverse_description = '(Sprite colours are not modified.)'
+    mode = ['open']
+    value = '-palette'
 
 # ************************************** Category classes
 
@@ -832,6 +919,7 @@ class CharactersCategory(FlagCategory):
     name = 'Characters'
     flags = [
         CharacterShuffle,
+        PaletteSwaps
     ]
 
 
@@ -888,7 +976,10 @@ class TweaksCategory(FlagCategory):
     flags = [
         Glitches,
         PoisonMushroom,
+        RandomizeBowsersKeep
     ]
+    
+    
 
 
 # ************************************** Preset classes
@@ -935,7 +1026,7 @@ CATEGORIES = (
     EquipsCategory,
     BattlesCategory,
     ChallengesCategory,
-    TweaksCategory,
+    TweaksCategory
 )
 
 # List of presets.

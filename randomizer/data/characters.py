@@ -2,6 +2,7 @@
 
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
+from randomizer.data import palettes
 
 from . import spells
 
@@ -140,6 +141,7 @@ class Character:
     magic_defense = 1
     xp = 0
     learned_spells = {}
+    palette = None
 
     # Placeholders for vanilla starting levelup growth and bonus numbers.
     starting_growths = ()
@@ -270,6 +272,51 @@ class Character:
                 patch.add_data(level_addr, utils.ByteField(self.learned_spells[level].index).as_bytes())
             else:
                 patch.add_data(level_addr, utils.ByteField(0xff).as_bytes())
+                
+                
+        if self.palette:
+            def parseColours(colours):
+                bytes = [];
+                for colour in colours:
+                    #sanitize to multiples of 8
+                    r = 8 * round(int(colour[0:2], 16) / 8)
+                    g = 8 * round(int(colour[2:4], 16) / 8)
+                    b = 8 * round(int(colour[4:6], 16) / 8)
+                    r = int(r / 8)
+                    g = int(g / 4)
+                    b = int(b / 2)
+                    r = format(r, 'x').zfill(2)
+                    g = format(g, 'x').zfill(2)
+                    b = format(b, 'x').zfill(2)
+                    bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
+                    bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
+                    bytes.append(hex(int(bytestring1, 16)))
+                    bytes.append(hex(int(bytestring2, 16)))
+                return bytes
+            
+            colourbytes = parseColours(self.palette.colours)
+            poisonbytes = parseColours(self.palette.poison_colours)
+            underwaterbytes = parseColours(self.palette.underwater_colours)
+            for address in self.palette.starting_addresses:
+                patch.add_data(address, colourbytes)
+            for address in self.palette.poison_addresses:
+                patch.add_data(address, poisonbytes)
+            for address in self.palette.underwater_addresses:
+                patch.add_data(address, underwaterbytes)
+            
+            if (self.palette.rename_character):
+                name = self.palette.name
+                clone_name = self.palette.name.upper()
+                while len(name) < 10:
+                    name += " "
+                if len(clone_name) < 8:
+                    clone_name = clone_name + " CLONE"
+                else:
+                    clone_name = clone_name + " 2"
+                while len(clone_name) < 13:
+                    clone_name += " "
+                patch.add_data(self.palette.name_address, name)
+                patch.add_data(self.palette.clone_name_address, clone_name)
 
         return patch
 
@@ -361,6 +408,32 @@ class Mario(Character):
         (1, 2, 1, 1, 1),
     )
 
+    def get_patch(self):
+        patch = super().get_patch()
+        
+        if self.palette:
+            colourbytes = [];
+            for i in [0, 1, 2, 3, 4, 6, 7, 8, 8, 10, 11, 11, 12, 13, 14]:
+                colour = self.palette.colours[i]
+                #sanitize to multiples of 8
+                r = 8 * round(int(colour[0:2], 16) / 8)
+                g = 8 * round(int(colour[2:4], 16) / 8)
+                b = 8 * round(int(colour[4:6], 16) / 8)
+                r = int(r / 8)
+                g = int(g / 4)
+                b = int(b / 2)
+                r = format(r, 'x').zfill(2)
+                g = format(g, 'x').zfill(2)
+                b = format(b, 'x').zfill(2)
+                bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
+                bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
+                colourbytes.append(hex(int(bytestring1, 16)))
+                colourbytes.append(hex(int(bytestring2, 16)))
+            startaddresses = self.palette.doll_addresses
+            for address in startaddresses:
+                patch.add_data(address, colourbytes)
+
+        return patch
 
 class Peach(Character):
     index = 1
