@@ -144,7 +144,6 @@ def randomize_all(world):
                             chest.item = random.choice([star for star in stars])
                         finished_chests.append(chest)
                         eligible_chests.remove(chest)
-                        print(eligible_chests)
                         #Don't allow 2 stars in same bandits way room
                         if (isinstance(chest, chests.BanditsWayStarChest) or isinstance(chest, chests.BanditsWayDogJump)):
                             for c in eligible_chests:
@@ -555,7 +554,8 @@ def randomize_all(world):
                 return rv
 
             for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)]:
-                if chest.item.hard_tier == 1 and chest.item.is_key and chest.item.price > 0:
+                if chest.item.hard_tier == 1 and not chest.item.is_key and chest.item.price > 0:
+                    print(chest)
                     if chest.item_allowed(items.Coins150) and not chest.item.frog_coin_item:
                         chest.item = closest_coins(chest.item.price)
                     elif chest.item_allowed(items.FrogCoin) and chest.item.frog_coin_item:
