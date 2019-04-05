@@ -144,11 +144,13 @@ def randomize_all(world):
                             chest.item = random.choice([star for star in stars])
                         finished_chests.append(chest)
                         eligible_chests.remove(chest)
+                        print(eligible_chests)
                         #Don't allow 2 stars in same bandits way room
-                        if (isinstance(chest, chests.BanditsWayCroco) or isinstance(chest, chests.BanditsWayDogJump)):
+                        if (isinstance(chest, chests.BanditsWayStarChest) or isinstance(chest, chests.BanditsWayDogJump)):
                             for c in eligible_chests:
-                                if (isinstance(c, chests.BanditsWayCroco) or isinstance(c, chests.BanditsWayDogJump)):
+                                if (isinstance(c, chests.BanditsWayStarChest) or isinstance(c, chests.BanditsWayDogJump)):
                                     eligible_chests.remove(c)
+                                    num_stars -= 1
                 else:
                     eligible_chests = [chest for chest in world.chest_locations if 201 <= chest.item.index and chest.item.index <= 208]
                     for chest in eligible_chests:

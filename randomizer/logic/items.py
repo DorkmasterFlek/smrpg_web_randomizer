@@ -546,24 +546,6 @@ def randomize_all(world):
                 if item in unique_items:
                     done_already.add(item)
 
-            # Randomly assign unique items until they've all been assigned.
-            while len(done_already) < len(unique_items):
-                # Get a random shop - avoided simple looping to prevent biasing against lategame shops
-                shop = random.choice([s for s in world.shops if isinstance(
-                    s, (items.MushroomKingdomShop, items.RoseTownArmorShop, items.RoseTownItemShop, items.MolevilleShop,
-                        items.MarrymoreShop, items.SeaShop, items.SeasideWeaponShop, items.SeasideAccessoryShop,
-                        items.SeasideArmorShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
-                        items.HinopioShop, items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1,
-                        items.CrocoShop2, items.ToadShop))])
-
-                if len(assignments[shop.index]) < 15:
-                    # Get all remaining items that can go in this shop
-                    valid_items = get_valid_items(unique_items, shop)
-                    # Pick one at random
-                    if valid_items:
-                        chosen_item = random.choice(valid_items)
-                        assignments[shop.index].append(chosen_item)
-                        done_already.add(chosen_item)
 
             # Randomly assign anything to Yaridovich shop
             for shop in world.shops:
@@ -574,6 +556,25 @@ def randomize_all(world):
                         assignments[shop.index].append(item)
 
             if not world.settings.is_flag_enabled(flags.ShopNotGuaranteed):
+                # Randomly assign unique items until they've all been assigned.
+                while len(done_already) < len(unique_items):
+                    # Get a random shop - avoided simple looping to prevent biasing against lategame shops
+                    shop = random.choice([s for s in world.shops if isinstance(
+                        s, (
+                        items.MushroomKingdomShop, items.RoseTownArmorShop, items.RoseTownItemShop, items.MolevilleShop,
+                        items.MarrymoreShop, items.SeaShop, items.SeasideWeaponShop, items.SeasideAccessoryShop,
+                        items.SeasideArmorShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
+                        items.HinopioShop, items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1,
+                        items.CrocoShop2, items.ToadShop))])
+
+                    if len(assignments[shop.index]) < 15:
+                        # Get all remaining items that can go in this shop
+                        valid_items = get_valid_items(unique_items, shop, done_already)
+                        # Pick one at random
+                        if valid_items:
+                            chosen_item = random.choice(valid_items)
+                            assignments[shop.index].append(chosen_item)
+                            done_already.add(chosen_item)
                 # guarantee pick me up in toad shop if not full
                 for item in world.items:
                     if item.index == 102 and shop.index == 24:
@@ -591,24 +592,6 @@ def randomize_all(world):
                         if item not in assignments[shop.index]:
                             assignments[shop.index].append(item)
 
-            # Assign random consumables to shops that have space left and can have consumables
-            for shop in [s for s in world.shops if isinstance(
-                    s, (items.MushroomKingdomShop, items.RoseTownItemShop, items.MolevilleShop, items.MarrymoreShop,
-                        items.SeaShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
-                        items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1, items.CrocoShop2,
-                        items.ToadShop))]:
-                if len(assignments[shop.index]) < 15:
-                    if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
-                        valid_consumables = get_valid_items(basic_items, shop, assignments[shop.index])
-                    else:
-                        valid_consumables = basic_items
-                    max_remaining = min(15 - len(assignments[shop.index]), len(valid_consumables))
-                    if max_remaining > 0:
-                        append_consumables = random.sample(valid_consumables, random.randint(1, random.randint(1, max_remaining)))
-                        for item in append_consumables:
-                            if item not in assignments[shop.index]:
-                                assignments[shop.index].append(item)
-
             # Randomly assign anything to shops with space remaining
             done_already.clear()
             for shop in world.shops:
@@ -617,9 +600,13 @@ def randomize_all(world):
                         valid_items = get_valid_items(unique_items, shop, assignments[shop.index])
                         if valid_items:
                             max_remaining = min(15 - len(assignments[shop.index]), len(valid_items))
-                            append_items = random.sample(valid_items, random.randint(1, max_remaining))
-                            for item in append_items:
-                                assignments[shop.index].append(item)
+                            if max_remaining > 0:
+                                if not world.settings.is_flag_enabled(flags.ShopNotGuaranteed):
+                                    append_items = random.sample(valid_items, random.randint(1, random.randint(1, random.randint(1, random.randint(1, max_remaining)))))
+                                else:
+                                    append_items = random.sample(valid_items, random.randint(1, random.randint(1, max_remaining)))
+                                for item in append_items:
+                                    assignments[shop.index].append(item)
 
             # Loop through shops to find any that are empty, and just add Pick Me Up
             for shop in world.shops:

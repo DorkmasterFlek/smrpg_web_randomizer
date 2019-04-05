@@ -294,7 +294,7 @@ class ChestExcludeRewards(Flag):
     name = 'Exclude sidequest reward spots'
     description = "Only actual treasure chests will be shuffled, sidequest reward spots will be left alone."
     inverse_description = "(Sidequest rewards are randomized.)"
-    value = 'Tr'
+    value = 'Tn'
 
 
 class ChestExcludeCoins(Flag):

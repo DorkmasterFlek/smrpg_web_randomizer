@@ -752,13 +752,6 @@ class GameWorld:
 
 
 
-
-
-
-
-            for i in doors:
-                print(i)
-
         #Also need to patch the original event!!! In case Ds flag isnt enabled
         if self.settings.is_flag_enabled(flags.BowsersKeep1):
             patch.add_data(0x204CAD, 1)

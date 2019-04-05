@@ -2,6 +2,7 @@
 
 import collections
 import random
+import inspect
 
 from randomizer.data import characters, spells, palettes
 from randomizer.logic import flags, utils
@@ -354,13 +355,25 @@ def randomize_all(world):
     """
     
     #Palettes!!!!
+
+    def find_subclasses(module, clazz):
+        return [
+            cls
+            for name, cls in inspect.getmembers(module)
+            if inspect.isclass(cls) and issubclass(cls, clazz) and cls != clazz
+        ]
+    mario_palettes = find_subclasses(palettes, palettes.MarioPalette)
+    mallow_palettes = find_subclasses(palettes, palettes.MallowPalette)
+    geno_palettes = find_subclasses(palettes, palettes.GenoPalette)
+    bowser_palettes = find_subclasses(palettes, palettes.BowserPalette)
+    toadstool_palettes = find_subclasses(palettes, palettes.ToadstoolPalette)
+
     if world.settings.is_flag_enabled(flags.PaletteSwaps):
-        world.characters[0].palette = random.choice([palettes.MarioJumpman, palettes.MarioFireMario, palettes.MarioLuigi, palettes.MarioFireLuigi, palettes.MarioWario, palettes.MarioWaluigi, palettes.MarioBuilder, palettes.MarioMegaman, palettes.MarioGrey, palettes.MarioZombie, palettes.MarioSponge, palettes.MarioPretzel, palettes.MarioMarlon])
-        world.characters[1].palette = random.choice([palettes.MallowMokura, palettes.MallowFrog, palettes.MallowPalom, palettes.MallowPorom, palettes.MallowCloud, palettes.MallowStormy, palettes.MallowLight, palettes.MallowWater, palettes.MallowRed, palettes.MallowMint, palettes.MallowDemon])
-        world.characters[2].palette = random.choice([palettes.GenoPink, palettes.GenoMagikoopa, palettes.GenoMagikoopaRed, palettes.GenoLink, palettes.GenoVlados, palettes.GenoLight, palettes.GenoPurple, palettes.GenoGrey])
-        world.characters[3].palette = random.choice([palettes.BowserDrybone, palettes.BowserCulex, palettes.BowserWabowser, palettes.BowserRed, palettes.BowserPink, palettes.BowserDark, palettes.BowserKronk, palettes.BowserZeccet, palettes.BowserDJN])
-        world.characters[4].palette = random.choice([palettes.ToadstoolDaisy, palettes.ToadstoolRosalina, palettes.ToadstoolPauline, palettes.ToadstoolPalutena, palettes.ToadstoolKumatora, palettes.ToadstoolTia, palettes.ToadstoolKairi, palettes.ToadstoolLeena, palettes.ToadstoolEmeralda, palettes.ToadstoolMiku, palettes.ToadstoolJasmine, palettes.ToadstoolKotori, palettes.ToadstoolZombie, palettes.ToadstoolBlood, palettes.ToadstoolDemon, palettes.ToadstoolRed, palettes.ToadstoolGreen, palettes.ToadstoolBlue, palettes.ToadstoolBlack])
-        
+        world.characters[0].palette = random.choice(mario_palettes)
+        world.characters[1].palette = random.choice(mallow_palettes)
+        world.characters[2].palette = random.choice(geno_palettes)
+        world.characters[3].palette = random.choice(bowser_palettes)
+        world.characters[4].palette = random.choice(toadstool_palettes)
         
     
     
