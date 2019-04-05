@@ -277,7 +277,8 @@ def randomize_all(world):
             ]
             formation = world.get_enemy_formation_by_index(368)
             for member in formation.members:
-                member.enemy = random.choice(factory_enemies)
+                choices = [e for e in factory_enemies if not e.one_per_battle or e not in formation.enemies]
+                member.enemy = random.choice(choices)
 
     # *** Make sure certain enemies always have max speed for required battle scripts!
 
