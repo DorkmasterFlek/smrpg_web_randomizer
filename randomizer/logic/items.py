@@ -564,7 +564,7 @@ def randomize_all(world):
                                 assignments[shop.index].append(item)
                 # Assign each item to one shop by default
                 for item in item_reserve:
-                    eligible_shops = [s for s in world.shops if len(assignments[s.index]) < 15 and item in get_valid_items(item_reserve, s, assignments[s.index])]
+                    eligible_shops = [s for s in world.shops if len(assignments[s.index]) < 15 and not s.frog_coin_shop and item in get_valid_items(item_reserve, s, assignments[s.index])]
                     if eligible_shops:
                         shop = random.choice(eligible_shops)
                         if item not in assignments[shop.index]:
@@ -573,7 +573,7 @@ def randomize_all(world):
             # Randomly assign anything to shops with space remaining
             done_already.clear()
             for shop in world.shops:
-                if shop.index not in [3, 6, 8, 9, 10, 11, 12]:
+                if shop.index not in [3, 6, 8, 9, 10, 11, 12] and not shop.frog_coin_shop:
                     if len(assignments[shop.index]) < 15:
                         valid_items = get_valid_items(unique_items, shop, assignments[shop.index])
                         if valid_items:
