@@ -285,96 +285,14 @@ def randomize_all(world):
             for shop in world.shops:
                 assignments[shop.index] = []
 
-            # ******************************* Phase 1: Frog coin shops
-
-            # Sv
-            if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
-                # Sv and Sb - only allow the chosen highest tiers of items here
-                if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
-                    frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and
-                                       ((3 >= tiers_allowed == i.hard_tier) or
-                                        (tiers_allowed == 4 and 2 < i.hard_tier <= 4)) and i not in excluded_items]
-                # No Sb - allow any item here, as long as permitted by tier exclusion flag
-                else:
-                    frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and
-                                       i.hard_tier <= tiers_allowed and i not in excluded_items]
-            # Sb only
-            elif world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
-                # Only allow the chosen highest tiers of items here
-                frog_candidates = [i for i in world.items if i.price and
-                                   ((3 >= tiers_allowed == i.hard_tier) or
-                                    (tiers_allowed == 4 and 2 < i.hard_tier <= 4)) and i not in excluded_items]
-            # Allow anything within tier exclusion flag
-            else:
-                frog_candidates = [i for i in world.items if i.price and i.hard_tier <= tiers_allowed and i not in excluded_items]
-            # Pick 25 items to be in the frog coin shops total.
-            frog_chosen = random.sample(frog_candidates, min(len(frog_candidates), 25))
-            disciple_shop = 3
-            frog_coin_emporium = 6
-
-            # Get list of items where only one is needed for disciple shop:
-            # only one character can equip, or it's reuseable.
-            one_only = [i for i in frog_chosen if
-                        (i.is_equipment and len(i.equip_chars) == 1) or
-                        (i.consumable and i.reuseable)]
-
-            # Choose 5-10.
-            num_choose = min(10, len(one_only))
-            num_choose = random.randint(min(0, num_choose), num_choose)
-            chosen = random.sample(one_only, num_choose)
-
-            # If we have less than 10 items chosen, include other equipment in the mix and choose some more.
-            choose_again = [i for i in frog_chosen if i not in chosen and (i in one_only or i.is_equipment)]
-            num_choose = 10 - len(chosen)
-            num_choose = random.randint(0, num_choose)
-            num_choose = min(num_choose, len(choose_again))
-            if num_choose and choose_again:
-                chosen += random.sample(choose_again, num_choose)
-
-            # Put the chosen in the disciple shop and up to 15 remaining in the Emporium
-            assignments[items.DiscipleShop.index] = chosen
-            num_emporium = random.randint(random.randint(0, 15), 15)
-            frog_remaining = [i for i in frog_chosen if i not in chosen]
-            assignments[items.FrogCoinEmporiumShop.index] = random.sample(frog_remaining, num_emporium)
-
-            # ******************************* Phase 2: Non-frog coin shops
-
-            # Collect remaining items that aren't in frog coin shops and aren't key items.
-
-
-            if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
-                shop_items = [i for i in world.items if
-                              i not in assignments[items.DiscipleShop.index] and
-                              i not in assignments[items.FrogCoinEmporiumShop.index] and
-                              i.price
-                              and i.hard_tier <= tiers_allowed
-                              and i.index not in excluded_items
-                              and i.vanilla_shop]
-            else:
-                shop_items = [i for i in world.items if
-                              i not in assignments[items.DiscipleShop.index] and
-                              i not in assignments[items.FrogCoinEmporiumShop.index] and
-                              i.price
-                              and i.hard_tier <= tiers_allowed
-                              and i.index not in excluded_items]
-
-            # First, we want every item to wind up in a shop.
             done_already = set()
-            # But we need a backup reserve of items to pull from in case the logic doesnt work out
-            # i.e. Sb is enabled but there are no accessories in the upper tiers
-            item_reserve = shop_items
-
-            # Unique items will first be split among the shops (anything except basic healing items)
-            unique_items = [i for i in shop_items if not (i.consumable and not i.reuseable and i.basic)]
-            basic_items = [i for i in shop_items if (i.consumable and not i.reuseable and i.basic)]
-
             # Function determining what can go in a shop, based on flags selected
             def get_valid_items(base, shop, exclude=None):
                 if exclude is None:
                     exclude = []
                 valid_items = []
 
-                # Sb and Sv
+                # Sb and Sv - obsolete
                 if (world.settings.is_flag_enabled(flags.ShopShuffleBalanced) and
                         world.settings.is_flag_enabled(flags.ShopShuffleVanilla) and
                         not world.settings.is_flag_enabled(flags.ShopTier1)):
@@ -450,101 +368,111 @@ def randomize_all(world):
                                        shop.is_item_allowed(i) and i.hard_tier <= tiers_allowed]
                 return valid_items
 
+            # Do juice bar before frog coin shops. Frog coin shops dont leave enough items for juice bar in Sv1 otherwise.
+
             # Juice bar gets "first dibs"
-            # This is kind of weird, but first partial juice bar is modeled after rose town shop since they have the
-            # same permission properties
-            jpshop = jbshop = None
+            jpshop = None
             for shop1 in world.shops:
-                if shop1.index == items.RoseTownItemShop.index:
+                if shop1.index == items.JuiceBarFull.index:
                     jpshop = shop1
-            for shop2 in world.shops:
-                if shop2.index == items.JuiceBarFull.index:
-                    jbshop = shop2
-
-            # pick 1-4 of items exclusive to full bar
-            possible_jb3 = get_valid_items(item_reserve, jbshop, assignments[12])
-            if not possible_jb3:
-                try:
-                    partial4 = random.sample([i for i in basic_items if i not in assignments[12]],
-                                         max(1, min(len(possible_jb3) - 2, random.randint(1, 4))))
-                except:
-                    pass
-            else:
-                try:
-                    partial4 = random.sample(possible_jb3, max(1, min(len(possible_jb3) - 2, random.randint(1, 4))))
-                except:
-                    pass
-
+            # pick full juice bar
+            assignments[12] = []
+            possible_jb3 = get_valid_items(world.items, jpshop)
+            partial4 = random.sample(possible_jb3, random.randint(4, len(possible_jb3)))
             for item in partial4:
                 assignments[12].append(item)
-                if item in unique_items:
-                    done_already.add(item)
-
-            # pick a handful of items for third partial bar, include in full bar
-            possible_jb2 = get_valid_items(item_reserve, jbshop, assignments[12])
-            if not possible_jb2:
-                try:
-                    partial3 = random.sample([i for i in basic_items if i not in assignments[12]],
-                                         max(1, min(len(possible_jb2) - 1, random.randint(1, 8 - len(partial4)))))
-                except:
-                    pass
-            else:
-                try:
-                    partial3 = random.sample(possible_jb2,
-                                         max(1, min(len(possible_jb2) - 1, random.randint(1, 8 - len(partial4)))))
-                except:
-                    pass
-
+            partial3 = random.sample(partial4, random.randint(3, (len(partial4)-1)))
             for item in partial3:
                 assignments[11].append(item)
-                assignments[12].append(item)
-                if item in unique_items:
-                    done_already.add(item)
-
-            # pick a handful of items for second partial bar, include in third and full bar
-            possible_jb = get_valid_items(item_reserve, jbshop, assignments[12])
-            if not possible_jb:
-                try:
-                    partial2 = random.sample([i for i in basic_items if i not in assignments[12]], max(1, min(
-                    len(possible_jb), random.randint(1, 12 - (len(partial4) + len(partial3))))))
-                except:
-                    pass
-            else:
-                try:
-                    partial2 = random.sample(possible_jb, max(1, min(
-                        len(possible_jb), random.randint(1, 12 - (len(partial4) + len(partial3))))))
-                except:
-                    pass
-
+            partial2 = random.sample(partial3, random.randint(2, (len(partial3)-1)))
             for item in partial2:
                 assignments[10].append(item)
-                assignments[11].append(item)
-                assignments[12].append(item)
-                if item in unique_items:
-                    done_already.add(item)
-
-            # pick a handful of items for first partial bar, include in all bard
-            possible_jp = get_valid_items(item_reserve, jpshop, assignments[12])
-            if not possible_jp:
-                try:
-                    partial1 = random.sample([i for i in basic_items if i not in assignments[12]], min(
-                        len(possible_jp), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
-                except:
-                    pass
-            else:
-                try:
-                    partial1 = random.sample(possible_jp, min(
-                        len(possible_jp), random.randint(1, 15 - (len(partial4) + len(partial3) + len(partial2)))))
-                except:
-                    pass
-
+            partial1 = random.sample(partial2, random.randint(1, (len(partial2)-1)))
             for item in partial1:
                 assignments[9].append(item)
-                assignments[10].append(item)
-                assignments[11].append(item)
-                assignments[12].append(item)
-                if item in unique_items:
-                    done_already.add(item)
+
+            # ******************************* Phase 1: Frog coin shops
+
+            # Sv
+            if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
+                # Sv and Sb - only allow the chosen highest tiers of items here - obsolete
+                if world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
+                    frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and i not in assignments[12] and
+                                       ((3 >= tiers_allowed == i.hard_tier) or
+                                        (tiers_allowed == 4 and 2 < i.hard_tier <= 4)) and i not in excluded_items]
+                # Sv only - allow any item here, as long as permitted by tier exclusion flag
+                else:
+                    frog_candidates = [i for i in world.items if i.price and i.vanilla_shop and i not in assignments[12] and
+                                       i.hard_tier <= tiers_allowed and i not in excluded_items]
+            # Sb only
+            elif world.settings.is_flag_enabled(flags.ShopShuffleBalanced):
+                # Only allow the chosen highest tiers of items here
+                frog_candidates = [i for i in world.items if i.price and i not in assignments[12] and
+                                   ((3 >= tiers_allowed == i.hard_tier) or
+                                    (tiers_allowed == 4 and 2 < i.hard_tier <= 4)) and i not in excluded_items]
+            # Allow anything within tier exclusion flag
+            else:
+                frog_candidates = [i for i in world.items if i.price and i not in assignments[12] and i.hard_tier <= tiers_allowed and i not in excluded_items]
+            # Pick 25 items to be in the frog coin shops total.
+            frog_chosen = random.sample(frog_candidates, min(len(frog_candidates), 25))
+            disciple_shop = 3
+            frog_coin_emporium = 6
+
+            # Get list of items where only one is needed for disciple shop:
+            # only one character can equip, or it's reuseable.
+            one_only = [i for i in frog_chosen if
+                        (i.is_equipment and len(i.equip_chars) == 1) or
+                        (i.consumable and i.reuseable)]
+
+            # Choose 5-10.
+            num_choose = min(10, len(one_only))
+            num_choose = random.randint(min(0, num_choose), num_choose)
+            chosen = random.sample(one_only, num_choose)
+
+            # If we have less than 10 items chosen, include other equipment in the mix and choose some more.
+            choose_again = [i for i in frog_chosen if i not in chosen and (i in one_only or i.is_equipment)]
+            num_choose = 10 - len(chosen)
+            num_choose = random.randint(0, num_choose)
+            num_choose = min(num_choose, len(choose_again))
+            if num_choose and choose_again:
+                chosen += random.sample(choose_again, num_choose)
+
+            # Put the chosen in the disciple shop and up to 15 remaining in the Emporium
+            assignments[items.DiscipleShop.index] = chosen
+            num_emporium = random.randint(random.randint(0, 15), 15)
+            frog_remaining = [i for i in frog_chosen if i not in chosen]
+            assignments[items.FrogCoinEmporiumShop.index] = random.sample(frog_remaining, num_emporium)
+
+            # ******************************* Phase 2: Non-frog coin shops
+
+            # Collect remaining items that aren't in frog coin shops and aren't key items.
+
+
+            if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
+                shop_items = [i for i in world.items if
+                              i not in assignments[items.DiscipleShop.index] and
+                              i not in assignments[items.FrogCoinEmporiumShop.index] and
+                              i.price
+                              and i.hard_tier <= tiers_allowed
+                              and i.index not in excluded_items
+                              and i.vanilla_shop]
+            else:
+                shop_items = [i for i in world.items if
+                              i not in assignments[items.DiscipleShop.index] and
+                              i not in assignments[items.FrogCoinEmporiumShop.index] and
+                              i.price
+                              and i.hard_tier <= tiers_allowed
+                              and i.index not in excluded_items]
+
+            # First, we want every item to wind up in a shop.
+            # But we need a backup reserve of items to pull from in case the logic doesnt work out
+            # i.e. Sb is enabled but there are no accessories in the upper tiers
+            item_reserve = shop_items
+
+            # Unique items will first be split among the shops (anything except basic healing items)
+            unique_items = [i for i in shop_items if not (i.consumable and not i.reuseable and i.basic)]
+            basic_items = [i for i in shop_items if (i.consumable and not i.reuseable and i.basic)]
+
 
 
             # Randomly assign anything to Yaridovich shop
@@ -560,20 +488,23 @@ def randomize_all(world):
                 for item in world.items:
                     for shop in world.shops:
                         if item.index == 102 and shop.index == 24:
-                            if item not in assignments[shop.index] and item in shop_items:
+                            if item not in assignments[24] and item in shop_items:
                                 assignments[shop.index].append(item)
                 # Assign each item to one shop by default
                 for item in item_reserve:
-                    eligible_shops = [s for s in world.shops if len(assignments[s.index]) < 15 and not s.frog_coin_shop and item in get_valid_items(item_reserve, s, assignments[s.index])]
-                    if eligible_shops:
-                        shop = random.choice(eligible_shops)
-                        if item not in assignments[shop.index]:
-                            assignments[shop.index].append(item)
+                    if item not in assignments[12]:
+                        eligible_shops = [s for s in world.shops if len(assignments[s.index]) < 15 and s.index not in [3, 6, 8, 9, 10, 11, 12] and item in get_valid_items(item_reserve, s, assignments[s.index])]
+                        if eligible_shops:
+                            shop = random.choice(eligible_shops)
+                            if item not in assignments[shop.index]:
+                                assignments[shop.index].append(item)
+                        else:
+                            print(item)
 
             # Randomly assign anything to shops with space remaining
             done_already.clear()
             for shop in world.shops:
-                if shop.index not in [3, 6, 8, 9, 10, 11, 12] and not shop.frog_coin_shop:
+                if shop.index not in [3, 6, 8, 9, 10, 11, 12]:
                     if len(assignments[shop.index]) < 15:
                         valid_items = get_valid_items(unique_items, shop, assignments[shop.index])
                         if valid_items:
@@ -636,6 +567,7 @@ def randomize_all(world):
             # Sort the list of items by the ordering rank for display, and assign to the shop.
             for shop in world.shops:
                 shop.items = sorted(assignments[shop.index], key=lambda i: i.order)
+                print(shop)
 
     else:
         for shop in world.shops:
