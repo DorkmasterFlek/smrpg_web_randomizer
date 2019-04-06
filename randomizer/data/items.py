@@ -3004,7 +3004,7 @@ def get_default_shops(world):
         world (randomizer.logic.main.GameWorld):
 
     Returns:
-        list[Item]: Default list of items.
+        list[Shop]: Default list of items.
 
     """
     return [
