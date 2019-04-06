@@ -978,8 +978,6 @@ class TweaksCategory(FlagCategory):
         PoisonMushroom,
         RandomizeBowsersKeep
     ]
-    
-    
 
 
 # ************************************** Preset classes
@@ -1014,6 +1012,12 @@ class ExpertPreset(Preset):
     flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tb2kduhi M2x Sv1 Qsba! X2x P2 Gsmke -fakeout'
 
 
+class QuickPreset(Preset):
+    name = 'Quick'
+    description = 'A faster playthrough with free shops and XP acceleration for faster progression'
+    flags = 'K Rk Csjl Tc4yzm M2 Sc4 -freeshops Ed Bm Qsba X3 D1'
+
+
 # ************************************** Default lists for the site.
 
 # List of categories for the site.
@@ -1035,4 +1039,5 @@ PRESETS = (
     IntermediatePreset,
     AdvancedPreset,
     ExpertPreset,
+    QuickPreset,
 )
