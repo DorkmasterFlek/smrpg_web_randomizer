@@ -556,37 +556,15 @@ def randomize_all(world):
                         assignments[shop.index].append(item)
 
             if not world.settings.is_flag_enabled(flags.ShopNotGuaranteed):
-                # Randomly assign unique items until they've all been assigned.
-                while len(done_already) < len(unique_items):
-                    # Get a random shop - avoided simple looping to prevent biasing against lategame shops
-                    shop = random.choice([s for s in world.shops if isinstance(
-                        s, (
-                        items.MushroomKingdomShop, items.RoseTownArmorShop, items.RoseTownItemShop, items.MolevilleShop,
-                        items.MarrymoreShop, items.SeaShop, items.SeasideWeaponShop, items.SeasideAccessoryShop,
-                        items.SeasideArmorShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
-                        items.HinopioShop, items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1,
-                        items.CrocoShop2, items.ToadShop))])
-
-                    if len(assignments[shop.index]) < 15:
-                        # Get all remaining items that can go in this shop
-                        valid_items = get_valid_items(unique_items, shop, done_already)
-                        # Pick one at random
-                        if valid_items:
-                            chosen_item = random.choice(valid_items)
-                            assignments[shop.index].append(chosen_item)
-                            done_already.add(chosen_item)
                 # guarantee pick me up in toad shop if not full
                 for item in world.items:
-                    if item.index == 102 and shop.index == 24:
-                        if item not in assignments[shop.index] and item in shop_items:
-                            assignments[shop.index].append(item)
-                # Assign each consumable to one shop by default
-                for item in basic_items:
-                    eligible_shops = [s for s in world.shops if isinstance(
-                        s, (items.MushroomKingdomShop, items.RoseTownItemShop, items.MolevilleShop, items.MarrymoreShop,
-                            items.SeaShop, items.SeasideItemShop, items.MonstroTownShop, items.NimbusLandShop,
-                            items.BabyGoombaShop, items.NimbusLandItemWeaponShop, items.CrocoShop1, items.CrocoShop2,
-                            items.ToadShop)) and len(assignments[s.index]) < 15 and item in get_valid_items(basic_items, s, assignments[s.index])]
+                    for shop in world.shops:
+                        if item.index == 102 and shop.index == 24:
+                            if item not in assignments[shop.index] and item in shop_items:
+                                assignments[shop.index].append(item)
+                # Assign each item to one shop by default
+                for item in item_reserve:
+                    eligible_shops = [s for s in world.shops if len(assignments[s.index]) < 15 and item in get_valid_items(item_reserve, s, assignments[s.index])]
                     if eligible_shops:
                         shop = random.choice(eligible_shops)
                         if item not in assignments[shop.index]:

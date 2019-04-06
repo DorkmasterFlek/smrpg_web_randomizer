@@ -555,7 +555,6 @@ def randomize_all(world):
 
             for chest in [i for i in world.chest_locations if not isinstance(i, chests.Reward)]:
                 if chest.item.hard_tier == 1 and not chest.item.is_key and chest.item.price > 0:
-                    print(chest)
                     if chest.item_allowed(items.Coins150) and not chest.item.frog_coin_item:
                         chest.item = closest_coins(chest.item.price)
                     elif chest.item_allowed(items.FrogCoin) and chest.item.frog_coin_item:
