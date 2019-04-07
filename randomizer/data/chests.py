@@ -73,8 +73,7 @@ class BowserDoorReward(Chest):
             bool: True if the given item is allowed to be placed in this spot, False otherwise.
 
         """
-        return super().item_allowed(item) and (not isclass_or_instance(item, items.ChestReward) or
-                                               isclass_or_instance(item, items.YouMissed))
+        return super().item_allowed(item) and not isclass_or_instance(item, items.ChestReward)
 
 
 # ******* NPC reward data classes

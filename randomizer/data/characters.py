@@ -410,28 +410,34 @@ class Mario(Character):
 
     def get_patch(self):
         patch = super().get_patch()
-        
+
+        def special_palette(colours, address):
+            colourbytes = [];
+            for j in range(0, len(colours)):
+                i = colours[j]
+                if not (i == None):
+                    colour = self.palette.colours[i]
+                    #sanitize to multiples of 8
+                    r = 8 * round(int(colour[0:2], 16) / 8)
+                    g = 8 * round(int(colour[2:4], 16) / 8)
+                    b = 8 * round(int(colour[4:6], 16) / 8)
+                    r = int(r / 8)
+                    g = int(g / 4)
+                    b = int(b / 2)
+                    r = format(r, 'x').zfill(2)
+                    g = format(g, 'x').zfill(2)
+                    b = format(b, 'x').zfill(2)
+                    bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
+                    bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
+                    colourbytes.append(hex(int(bytestring1, 16)))
+                    colourbytes.append(hex(int(bytestring2, 16)))
+                    patch.add_data(address + j*2, [int(bytestring1, 16), int(bytestring2, 16)])
+
+        special_palette([0, 1, 2, 3, 4, 6, 7, 8, 8, 10, 11, 11, 12, 13, 14], self.palette.doll_addresses[0])
+        special_palette([None, 13, 1, 2, None, 5, 3, 6, 7, 9, 4, 9, 8, 10, 11], self.palette.minecart_addresses[0])
+
         if self.palette:
             colourbytes = [];
-            for i in [0, 1, 2, 3, 4, 6, 7, 8, 8, 10, 11, 11, 12, 13, 14]:
-                colour = self.palette.colours[i]
-                #sanitize to multiples of 8
-                r = 8 * round(int(colour[0:2], 16) / 8)
-                g = 8 * round(int(colour[2:4], 16) / 8)
-                b = 8 * round(int(colour[4:6], 16) / 8)
-                r = int(r / 8)
-                g = int(g / 4)
-                b = int(b / 2)
-                r = format(r, 'x').zfill(2)
-                g = format(g, 'x').zfill(2)
-                b = format(b, 'x').zfill(2)
-                bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
-                bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
-                colourbytes.append(hex(int(bytestring1, 16)))
-                colourbytes.append(hex(int(bytestring2, 16)))
-            startaddresses = self.palette.doll_addresses
-            for address in startaddresses:
-                patch.add_data(address, colourbytes)
 
         return patch
 

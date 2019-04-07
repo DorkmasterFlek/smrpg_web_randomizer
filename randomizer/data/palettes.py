@@ -40,6 +40,9 @@ class MarioPalette(Palette):
         #doll 1 - for mario, 6th colour should be 7th in palette, 7th colour should be 8th in palette, and 8th and 9th colour should both be 9th in palette. 10th colour should be 11th in palette, 11th and 12th colour should be 12th in palette
         0x2576E6
     ]
+    minecart_addresses = [
+        0x256DFE
+    ]
     poison_addresses = [0x2579D4, 0x257BB4]
     #Poison palette for battle portrait will not be edited. It is shared by all 5 characters.
     underwater_addresses = [0x257A10, 0x257BF0]
