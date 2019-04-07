@@ -567,7 +567,6 @@ def randomize_all(world):
             # Sort the list of items by the ordering rank for display, and assign to the shop.
             for shop in world.shops:
                 shop.items = sorted(assignments[shop.index], key=lambda i: i.order)
-                print(shop)
 
     else:
         for shop in world.shops:

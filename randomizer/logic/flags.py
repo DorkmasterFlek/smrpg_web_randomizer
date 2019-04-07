@@ -250,7 +250,7 @@ class BossShuffleMusic(Flag):
 
 class BossShuffle(Flag):
     name = 'Randomize bosses'
-    description = ("The positions of bosses are shuffled. By default, when a boss is moved, its stats are scaled to "
+    description = ("The positions of bosses (including Pandorite, Hidon, and Box Boy) are shuffled. By default, when a boss is moved, its stats are scaled to "
                    "match its new location.")
     inverse_description = "(Bosses will stay in their original locations.)"
     modes = ['open']

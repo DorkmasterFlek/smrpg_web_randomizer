@@ -433,11 +433,10 @@ class Mario(Character):
                     colourbytes.append(hex(int(bytestring2, 16)))
                     patch.add_data(address + j*2, [int(bytestring1, 16), int(bytestring2, 16)])
 
-        special_palette([0, 1, 2, 3, 4, 6, 7, 8, 8, 10, 11, 11, 12, 13, 14], self.palette.doll_addresses[0])
-        special_palette([None, 13, 1, 2, None, 5, 3, 6, 7, 9, 4, 9, 8, 10, 11], self.palette.minecart_addresses[0])
 
-        if self.palette:
-            colourbytes = [];
+        if not self.palette is None:
+            special_palette([0, 1, 2, 3, 4, 6, 7, 8, 8, 10, 11, 11, 12, 13, 14], self.palette.doll_addresses[0])
+            special_palette([None, 13, 1, 2, None, 5, 3, 6, 7, 9, 4, 9, 8, 10, 11], self.palette.minecart_addresses[0])
 
         return patch
 
