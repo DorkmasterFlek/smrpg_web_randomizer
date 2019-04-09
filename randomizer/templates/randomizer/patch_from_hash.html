@@ -108,6 +108,12 @@
                     });
                 });
             });
+
+            // Load patch meta-data initially in case they don't have a ROM loaded yet.
+            $.get("/hash/{{ hash }}/US", function (patch) {
+                updateSeedDetailsFromPatch(patch);
+                $("#seed-details").hide();
+            });
         });
     </script>
 {% endblock %}
