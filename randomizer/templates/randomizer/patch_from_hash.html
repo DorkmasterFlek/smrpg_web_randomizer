@@ -5,12 +5,12 @@
     {% include 'randomizer/_rom_base.html' %}
     {% include 'randomizer/_rom_loader.html' %}
 
-    <div id="seed-details" class="card border-success my-3" style="display:none">
+    <div class="card border-success my-3">
         <div class="card-header bg-success text-white">
             <h3 class="card-title">Game Details</h3>
         </div>
         <div class="card-body">
-            <div class="row">
+            <div id="seed-details" class="row" style="display:none">
                 <div class="col-md-6">
                     <div role="group" class="btn-group btn-flex mr-3 mb-3">
                     <button name="save_rom" class="btn btn-success" id="btn-save-rom" disabled>Save Rom</button>
@@ -19,6 +19,9 @@
                     <button name="save_wad" class="btn btn-success" id="btn-save-wad" disabled>Save Wad</button>
                     </div>
                 </div>
+            </div>
+            <div id="rom-select-warning" class="alert alert-warning" role="alert" style="display:none">
+                You need to upload a ROM above!
             </div>
             {% include 'randomizer/_rom_info.html' %}
         </div>

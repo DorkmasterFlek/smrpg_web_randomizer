@@ -8,7 +8,7 @@
     <div id="generate-container">
         {% include 'randomizer/_rom_loader.html' %}
 
-        <div id="seed-generate" class="card border-success my-3" style="display:none">
+        <div class="card border-success my-3">
             <form id="config">
                 {% csrf_token %}
                 <input type="hidden" name="region" id="region" value=""/>
@@ -150,16 +150,21 @@
                 </div>
                 {% include 'randomizer/_rom_settings.html' %}
                 <div class="card-footer">
-                    <div class="alert alert-danger alert-dismissible" id="generate-error-box" role="alert"
-                         style="display:none">
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        <span class="sr-only">Error:</span>
-                        <span class="message" id="generate-error-message">Cannot Read ROM file.</span>
+                    <div id="seed-generate" style="display:none">
+                        <div class="alert alert-danger alert-dismissible" id="generate-error-box" role="alert"
+                             style="display:none">
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                            <span class="sr-only">Error:</span>
+                            <span class="message" id="generate-error-message">Cannot Read ROM file.</span>
+                        </div>
+                        <div class="btn-group btn-flex" role="group">
+                            <button type="button" name="generate" class="btn btn-success" id="generate-btn" disabled>Generate ROM</button>
+                        </div>
                     </div>
-                    <div class="btn-group btn-flex" role="group">
-                        <button type="button" name="generate" class="btn btn-success" id="generate-btn" disabled>Generate ROM</button>
+                    <div id="rom-select-warning" class="alert alert-warning" role="alert" style="display:none">
+                        You need to upload a ROM above!
                     </div>
                 </div>
             </form>
@@ -232,7 +237,7 @@
         }
 
         // Apply custom seed flag.
-        function applyFlags(flags = null) {
+        function applyFlags(flags = null, initial_load = false) {
             // Get flag string from selected preset if not provided.
             if (flags === null || flags === undefined) {
                 flags = $('#preset').val();
@@ -263,7 +268,8 @@
             buildFlagString();
 
             // Scroll to review flags.
-            $('html').animate({scrollTop: $('#review-flags').offset().top}, 500);
+            if (!initial_load)
+                $('html').animate({scrollTop: $('#review-flags').offset().top}, 500);
         }
 
         // Helper function to build flag string part for a specific flag and recursively handle choices and suboptions.
@@ -454,7 +460,7 @@
             // Apply stored flags, if any.
             localforage.getItem("rom.flags").then((value) => {
                 if (value) {
-                    applyFlags(value);
+                    applyFlags(value, true);
                 }
             });
         });

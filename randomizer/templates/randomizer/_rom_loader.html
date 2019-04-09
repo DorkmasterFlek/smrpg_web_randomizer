@@ -103,7 +103,7 @@
         $("#generate-btn").prop("disabled", true);
         $("#currently-loaded").hide();
         $("#seed-generate").hide();
-        $("#rom-select").show();
+        $("#rom-select, #rom-select-warning").show();
     }
 
     function loadRom(blob, show_error) {
@@ -123,7 +123,7 @@
                     }
                     $("#error-box").show().delay(2000).fadeOut("slow");
                 }
-                $("#rom-select").show();
+                $("#rom-select, #rom-select-warning").show();
             }
         });
     }
@@ -180,7 +180,7 @@
 
         // Load ROM file when changed.
         $("#rom-file").on("change", (event) => {
-            $("#rom-select").hide();
+            $("#rom-select, #rom-select-warning").hide();
             $("#error-box").hide();
             loadRom(event.target.files[0], true);
         });
