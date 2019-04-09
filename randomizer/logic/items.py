@@ -380,7 +380,7 @@ def randomize_all(world):
             # pick full juice bar
             assignments[12] = []
             possible_jb3 = get_valid_items(world.items, jpshop)
-            partial4 = random.sample(possible_jb3, random.randint(4, len(possible_jb3)))
+            partial4 = random.sample(possible_jb3, random.randint(4, min(len(possible_jb3), 15)))
             for item in partial4:
                 assignments[12].append(item)
             partial3 = random.sample(partial4, random.randint(3, (len(partial4)-1)))
