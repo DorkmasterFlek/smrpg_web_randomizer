@@ -8,6 +8,7 @@ from django.core.management.base import BaseCommand
 
 from randomizer.data.bosses import StarLocation
 from randomizer.data.keys import get_default_key_item_locations
+from randomizer.data.items import Item
 from randomizer.logic.flags import CATEGORIES
 from randomizer.logic.main import GameWorld, Settings, VERSION
 
@@ -98,8 +99,12 @@ class Command(BaseCommand):
 
             # Record key item stats.
             for location in world.key_locations:
-                key_item_stats.setdefault(location.item.__name__, collections.defaultdict(int))
-                key_item_stats[location.item.__name__][location.name] += 1
+                if isinstance(location.item, Item):
+                    item_name = location.item.name
+                else:
+                    item_name = location.item.__name__
+                key_item_stats.setdefault(item_name, collections.defaultdict(int))
+                key_item_stats[item_name][location.name] += 1
 
             # Print running count of how many seeds we generated every 10 seeds, and on the last one.
             num_gen = i + 1
