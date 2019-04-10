@@ -81,6 +81,10 @@ class BowserDoorReward(Chest):
 class Reward(locations.ItemLocation):
     """Subclass for NPC reward location."""
 
+    def item_allowed(self, item):
+        # FIXME: Non-KI NPC rewards don't work with progressive cards for now.  Remove this when fixed.
+        return super().item_allowed(item) and not isclass_or_instance(item, items.AltoCard)
+
 
 class TreasureSellerReward(Reward):
     """Subclass for Moleville treasure seller NPC to check access.  Need to beat mines to unlock this."""
