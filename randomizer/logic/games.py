@@ -80,6 +80,9 @@ def randomize_magic_buttons(magic_buttons):
     # Do 20 presses.
     for _ in range(20):
         potential_spots = [s for s in magic_buttons.spots if s.pressed]
+        # If we happened to get back to the vanilla puzzle, we can't go any further.
+        if not potential_spots:
+            break
         choice = random.choice(potential_spots)
         choice.unpress()
 
