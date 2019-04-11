@@ -1,4 +1,4 @@
-# Super Mario RPG Web Randomizer
+# Super Mario RPG Open World Randomizer
 
 New web-based randomizer for Super Mario RPG based on the original command line [Gentle Beauty and Raw Power](https://github.com/abyssonym/smrpg_gbarp) randomizer by abyssonym.
 
