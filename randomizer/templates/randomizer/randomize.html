@@ -386,7 +386,14 @@
                 if (value === null) {
                     value = 'open';
                 }
-                elem.val(value).change();
+                elem.val(value);
+
+                // If they had an old mode value cached, default to open mode.
+                if (elem.prop('selectedIndex') === -1) {
+                    elem.val('open');
+                }
+
+                elem.change();
             });
 
             // Hide quick custom input when not selected.
