@@ -97,6 +97,31 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Logging
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse',
+        },
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'filters': ['require_debug_false'],
+        },
+    },
+    'loggers': {
+        # Log anything warning or higher in production to stdout/stderr for capture.
+        '': {
+            'level': 'WARNING',
+            'handlers': ['console'],
+        },
+    },
+}
+
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
@@ -116,16 +141,8 @@ USE_TZ = True
 STATIC_URL = local.STATIC_URL
 STATIC_ROOT = local.STATIC_ROOT
 
-# *** CDNJS stuff ***
-
-# This property uses not only for storing remote repositories,
-# but for cdn urls cache too. So this option is required.
-CDN_STATIC_ROOT = os.path.join(STATIC_ROOT, 'cdn')
-CDN_STATIC_URL = STATIC_URL + 'cdn/'  # With "/" at end of string
-
-# True - do not download remote repository
-# False - (default) download remote repository
-FORCE_CDN = True
-
 # Allow larger max upload size for packing WAD file.
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1024 * 1024 * 25  # 25 MB
+
+# Beta site flag.
+BETA = local.BETA

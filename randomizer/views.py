@@ -1,4 +1,3 @@
-import base64
 import binascii
 import hashlib
 import json
@@ -21,7 +20,8 @@ from django.views.generic import TemplateView, FormView
 
 from .models import Seed, Patch
 from .forms import GenerateForm
-from .logic.main import GameWorld, Settings, VERSION, FLAGS
+from .logic.flags import CATEGORIES, PRESETS
+from .logic.main import GameWorld, Settings, VERSION
 from .logic.patch import PatchJSONEncoder
 
 
@@ -31,11 +31,44 @@ class RandomizerView(TemplateView):
     This gets common context data.
     """
 
+    def _build_flag_json_data(self, flag):
+        """
+
+        Args:
+            flag (randomizer.logic.flags.Flag): Flag class to build JSON data for.
+
+        Returns:
+            dict: Flag data.
+
+        """
+        d = {
+            'value': flag.value,
+            'modes': flag.modes,
+            'choices': [],
+            'options': [],
+        }
+        for choice in flag.choices:
+            d['choices'].append(self._build_flag_json_data(choice))
+        for option in flag.options:
+            d['options'].append(self._build_flag_json_data(option))
+
+        return d
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['version'] = VERSION
         context['debug_enabled'] = settings.DEBUG
-        context['flags'] = FLAGS
+        context['beta_site'] = settings.BETA
+        context['categories'] = CATEGORIES
+        context['presets'] = PRESETS
+
+        # Build JSON representation of flag hierarchy.
+        flags = []
+        for category in CATEGORIES:
+            for flag in category.flags:
+                flags.append(self._build_flag_json_data(flag))
+        context['flags'] = flags
+
         return context
 
 
@@ -53,6 +86,10 @@ class OptionsView(RandomizerView):
 
 class ResourcesView(RandomizerView):
     template_name = 'randomizer/resources.html'
+
+
+class GuideView(RandomizerView):
+    template_name = 'randomizer/guide.html'
 
 
 class UpdatesView(RandomizerView):
@@ -95,27 +132,10 @@ class GenerateView(FormView):
             del r
 
         mode = data['mode']
-        debug_mode = data['debug_mode']
-
-        # Compute hash based on seed and selected options.  Use first 10 characters for convenience.
-        h = hashlib.md5()
-        h.update(VERSION.encode('utf-8'))
-        h.update(seed.to_bytes(4, 'big'))
-        h.update(mode.encode('utf-8'))
-        h.update(str(debug_mode).encode('utf-8'))
-        if mode == 'custom':
-            for flag in FLAGS:
-                h.update(str(data[flag[0]]).encode('utf-8'))
-
-        hash = base64.b64encode(h.digest()).decode().replace('+', '').replace('/', '')[:10]
-
-        # Get custom flags.
-        custom_flags = {}
-        for flag in FLAGS:
-            custom_flags[flag[0]] = data[flag[0]]
+        debug_mode = bool(data['debug_mode'])
 
         # Build game world, randomize it, and generate the patch.
-        world = GameWorld(seed, Settings(mode, debug_mode, custom_flags))
+        world = GameWorld(seed, Settings(mode, debug_mode, data['flags']))
         world.randomize()
         patches = {'US': world.build_patch()}
 
@@ -123,24 +143,27 @@ class GenerateView(FormView):
         result = {
             'logic': VERSION,
             'seed': seed,
-            'hash': hash,
+            'hash': world.hash,
             'mode': mode,
             'debug_mode': debug_mode,
-            'custom_flags': custom_flags,
+            'flag_string': world.settings.flag_string,
+            'file_select_character': world.file_select_character,
+            'file_select_hash': world.file_select_hash,
         }
 
         # Save patch to the database (don't need to save EU since it's the same as US).
         with transaction.atomic():
             # If there's an existing seed with the same hash, replace it.
             try:
-                s = Seed.objects.get(hash=hash)
+                s = Seed.objects.get(hash=world.hash)
             except Seed.DoesNotExist:
                 pass
             else:
                 s.delete()
 
-            s = Seed(hash=hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
-                     flags=json.dumps(custom_flags))
+            s = Seed(hash=world.hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
+                     flags=world.settings.flag_string, file_select_char=world.file_select_character,
+                     file_select_hash=world.file_select_hash)
             s.save()
 
             for region, patch in patches.items():
@@ -162,7 +185,8 @@ class GenerateView(FormView):
 
 
 class GenerateFromHashView(View):
-    def get(self, request, hash, region):
+    @staticmethod
+    def get(request, hash, region):
         """Get a previously generated patch via hash value."""
         # EU patch is actually the US one.
         if region == 'EU':
@@ -184,7 +208,9 @@ class GenerateFromHashView(View):
             'hash': s.hash,
             'mode': s.mode,
             'debug_mode': s.debug_mode,
-            'custom_flags': json.loads(s.flags),
+            'flag_string': s.flags,
+            'file_select_character': s.file_select_char,
+            'file_select_hash': s.file_select_hash,
             'patch': json.loads(p.patch),
         }
         return JsonResponse(result)
@@ -192,7 +218,8 @@ class GenerateFromHashView(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class PackingView(View):
-    def post(self, request):
+    @staticmethod
+    def post(request):
         """Pack uploaded ROM into the provided WAD file as downloaded file."""
         if not request.FILES.get('rom'):
             return HttpResponseBadRequest("ROM file not provided")
@@ -248,7 +275,7 @@ class PackingView(View):
 
             try:
                 seed = int(title[7:].strip())
-            except:
+            except ValueError:
                 return HttpResponseBadRequest("Bad ROM title {!r}".format(title))
 
             # Read first content file data to find the channel title data and update it.
@@ -269,9 +296,9 @@ class PackingView(View):
             # Update MD5 hash for this content file.
             data = content[64:1584]
             data += b'\x00' * 16
-            hash = Wii.Crypto.createMD5Hash(data)
+            md5 = Wii.Crypto.createMD5Hash(data)
             for i in range(16):
-                content[1584 + i] = hash[i]
+                content[1584 + i] = md5[i]
 
             newwad.contents[0] = bytes(content)
 

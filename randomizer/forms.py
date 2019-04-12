@@ -1,17 +1,22 @@
 from django import forms
 
-from .models import REGIONS, MODES
-from .logic.main import FLAGS
+from .logic.flags import CATEGORIES
+
+MODES = (
+    ('open', 'Open'),
+    ('linear', 'Linear'),
+)
+
+REGIONS = (
+    ('US', 'US'),
+    # ('JP', 'Japan'),
+    ('EU', 'PAL'),
+)
 
 
 class GenerateForm(forms.Form):
     region = forms.ChoiceField(required=True, choices=REGIONS)
     seed = forms.Field(required=False)
     mode = forms.ChoiceField(required=True, choices=MODES)
+    flags = forms.Field(required=False, initial='')
     debug_mode = forms.BooleanField(required=False, initial=False)
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-
-        for flag in FLAGS:
-            self.fields[flag[0]] = forms.BooleanField(required=False, initial=False)

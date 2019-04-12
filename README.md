@@ -1,4 +1,4 @@
-# Super Mario RPG Web Randomizer
+# Super Mario RPG Open World Randomizer
 
 New web-based randomizer for Super Mario RPG based on the original command line [Gentle Beauty and Raw Power](https://github.com/abyssonym/smrpg_gbarp) randomizer by abyssonym.
 
@@ -32,4 +32,6 @@ I would recommend making a virtual environment using something like virtualenv, 
 
    ```> python manage.py collectstatic```
 
-1. Set up your Django web server however you prefer.  There are plenty of resources out there on this topic.
+1. Set up your Django web server however you prefer.  There are plenty of resources out there on this topic for production, but for a local development environment you can just run the local test server as normal:
+
+   ```> python manage.py runserver```

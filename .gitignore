@@ -104,3 +104,5 @@ ENV/
 .idea
 db.sqlite*
 /static
+dump*.py
+sample*.csv
