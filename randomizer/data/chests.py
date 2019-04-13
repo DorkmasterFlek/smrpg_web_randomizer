@@ -1578,8 +1578,7 @@ def get_default_chests(world):
         MushroomWay1(world),
         MushroomWay2(world),
         MushroomWay3(world),
-        # TODO: This chest refills when you re-enter the area and dups the item.  Uncomment when this is fixed.
-        # MushroomWay4(world),
+        MushroomWay4(world),
         MushroomKingdomVault1(world),
         MushroomKingdomVault2(world),
         MushroomKingdomVault3(world),
