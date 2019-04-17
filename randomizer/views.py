@@ -1,6 +1,7 @@
 import binascii
 import hashlib
 import json
+import logging
 import os
 import random
 import string
@@ -23,6 +24,9 @@ from .forms import GenerateForm
 from .logic.flags import CATEGORIES, PRESETS
 from .logic.main import GameWorld, Settings, VERSION
 from .logic.patch import PatchJSONEncoder
+
+# Get an instance of a logger
+logger = logging.getLogger(__name__)
 
 
 class RandomizerView(TemplateView):
@@ -180,7 +184,14 @@ class GenerateView(FormView):
         return JsonResponse(result, encoder=PatchJSONEncoder)
 
     def form_invalid(self, form):
-        msg = "ERRORS: " + '; '.join(form.errors)
+        msg = "GenerateView form error: " + '; '.join(form.errors)
+        logger.error(msg)
+        return HttpResponseBadRequest(msg.encode())
+
+    def get(self, request, *args, **kwargs):
+        """Handle GET requests: return 400 error."""
+        msg = "GenerateView GET method not allowed"
+        logger.error(msg)
         return HttpResponseBadRequest(msg.encode())
 
 
