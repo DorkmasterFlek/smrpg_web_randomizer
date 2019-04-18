@@ -288,6 +288,7 @@ def randomize_all(world):
                 assignments[shop.index] = []
 
             done_already = set()
+
             # Function determining what can go in a shop, based on flags selected
             def get_valid_items(base, shop, exclude=None):
                 if exclude is None:
@@ -370,7 +371,7 @@ def randomize_all(world):
                                        shop.is_item_allowed(i) and i.hard_tier <= tiers_allowed]
                 return valid_items
 
-            # Do juice bar before frog coin shops. Frog coin shops dont leave enough items for juice bar in Sv1 otherwise.
+            # Do juice bar before frog coin shops. Frog coin shops dont leave enough items for juice bar in Sv1.
 
             # Juice bar gets "first dibs"
             jpshop = None
@@ -443,12 +444,12 @@ def randomize_all(world):
             assignments[items.DiscipleShop.index] = chosen
             num_emporium = random.randint(random.randint(0, 15), 15)
             frog_remaining = [i for i in frog_chosen if i not in chosen]
+            num_emporium = min(num_emporium, len(frog_remaining))
             assignments[items.FrogCoinEmporiumShop.index] = random.sample(frog_remaining, num_emporium)
 
             # ******************************* Phase 2: Non-frog coin shops
 
             # Collect remaining items that aren't in frog coin shops and aren't key items.
-
 
             if world.settings.is_flag_enabled(flags.ShopShuffleVanilla):
                 shop_items = [i for i in world.items if
@@ -474,8 +475,6 @@ def randomize_all(world):
             # Unique items will first be split among the shops (anything except basic healing items)
             unique_items = [i for i in shop_items if not (i.consumable and not i.reuseable and i.basic)]
             basic_items = [i for i in shop_items if (i.consumable and not i.reuseable and i.basic)]
-
-
 
             # Randomly assign anything to Yaridovich shop
             for shop in world.shops:
