@@ -839,40 +839,40 @@ class PoisonMushroom(Flag):
     name = 'Change Fake Mushroom\'s Status'
     description = 'Randomize the status effect inflicted on a party member with the Fake Mushroom. It will only give one status effect per seed, which has a 1/8 chance of being Invincibility.'
     inverse_description = '(The Fake Mushroom will always turn you into a mushroom.)'
-    mode = ['open']
+    modes = ['open']
     value = '-fakeout'
 
 
 class BowsersKeep1(Flag):
     name = '1 Bowser Door'
     description = 'You must complete 1 door in Bowser\'s Keep to proceed to the first boss fight.'
-    mode = ['open']
+    modes = ['open']
     value = 'D1'
 class BowsersKeep2(Flag):
     name = '2 Bowser Doors'
     description = 'You must complete 2 doors in Bowser\'s Keep to proceed to the first boss fight.'
-    mode = ['open']
+    modes = ['open']
     value = 'D2'
 class BowsersKeep3(Flag):
     name = '3 Bowser Doors'
     description = 'You must complete 3 doors in Bowser\'s Keep to proceed to the first boss fight.'
-    mode = ['open']
+    modes = ['open']
     value = 'D3'
 class BowsersKeep4(Flag):
     name = '4 Bowser Doors'
     description = 'You must complete 4 doors in Bowser\'s Keep to proceed to the first boss fight.'
-    mode = ['open']
+    modes = ['open']
     value = 'D4'
 class BowsersKeep5(Flag):
     name = '5 Bowser Doors'
     description = 'You must complete 5 doors in Bowser\'s Keep to proceed to the first boss fight.'
-    mode = ['open']
+    modes = ['open']
     value = 'D5'
     hard = True
 class BowsersKeep6(Flag):
     name = '6 Bowser Doors'
     description = 'You must complete all 6 doors in Bowser\'s Keep to proceed to the first boss fight.'
-    mode = ['open']
+    modes = ['open']
     value = 'D6'
     hard = True
 
@@ -881,7 +881,7 @@ class ShuffleBowsersKeep(Flag):
     name = 'Shuffle Bowser\'s Keep'
     description = 'Each of the 6 Bowser\'s Keep doors will contain 3 random rooms from any of the original 6 doors.'
     inverse_description = '(Bowser\'s Keep door contents have not changed, but their order is still subject to in-game RNG.)'
-    mode = ['open']
+    modes = ['open']
     value = 'Ds'
 
 class RandomizeBowsersKeep(Flag):
@@ -897,7 +897,7 @@ class RandomizeBowsersKeep(Flag):
     options = [
         ShuffleBowsersKeep
     ]
-    mode = ['open']
+    modes = ['open']
     value = '@D'
 
 class CasinoWarp(Flag):
@@ -910,7 +910,7 @@ class PaletteSwaps(Flag):
     name = 'Palette Swaps'
     description = 'Your party members get a change of wardrobe!'
     inverse_description = '(Sprite colours are not modified.)'
-    mode = ['open']
+    modes = ['open']
     value = '-palette'
 
 # ************************************** Category classes
@@ -992,8 +992,6 @@ class TweaksCategory(FlagCategory):
         RandomizeBowsersKeep,
         CasinoWarp
     ]
-    
-    
 
 
 # ************************************** Preset classes
@@ -1028,6 +1026,12 @@ class ExpertPreset(Preset):
     flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tb2kduhi M2x Sv1 Qsba! X2x P2 Gsmke -fakeout'
 
 
+class QuickPreset(Preset):
+    name = 'Quick'
+    description = 'A faster playthrough with free shops and XP acceleration for faster progression'
+    flags = 'K Rk Csjl Tc4yzm M2 Sc4 -freeshops Ed Bm Qsba X3 D1'
+
+
 # ************************************** Default lists for the site.
 
 # List of categories for the site.
@@ -1049,4 +1053,5 @@ PRESETS = (
     IntermediatePreset,
     AdvancedPreset,
     ExpertPreset,
+    QuickPreset,
 )

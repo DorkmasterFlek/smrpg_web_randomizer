@@ -248,6 +248,8 @@ def randomize_all(world):
                 item.hard_tier = 1
 
     # Shuffle shop contents and prices.
+    free_shops = world.settings.is_flag_enabled(flags.FreeShops)
+
     if world.settings.is_flag_enabled(flags.ShopShuffle):
         assignments = {}
 
@@ -258,10 +260,10 @@ def randomize_all(world):
         # Exclude wallet, shiny stone, carbo cookie
         excluded_items = [129, 137, 138]
 
+        # Check for Sx - Goodie Bag only
         if world.settings.is_flag_enabled(flags.ShopTierX):
             for shop in world.shops:
-                shop.items = [i for i in world.items if i.index == 125]
-
+                shop.items = [world.get_item_instance(items.GoodieBag)]
         else:
             tiers_allowed = 4
             if world.settings.is_flag_enabled(flags.ShopTier1):
@@ -378,7 +380,7 @@ def randomize_all(world):
             # pick full juice bar
             assignments[12] = []
             possible_jb3 = get_valid_items(world.items, jpshop)
-            partial4 = random.sample(possible_jb3, random.randint(4, len(possible_jb3)))
+            partial4 = random.sample(possible_jb3, random.randint(4, min(len(possible_jb3), 15)))
             for item in partial4:
                 assignments[12].append(item)
             partial3 = random.sample(partial4, random.randint(3, (len(partial4)-1)))
@@ -534,7 +536,7 @@ def randomize_all(world):
 
                     # #######Set new regular-coin prices for FC items
 
-                    if world.settings.is_flag_enabled(flags.FreeShops):
+                    if free_shops:
                         if shop.frog_coin_shop:
                             item.frog_coin_item = True
                             item.price = 1
@@ -558,7 +560,7 @@ def randomize_all(world):
                                 price = utils.mutate_normal(item.price, minimum=item.price*0.9, maximum=item.price*1.1)
                                 item.price = max(math.ceil(price / 25), 1)
                             else:
-                                #muku cooki price should never change
+                                # muku cooki price should never change
                                 if item.index != 120:
                                     price = min(9999, max(2, item.price))
                                     price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
@@ -568,15 +570,14 @@ def randomize_all(world):
             for shop in world.shops:
                 shop.items = sorted(assignments[shop.index], key=lambda i: i.order)
 
-    else:
-        for shop in world.shops:
-            if world.settings.is_flag_enabled(flags.FreeShops):
-                for item in shop.items:
-                    if shop.frog_coin_shop:
-                        item.frog_coin_item = True
-                        item.price = 1
-                    else:
-                        item.price = 1
+    # Check for free shops, and make sure item prices don't go above 9999.
+    for shop in world.shops:
+        for item in shop.items:
+            item.price = min(9999, item.price)
+            if free_shops:
+                if shop.frog_coin_shop:
+                    item.frog_coin_item = True
+                item.price = 1
 
     if world.settings.is_flag_enabled(flags.PoisonMushroom):
         for item in world.items:

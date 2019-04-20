@@ -128,6 +128,10 @@ class EnemyFormation:
         self.music = music_run_flags & 0xfd
 
     @property
+    def enemies(self):
+        return [m.enemy for m in self.members]
+
+    @property
     def bosses(self):
         return [m.enemy for m in self.members if m.enemy.boss]
 

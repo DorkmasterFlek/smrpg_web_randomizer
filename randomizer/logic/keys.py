@@ -102,7 +102,8 @@ def _place_items(world, items, locations, base_inventory=None):
         remaining_fill_items.remove(item)
         assumed_items = _collect_items(world, remaining_fill_items + base_inventory)
 
-        fillable_locations = [l for l in locations if not l.has_item and l.can_access(assumed_items)]
+        fillable_locations = [l for l in locations if not l.has_item and l.can_access(assumed_items)
+                              and l.item_allowed(item)]
         if not fillable_locations:
             raise ValueError("No available locations for {}, {}".format(item, remaining_fill_items))
 
