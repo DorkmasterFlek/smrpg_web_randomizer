@@ -126,7 +126,7 @@ class GenerateView(FormView):
         if seed:
             if seed.isdigit():
                 seed = int(seed)
-                if seed < 1:
+                if seed < 1 or seed > 0xFFFFFFFF:
                     seed = None
             else:
                 seed = binascii.crc32(seed.encode())
@@ -342,6 +342,7 @@ class PackingView(View):
 
 # ************** API views
 
+@method_decorator(csrf_exempt, name='dispatch')
 class APIGenerateView(GenerateView):
     """Use same fields and response as the generate view, but don't include the patch data."""
     return_patch_data = False
