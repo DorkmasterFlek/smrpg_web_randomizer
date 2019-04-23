@@ -182,10 +182,7 @@ class GenerateView(FormView):
 
         # Check if we're including the patch data in the response.
         if self.return_patch_data:
-            if data['region'] == 'EU':
-                result['patch'] = patches['US']  # Patch for EU version is the same as US.
-            else:
-                result['patch'] = patches[data['region']]
+            result['patch'] = patches['US']  # Patch for EU version is the same as US.
 
         return JsonResponse(result, encoder=PatchJSONEncoder)
 
