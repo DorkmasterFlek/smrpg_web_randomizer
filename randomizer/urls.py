@@ -22,4 +22,7 @@ urlpatterns = [
     path('h/<slug:hash>', views.HashView.as_view(), name='patch-from-hash'),
     path('hash/<slug:hash>/<slug:region>', views.GenerateFromHashView.as_view(), name='generate-from-hash'),
     path('pack', views.PackingView.as_view(), name='pack'),
+
+    # API
+    path('api/v1/generate', views.APIGenerateView.as_view(), name='api-v1-generate'),
 ]

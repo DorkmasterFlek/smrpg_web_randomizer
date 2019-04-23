@@ -14,6 +14,7 @@ import nlzss
 from django.conf import settings
 from django.db import transaction
 from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
+from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
@@ -110,6 +111,7 @@ class HashView(RandomizerView):
 
 class GenerateView(FormView):
     form_class = GenerateForm
+    return_patch_data = True
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -135,11 +137,11 @@ class GenerateView(FormView):
             seed = r.getrandbits(32)
             del r
 
-        mode = data['mode']
+        mode = data['mode'] or 'open'
         debug_mode = bool(data['debug_mode'])
 
         # Build game world, randomize it, and generate the patch.
-        world = GameWorld(seed, Settings(mode, debug_mode, data['flags']))
+        world = GameWorld(seed, Settings(mode, debug_mode, data['flags'] or ''))
         world.randomize()
         patches = {'US': world.build_patch()}
 
@@ -153,6 +155,7 @@ class GenerateView(FormView):
             'flag_string': world.settings.flag_string,
             'file_select_character': world.file_select_character,
             'file_select_hash': world.file_select_hash,
+            'permalink': reverse('randomizer:patch-from-hash', kwargs={'hash': world.hash}),
         }
 
         # Save patch to the database (don't need to save EU since it's the same as US).
@@ -177,20 +180,23 @@ class GenerateView(FormView):
                 p = Patch(seed=s, region=region, sha1=h.hexdigest(), patch=patch_dump)
                 p.save()
 
-        if data['region'] == 'EU':
-            result['patch'] = patches['US']  # Patch for EU version is the same as US.
-        else:
-            result['patch'] = patches[data['region']]
+        # Check if we're including the patch data in the response.
+        if self.return_patch_data:
+            if data['region'] == 'EU':
+                result['patch'] = patches['US']  # Patch for EU version is the same as US.
+            else:
+                result['patch'] = patches[data['region']]
+
         return JsonResponse(result, encoder=PatchJSONEncoder)
 
     def form_invalid(self, form):
-        msg = "GenerateView form error: " + '; '.join(form.errors)
+        msg = "{} form error: ".format(self.__class__.__name__) + '; '.join(form.errors)
         logger.error(msg)
         return HttpResponseBadRequest(msg.encode())
 
     def get(self, request, *args, **kwargs):
         """Handle GET requests: return 400 error."""
-        msg = "GenerateView GET method not allowed"
+        msg = "{} GET method not allowed".format(self.__class__.__name__)
         logger.error(msg)
         return HttpResponseBadRequest(msg.encode())
 
@@ -335,3 +341,23 @@ class PackingView(View):
             response = HttpResponse(open(newwadfile, 'rb'), content_type='application/octet-stream')
             response['Content-Disposition'] = 'attachment; filename="smrpg.wad"'
             return response
+
+
+# ************** API views
+
+class APIGenerateView(GenerateView):
+    """Use same fields and response as the generate view, but don't include the patch data."""
+    return_patch_data = False
+
+    # For testing, if we receive a GET request, fake a POST request using the query string fields.
+    def get(self, request, *args, **kwargs):
+        if settings.DEBUG:
+            return self.post(request, *args, **kwargs)
+        else:
+            return super().get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        if settings.DEBUG and 'data' not in kwargs and self.request.method == 'GET':
+            kwargs['data'] = self.request.GET.copy()
+        return kwargs

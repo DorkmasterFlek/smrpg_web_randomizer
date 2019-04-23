@@ -28,8 +28,7 @@
 
         $('#info-version').text(patch.logic);
 
-        let permalink_url = "/h/" + patch.hash;
-        $("#info-permalink").attr("href", permalink_url);
+        $("#info-permalink").attr("href", patch.permalink);
 
         // If seed is not provided in the response, just show the hash instead (i.e. on the patch-from-hash screen).
         if (!patch.seed && patch.hash) {
