@@ -13,7 +13,7 @@ import nlzss
 
 from django.conf import settings
 from django.db import transaction
-from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseNotFound
+from django.http import JsonResponse, HttpResponseBadRequest, HttpResponse, HttpResponseNotFound, QueryDict
 from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
@@ -347,15 +347,15 @@ class APIGenerateView(GenerateView):
     """Use same fields and response as the generate view, but don't include the patch data."""
     return_patch_data = False
 
-    # For testing, if we receive a GET request, fake a POST request using the query string fields.
-    def get(self, request, *args, **kwargs):
-        if settings.DEBUG:
-            return self.post(request, *args, **kwargs)
-        else:
-            return super().get(request, *args, **kwargs)
-
     def get_form_kwargs(self):
+        """Parse JSON body in post request and fake form fields to reuse the form view."""
         kwargs = super().get_form_kwargs()
-        if settings.DEBUG and 'data' not in kwargs and self.request.method == 'GET':
-            kwargs['data'] = self.request.GET.copy()
+        if self.request.method in ('POST', 'PUT'):
+            kwargs['data'] = QueryDict(mutable=True)
+            try:
+                data = json.loads(self.request.body)
+                for key, value in data.items():
+                    kwargs['data'][key] = value
+            except json.JSONDecodeError:
+                logger.error("APIGenerateView got bad request body: {!r}".format(self.request.body))
         return kwargs
