@@ -5,11 +5,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <!-- Standard HTML5 meta tags -->
     <meta name="author" content="Dorkmaster Flek">
     <meta name="description" content="The Super Mario RPG Open World Randomizer is a web-based application to generate
     randomized seeds for Super Mario RPG that allow people to experience the game in a different form with each
     playthrough.">
     <meta name="keywords" content="Super Mario RPG, SM RPG, SMRPG, speedrun, speedrunning, randomizer, rando, openworld, open world">
+
+    <!-- Open Graph meta tags -->
+    <meta property="og:title" content="Super Mario RPG Open World Randomizer"/>
+    <meta property="og:description" content="The Super Mario RPG Open World Randomizer is a web-based application to
+    generate randomized seeds for Super Mario RPG that allow people to experience the game in a different form with each
+    playthrough."/>
+    <meta property="og:type" content="website"/>
+    <meta property="og:url" content="https://randomizer.smrpgspeedruns.com"/>
+    <meta property="og:image" content="https://randomizer.smrpgspeedruns.com{% static "randomizer/img/twitter_profile.png" %}"/>
+
+    <!-- Twitter meta tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:site" content="@SMRPGRandomizer">
+    <meta name="twitter:creator" content="@DorkmasterFlek">
+    <meta name="twitter:title" content="Super Mario RPG Open World Randomizer">
+    <meta name="twitter:description" content="The Super Mario RPG Open World Randomizer is a web-based application to
+    generate randomized seeds for Super Mario RPG that allow people to experience the game in a different form with each
+    playthrough.">
+    <meta name="twitter:image" content="https://randomizer.smrpgspeedruns.com{% static "randomizer/img/twitter_profile.png" %}">
+
     <title>
         {% if beta_site %}
             *BETA*
