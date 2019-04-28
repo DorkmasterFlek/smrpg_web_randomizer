@@ -429,7 +429,7 @@ def randomize_all(world):
 
             # Choose 5-10.
             num_choose = min(10, len(one_only))
-            num_choose = random.randint(min(0, num_choose), num_choose)
+            num_choose = random.randint(min(1, num_choose), num_choose)
             chosen = random.sample(one_only, num_choose)
 
             # If we have less than 10 items chosen, include other equipment in the mix and choose some more.
@@ -442,7 +442,7 @@ def randomize_all(world):
 
             # Put the chosen in the disciple shop and up to 15 remaining in the Emporium
             assignments[items.DiscipleShop.index] = chosen
-            num_emporium = random.randint(random.randint(0, 15), 15)
+            num_emporium = random.randint(random.randint(1, 15), 15)
             frog_remaining = [i for i in frog_chosen if i not in chosen]
             num_emporium = min(num_emporium, len(frog_remaining))
             assignments[items.FrogCoinEmporiumShop.index] = random.sample(frog_remaining, num_emporium)
