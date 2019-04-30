@@ -147,7 +147,7 @@ class GenerateView(FormView):
             world.randomize()
             patches = {'US': world.build_patch()}
         except Exception:
-            logger.error("ERROR form data: {!r}".format(data))
+            logger.error("ERROR form data: {!r}, generated seed: {!r}".format(data, seed))
             raise
 
         # Send back patch data.
