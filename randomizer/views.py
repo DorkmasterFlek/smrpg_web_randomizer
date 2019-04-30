@@ -142,8 +142,13 @@ class GenerateView(FormView):
 
         # Build game world, randomize it, and generate the patch.
         world = GameWorld(seed, Settings(mode, debug_mode, data['flags'] or ''))
-        world.randomize()
-        patches = {'US': world.build_patch()}
+
+        try:
+            world.randomize()
+            patches = {'US': world.build_patch()}
+        except Exception:
+            logger.error("ERROR form data: {!r}".format(data))
+            raise
 
         # Send back patch data.
         result = {
@@ -297,7 +302,6 @@ class PackingView(View):
                 return HttpResponseBadRequest("Can't find IMET in WAD contents file")
 
             imetpos = 0x80
-            i = 0
             content = bytearray(newwad.contents[0])
 
             # Channel names start 29 bytes after the "IMET" string, and there are 7 of them in a row.
