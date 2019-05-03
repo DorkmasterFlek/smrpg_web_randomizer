@@ -54,7 +54,7 @@ wish_strings = list(map(compress, [
     '\n\n     I hope can get out of level 3.',
     '\n\n     Wish I could count to 10',
     '\n     Oh,\n     I wish, I wish\n     I hadn\'t killed that fish.',
-    ' Like the moon over\n the day, me genius and brawn\n are lost on these fools. \x24Haiku'
+    ' Like the moon over\n the day, my genius and brawn\n are lost on these fools. \x24Haiku'
 ]))
 
 wish_dialogs = [
