@@ -18,6 +18,7 @@ from . import keys
 from . import map
 from . import spells
 from . import utils
+from . import dialogs
 from .patch import Patch
 
 # Current version number
@@ -252,6 +253,10 @@ class GameWorld:
         self.ball_solitaire = data.games.BallSolitaireGame(self)
         self.magic_buttons = data.games.MagicButtonsGame(self)
 
+        # String data.
+        self.wishes = data.dialogs.Wishes(self)
+        self.quiz = data.dialogs.Quiz(self)
+
     @property
     def open_mode(self):
         """Check if this game world is Open mode.
@@ -319,6 +324,7 @@ class GameWorld:
         keys.randomize_all(self)
         chests.randomize_all(self)
         games.randomize_all(self)
+        dialogs.randomize_all(self)
 
         # Rebuild hash after randomization.
         self._rebuild_hash()
@@ -458,6 +464,10 @@ class GameWorld:
             # Minigames
             patch += self.ball_solitaire.get_patch()
             patch += self.magic_buttons.get_patch()
+
+            # Dialogs
+            patch += self.wishes.get_patch()
+            patch += self.quiz.get_patch()
 
         # Unlock the whole map if in debug mode in standard.
         if self.debug_mode and not self.open_mode:

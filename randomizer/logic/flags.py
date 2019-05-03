@@ -777,8 +777,7 @@ class Minigames(Flag):
     options = [
         BallSolitaireShuffle,
         MagicButtonShuffle,
-        # TODO: Uncomment this when the quiz shuffle is implemented!
-        # QuizShuffle,
+        QuizShuffle,
     ]
 
 

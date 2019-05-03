@@ -11,3 +11,4 @@ from . import items
 from . import keys
 from . import locations
 from . import spells
+from . import dialogs
