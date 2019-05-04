@@ -43,7 +43,7 @@ def randomize_quiz(world):
     random_questions += random.sample(dialogs.backfill_questions, len(dialogs.quiz_dialogs) - len(random_questions))
 
     # Existing Questions
-    free_list = {0x22e082: 3953}
+    free_list = {0x22e082: 110}
     cruel_question_pointer = None
     for dialog_id, question in zip(dialogs.quiz_dialogs, random_questions):
         # Double check these
@@ -65,10 +65,10 @@ def randomize_quiz(world):
             string = dialogs.cruel_question
             base = allocate_string(len(string), free_list)
             if base:
-                world.quiz.questions.append((dialog_id, base, string))
                 cruel_question_pointer = base
+            # Okay, we're really out of memory here...
+            # Pretty sure len(first question) >= len(cruel_question)
             else:
-                # Okay, we're really out of memory here...
-                # Pretty sure len(first question) >= len(cruel_question)
                 _, cruel_question_pointer, __ = world.quiz.questions[0]
                 world.quiz.questions[0] = _, cruel_question_pointer, string
+            world.quiz.questions.append((dialog_id, cruel_question_pointer, None))
