@@ -43,9 +43,10 @@ def randomize_quiz(world):
         random_questions = questions
     random_questions += random.sample(dialogs.backfill_questions, len(dialogs.quiz_dialogs) - len(random_questions))
 
-    # Existing Questions and Axem dialog
-    free_list = {0x22e082: 3953, 0x22DBA5: 843}
-    free_list = {0x22e082: 150, 0x22DBA5: 0}
+    free_list = {
+        0x22E082: 3953, # Existing Questions
+        0x22DBA5: 843,  # Axem dialog
+    }
     cruel_question_pointer = None
     for dialog_id, question in zip(dialogs.quiz_dialogs, random_questions):
         # Double check these
