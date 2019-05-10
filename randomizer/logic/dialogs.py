@@ -12,7 +12,7 @@ def allocate_string(string_length, free_list):
             del free_list[base]
             free_list[base+string_length] = size - string_length
             return base
-         break
+            break
     else:
         return None
 
@@ -36,14 +36,16 @@ def randomize_wishes(world):
             world.wishes.wishes.append((dialog_id, 0x24000E, None))
 
 def randomize_quiz(world):
-    if len(dialogs.quiz_questions) > len(dialogs.quiz_dialogs):
-        random_questions = random.sample(dialogs.quiz_questions, len(dialogs.quiz_dialogs))
+    questions = dialogs.generate_rando_questions(world) + dialogs.quiz_questions
+    if len(questions) > len(dialogs.quiz_dialogs):
+        random_questions = random.sample(questions, len(dialogs.quiz_dialogs))
     else:
-        random_questions = dialogs.quiz_questions
+        random_questions = questions
     random_questions += random.sample(dialogs.backfill_questions, len(dialogs.quiz_dialogs) - len(random_questions))
 
-    # Existing Questions
-    free_list = {0x22e082: 110}
+    # Existing Questions and Axem dialog
+    free_list = {0x22e082: 3953, 0x22DBA5: 843}
+    free_list = {0x22e082: 150, 0x22DBA5: 0}
     cruel_question_pointer = None
     for dialog_id, question in zip(dialogs.quiz_dialogs, random_questions):
         # Double check these
@@ -62,13 +64,14 @@ def randomize_quiz(world):
         elif cruel_question_pointer:
             world.quiz.questions.append((dialog_id, cruel_question_pointer, None))
         else:
-            string = dialogs.cruel_question
-            base = allocate_string(len(string), free_list)
+            base = allocate_string(len(dialogs.cruel_question), free_list)
             if base:
                 cruel_question_pointer = base
+                string = dialogs.cruel_question
             # Okay, we're really out of memory here...
             # Pretty sure len(first question) >= len(cruel_question)
             else:
                 _, cruel_question_pointer, __ = world.quiz.questions[0]
                 world.quiz.questions[0] = _, cruel_question_pointer, string
-            world.quiz.questions.append((dialog_id, cruel_question_pointer, None))
+                string = None
+            world.quiz.questions.append((dialog_id, cruel_question_pointer, string))

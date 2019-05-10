@@ -1,5 +1,6 @@
 import random
 
+from randomizer.logic import flags
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 
@@ -131,7 +132,7 @@ class Quiz:
 
 class Question:
     def __init__(self, question, correct, wrong_1, wrong_2, name=''):
-        self.question = question + '\x03\n'         # 0x03 is a page break
+        self.question = question + '\x03'           # 0x03 is a page break
         self.correct = ' \x07  (' + correct + ')\n' # 0x07 is the select arrow
         self.wrong_1 = ' \x07  (' + wrong_1 + ')\n'
         self.wrong_2 = ' \x07  (' + wrong_2 + ')\n'
@@ -151,10 +152,22 @@ class Question:
         return compress(''.join([name, self.question] + answers))
 
 # Hand compacted...
-cruel_question = '?\x03\x01\x07\x081\x01\x07\x082\x01\x07\x083\x00'
+cruel_question = '?\x03\x07\x081\x01\x07\x082\x01\x07\x083\x00'
 quiz_questions = [
-    Question('What game gives\n you the Star Egg?', 'Look the other way', 'Blackjack', 'Pokemon', 'PatCdr')
+    Question('What game gives\nyou the Star Egg?', 'Look the other way', 'Blackjack', 'Pokemon', 'PatCdr'),
+    Question('Who is Yoshi\'s nemesis?', 'Boshi', 'Broshi', 'Raz', 'PatCdr'),
+    Question('What do you trade\nthe Shiny Stone for?', 'Carbo Cookie', 'Fireworks', 'A Frog Coin', 'PatCdr'),
+    Question('Which isn\'t a setting\non Monstro Town\'s Pinwheel?', 'Blow', 'Gust', 'Blast', 'PatCdr'),
 ]
+
+def generate_rando_questions(world):
+    acc = []
+    cake_right, cake_wrong = 'Vanilla', 'Chocolate'
+    if world.settings.is_flag_enabled(flags.PaletteSwaps):
+        cake_right, cake_wrong = 'Chocolate', 'Vanilla'
+    acc.append(Question('What flavor were\nRaspberry and Bundt?', cake_right, cake_wrong, 'Snozzberry', 'PatCdr'))
+    return acc
+
 
 backfill_questions = [
     Question('How much...does a\n female beetle cost?', '1 coin', '50 coins', 'A frog coin', 'DR. T'), # 0 1842
