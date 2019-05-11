@@ -469,6 +469,15 @@ class GameWorld:
             patch += self.wishes.get_patch()
             patch += self.quiz.get_patch()
 
+            # FIXME
+            # print(">>>>>>>> WISHES")
+            # for wish in self.wishes.wishes:
+            #     print(">>>>>>>>>>>>>>>> {}".format(wish))
+
+            # print(">>>>>>>> QUIZ")
+            # for question in self.quiz.questions:
+            #     print(">>>>>>>>>>>>>>>> {}".format(question))
+
         # Unlock the whole map if in debug mode in standard.
         if self.debug_mode and not self.open_mode:
             patch += map.unlock_world_map()
