@@ -777,7 +777,8 @@ class Minigames(Flag):
     options = [
         BallSolitaireShuffle,
         MagicButtonShuffle,
-        QuizShuffle,
+        # TODO: Uncomment this once we have enough original questions to justify it.
+        # QuizShuffle,
     ]
 
 
