@@ -47,12 +47,13 @@ def randomize_wishes(world):
         0x240958: 415,
         0x243e32: 80,
         0x24344d: 32,
+        0x22dba5: 843,  # Axem dialog
     }
     for dialog_id in dialogs.wish_dialogs:
         biggest_space = max(free_list.values())
         possible_wishes = [s for s in available_wishes if len(s) <= biggest_space]
         if not possible_wishes:
-            raise ValueError("Unable to allocate space for wishes: {!r}".format(world.wishes.wishes))
+            raise ValueError("Unable to allocate space for wishes: {!r}; {!r}".format(free_list, world.wishes.wishes))
 
         wish = random.choice(possible_wishes)
         base = allocate_string(len(wish), free_list)
@@ -80,8 +81,7 @@ def randomize_quiz(world):
     random.shuffle(random_questions)
 
     free_list = {
-        0x22E082: 3953,  # Existing Questions
-        0x22DBA5: 843,  # Axem dialog
+        0x22e082: 3953,  # Existing Questions
     }
     for dialog_id, question in zip(dialogs.quiz_dialogs, random_questions):
         # Randomize order of incorrect answers for some extra variety.

@@ -48,16 +48,20 @@ wish_strings = list(map(compress, [
     '\n\n    I wish for more wishes!',
     '\n\n    I wish for more wishbones!',
     '\n\n    I wish I was in this game.',
-    '\n\n    SMRPG is the best\nFinal Fantasy!',
-    '\n\n    I wish this was\nEcco the Dolphin.',
-    '\n\n    (Hope this is a better\nseed than last time)',
+    '\n\n    SMRPG is the best\n     Final Fantasy!',
+    '\n\n    I wish this was\n     Ecco the Dolphin.',
+    '\n\n    (Hope this is a better\n     seed than last time)',
     '\n\n    When\'s Marvel?',
     '\n\n    Come here often?',
-    '\n\n    Please let Culex\nbe at Hammer Bros.',
+    '\n\n    Please let Culex\n be at Hammer Bros.',
     '\n\n    I hope can get out of level 3.',
     '\n\n    Wish I could count to 10.',
+    '\n\n    I wish this seed would end.',
+    '\n\n    I wish there was a star piece here.',
+    '\n\n    I wish I was a tadpole.',
+    '\n\n    Geno for Smash!',
     '\n    Oh,\nI wish, I wish\nI hadn\'t killed that fish.',
-    'Like the moon over\nthe day, my genius and brawn\nare lost on these fools. \x24Haiku'
+    'Like the moon over\nthe day, my genius and brawn\nare lost on these fools. \x24Haiku',
 ]))
 
 wish_dialogs = [
@@ -204,6 +208,7 @@ def generate_rando_questions(world):
         Question('Who gets mad if you\nstand on their head?', 'Frogfucius', 'Johnny', 'Jinx'),
         Question('What does Bowser love\nthe scent of?', 'Boiling lava', 'Flower beds', 'Green donkeys'),
         Question('How many bolts hold together\nthe inner factory battlefield?', '4', '3', '5'),
+        Question('How much damage does a\nboosted Ice Bomb do\nagainst Czar Dragon?', '420', '210', '69'),
     ]
 
     # Dynamic cake question based on palette swap flag.
