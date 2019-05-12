@@ -19,27 +19,59 @@ def allocate_string(string_length, free_list):
 
 
 def randomize_all(world):
+    """
+
+    Args:
+        world (randomizer.logic.main.GameWorld):
+
+    """
     # Check flag?
-    randomize_wishes(world)
-    if world.settings.is_flag_enabled(flags.QuizShuffle):
-        randomize_quiz(world)
+    if world.open_mode:
+        randomize_wishes(world)
+        if world.settings.is_flag_enabled(flags.QuizShuffle):
+            randomize_quiz(world)
 
 
 def randomize_wishes(world):
-    random_wishes = random.sample(dialogs.wish_strings, len(dialogs.wish_dialogs))
+    """
+
+    Args:
+        world (randomizer.logic.main.GameWorld):
+
+    """
+    world.wishes.wishes.clear()
+    available_wishes = dialogs.wish_strings.copy()
 
     # These are the existing wishes.
-    free_list = {0x240958: 415, 0x243e32: 80, 0x24344d: 32}
-    for dialog_id, wish in zip(dialogs.wish_dialogs, random_wishes):
+    free_list = {
+        0x240958: 415,
+        0x243e32: 80,
+        0x24344d: 32,
+    }
+    for dialog_id in dialogs.wish_dialogs:
+        biggest_space = max(free_list.values())
+        possible_wishes = [s for s in available_wishes if len(s) <= biggest_space]
+        if not possible_wishes:
+            raise ValueError("Unable to allocate space for wishes: {!r}".format(world.wishes.wishes))
+
+        wish = random.choice(possible_wishes)
         base = allocate_string(len(wish), free_list)
+        available_wishes.remove(wish)
         # Wish strings should be short enough that this doesn't happen, but give us a traceback if it does.
         if not base:
             raise ValueError("Unable to allocate space for wish: {!r}".format(wish))
+
         world.wishes.wishes.append((dialog_id, base, wish))
 
 
 def randomize_quiz(world):
-    questions = dialogs.generate_rando_questions(world) + dialogs.quiz_questions
+    """
+
+    Args:
+        world (randomizer.logic.main.GameWorld):
+
+    """
+    questions = dialogs.generate_rando_questions(world)
     if len(questions) > len(dialogs.quiz_dialogs):
         random_questions = random.sample(questions, len(dialogs.quiz_dialogs))
     else:

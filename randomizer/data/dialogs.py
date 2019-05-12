@@ -41,22 +41,22 @@ def compress(string):
 #    other side and sometimes it softlocks the game. Definitely test these first
 #    before updating.
 wish_strings = list(map(compress, [
-    'I wish for fish.',
-    'I weesh for quiche.',
-    'I wish I was a little bit taller.',
-    'I wish I was a baller.',
-    'I wish for more wishes!',
-    'I wish for more wishbones!',
-    'I wish I was in this game.',
-    'SMRPG is the best\nFinal Fantasy!',
-    'I wish this was\nEcco the Dolphin.',
-    'Hope this is a better\nseed than last time.',
-    'When\'s Marvel?',
-    'Come here often?',
-    'Please let Culex\nbe at Hammer Bros.',
-    'I hope can get out of level 3.',
-    'Wish I could count to 10.',
-    'Oh,\nI wish, I wish\nI hadn\'t killed that fish.',
+    '\n\n    I wish for fish.',
+    '\n\n    I weesh for quiche.',
+    '\n\n    I wish I was a little bit taller.',
+    '\n\n    I wish I was a baller.',
+    '\n\n    I wish for more wishes!',
+    '\n\n    I wish for more wishbones!',
+    '\n\n    I wish I was in this game.',
+    '\n\n    SMRPG is the best\nFinal Fantasy!',
+    '\n\n    I wish this was\nEcco the Dolphin.',
+    '\n\n    (Hope this is a better\nseed than last time)',
+    '\n\n    When\'s Marvel?',
+    '\n\n    Come here often?',
+    '\n\n    Please let Culex\nbe at Hammer Bros.',
+    '\n\n    I hope can get out of level 3.',
+    '\n\n    Wish I could count to 10.',
+    '\n    Oh,\nI wish, I wish\nI hadn\'t killed that fish.',
     'Like the moon over\nthe day, my genius and brawn\nare lost on these fools. \x24Haiku'
 ]))
 
@@ -148,25 +148,70 @@ class Question:
         answers[index_1] = ' \x07  ' + self.wrong_answers[0] + '\n'
         answers[index_2] = ' \x07  ' + self.wrong_answers[1] + '\n'
         final_string = self.question + '\x03' + ''.join(answers)
-        final_string.rstrip('\n')
+        final_string = final_string[:-1]  # Remove trailing newline from final answer.
         return compress(final_string)
 
+    @property
+    def string_length(self):
+        return len(self.get_string(0))
 
-# New quiz questions we added.
-quiz_questions = [
-    Question('What game gives\nyou the Star Egg?', 'Look The Other Way', 'Blackjack', 'Pokemon'),
-    Question('Who is Yoshi\'s nemesis?', 'Boshi', 'Broshi', 'Raz'),
-    Question('What can you trade\nthe Shiny Stone for?', 'Carbo Cookie', 'Fireworks', 'A Frog Coin'),
-    Question('Which isn\'t a setting\non Monstro Town\'s Pinwheel?', 'Blow', 'Gust', 'Blast'),
-]
+    def __len__(self):
+        return self.string_length
 
 
 def generate_rando_questions(world):
-    acc = []
+    """Generate list of potential quiz questions based on the game world.
+
+    Args:
+        world (randomizer.logic.main.GameWorld):
+
+    Returns:
+        list[Question]: List of questions.
+
+    """
+    # New static quiz questions we added.
+    acc = [
+        Question('What game gives\nyou the Star Egg?', 'Look The Other Way', 'Blackjack', 'Pokemon'),
+        Question('Who is Yoshi\'s nemesis?', 'Boshi', 'Broshi', 'Raz'),
+        Question('What can you trade\nthe Shiny Stone for?', 'Carbo Cookie', 'Fireworks', 'A Frog Coin'),
+        Question('Which isn\'t a setting\non Monstro Town\'s Pinwheel?', 'Blow', 'Gust', 'Blast'),
+        Question('How does Mario taste?', 'Ack! Sour!', 'YES! THIS is YUMMY!', 'Mmm, tastes peachy...'),
+        Question('How does Mallow taste?', 'YES! THIS is YUMMY!', 'Mmm, tastes peachy...', 'Ack! Sour!'),
+        Question('How does Geno taste?', 'Bitter, but not bad...', 'Ack! Sour!', 'Yuck! How repulsive!'),
+        Question('How does Bowser taste?', 'Yuck! How repulsive!', 'Bitter, but not bad...', 'YES! THIS is YUMMY!'),
+        Question('How does Toadstool taste?', 'Mmm, tastes peachy...', 'YES! THIS is YUMMY!', 'Bitter, but not bad...'),
+        Question('Like the moon over\nthe day, my genius and brawn...', 'are lost on these fools.',
+                 'are hollow echoes.', 'are without equal.'),
+        Question('Which of these is NOT\na card for the Juice Bar?', 'Baritone Card', 'Tenor Card', 'Soprano Card'),
+        Question('What type of clothes\nare normally sold\nin Nimbus Land?', 'Fuzzy', 'Happy', 'Thick'),
+        Question('Where did Samus Aran\nstay the night?', 'Mushroom Kingdom', 'Rose Town', 'Nimbus Land'),
+        Question('Where did Link\nstay the night?', 'Rose Town', 'Mushroom Kingdom', 'Nimbus Land'),
+        Question('Which enemy uses Blast?', 'Earth Crystal', 'Wind Crystal', 'Fire Crystal'),
+        Question('Which enemy uses Drain?', 'Fire Crystal', 'Wind Crystal', 'Earth Crystal'),
+        Question('Which enemy uses Light Beam?', 'Wind Crystal', 'Water Crystal', 'Earth Crystal'),
+        Question('Which enemy uses Crystal?', 'Water Crystal', 'Wind Crystal', 'Fire Crystal'),
+        Question('Which equip allows you to\njump through enemy defenses?', 'Jump Shoes', 'Zoom Shoes', 'Spring Shoes'),
+        Question('How many wishes\ncan you interact with\non Star Hill?', '12', '10', '15'),
+        Question('Jawful is...?', 'Sleeping', 'Enraptured', 'Ready to launch!'),
+        Question('Valentina\'s hair is\nmade of a...?', 'Parrot', 'Plant', 'Octopus'),
+        Question('Who knocks out Mario?', 'Gaz', 'Raz', 'Garro'),
+        Question('Was does Dyna get\ninto the business of?', 'Trading', 'Selling items', 'Giving hints'),
+        Question('Who summons Bahamutt?', 'Magikoopa', 'Belome', 'Box Boy'),
+        Question('The Gardener wants to hit\nthe lottery without what?', 'Paying taxes', 'Skiing',
+                 'Getting his picture taken'),
+        Question('Who is the cloud enemy\nin Land\'s End?', 'Mokura', 'Bokura', 'Goku'),
+        Question('The only hidden chest\nin this randomizer is where?', 'Sunken Ship', 'Factory', 'Rose Way'),
+        Question('Who gets mad if you\nstand on their head?', 'Frogfucius', 'Johnny', 'Jinx'),
+        Question('What does Bowser love\nthe scent of?', 'Boiling lava', 'Flower beds', 'Green donkeys'),
+        Question('How many bolts hold together\nthe inner factory battlefield?', '4', '3', '5'),
+    ]
+
+    # Dynamic cake question based on palette swap flag.
     cake_right, cake_wrong = 'Vanilla', 'Chocolate'
     if world.settings.is_flag_enabled(flags.PaletteSwaps):
         cake_right, cake_wrong = 'Chocolate', 'Vanilla'
     acc.append(Question('What flavor were Raspberry and Bundt?', cake_right, cake_wrong, 'Snozzberry'))
+
     return acc
 
 
@@ -177,6 +222,7 @@ backfill_questions = [
     Question('What is Raini\'s\nhusband\'s name?', 'Raz', 'Romeo', 'Gaz'),
     Question('What\'s the name of\nthe boss at the Sunken Ship?', 'Johnny', 'Jimmy', 'Jackson'),
     Question('Booster is what\ngeneration?', '7th', '8th', '78th'),
+    Question('Where is the 3rd\nStar Piece normally found?', 'Moleville', 'Forest Maze', 'Star Hill'),
     Question('Johnny loves WHICH\nbeverage?...', 'Currant juice', 'Grape juice', 'Boysenberry smoothie'),
     Question('In the Moleville blues,\nit\'s said that the moles are\ncovered in what?', 'Soil', 'Dirt', 'Slugs'),
     Question('What color are the\ncurtains in Mario\'s house?', 'Blue', 'Green', 'Red'),
@@ -196,7 +242,7 @@ backfill_questions = [
     Question('Which monster does\nnot appear in Booster Tower?', 'Terrapin', 'Jester', 'Bob-omb'),
     Question('The boy getting his\npicture taken at Marrymore\ncan\'t wait \'til which season?', 'Skiing', 'Hunting',
              'Baseball'),
-    Question('What technique does\nBowser learn at Level 15?', 'Crusher', 'Bowser Crush', 'Terrorize'),
+    Question('What technique does Bowser\nnormally learn at Level 15?', 'Crusher', 'Bowser Crush', 'Terrorize'),
     Question('What words does\nShy Away use when he sings?', 'La dee dah:', 'Dum dee dah:', 'Dum lee lah:'),
     Question('What does Birdo\ncome out of?', 'An eggshell', 'A barrel', 'A basket'),
     Question('What\'s the first\nmonster you see in the Pipe Vault?', 'Sparky', 'Goomba', 'Chompweed'),
@@ -211,6 +257,7 @@ backfill_questions = [
     Question('What is the 4th\nselection on the Menu screen?', 'Equip', 'Important Items', 'Special Items'),
     Question('The man getting his\npicture taken at Marrymore\nhates what?', 'Getting his picture taken',
              'Getting married', 'Mowing the lawn on Sundays'),
+    Question('Where is the 1st\nStar Piece normally found?', 'Mushroom Kingdom', 'Bowser\'s Keep', 'Mario\'s Pad'),
     Question('How many legs does\nWiggler have?', '6', '10', '8'),
     Question('What\'s the full name\nof the boss at the Sunken Ship?', 'Jonathan Jones', 'Johnny Jones',
              'Jesse James Jones'),
