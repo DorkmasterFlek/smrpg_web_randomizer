@@ -82,8 +82,9 @@ class Reward(locations.ItemLocation):
     """Subclass for NPC reward location."""
 
     def item_allowed(self, item):
+        # NPC rewards cannot contain "You Missed!" or chest-only rewards.
         # FIXME: Non-KI NPC rewards don't work with progressive cards for now.  Remove this when fixed.
-        return super().item_allowed(item) and not isclass_or_instance(item, items.AltoCard)
+        return super().item_allowed(item) and not isclass_or_instance(item, (items.AltoCard, items.ChestReward))
 
 
 class TreasureSellerReward(Reward):

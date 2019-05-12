@@ -72,12 +72,16 @@ def randomize_all(world):
                 for i in world.items:
                     if chest.item.index == i.index:
                         tiered_item = i
-                if (((chest.item in coins and not coins_allowed) or (chest.item in stars and not stars_allowed) or
-                     (chest.item == items.Flower and not flowers_allowed) or
-                     (chest.item == items.RecoveryMushroom and not mushrooms_allowed) or
-                     (chest.item == items.FrogCoin and not frogcoins_allowed) or
-                     (tiered_item and tiered_item.hard_tier > tiers_allowed)) and chest.item_allowed(items.YouMissed)):
-                    chest.item = items.YouMissed
+                if ((chest.item in coins and not coins_allowed) or (chest.item in stars and not stars_allowed) or
+                        (chest.item == items.Flower and not flowers_allowed) or
+                        (chest.item == items.RecoveryMushroom and not mushrooms_allowed) or
+                        (chest.item == items.FrogCoin and not frogcoins_allowed) or
+                        (tiered_item and tiered_item.hard_tier > tiers_allowed)):
+                    # Put "You Missed!" empty item if allowed, otherwise just put some coins if this spot is empty.
+                    if chest.item_allowed(items.YouMissed):
+                        chest.item = items.YouMissed
+                    elif chest.item_allowed(items.Mushroom):
+                        chest.item = items.Mushroom
 
         # Empty chests.
         elif world.settings.is_flag_enabled(flags.ChestShuffleEmpty):
