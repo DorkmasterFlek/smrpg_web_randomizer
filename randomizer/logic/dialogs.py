@@ -72,6 +72,7 @@ def randomize_quiz(world):
         world (randomizer.logic.main.GameWorld):
 
     """
+    world.quiz.questions.clear()
     questions = dialogs.generate_rando_questions(world)
     if len(questions) > len(dialogs.quiz_dialogs):
         random_questions = random.sample(questions, len(dialogs.quiz_dialogs))
