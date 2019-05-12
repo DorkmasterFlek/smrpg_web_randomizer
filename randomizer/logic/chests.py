@@ -144,14 +144,16 @@ def randomize_all(world):
                             chest.item = random.choice([star for star in stars])
                         finished_chests.append(chest)
                         eligible_chests.remove(chest)
-                        #Don't allow 2 stars in same bandits way room
-                        if (isinstance(chest, chests.BanditsWayStarChest) or isinstance(chest, chests.BanditsWayDogJump)):
+                        # Don't allow 2 stars in same bandits way room
+                        if (isinstance(chest, chests.BanditsWayStarChest) or
+                                isinstance(chest, chests.BanditsWayDogJump)):
                             for c in eligible_chests:
-                                if (isinstance(c, chests.BanditsWayStarChest) or isinstance(c, chests.BanditsWayDogJump)):
+                                if (isinstance(c, chests.BanditsWayStarChest) or
+                                        isinstance(c, chests.BanditsWayDogJump)):
                                     eligible_chests.remove(c)
                                     num_stars -= 1
                 else:
-                    eligible_chests = [chest for chest in world.chest_locations if 201 <= chest.item.index and chest.item.index <= 208]
+                    eligible_chests = [chest for chest in world.chest_locations if 201 <= chest.item.index <= 208]
                     for chest in eligible_chests:
                         finished_chests.append(chest)
                     for chest in eligible_chests:
@@ -322,10 +324,10 @@ def randomize_all(world):
                 # This excludes the Monstro Town locations if the M flag is on above.
                 if not world.settings.is_flag_enabled(flags.ChestExcludeRewards):
                     chest_locations = [l for l in world.chest_locations if l not in finished_chests and
-                                   keys.item_location_filter(world, l)]
+                                       keys.item_location_filter(world, l)]
                 else:
                     chest_locations = [l for l in world.chest_locations if l not in finished_chests and
-                                   keys.item_location_filter(world, l) and not isinstance(l, chests.Reward)]
+                                       keys.item_location_filter(world, l) and not isinstance(l, chests.Reward)]
 
                 eligible_key_locations = key_item_locations + chest_locations
 
@@ -473,7 +475,12 @@ def randomize_all(world):
                 finished_chests.append(chest)
                 eligible_chests.remove(chest)
 
-            if not world.settings.is_flag_enabled(flags.ChestExcludeRewards):
+            # If we excluded rewards, remove any reward spots that still have items.  Keep those that are empty because
+            # they are left over key item locations from the shuffle above and do need items placed there!
+            if world.settings.is_flag_enabled(flags.ChestExcludeRewards):
+                eligible_rewards = [r for r in eligible_rewards if not r.has_item]
+
+            if eligible_rewards:
                 while len(eligible_rewards) > 0:
                     chest = random.choice(eligible_rewards)
 
