@@ -105,6 +105,12 @@ class IncludeSeedFertilizer(Flag):
     value = 'Ks'
     modes = ['open']
 
+class IncludeBrightCard(Flag):
+    name = 'Include Bright Card'
+    description = 'The **Bright Card** will be included in the key item shuffle.'
+    inverse_description = "(The Bright Card is not a key item, and can be found in Booster's Tower after completing it.)"
+    value = 'Kb'
+    modes = ['open']
 
 class KeyItemShuffle(Flag):
     name = 'Randomize key items'
@@ -118,6 +124,7 @@ class KeyItemShuffle(Flag):
     modes = ['open']
     options = [
         IncludeSeedFertilizer,
+        IncludeBrightCard
     ]
 
 
@@ -893,6 +900,12 @@ class RandomizeBowsersKeep(Flag):
     modes = ['open']
     value = '@D'
 
+class CasinoWarp(Flag):
+    name = "Enable Factory Warp"
+    description = "Once you collect all your Star Pieces, you can talk to Grate Guy to warp directly to the final boss."
+    inverse_description = "(There is no factory warp in Grate Guy's Casino.)"
+    value = 'W'
+
 class PaletteSwaps(Flag):
     name = 'Palette Swaps'
     description = 'Your party members get a change of wardrobe!'
@@ -976,7 +989,8 @@ class TweaksCategory(FlagCategory):
     flags = [
         Glitches,
         PoisonMushroom,
-        RandomizeBowsersKeep
+        RandomizeBowsersKeep,
+        CasinoWarp
     ]
 
 

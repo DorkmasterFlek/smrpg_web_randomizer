@@ -108,6 +108,11 @@ class BoosterTowerCheckerboard(KeyItemLocation):
     item = items.RoomKey
     access = 2
 
+class KnifeGuy(KeyItemLocation):
+    area = locations.Area.BoosterTower
+    addresses = [0x1ffb57]
+    item = items.BrightCard
+    access = 2
 
 class SeasideTownKey(KeyItemLocation):
     area = locations.Area.SeasideTown
@@ -184,6 +189,7 @@ def get_default_key_item_locations(world):
         Croco2(world),
         BoosterTowerAncestors(world),
         BoosterTowerCheckerboard(world),
+        KnifeGuy(world),
         SeasideTownKey(world),
         MonstroTownKey(world),
         Seed(world),
