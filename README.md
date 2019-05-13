@@ -22,7 +22,7 @@ I would recommend making a virtual environment using something like virtualenv, 
 
    ```> cp example_local.py local_settings.py```
 
-1. Change `local_settings.py` as needed.  Generally the only thing that would be different in your deployment is the database settings.  The default is a local SQLite file, but I recommend something more robust, ex. PostgreSQL.
+1. Change `local_settings.py` as needed.  Generally the only thing that would be different in your deployment is the database settings.  The default is a local SQLite file.  This is fine for local development, but I recommend something more robust for production, ex. PostgreSQL.
 
 1. Run all migrations for your database:
 
