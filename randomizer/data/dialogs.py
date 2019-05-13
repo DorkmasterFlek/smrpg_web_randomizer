@@ -208,7 +208,7 @@ def generate_rando_questions(world):
         Question('Who gets mad if you\nstand on their head?', 'Frogfucius', 'Johnny', 'Jinx'),
         Question('What does Bowser love\nthe scent of?', 'Boiling lava', 'Flower beds', 'Green donkeys'),
         Question('How many bolts hold together\nthe inner factory battlefield?', '4', '3', '5'),
-        Question('How much damage does a\nboosted Ice Bomb do\nagainst Czar Dragon?', '420', '210', '69'),
+        Question('How much damage does a\nboosted Ice Bomb normally do\nagainst Czar Dragon?', '420', '210', '69'),
     ]
 
     # Dynamic cake question based on palette swap flag.
