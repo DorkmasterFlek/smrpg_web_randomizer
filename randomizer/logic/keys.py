@@ -39,6 +39,11 @@ def item_location_filter(world, location):
             not world.settings.is_flag_enabled(flags.IncludeSeedFertilizer)):
         return False
 
+    # Don't include Bright Card spot unless enabled.
+    if (isinstance(location, keys.KnifeGuy) and
+            not world.settings.is_flag_enabled(flags.IncludeBrightCard)):
+        return False
+
     # Check if including chests.
     if (isinstance(location, (chests.Chest, chests.Reward)) and
             not world.settings.is_flag_enabled(flags.ChestIncludeKeyItems)):
@@ -104,6 +109,7 @@ def _place_items(world, items, locations, base_inventory=None):
 
         # Place item in the first fillable location.
         fillable_locations[0].item = item
+
 
 
 def _collect_items(world, collected=None):

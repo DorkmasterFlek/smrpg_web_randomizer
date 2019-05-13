@@ -101,8 +101,16 @@ class StarPieceShuffle(Flag):
 class IncludeSeedFertilizer(Flag):
     name = 'Include Seed and Fertilizer'
     description = 'The **Seed** and **Fertilizer** will be included in the key item shuffle.'
-    inverse_description = "(The Seed and Fertilizer are not key items, and can be found in their original locations.)"
+    inverse_description = "(The Seed and Fertilizer can be found in their original locations.)"
     value = 'Ks'
+    modes = ['open']
+
+
+class IncludeBrightCard(Flag):
+    name = 'Include Bright Card'
+    description = 'The **Bright Card** will be included in the key item shuffle.'
+    inverse_description = "(The Bright Card can be found in Booster's Tower after completing it.)"
+    value = 'Kb'
     modes = ['open']
 
 
@@ -118,6 +126,7 @@ class KeyItemShuffle(Flag):
     modes = ['open']
     options = [
         IncludeSeedFertilizer,
+        IncludeBrightCard,
     ]
 
 
@@ -170,7 +179,7 @@ class ChooseStartingCharacter(Flag):
     name = 'Choose starting character'
     value = '@starting'
     choices = [
-        # TODO
+        # TODO: Add options for this when we add the "no free characters" option.
     ]
 
 
@@ -900,13 +909,20 @@ class RandomizeBowsersKeep(Flag):
         BowsersKeep3,
         BowsersKeep4,
         BowsersKeep5,
-        BowsersKeep6
+        BowsersKeep6,
     ]
     options = [
         ShuffleBowsersKeep
     ]
     modes = ['open']
     value = '@D'
+
+
+class CasinoWarp(Flag):
+    name = "Enable Factory Warp"
+    description = "Once you collect all your Star Pieces, you can talk to Grate Guy to warp directly to the final boss."
+    inverse_description = "(There is no factory warp in Grate Guy's Casino.)"
+    value = 'W'
 
 
 class PaletteSwaps(Flag):
@@ -993,7 +1009,8 @@ class TweaksCategory(FlagCategory):
     flags = [
         Glitches,
         PoisonMushroom,
-        RandomizeBowsersKeep
+        RandomizeBowsersKeep,
+        CasinoWarp,
     ]
 
 
