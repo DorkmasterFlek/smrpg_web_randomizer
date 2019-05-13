@@ -8,7 +8,7 @@ If you came here just looking to use the randomizer to generate games, head to [
 
 ## Install Python
 
-This app is written in Python 3, which is sort of implied by the requirements since Django 2.0 and beyond don't support Python 2 any longer.  You should install the latest version of Python 3, which is 3.6.4 at the time of this writing.
+This app is written in Python 3, which is sort of implied by the requirements since Django 2.0 and beyond doesn't support Python 2 any longer.  You should install the latest version of Python 3 on your system, [instructions available on the official site](https://www.python.org).
 
 ## Installing required packages
 
