@@ -204,11 +204,15 @@ def generate_rando_questions(world):
         Question('The Gardener wants to hit\nthe lottery without what?', 'Paying taxes', 'Skiing',
                  'Getting his picture taken'),
         Question('Who is the cloud enemy\nin Land\'s End?', 'Mokura', 'Bokura', 'Goku'),
-        Question('The only hidden chest\nin this randomizer is where?', 'Sunken Ship', 'Factory', 'Rose Way'),
         Question('Who gets mad if you\nstand on their head?', 'Frogfucius', 'Johnny', 'Jinx'),
         Question('What does Bowser love\nthe scent of?', 'Boiling lava', 'Flower beds', 'Green donkeys'),
         Question('How many bolts hold together\nthe inner factory battlefield?', '4', '3', '5'),
         Question('How much damage does a\nboosted Ice Bomb normally do\nagainst Czar Dragon?', '420', '210', '69'),
+        Question('What snake boss does\nDomino join up with?', 'Mad Adder', 'Earthlink', 'Culex'),
+        Question('Who is NOT a hidden\nchest boss?', 'Fautso', 'Box Boy', 'Chester'),
+        Question('What is Geno\'s move\nthat knocks out Mario?', 'Shooting Star Shot', 'Special Beam Cannon',
+                 'Spirit Gun'),
+        Question('Vat ist zee name of\nzee cake you fight\nin Marrymore?', 'Bundt', 'German Chocolate', 'Pound'),
     ]
 
     # Dynamic cake question based on palette swap flag.
