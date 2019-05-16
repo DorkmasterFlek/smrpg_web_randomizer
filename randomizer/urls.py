@@ -25,4 +25,5 @@ urlpatterns = [
 
     # API
     path('api/v1/generate', views.APIGenerateView.as_view(), name='api-v1-generate'),
+    path('api/v1/flags', views.APIFlags.as_view(), name='api-v1-flags'),
 ]

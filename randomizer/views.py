@@ -30,34 +30,47 @@ from .logic.patch import PatchJSONEncoder
 logger = logging.getLogger(__name__)
 
 
+def _build_flag_json_data(flag, parent_modes=None):
+    """
+
+    Args:
+        flag (randomizer.logic.flags.Flag): Flag class to build JSON data for.
+        parent_modes (list[str]): Modes of the parent flag to restrict the child to.
+
+    Returns:
+        dict: Flag data.
+
+    """
+    modes = flag.modes.copy()
+    if parent_modes is not None:
+        modes = list(set(modes) & set(parent_modes))
+
+    d = {
+        'value': flag.value,
+        'modes': modes,
+        'choices': [],
+        'options': [],
+    }
+    for choice in flag.choices:
+        d['choices'].append(_build_flag_json_data(choice, parent_modes=modes))
+    for option in flag.options:
+        d['options'].append(_build_flag_json_data(option, parent_modes=modes))
+
+    return d
+
+
+# Build JSON representation of flag hierarchy.
+FLAGS = []
+for category in CATEGORIES:
+    for flag in category.flags:
+        FLAGS.append(_build_flag_json_data(flag))
+
+
 class RandomizerView(TemplateView):
     """
     Base class for views that generate a ROM, i.e. randomizer and patch-from-hash views.
     This gets common context data.
     """
-
-    def _build_flag_json_data(self, flag):
-        """
-
-        Args:
-            flag (randomizer.logic.flags.Flag): Flag class to build JSON data for.
-
-        Returns:
-            dict: Flag data.
-
-        """
-        d = {
-            'value': flag.value,
-            'modes': flag.modes,
-            'choices': [],
-            'options': [],
-        }
-        for choice in flag.choices:
-            d['choices'].append(self._build_flag_json_data(choice))
-        for option in flag.options:
-            d['options'].append(self._build_flag_json_data(option))
-
-        return d
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -66,13 +79,7 @@ class RandomizerView(TemplateView):
         context['beta_site'] = settings.BETA
         context['categories'] = CATEGORIES
         context['presets'] = PRESETS
-
-        # Build JSON representation of flag hierarchy.
-        flags = []
-        for category in CATEGORIES:
-            for flag in category.flags:
-                flags.append(self._build_flag_json_data(flag))
-        context['flags'] = flags
+        context['flags'] = FLAGS
 
         return context
 
@@ -363,3 +370,12 @@ class APIGenerateView(GenerateView):
             except json.JSONDecodeError:
                 logger.error("APIGenerateView got bad request body: {!r}".format(self.request.body))
         return kwargs
+
+
+class APIFlags(View):
+    @staticmethod
+    def get(request):
+        data = {
+            'flags': FLAGS,
+        }
+        return JsonResponse(data)
