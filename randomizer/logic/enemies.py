@@ -357,3 +357,7 @@ def randomize_all(world):
         for enemy in world.enemies:
             if enemy.boss:
                 enemy.death_immune = True
+
+    # If palette swap is enabled, give us a 50/50 chance at a chocolate cake.
+    if world.settings.is_flag_enabled(flags.PaletteSwaps):
+        world.chocolate_cake = utils.coin_flip()
