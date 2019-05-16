@@ -22,7 +22,7 @@ from . import utils
 from .patch import Patch
 
 # Current version number
-VERSION = '8.1.0'
+VERSION = '8.1.1'
 
 
 class Settings:
@@ -209,6 +209,9 @@ class GameWorld:
         self.file_select_character = 'Mario'
         self.file_select_hash = 'MARIO1 / MARIO2 / MARIO3 / MARIO4'
         self._rebuild_hash()
+
+        # Bundt palette swap flag.
+        self.chocolate_cake = False
 
         # *** Get vanilla data for randomizing.
         # Characters
@@ -502,10 +505,10 @@ class GameWorld:
 
             patch.add_data(0x1FF459, [0xD2, 0x67, 0xF4, 0xD0, 0x48, 0x08])
 
-            originalEventAddress = 0x1FF467
-            start9BAddress = 0x1FF45F
-            i = start9BAddress
-            while i < originalEventAddress:
+            original_event_address = 0x1FF467
+            start9_b_address = 0x1FF45F
+            i = start9_b_address
+            while i < original_event_address:
                 patch.add_data(i, 0x9B)
                 i += 1
 
@@ -513,15 +516,17 @@ class GameWorld:
             patch.add_data(0x1F7A4D,
                            [0x60, 0x80, 0xAB, 0xC0, 0x66, 0x58, 0x7A, 0xD2, 0x67, 0xF4, 0xFE, 0x74, 0xD0, 0xCF, 0x0E,
                             0xFE])
-            originalEndAddress = 0x1F7A90
-            start9BAddress = 0x1F7A5D
-            i = start9BAddress
-            while i <= originalEndAddress:
+            original_end_address = 0x1F7A90
+            start9_b_address = 0x1F7A5D
+            i = start9_b_address
+            while i <= original_end_address:
                 patch.add_data(i, 0x9B)
                 i += 1
 
-            #dialog
-            patch.add_data(0x23D3CE, [0x44, 0x6F, 0x0F, 0x20, 0x77, 0x61, 0x6E, 0x74, 0x11, 0x67, 0x6F, 0x11, 0x53, 0x6D, 0x69, 0x74, 0x68, 0x79, 0x3F, 0x02, 0x08, 0x07, 0x20, 0x28, 0x4E, 0x6F, 0x29, 0x01, 0x08, 0x07, 0x20, 0x28, 0x59, 0x65, 0x73, 0x29, 0x00])
+            # Dialog
+            patch.add_data(0x23D3CE, [0x44, 0x6F, 0x0F, 0x20, 0x77, 0x61, 0x6E, 0x74, 0x11, 0x67, 0x6F, 0x11, 0x53,
+                                      0x6D, 0x69, 0x74, 0x68, 0x79, 0x3F, 0x02, 0x08, 0x07, 0x20, 0x28, 0x4E, 0x6F,
+                                      0x29, 0x01, 0x08, 0x07, 0x20, 0x28, 0x59, 0x65, 0x73, 0x29, 0x00])
 
         # Choose character for the file select screen.
         i = int(self.hash, 16) % 5
