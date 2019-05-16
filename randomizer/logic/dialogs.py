@@ -47,7 +47,8 @@ def randomize_wishes(world):
         0x240958: 415,
         0x243e32: 80,
         0x24344d: 32,
-        0x22dba5: 843,  # Axem dialog
+        0x240e2a: 1349,  # Factory gate dialog
+        # 0x22dba5: 843,  # Axem dialog (possibly problematic to use, text here gets cut weird???)
     }
     for dialog_id in dialogs.wish_dialogs:
         biggest_space = max(free_list.values())
@@ -73,7 +74,7 @@ def randomize_quiz(world):
 
     """
     world.quiz.questions.clear()
-    questions = dialogs.generate_rando_questions(world)
+    questions = dialogs.get_quiz_questions()
     if len(questions) > len(dialogs.quiz_dialogs):
         random_questions = random.sample(questions, len(dialogs.quiz_dialogs))
     else:

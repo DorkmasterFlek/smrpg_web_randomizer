@@ -55,13 +55,25 @@ wish_strings = list(map(compress, [
     '\n\n    Come here often?',
     '\n\n    Please let Culex\n be at Hammer Bros.',
     '\n\n    I hope can get out of level 3.',
-    '\n\n    Wish I could count to 10.',
+    '\n\n    I wish I could\n    count to 10.',
     '\n\n    I wish this seed would end.',
-    '\n\n    I wish there was a star piece here.',
+    '\n\n    I wish there was a\n    star piece here.',
     '\n\n    I wish I was a tadpole.',
-    '\n\n    Geno for Smash!',
+    '\n\n    I wish Geno was in Smash.',
     '\n    Oh,\nI wish, I wish\nI hadn\'t killed that fish.',
     'Like the moon over\nthe day, my genius and brawn\nare lost on these fools. \x24Haiku',
+    '\n\n    Escalators, escalators,\n    escalators.....\n    ...eeeeeeeels...',
+    '\n\n    I wish someone would come\n    visit me and my crystal\n    pals in Monstrotown.',
+    '\n\n    I wish Pain Man was\n    in this game... ',
+    '\n\n    I wish I could\n    get a sub-3:00.',
+    '\n\n    I wish I was an\n    Oscar Mayer weiner.',
+    '\n\n    I wish I could share\n    my wisdom with the world.',
+    '\n\n    I wish Mario would\n    stop skipping me!\n    ~Mack',
+    '\n\n    One of the most important\n    skills you can have\n    is just being lucky!',
+    '\n\n    I wish someone would\n    play randomizers with me.',
+    '\n\n    I wish Nintendo would\n    return to Paper Mario 64\n    and The Thousand-Year Door.',
+    '\n\n    I wish somebody would\n    stop rearranging the\n    stock in my store!',
+    '\n\n    I wish we raced using\n    currency that wasn\'t\n    also food.'
 ]))
 
 wish_dialogs = [
@@ -163,11 +175,8 @@ class Question:
         return self.string_length
 
 
-def generate_rando_questions(world):
-    """Generate list of potential quiz questions based on the game world.
-
-    Args:
-        world (randomizer.logic.main.GameWorld):
+def get_quiz_questions():
+    """Get new list of potential quiz questions for the randomizer.
 
     Returns:
         list[Question]: List of questions.
@@ -199,12 +208,12 @@ def generate_rando_questions(world):
         Question('Jawful is...?', 'Sleeping', 'Enraptured', 'Ready to launch!'),
         Question('Valentina\'s hair is\nmade of a...?', 'Parrot', 'Plant', 'Octopus'),
         Question('Who knocks out Mario?', 'Gaz', 'Raz', 'Garro'),
-        Question('Was does Dyna get\ninto the business of?', 'Trading', 'Selling items', 'Giving hints'),
+        Question('What does Dyna get\ninto the business of?', 'Trading', 'Selling items', 'Giving hints'),
         Question('Who summons Bahamutt?', 'Magikoopa', 'Belome', 'Box Boy'),
         Question('The Gardener wants to hit\nthe lottery without what?', 'Paying taxes', 'Skiing',
                  'Getting his picture taken'),
         Question('Who is the cloud enemy\nin Land\'s End?', 'Mokura', 'Bokura', 'Goku'),
-        Question('Who gets mad if you\nstand on their head?', 'Frogfucius', 'Johnny', 'Jinx'),
+        Question('Who gets mad if you\nstand on their head?', 'Johnny', 'Frogfucius', 'Jinx'),
         Question('What does Bowser love\nthe scent of?', 'Boiling lava', 'Flower beds', 'Green donkeys'),
         Question('How many bolts hold together\nthe inner factory battlefield?', '4', '3', '5'),
         Question('How much damage does a\nboosted Ice Bomb normally do\nagainst Czar Dragon?', '420', '210', '69'),
@@ -213,13 +222,11 @@ def generate_rando_questions(world):
         Question('What is Geno\'s move\nthat knocks out Mario?', 'Shooting Star Shot', 'Special Beam Cannon',
                  'Spirit Gun'),
         Question('Vat ist zee name of\nzee cake you fight\nin Marrymore?', 'Bundt', 'German Chocolate', 'Pound'),
+        Question('How many more points in\nGoomba Thumping are needed\nto win another reward?', '2', '4', '6'),
+        Question('How many hidden treasure\nchests are in the\nvanilla game?', '39', '38', '40'),
+        Question('Which accessory does NOT\nprovide an attack boost\nto the equipped character?', 'Ghost Medal',
+                 'Troopa Pin ', 'Quartz Charm'),
     ]
-
-    # Dynamic cake question based on palette swap flag.
-    cake_right, cake_wrong = 'Vanilla', 'Chocolate'
-    if world.settings.is_flag_enabled(flags.PaletteSwaps):
-        cake_right, cake_wrong = 'Chocolate', 'Vanilla'
-    acc.append(Question('What flavor were Raspberry and Bundt?', cake_right, cake_wrong, 'Snozzberry'))
 
     return acc
 
