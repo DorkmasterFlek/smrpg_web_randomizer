@@ -2,7 +2,6 @@
 
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
-from randomizer.data import palettes
 
 from . import spells
 
@@ -272,13 +271,12 @@ class Character:
                 patch.add_data(level_addr, utils.ByteField(self.learned_spells[level].index).as_bytes())
             else:
                 patch.add_data(level_addr, utils.ByteField(0xff).as_bytes())
-                
-                
+
         if self.palette:
-            def parseColours(colours):
-                bytes = [];
+            def parse_colours(colours):
+                data = []
                 for colour in colours:
-                    #sanitize to multiples of 8
+                    # Sanitize to multiples of 8
                     r = 8 * round(int(colour[0:2], 16) / 8)
                     g = 8 * round(int(colour[2:4], 16) / 8)
                     b = 8 * round(int(colour[4:6], 16) / 8)
@@ -290,21 +288,21 @@ class Character:
                     b = format(b, 'x').zfill(2)
                     bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
                     bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
-                    bytes.append(hex(int(bytestring1, 16)))
-                    bytes.append(hex(int(bytestring2, 16)))
-                return bytes
-            
-            colourbytes = parseColours(self.palette.colours)
-            poisonbytes = parseColours(self.palette.poison_colours)
-            underwaterbytes = parseColours(self.palette.underwater_colours)
+                    data.append(int(bytestring1, 16))
+                    data.append(int(bytestring2, 16))
+                return data
+
+            colourbytes = parse_colours(self.palette.colours)
+            poisonbytes = parse_colours(self.palette.poison_colours)
+            underwaterbytes = parse_colours(self.palette.underwater_colours)
             for address in self.palette.starting_addresses:
                 patch.add_data(address, colourbytes)
             for address in self.palette.poison_addresses:
                 patch.add_data(address, poisonbytes)
             for address in self.palette.underwater_addresses:
                 patch.add_data(address, underwaterbytes)
-            
-            if (self.palette.rename_character):
+
+            if self.palette.rename_character:
                 name = self.palette.name
                 clone_name = self.palette.name.upper()
                 while len(name) < 10:
@@ -412,12 +410,11 @@ class Mario(Character):
         patch = super().get_patch()
 
         def special_palette(colours, address):
-            colourbytes = [];
             for j in range(0, len(colours)):
                 i = colours[j]
-                if not (i == None):
+                if i is not None:
                     colour = self.palette.colours[i]
-                    #sanitize to multiples of 8
+                    # Sanitize to multiples of 8
                     r = 8 * round(int(colour[0:2], 16) / 8)
                     g = 8 * round(int(colour[2:4], 16) / 8)
                     b = 8 * round(int(colour[4:6], 16) / 8)
@@ -429,16 +426,14 @@ class Mario(Character):
                     b = format(b, 'x').zfill(2)
                     bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
                     bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
-                    colourbytes.append(hex(int(bytestring1, 16)))
-                    colourbytes.append(hex(int(bytestring2, 16)))
                     patch.add_data(address + j*2, [int(bytestring1, 16), int(bytestring2, 16)])
 
-
-        if not self.palette is None:
+        if self.palette is not None:
             special_palette([0, 1, 2, 3, 4, 6, 7, 8, 8, 10, 11, 11, 12, 13, 14], self.palette.doll_addresses[0])
             special_palette([None, 13, 1, 2, None, 5, 3, 6, 7, 9, 4, 9, 8, 10, 11], self.palette.minecart_addresses[0])
 
         return patch
+
 
 class Peach(Character):
     index = 1
