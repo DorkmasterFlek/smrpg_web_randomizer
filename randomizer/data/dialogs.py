@@ -1,6 +1,5 @@
 # Data module for dialog data.
 
-from randomizer.logic import flags
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 
