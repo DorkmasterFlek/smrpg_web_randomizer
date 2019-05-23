@@ -73,6 +73,7 @@ wish_strings = list(map(compress, [
     '\n\n    I wish Nintendo would\n    return to Paper Mario 64\n    and The Thousand-Year Door.',
     '\n\n    I wish somebody would\n    stop rearranging the\n    stock in my store!',
     '\n\n    I wish we raced using\n    currency that wasn\'t\n    also food.'
+    '\n\n    I wish I had\n    Justin\'s luck.'
 ]))
 
 wish_dialogs = [
@@ -225,6 +226,22 @@ def get_quiz_questions():
         Question('How many hidden treasure\nchests are in the\nvanilla game?', '39', '38', '40'),
         Question('Which accessory does NOT\nprovide an attack boost\nto the equipped character?', 'Ghost Medal',
                  'Troopa Pin ', 'Quartz Charm'),
+        Question('What is Johnny looking\nat in the end credits?', 'Sunset', 'Mario', 'His ship'),
+        Question('How many citizens are at\nMallow\'s coronation ceremony?', '12', '9', '5'),
+        Question('Who is flying Bowser\'s\nclown car in the\nending cutscene?', 'Shy Guy', 'Terrapin', 'Magikoopa'),
+        Question('Who does Yoshi race against\nin the ending cutscene?', 'Croco', 'Boshi', 'Mario'),
+        Question('How many Toads are in\nToadofsky\'s choir?', '7', '4', '10'),
+        Question('Who does Booster\nend up marrying?', 'Valentina', 'Toadstool', 'Raini'),
+        Question('How many Toads immediately\nfollow Luigi in the parade?', '5', '3', '2'),
+        Question('What makes a sound when\na hidden chest is near?', 'Signal Ring', 'B\'tub Ring', 'Safety Ring'),
+        Question('Which type of armor\nis normally only usable\nby Bowser?', 'Courage', 'Fire', 'Sailor'),
+        Question('What happens when a\nYoshi Cookie fails?', 'Get Yoshi Candy instead', 'Enemy bites Yoshi\'s tongue',
+                 'Yoshi lays an egg'),
+        Question('What is the travelling\nToad looking for?', 'Grate Guy\'s Casino', 'Best inn to stay at',
+                 'Star pieces'),
+        Question('Which does NOT normally\ngive immunity to\ninstant death attacks?', 'Super Suit', 'Attack Scarf',
+                 'Quartz Charm'),
+        Question('Which enemy is NOT found\nin the same location\nas the others?', 'Wiggler', 'Mukumuku', 'Mastadoom'),
     ]
 
     return acc
