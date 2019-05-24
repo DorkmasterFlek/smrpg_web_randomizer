@@ -922,6 +922,7 @@ class CasinoWarp(Flag):
     name = "Enable Factory Warp"
     description = "Once you collect all your Star Pieces, you can talk to Grate Guy to warp directly to the final boss."
     inverse_description = "(There is no factory warp in Grate Guy's Casino.)"
+    modes = ['open']
     value = 'W'
 
 
