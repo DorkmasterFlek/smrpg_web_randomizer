@@ -1,10 +1,11 @@
 # Boss randomization logic for open mode.
 
+import collections
 import random
 import statistics
 
 from randomizer.data import bosses, enemies
-from . import flags
+from . import flags, utils
 
 
 def _boss_star_piece_filter(world, location):
@@ -110,8 +111,8 @@ def randomize_all(world):
                             elif isinstance(e, (enemies.Earthlink, enemies.MadAdder)):
                                 sneks += e.hp
                         hp = int(round((dudes / 2) + (sneks / 2)))
-                        xp = sum(e.xp for e in elist if isinstance(e, enemies.Cloaker) or isinstance(e, enemies.Domino))
-                        coins = sum(e.coins for e in elist if isinstance(e, enemies.Cloaker) or isinstance(e, enemies.Domino))
+                        xp = sum(e.xp for e in elist if isinstance(e, (enemies.Cloaker, enemies.Domino)))
+                        coins = sum(e.coins for e in elist if isinstance(e, (enemies.Cloaker, enemies.Domino)))
                     # For Dodo/Valentina, count 40% of Dodo's HP.
                     elif any(e for e in elist if isinstance(e, enemies.Valentina)):
                         dodo = 0
@@ -142,23 +143,28 @@ def randomize_all(world):
                     # For Belome 2, need special exp calc
                     elif any(e for e in elist if isinstance(e, enemies.Belome2)):
                         hp = sum(e.hp for e in elist)
-                        xp = sum(e.xp for e in world.enemies if isinstance(e, enemies.Belome2) or isinstance(e, enemies.MarioClone))
-                        coins = sum(e.coins for e in world.enemies if isinstance(e, enemies.Belome2) or isinstance(e, enemies.MarioClone))
+                        xp = sum(e.xp for e in world.enemies if isinstance(e, (enemies.Belome2, enemies.MarioClone)))
+                        coins = sum(e.coins for e in world.enemies if
+                                    isinstance(e, (enemies.Belome2, enemies.MarioClone)))
                     # For Culex, need special exp calc
                     elif any(e for e in elist if isinstance(e, enemies.Culex)):
                         hp = sum(e.hp for e in elist)
-                        xp = sum(e.xp for e in world.enemies if isinstance(e, enemies.Culex) or isinstance(e, enemies.WindCrystal) or isinstance(e, enemies.WaterCrystal) or isinstance(e, enemies.FireCrystal) or isinstance(e, enemies.EarthCrystal))
-                        coins = sum(e.coins for e in world.enemies if isinstance(e, enemies.Culex) or isinstance(e, enemies.WindCrystal) or isinstance(e, enemies.WaterCrystal) or isinstance(e, enemies.FireCrystal) or isinstance(e, enemies.EarthCrystal))
+                        xp = sum(e.xp for e in world.enemies if
+                                 isinstance(e, (enemies.Culex, enemies.WindCrystal, enemies.WaterCrystal,
+                                                enemies.FireCrystal, enemies.EarthCrystal)))
+                        coins = sum(e.coins for e in world.enemies if
+                                    isinstance(e, (enemies.Culex, enemies.WindCrystal, enemies.WaterCrystal,
+                                                   enemies.FireCrystal, enemies.EarthCrystal)))
                     # For Johnny, need special exp calc
                     elif any(e for e in elist if isinstance(e, enemies.Johnny)):
                         hp = sum(e.hp for e in elist)
                         xp = 0
                         coins = 0
                         for e in world.enemies:
-                            if isinstance(e, (enemies.Johnny)):
+                            if isinstance(e, enemies.Johnny):
                                 xp += e.xp
                                 coins += e.coins
-                            elif isinstance(e, (enemies.BandanaBlue)):
+                            elif isinstance(e, enemies.BandanaBlue):
                                 xp += 4 * e.xp
                                 coins += 4 * e.coins
                     # Anything else, just sum all HP/xp/coins.
@@ -250,12 +256,6 @@ def randomize_all(world):
 
                 # *** Special cases
 
-                # Hide Shelly and show Birdo instead to skip first phase if not in vanilla location.
-                # TODO: Should we bother with this???
-                # if location.formation.index == 297 and not isinstance(location, bosses.Birdo):
-                #     location.formation.members[0].hidden_at_start = False
-                #     location.formation.members[1].hidden_at_start = True
-
                 # For Boomer fight, "hide" the Hangin' Shy enemies by moving them off the screen.  This is needed
                 # because they set bits for the Boomer fight and disable themselves.  Also make sure speed is max.
                 if location.formation.index == 358 and not isinstance(location, bosses.Boomer):
@@ -293,3 +293,38 @@ def randomize_all(world):
 
     # Exor goes first to set immunity.
     world.get_enemy_instance(enemies.Exor).speed = 255
+
+
+def get_spoiler(world):
+    """Get spoiler for this part of the seed/game world.
+
+    Args:
+        world (randomizer.logic.main.GameWorld): Game world to randomize.
+
+    Returns:
+        dict: Dictionary of spoiler info.
+
+    """
+    spoiler = collections.OrderedDict()
+
+    # Extra mapping for some special names that don't quite translate directly.
+    special_names = {
+        'Hammer Bro': 'Hammer Bros',
+        'Knife Guy': 'Clown Bros',
+        'Grate Guy': 'Clown Bros',
+        'Dodo Solo': 'Dodo',
+        'Smilax': 'Megasmilax',
+        'Cloaker': 'Cloaker & Domino',
+        'Domino': 'Cloaker & Domino',
+    }
+
+    for boss in world.boss_locations:
+        data = collections.OrderedDict()
+        if isinstance(boss, bosses.StarLocation) and boss.has_star:
+            data['Star Piece'] = 'Yes'
+        if isinstance(boss, bosses.BossLocation):
+            name = utils.split_camel_case(boss.formation.bosses[0].name)
+            data['Boss'] = special_names.get(name, name)
+        spoiler[utils.split_camel_case(boss.name)] = data
+
+    return spoiler

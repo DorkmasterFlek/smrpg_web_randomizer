@@ -589,3 +589,20 @@ class GameWorld:
         patch.add_data(0x7fdb, int(v[0]))
 
         return patch
+
+    @property
+    def spoiler(self):
+        """
+
+        Returns:
+            dict: Spoiler for current game world state in JSON object form (Python dictionary).
+
+        """
+        # TODO: Build spoilers that are in all modes first.
+        spoiler = {}
+
+        # TODO: Open mode only spoilers.
+        if self.open_mode:
+            spoiler['Boss Locations'] = bosses.get_spoiler(self)
+
+        return spoiler
