@@ -146,6 +146,7 @@ class GenerateView(FormView):
 
         mode = data['mode'] or 'open'
         debug_mode = bool(data['debug_mode'])
+        race_mode = bool(data['race_mode'])
 
         # Build game world, randomize it, and generate the patch.
         world = GameWorld(seed, Settings(mode, debug_mode, data['flags'] or ''))
@@ -168,6 +169,8 @@ class GenerateView(FormView):
             'file_select_character': world.file_select_character,
             'file_select_hash': world.file_select_hash,
             'permalink': reverse('randomizer:patch-from-hash', kwargs={'hash': world.hash}),
+            'race_mode': race_mode,
+            'spoiler': world.spoiler if not race_mode else {},
         }
 
         # Save patch to the database (don't need to save EU since it's the same as US).
@@ -182,7 +185,7 @@ class GenerateView(FormView):
 
             s = Seed(hash=world.hash, seed=seed, version=VERSION, mode=mode, debug_mode=debug_mode,
                      flags=world.settings.flag_string, file_select_char=world.file_select_character,
-                     file_select_hash=world.file_select_hash)
+                     file_select_hash=world.file_select_hash, race_mode=race_mode, spoiler=world.spoiler)
             s.save()
 
             for region, patch in patches.items():
@@ -238,6 +241,8 @@ class GenerateFromHashView(View):
             'file_select_character': s.file_select_char,
             'file_select_hash': s.file_select_hash,
             'patch': json.loads(p.patch),
+            'race_mode': s.race_mode,
+            'spoiler': s.spoiler,
         }
         return JsonResponse(result)
 

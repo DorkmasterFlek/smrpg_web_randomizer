@@ -1,4 +1,5 @@
 from django.db import models
+from jsonfield import JSONField
 
 
 class Seed(models.Model):
@@ -11,6 +12,8 @@ class Seed(models.Model):
     flags = models.TextField(default='')
     file_select_char = models.CharField(max_length=100, default='')
     file_select_hash = models.CharField(max_length=100, default='')
+    race_mode = models.BooleanField(default=False)
+    spoiler = JSONField(default={})
 
 
 class Patch(models.Model):
