@@ -2,6 +2,7 @@
 
 import inspect
 import random
+import re
 
 # Amount to boost very small values when shuffling to give a bit more range for very small values.
 SMALL_BOOST_AMOUNT = 2.0
@@ -171,3 +172,16 @@ def add_desc_fields(fields):
             else:
                 d += '\x20'
     return d
+
+
+def split_camel_case(string):
+    """
+
+    Args:
+        string: String to split.
+
+    Returns:
+        str: Camel case string split out with spaces in between words.
+
+    """
+    return re.sub(r'(?!^)([A-Z0-9][a-z]*)', r' \1', string)
