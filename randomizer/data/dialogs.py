@@ -72,7 +72,7 @@ wish_strings = list(map(compress, [
     '\n\n    I wish someone would\n    play randomizers with me.',
     '\n\n    I wish Nintendo would\n    return to Paper Mario 64\n    and The Thousand-Year Door.',
     '\n\n    I wish somebody would\n    stop rearranging the\n    stock in my store!',
-    '\n\n    I wish we raced using\n    currency that wasn\'t\n    also food.'
+    '\n\n    I wish we raced using\n    currency that wasn\'t\n    also food.',
     '\n\n    I wish I had\n    Justin\'s luck.'
 ]))
 
