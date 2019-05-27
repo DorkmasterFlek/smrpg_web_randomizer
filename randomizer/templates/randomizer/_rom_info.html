@@ -10,6 +10,15 @@
     {% if show_permalink %}
         <div class="text-info">Permalink: <a id="info-permalink" href="" target="_blank">Link</a></div>
     {% endif %}
+    <div id="spoiler-container">Spoiler:
+        <button class="btn btn-link p-0" type="button" data-toggle="collapse" data-target="#spoiler-collapse"
+                aria-expanded="false" aria-controls="spoiler-collapse">
+            Show/Hide Spoiler
+        </button>
+        <div class="collapse" id="spoiler-collapse">
+            <div class="card card-body" id="info-spoiler"></div>
+        </div>
+    </div>
 
 </div>
 <div class="col-md-6">
@@ -39,6 +48,15 @@
         $('#info-flags').html(patch.flag_string);
         $('#file-select-character').html(patch.file_select_character);
         $('#file-select-hash').html(patch.file_select_hash);
+
+        // Put spoiler info in JSON viewer.
+        // FIXME: Debug only for now...
+        {% if debug_enabled %}
+            $('#spoiler-collapse').collapse('hide');
+            $('#info-spoiler').jsonViewer(patch.spoiler);
+        {% else %}
+            $('#spoiler-container').hide();
+        {% endif %}
 
         // Debug mode seed?
         if (patch.debug_mode) {
