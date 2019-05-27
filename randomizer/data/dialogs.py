@@ -73,7 +73,7 @@ wish_strings = list(map(compress, [
     '\n\n    I wish Nintendo would\n    return to Paper Mario 64\n    and The Thousand-Year Door.',
     '\n\n    I wish somebody would\n    stop rearranging the\n    stock in my store!',
     '\n\n    I wish we raced using\n    currency that wasn\'t\n    also food.',
-    '\n\n    I wish I had\n    Justin\'s luck.'
+    '\n\n    I wish I had\n    Justin\'s luck.',
 ]))
 
 wish_dialogs = [
@@ -242,6 +242,20 @@ def get_quiz_questions():
         Question('Which does NOT normally\ngive immunity to\ninstant death attacks?', 'Super Suit', 'Attack Scarf',
                  'Quartz Charm'),
         Question('Which enemy is NOT found\nin the same location\nas the others?', 'Wiggler', 'Mukumuku', 'Mastadoom'),
+        Question('How many tentacles does\nKing Calimari have?', '8', '6', '10'),
+        Question('Which is NOT one of the\nAxem Rangers?', 'Blue', 'Pink', 'Red'),
+        Question('Which is NOT one of\nCountdown\'s attacks?', 'Boulder', 'Mega Recover', 'Aurora Flash'),
+        Question('Which attack does Mack\nuse on you?', 'Flame Wall', 'S\'Crow Dust', 'Static E!'),
+        Question('Who do you attack\ninstead of Bowser\nin the prologue?', 'Kinklink', 'Throne', 'Support'),
+        Question('Where is the Goomba\nthumping game located?', 'Pipe Vault', 'Moleville', 'Monstro Town'),
+        Question('Which is NOT normally\none of Mallow\'s\nspecial attacks?', 'Mute', 'Psychopath', 'Snowy'),
+        Question('What special attack does\nMario normally start with?', 'Jump', 'Fire Orb', 'Crusher'),
+        Question('Who does Toadstool\nalmost marry?', 'Booster', 'Bowser', 'Mario'),
+        Question('What menu option appears\nwhen your fourth\nparty member joins?', 'Switch', 'Team', 'Power'),
+        Question('What did Croco steal\nfrom Mallow?', 'Frog Coin', 'Wallet', 'Kerokerocola'),
+        Question('What does Hammer Bro use\nwhen one is defeated?', 'Valor Up', 'Vigor Up', 'Versatility Up'),
+        Question('What is the name of\nMario\'s house?', 'The Pipehouse', 'Mario Manor', 'The Goomba Hole'),
+        Question('Where do you fight\nBowser in the prologue?', 'On chandeliers', 'Over a lava pit', 'A large arena'),
     ]
 
     return acc
