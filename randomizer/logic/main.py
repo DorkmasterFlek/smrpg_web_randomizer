@@ -4,6 +4,7 @@ import collections
 import hashlib
 import random
 import re
+import binascii
 
 from randomizer import data
 from . import bosses
@@ -356,9 +357,41 @@ class GameWorld:
 
         # Update party join script events for the final order.  These are different for standard vs open mode.
         if self.open_mode:
-            addresses = [0x1ef86d, 0x1ef86f, 0x1ef871, 0x1fc4f2, 0x1e8b72]
+            if self.settings.is_flag_enabled(flags.NoFreeCharacters):
+                addresses = [0x1ef86c, 0x1ffd82, 0x1fc4f1, 0x1e6d58, 0x1e8b71]
+            else:
+                addresses = [0x1ef86c, 0x1ef86e, 0x1ef870, 0x1fc4f1, 0x1e8b71]
+            dialogue_iterator = 0
             for addr, character in zip(addresses, self.character_join_order):
-                patch.add_data(addr, 0x80 + character.index)
+                dialogue_iterator += 1
+                if character.palette is not None and character.palette.rename_character:
+                    message = '"' + character.palette.name + '" (' + character.name + ') joins!'
+                else:
+                    message = character.name + " joins!"
+                messagestring = binascii.hexlify(bytes(message, encoding='ascii'))
+                messagebytes = [int(messagestring[i:i+2],16) for i in range(0,len(messagestring),2)]
+                messagebytes.append(0x00)
+                if self.settings.is_flag_enabled(flags.NoFreeCharacters):
+                    if dialogue_iterator == 2:
+                        patch.add_data(0x242c52, messagebytes)
+                        patch.add_data(0x1ffd84, [0x60, 0xac, 0xac, 0x00])
+                    if dialogue_iterator == 3:
+                        patch.add_data(0x221475, messagebytes)
+                        patch.add_data(0x1fc8dd, [0x60, 0x48, 0xa2, 0x00])
+                    if dialogue_iterator == 4:
+                        patch.add_data(0x242238, messagebytes)
+                        patch.add_data(0x1e6d5a, [0x60, 0x89, 0xac, 0x00])
+                    if dialogue_iterator == 5:
+                        patch.add_data(0x23abf2, messagebytes)
+                        patch.add_data(0x1e8b49, [0x60, 0xff, 0xaa, 0x00])
+                else:
+                    if dialogue_iterator == 4:
+                        patch.add_data(0x242c52, messagebytes)
+                        patch.add_data(0x1fc8dc, [0x60, 0xac, 0xac, 0x00])
+                    if dialogue_iterator == 5:
+                        patch.add_data(0x221475, messagebytes)
+                        patch.add_data(0x1e8b49, [0x60, 0x48, 0xa2, 0x00])
+                patch.add_data(addr, [0x36, 0x80 + character.index])
         else:
             # For standard mode, Mario is the first character.  Update the other four only.
             addresses = [0x1e2155, 0x1fc506, 0x1edf98, 0x1e8b79]

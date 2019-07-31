@@ -172,6 +172,45 @@ class CharacterShuffle(Flag):
         CharacterLearnedSpells,
     ]
 
+class ExcludeMario(Flag):
+    name = 'Exclude Mario'
+    description = "Mario cannot be recruited."
+    value = 'Zm'
+class ExcludeMallow(Flag):
+    name = 'Exclude Mallow'
+    description = "Mallow cannot be recruited."
+    value = 'Zw'
+class ExcludeGeno(Flag):
+    name = 'Exclude Geno'
+    description = "Geno cannot be recruited."
+    value = 'Zg'
+class ExcludeBowser(Flag):
+    name = 'Exclude Bowser'
+    description = "Bowser cannot be recruited."
+    value = 'Zb'
+class ExcludeToadstool(Flag):
+    name = 'Exclude Toadstool'
+    description = "Toadstool cannot be recruited."
+    value = 'Zt'
+
+class NoFreeCharacters(Flag):
+    name = 'No Free Characters'
+    description = "Instead of starting with 3 characters, you start off with only one. Mushroom Way and Moleville Mines area bosses will add characters to your party in addition to Marrymore and Forest Maze."
+    value = '-nfc'
+
+class ExcludeCharacters(Flag):
+    name = 'Exclude characters'
+    description = "If a character is excluded, their designated recruitment spot will be empty."
+    value = '@Z'
+    options = [
+        ExcludeMario,
+        ExcludeMallow,
+        ExcludeGeno,
+        ExcludeBowser,
+        ExcludeToadstool
+    ]
+
+
 
 # TODO: ******** Starting character flags
 
@@ -953,6 +992,8 @@ class CharactersCategory(FlagCategory):
     name = 'Characters'
     flags = [
         CharacterShuffle,
+        #ExcludeCharacters,
+        NoFreeCharacters,
         PaletteSwaps
     ]
 
