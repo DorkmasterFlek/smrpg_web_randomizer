@@ -209,17 +209,28 @@
             return new Promise((resolve, reject) => {
                 $("#region").val(rom.region);
                 $.post("{% url 'randomizer:generate' %}", $("#config").serialize(), (patch) => {
-                    rom.applyModeChanges(patch.mode).then(() => {
-                        rom.parsePatch(patch.patch);
-                        resolve(patch);
-                    });
+                    if (patch.error) {
+                        reject(patch);
+                    } else {
+                        rom.applyModeChanges(patch.mode).then(() => {
+                            rom.parsePatch(patch.patch);
+                            resolve(patch);
+                        });
+                    }
                 }, "json").fail(reject);
             });
         }
 
-        function seedFailed() {
+        function seedFailed(patch = {}) {
+            let errmsg;
+            if (patch.error) {
+                errmsg = patch.error;
+            } else {
+                errmsg = "Failed Creating Seed :(";
+            }
+
             $("#generate-btn").html("Generate ROM").prop("disabled", false);
-            $("#generate-error-message").html("Failed Creating Seed :(");
+            $("#generate-error-message").html(errmsg);
             $("#generate-error-box").show().delay(2000).fadeOut("slow");
         }
 
