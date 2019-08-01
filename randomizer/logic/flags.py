@@ -172,6 +172,44 @@ class CharacterShuffle(Flag):
         CharacterLearnedSpells,
     ]
 
+
+class StartMario(Flag):
+    name = 'Start as Mario'
+    value = 'Ym'
+class StartMallow(Flag):
+    name = 'Start as Mallow'
+    value = 'Yw'
+class StartGeno(Flag):
+    name = 'Start as Geno'
+    value = 'Yg'
+class StartBowser(Flag):
+    name = 'Start as Bowser'
+    value = 'Yb'
+class StartToadstool(Flag):
+    name = 'Start as Toadstool'
+    value = 'Yt'
+
+class ExcludeMario(Flag):
+    name = 'Exclude Mario'
+    description = "Mario cannot be recruited."
+    value = 'Zm'
+class ExcludeMallow(Flag):
+    name = 'Exclude Mallow'
+    description = "Mallow cannot be recruited."
+    value = 'Zw'
+class ExcludeGeno(Flag):
+    name = 'Exclude Geno'
+    description = "Geno cannot be recruited."
+    value = 'Zg'
+class ExcludeBowser(Flag):
+    name = 'Exclude Bowser'
+    description = "Bowser cannot be recruited."
+    value = 'Zb'
+class ExcludeToadstool(Flag):
+    name = 'Exclude Toadstool'
+    description = "Toadstool cannot be recruited."
+    value = 'Zt'
+
 class ExcludeMario(Flag):
     name = 'Exclude Mario'
     description = "Mario cannot be recruited."
@@ -208,6 +246,18 @@ class ExcludeCharacters(Flag):
         ExcludeGeno,
         ExcludeBowser,
         ExcludeToadstool
+    ]
+
+class ChooseStarter(Flag):
+    name = 'Choose starting character'
+    description = "Guarantees that your first party slot will be the chosen character"
+    value = '@Y'
+    choices = [
+        StartMario,
+        StartMallow,
+        StartGeno,
+        StartBowser,
+        StartToadstool
     ]
 
 
@@ -992,8 +1042,9 @@ class CharactersCategory(FlagCategory):
     name = 'Characters'
     flags = [
         CharacterShuffle,
-        #ExcludeCharacters,
         NoFreeCharacters,
+        ChooseStarter,
+        ExcludeCharacters,
         PaletteSwaps
     ]
 
