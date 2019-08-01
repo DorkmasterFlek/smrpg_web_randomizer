@@ -406,6 +406,7 @@ class Mario(Character):
         (1, 1, 1, 3, 1),
         (1, 2, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x03
 
     def get_patch(self):
         patch = super().get_patch()
@@ -523,6 +524,7 @@ class Peach(Character):
         (1, 1, 1, 3, 1),
         (1, 3, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x07
 
 
 class Bowser(Character):
@@ -610,6 +612,7 @@ class Bowser(Character):
         (1, 1, 1, 3, 1),
         (1, 2, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x0B
 
 
 class Geno(Character):
@@ -698,6 +701,7 @@ class Geno(Character):
         (1, 1, 1, 3, 1),
         (1, 3, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x13
 
 
 class Mallow(Character):
@@ -787,6 +791,7 @@ class Mallow(Character):
         (1, 1, 1, 2, 1),
         (1, 3, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x0F
 
 
 def get_default_characters(world):
