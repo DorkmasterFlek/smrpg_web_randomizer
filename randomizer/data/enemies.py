@@ -7142,7 +7142,7 @@ class Valentina(Enemy):
         # TODO: Get addresses for linear mode.
         if self.world.open_mode:
             phase2_hp = self.round_for_battle_script(self.hp * 0.6)
-            patch.add_data(0x3956b5, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
+            patch.add_data(0x3956bF, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
 

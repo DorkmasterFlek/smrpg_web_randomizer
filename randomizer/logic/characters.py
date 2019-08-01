@@ -425,8 +425,12 @@ def randomize_all(world):
     # so make their levels the same as Geno and Peach respectively.
     if world.open_mode:
         world.character_join_order[0].starting_level = 1
-        world.character_join_order[1].starting_level = 1
-        world.character_join_order[2].starting_level = 1
+        if world.settings.is_flag_enabled(flags.NoFreeCharacters):
+            world.character_join_order[1].starting_level = orig_levels[4]
+            world.character_join_order[2].starting_level = orig_levels[2]
+        else:
+            world.character_join_order[1].starting_level = 1
+            world.character_join_order[2].starting_level = 1
         world.character_join_order[3].starting_level = orig_levels[3]
         world.character_join_order[4].starting_level = orig_levels[1]
     # For standard mode, just make their levels the same as the vanilla join order.

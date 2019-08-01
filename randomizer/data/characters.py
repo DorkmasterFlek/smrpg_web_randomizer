@@ -321,6 +321,7 @@ class Character:
 
 # ******************* Actual character data classes.
 class Mario(Character):
+    name: "Mario"
     index = 0
     starting_level = 1
     max_hp = 20
@@ -405,6 +406,7 @@ class Mario(Character):
         (1, 1, 1, 3, 1),
         (1, 2, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x03
 
     def get_patch(self):
         patch = super().get_patch()
@@ -437,6 +439,7 @@ class Mario(Character):
 
 class Peach(Character):
     index = 1
+    name: "Toadstool"
     starting_level = 9
     max_hp = 15
     speed = 24
@@ -521,10 +524,12 @@ class Peach(Character):
         (1, 1, 1, 3, 1),
         (1, 3, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x07
 
 
 class Bowser(Character):
     index = 2
+    name: "Bowser"
     starting_level = 8
     max_hp = 25
     speed = 15
@@ -607,10 +612,12 @@ class Bowser(Character):
         (1, 1, 1, 3, 1),
         (1, 2, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x0B
 
 
 class Geno(Character):
     index = 3
+    name: "Geno"
     starting_level = 6
     max_hp = 20
     speed = 30
@@ -694,10 +701,12 @@ class Geno(Character):
         (1, 1, 1, 3, 1),
         (1, 3, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x13
 
 
 class Mallow(Character):
     index = 4
+    name: "Mallow"
     starting_level = 2
     max_hp = 16
     speed = 18
@@ -782,6 +791,7 @@ class Mallow(Character):
         (1, 1, 1, 2, 1),
         (1, 3, 1, 1, 1),
     )
+    forest_maze_sprite_id = 0x0F
 
 
 def get_default_characters(world):
