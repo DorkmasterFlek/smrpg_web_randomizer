@@ -446,13 +446,24 @@ class GameWorld:
                         if dialogue_iterator == 5:
                             patch.add_data(0x221475, messagebytes)
                             patch.add_data(0x1e8b49, [0x60, 0x48, 0xa2, 0x00])
-                # replace overworld characters in recruitment spots
+                    patch.add_data(addr, [0x36, 0x80 + character.index])
+
+                #replace overworld characters in recruitment spots
+                if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 2:
+                    #mushroom way
+                    patch.add_data(0x14b3BC, character.mway_1_npc_id)
+                    patch.add_data(0x14b411, character.mway_2_npc_id)
+                    patch.add_data(0x14b452, character.mway_3_npc_id)
                 if ((dialogue_iterator == 4 and not self.settings.is_flag_enabled(flags.NoFreeCharacters)) or
                         (self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 3)):
+                    #forest maze
                     patch.add_data(0x14b8eb, character.forest_maze_sprite_id)
                     if character.name is "Mario":
                         patch.add_data(0x215e4f, 0x42)
                         patch.add_data(0x215e56, 0x12)
+                if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 4:
+                    #moleville
+                    patch.add_data(0x14c491, character.moleville_sprite_id)
                 if dialogue_iterator == 5:
                     # show character in marrymore
                     patch.add_data(0x14a94d, character.forest_maze_sprite_id)
@@ -496,7 +507,6 @@ class GameWorld:
                                 # crying in other direction
                                 patch.add_data(0x20d5e3, [0x08, 0x40, 0x8C])
 
-                    patch.add_data(addr, [0x36, 0x80 + character.index])
         else:
             # For standard mode, Mario is the first character.  Update the other four only.
             addresses = [0x1e2155, 0x1fc506, 0x1edf98, 0x1e8b79]
