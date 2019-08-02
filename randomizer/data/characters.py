@@ -407,6 +407,10 @@ class Mario(Character):
         (1, 2, 1, 1, 1),
     )
     forest_maze_sprite_id = 0x03
+    mway_3_npc_id = [0x03, 0xB0]
+    mway_2_npc_id = [0x03, 0x70]
+    mway_1_npc_id = [0x03, 0x40]
+    moleville_sprite_id = 0x02
 
     def get_patch(self):
         patch = super().get_patch()
@@ -525,6 +529,10 @@ class Peach(Character):
         (1, 3, 1, 1, 1),
     )
     forest_maze_sprite_id = 0x07
+    mway_3_npc_id = [0x07, 0xB0]
+    mway_2_npc_id = [0x07, 0x70]
+    mway_1_npc_id = [0x07, 0x40]
+    moleville_sprite_id = 0x06
 
 
 class Bowser(Character):
@@ -613,6 +621,10 @@ class Bowser(Character):
         (1, 2, 1, 1, 1),
     )
     forest_maze_sprite_id = 0x0B
+    mway_3_npc_id = [0x0B, 0xB0]
+    mway_2_npc_id = [0x0B, 0x70]
+    mway_1_npc_id = [0x0B, 0x40]
+    moleville_sprite_id = 0x0A
 
 
 class Geno(Character):
@@ -702,6 +714,10 @@ class Geno(Character):
         (1, 3, 1, 1, 1),
     )
     forest_maze_sprite_id = 0x13
+    mway_3_npc_id = [0x13, 0xB0]
+    mway_2_npc_id = [0x13, 0x70]
+    mway_1_npc_id = [0x13, 0x40]
+    moleville_sprite_id = 0x12
 
 
 class Mallow(Character):
@@ -792,6 +808,10 @@ class Mallow(Character):
         (1, 3, 1, 1, 1),
     )
     forest_maze_sprite_id = 0x0F
+    mway_3_npc_id = [0x0F, 0xB0]
+    mway_2_npc_id = [0x0F, 0x70]
+    mway_1_npc_id = [0x0F, 0x40]
+    moleville_sprite_id = 0x0E
 
 
 def get_default_characters(world):
