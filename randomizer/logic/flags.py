@@ -6,6 +6,10 @@ from markdown import markdown
 
 # ************************************** Flag classes
 
+class FlagError(ValueError):
+    pass
+
+
 class Flag:
     """Class representing a flag with its description, and possible values/choices/options."""
     name = ''
