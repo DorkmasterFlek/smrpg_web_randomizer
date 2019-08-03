@@ -264,6 +264,8 @@ def randomize_all(world):
                     location.formation.members[2].x_pos = 0
                     location.formation.members[2].y_pos = 255
 
+
+
             # *** Certain formation changes necessary for boss shuffle.
 
             # Formation 368 is a solo Mad Mallet fight before the factory boss rush.

@@ -65,6 +65,22 @@ class Enemy:
     ratio_magic_evade = 1.0
     name_override = ''
 
+    #shuffled overworld sprites
+    overworld_sprite = None
+    overworld_npc = None
+    battle_sprite = None
+    battle_npc = None
+    battle_sprite_is_wide = False
+    battle_sprite_is_tall = False
+    overworld_mold = 0
+    overworld_sequence = 0
+    overworld_sprite_plus = 0
+    battle_mold = 0
+    battle_sequence = 0
+    other_npcs = []
+    other_sprites = []
+    statue_only = False
+
     def __init__(self, world):
         """
 
@@ -954,6 +970,13 @@ class Pandorite(Enemy):
     normal_item = items.FlowerJar
     rare_item = items.FlowerJar
 
+    #shuffled overworld sprites
+    overworld_sprite = 195
+    overworld_npc = 199
+    battle_sprite = 279
+    overworld_mold = 4
+    statue_only = True
+
 
 class ShyRanger(Enemy):
     index = 24
@@ -1071,6 +1094,13 @@ class HammerBro(Enemy):
     ratio_hp = 0.5
     ratio_fp = 0.5
 
+    #shuffled overworld sprites
+    overworld_sprite = 31
+    overworld_npc = 31
+    battle_sprite = 283
+    battle_npc = 283
+    statue_only = True
+    battle_sprite_is_tall = True
 
 class Buzzer(Enemy):
     index = 28
@@ -1229,6 +1259,14 @@ class Magikoopa(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+
+    #overworld sprites
+    overworld_npc = 190
+    overworld_sprite = 129
+    battle_npc = 289
+    battle_sprite = 289
+
+
 
     def get_patch(self):
         """Extra patch data for this enemy.
@@ -1685,6 +1723,16 @@ class Clerk(Enemy):
     ratio_hp = 0.5556
     ratio_fp = 0.3333
 
+    #shuffled overworld sprites
+    overworld_sprite = 142
+    overworld_npc = 19
+    battle_sprite = 306
+    battle_npc = 306
+    other_npcs = [259]
+    other_sprites = [259]
+    battle_sprite_is_wide = True
+    battle_sprite_is_tall = True
+
 
 class Gunyolk(Enemy):
     index = 51
@@ -1720,6 +1768,14 @@ class Gunyolk(Enemy):
     ratio_magic_defense = 0.9412
     ratio_speed = 0.7143
 
+    #shuffled overworld sprites
+    overworld_sprite = 330
+    overworld_npc = 484
+    battle_sprite = 307
+    battle_npc = 307
+    battle_sprite_is_wide = True
+    battle_sprite_is_tall = True
+
 
 class Boomer(Enemy):
     index = 52
@@ -1748,6 +1804,14 @@ class Boomer(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+
+    #shuffled overworld sprites
+    overworld_sprite = 346
+    overworld_npc = 159
+    battle_sprite = 308
+    battle_npc = 308
+    statue_only = True
+    battle_sprite_is_tall = True
 
     def get_patch(self):
         """Update battle events for switching between blue and red states for Boomer with shuffled stat changes.
@@ -2473,6 +2537,15 @@ class Manager(Enemy):
     ratio_magic_defense = 1.0
     ratio_speed = 1.0
 
+    #shuffled overworld sprites
+    overworld_sprite = 167
+    overworld_npc = 492
+    battle_sprite = 332
+    other_npcs = [323]
+    other_sprites = [323]
+    battle_sprite_is_wide = True
+    battle_sprite_is_tall = True
+
 
 class Bluebird(Enemy):
     index = 77
@@ -2735,6 +2808,14 @@ class Hidon(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+
+    #shuffled overworld sprites
+    overworld_sprite = 195
+    overworld_npc = 199
+    battle_sprite = 343
+    battle_npc = 343
+    overworld_mold = 4
+    statue_only = True
 
 
 class SlingShy(Enemy):
@@ -3417,6 +3498,17 @@ class Director(Enemy):
     ratio_hp = 0.625
     ratio_fp = 0.2
 
+    #shuffled overworld sprites
+    overworld_sprite = 168
+    overworld_npc = 497
+    battle_sprite = 370
+    battle_npc = 370
+    other_npcs = [324]
+    other_sprites = [324]
+    battle_sprite_is_wide = True
+    battle_sprite_is_tall = True
+
+
 
 class Puppox(Enemy):
     index = 117
@@ -3702,6 +3794,14 @@ class BoxBoy(Enemy):
     ratio_hp = 1.0
     ratio_fp = 1.0
 
+    #shuffled overworld sprites
+    overworld_sprite = 195
+    overworld_npc = 199
+    battle_sprite = 390
+    battle_npc = 390
+    overworld_mold = 4
+    statue_only = True
+
 
 class Shelly(Enemy):
     index = 135
@@ -3800,6 +3900,14 @@ class DodoSolo(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+
+    #shuffled overworld sprites
+    overworld_sprite = 131
+    overworld_npc = 131
+    battle_sprite = 312
+    battle_npc = 21
+    overworld_mold = 4
+    statue_only = True
 
 
 class Oerlikon(Enemy):
@@ -4863,6 +4971,12 @@ class Jagger(Enemy):
     ratio_hp = 1.0
     ratio_fp = 1.0
 
+    #shuffled overworld sprites
+    overworld_sprite = 237
+    overworld_npc = 237
+    battle_sprite = 237
+    battle_npc = 237
+
 
 class Chompweed(Enemy):
     index = 180
@@ -5209,6 +5323,18 @@ class KnifeGuy(Enemy):
     ratio_magic_defense = 0.4
     ratio_speed = 1.25
 
+    #shuffled overworld sprites
+    overworld_sprite = 177
+    overworld_npc = 452
+    battle_sprite = 449
+    battle_npc = 449
+    other_npcs = [134]
+    other_sprites = [134]
+    other_sprites_mold = [25]
+    other_battle_sprites = [448]
+    other_battle_npcs = [448]
+    battle_sprite_is_tall = True
+
 
 class GrateGuy(Enemy):
     index = 193
@@ -5282,6 +5408,12 @@ class Bundt(Enemy):
     ratio_magic_defense = 1.25
     ratio_speed = 1.0
 
+    #shuffled overworld sprites
+    overworld_sprite = 470
+    overworld_npc = 470
+    battle_sprite = 471
+    battle_sprite_is_wide = True
+
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
 
@@ -5343,6 +5475,11 @@ class Jinx1(Enemy):
     ratio_fp = 1.0
     name_override = 'JINX 1'
 
+    #shuffled overworld sprites
+    overworld_sprite = 207
+    overworld_npc = 207
+    battle_sprite = 474
+
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
 
@@ -5390,6 +5527,11 @@ class Jinx2(Enemy):
     ratio_fp = 1.0
     name_override = 'JINX 2'
 
+    #shuffled overworld sprites
+    overworld_sprite = 207
+    overworld_npc = 207
+    battle_sprite = 474
+
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
 
@@ -5405,7 +5547,6 @@ class Jinx2(Enemy):
             patch.add_data(0x39f438, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
 
         return patch
-
 
 class CountDown(Enemy):
     index = 197
@@ -5438,6 +5579,12 @@ class CountDown(Enemy):
     ratio_magic_attack = 2.2642
     ratio_magic_defense = 1.3333
     ratio_speed = 0.625
+
+    #shuffled overworld sprites
+    overworld_sprite = 454
+    overworld_npc = 454
+    battle_sprite = 454
+    battle_npc = 454
 
 
 class DingALing(Enemy):
@@ -5504,6 +5651,13 @@ class Belome1(Enemy):
     ratio_fp = 1.0
     name_override = 'BELOME 1'
 
+    #shuffled overworld sprites
+    overworld_sprite = 39
+    battle_sprite = 455
+    battle_npc = 455
+    overworld_mold = 9
+    statue_only = True
+
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
 
@@ -5551,6 +5705,12 @@ class Belome2(Enemy):
     ratio_fp = 1.0
     name_override = 'BELOME 2'
 
+    #shuffled overworld sprites
+    overworld_sprite = 39
+    battle_sprite = 455
+    battle_npc = 455
+    overworld_mold = 9
+    statue_only = True
 
 class Smilax(Enemy):
     index = 202
@@ -5632,6 +5792,12 @@ class Megasmilax(Enemy):
     ratio_hp = 0.3846
     ratio_fp = 0.1111
 
+    #shuffled overworld sprites
+    overworld_sprite = 263
+    overworld_npc = 138
+    battle_sprite = 460
+    battle_npc = 460
+
 
 class Birdo(Enemy):
     index = 205
@@ -5660,6 +5826,14 @@ class Birdo(Enemy):
     # Boss shuffle attributes
     ratio_hp = 1.0
     ratio_fp = 1.0
+
+    #shuffled overworld sprites
+    overworld_sprite = 462
+    overworld_npc = 462
+    battle_sprite = 461
+    battle_npc = 461
+    statue_only = True
+    battle_sprite_is_tall = True
 
 
 class Eggbert(Enemy):
@@ -5754,6 +5928,15 @@ class Punchinello(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+
+    #shuffled overworld sprites
+    overworld_sprite = 62
+    overworld_npc = 37
+    battle_sprite = 464
+    battle_npc = 464
+    other_npcs = [145]
+    other_sprites = [145]
+    statue_only = True
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6044,6 +6227,12 @@ class KingCalamari(Enemy):
     ratio_hp = 0.303
     ratio_fp = 0.1111
 
+    #shuffled overworld sprites
+    overworld_sprite = 465
+    overworld_npc = 465
+    battle_sprite = 465
+    statue_only = True
+
 
 class TentaclesLeft(Enemy):
     index = 217
@@ -6107,6 +6296,11 @@ class Jinx3(Enemy):
     ratio_hp = 1.0
     ratio_fp = 1.0
     name_override = 'JINX 3'
+
+    #shuffled overworld sprites
+    overworld_sprite = 207
+    overworld_npc = 207
+    battle_sprite = 474
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6204,6 +6398,15 @@ class CzarDragon(Enemy):
     ratio_magic_evade = 0.0
 
 
+    #shuffled overworld sprites
+    overworld_sprite = 277
+    overworld_npc = 277
+    battle_sprite = 216
+    battle_npc = 216
+    statue_only = True
+    battle_sprite_is_wide = True
+
+
 class Cloaker(Enemy):
     index = 221
     address = 0x390e86
@@ -6235,6 +6438,14 @@ class Cloaker(Enemy):
     ratio_magic_attack = 0.2105
     ratio_magic_defense = 0.2222
     ratio_speed = 1.1111
+
+    #shuffled overworld sprites
+    overworld_sprite = 249
+    overworld_npc = 249
+    battle_sprite = 477
+    other_battle_sprites = [478, 499, 479]
+    statue_only = True
+    battle_sprite_is_tall = True
 
 
 class Domino(Enemy):
@@ -6333,6 +6544,14 @@ class Mack(Enemy):
     anchor = True
     ratio_hp = 0.8
 
+    #shuffled overworld sprites
+    overworld_sprite = 414
+    overworld_npc = 414
+    battle_sprite = 480
+    battle_npc = 480
+    statue_only = True
+    battle_sprite_is_tall = True
+
 
 class Bodyguard(Enemy):
     index = 225
@@ -6396,6 +6615,12 @@ class Yaridovich(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+
+    #shuffled overworld sprites
+    overworld_sprite = 163
+    overworld_npc = 40
+    battle_sprite = 482
+    battle_sprite_is_tall = True
 
 
 class DrillBit(Enemy):
@@ -6523,6 +6748,14 @@ class Bowyer(Enemy):
     normal_item = items.FlowerBox
     rare_item = items.FlowerBox
 
+    #shuffled overworld sprites
+    overworld_sprite = 487
+    overworld_npc = 487
+    battle_sprite = 241
+    battle_npc = 241
+    statue_only = True
+    battle_sprite_is_tall = True
+
 
 class Aero(Enemy):
     index = 231
@@ -6568,6 +6801,16 @@ class Exor(Enemy):
     ratio_magic_attack = 0.0
     ratio_magic_defense = 1.2903
     ratio_speed = 3.0769
+
+    #shuffled overworld sprites
+    overworld_sprite = 0
+    battle_sprite = 0
+    overworld_mold = 22
+    overworld_sequence = 10
+    battle_mold = 22
+    battle_sequence = 10
+    overworld_sprite_plus = 3
+    battle_sprite_plus = 3
 
     def get_patch(self):
         """Extra patch data for this enemy.
@@ -6760,6 +7003,12 @@ class Croco1(Enemy):
     ratio_fp = 1.0
     name_override = 'CROCO 1'
 
+    #shuffled overworld sprites
+    overworld_sprite = 48
+    overworld_npc = 48
+    battle_sprite = 48
+    battle_npc = 48
+
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
 
@@ -6808,6 +7057,12 @@ class Croco2(Enemy):
     ratio_hp = 1.0
     ratio_fp = 1.0
     name_override = 'CROCO 2'
+
+    #shuffled overworld sprites
+    overworld_sprite = 48
+    overworld_npc = 48
+    battle_sprite = 48
+    battle_npc = 48
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6916,6 +7171,14 @@ class AxemRangers(Enemy):
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
 
+    #shuffled overworld sprites
+    overworld_sprite = 466
+    overworld_npc = 466
+    battle_sprite = 466
+    battle_npc = 466
+    other_npcs = [209, 210, 211, 212]
+    other_sprites = [209, 210, 211, 212]
+
 
 class Booster(Enemy):
     index = 246
@@ -6948,6 +7211,14 @@ class Booster(Enemy):
     anchor = True
     ratio_hp = 0.57
     ratio_fp = 0.02
+
+    #shuffled overworld sprites
+    overworld_sprite = 50
+    overworld_npc = 50
+    battle_sprite = 50
+    battle_npc = 50
+    other_npcs = [504]
+    other_sprites = [504]
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7047,6 +7318,14 @@ class Johnny(Enemy):
     ratio_hp = 1.0
     ratio_fp = 1.0
 
+    #shuffled overworld sprites
+    overworld_sprite = 55
+    overworld_npc = 52
+    battle_sprite = 505
+    other_npcs = [331]
+    other_sprites = [331]
+    battle_sprite_is_wide = True
+
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
 
@@ -7129,6 +7408,12 @@ class Valentina(Enemy):
     anchor = True
     ratio_hp = 0.8333
     ratio_fp = 0.7143
+
+    #shuffled overworld sprites
+    overworld_sprite = 56
+    overworld_npc = 56
+    battle_sprite = 507
+    battle_sprite_is_tall = True
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7255,6 +7540,12 @@ class Culex(Enemy):
     ratio_hp = 1.0
     ratio_fp = 1.0
 
+    #shuffled overworld sprites
+    overworld_sprite = 511
+    battle_sprite = 511
+    overworld_mold = 7
+    overworld_sequence = 8
+    other_sprites = [405, 406, 407, 408]
 
 # ********************* Default lists for the world.
 

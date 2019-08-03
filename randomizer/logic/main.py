@@ -5,6 +5,7 @@ import hashlib
 import random
 import re
 import binascii
+import math
 
 from randomizer import data
 from . import bosses
@@ -24,6 +25,61 @@ from .patch import Patch
 
 # Current version number
 VERSION = '8.1.2'
+
+
+def calcpointer(dec, origBytes=[]):
+    origBytes.reverse()
+    str = format(dec, 'x')
+    hexcode = str.zfill(4)
+    hexbytes = [int(hexcode[i:i + 2], 16) for i in range(0, len(hexcode), 2)]
+    iterator = 0
+    for by in origBytes:
+        hexbytes[iterator] += by
+        iterator += 1
+    hexbytes.reverse()
+    return hexbytes
+
+class SpritePhaseEvent:
+    npc = 0
+    sprite = 0
+    mold = 0
+    is_sequence_and_not_mold = True
+    sequence = 0
+    reverse = False
+    original_event = 0
+    original_event_location = 0
+    level = 0
+
+    def __init__(self, npc, sprite, mold, is_sequence_and_not_mold, sequence, reverse, level, original_event, original_event_location):
+        self.npc = npc
+        self.sprite = sprite
+        self.mold = mold
+        self.is_sequence_and_not_mold = is_sequence_and_not_mold
+        self.sequence = sequence
+        self.reverse = reverse
+        self.level = level
+        self.original_event = original_event
+        self.original_event_location = original_event_location
+
+    # convert a sprite value to a pointer that can be patched in
+
+    def generate_code(self):
+        returnBytes = [];
+        returnBytes.extend([(0x14 + self.npc), 0x03])
+        if self.is_sequence_and_not_mold and not self.reverse:
+            returnBytes.extend([0x08, self.sprite, self.sequence])
+        elif self.is_sequence_and_not_mold and self.reverse:
+            returnBytes.extend([0x08, self.sprite, 0x80 + self.sequence])
+        elif not self.is_sequence_and_not_mold and not self.reverse:
+            returnBytes.extend([0x08, 0x08 + self.sprite, self.mold])
+        elif not self.is_sequence_and_not_mold and self.reverse:
+            returnBytes.extend([0x08, 0x08 + self.sprite, 0x80 + self.mold])
+        returnBytes.append(0xD0)
+        eventpointer = calcpointer(self.original_event)
+        returnBytes.extend(eventpointer)
+        returnBytes.append(0xFE)
+        return returnBytes
+
 
 
 class Settings:
@@ -517,7 +573,6 @@ class GameWorld:
             ):
                 patch.add_data(addr, self.character_join_order[1].index)
         cursor_id = self.character_join_order[0].index
-        print(self.character_join_order)
 
         # Learned spells and level-up exp.
         patch += self.levelup_xps.get_patch()
@@ -639,6 +694,7 @@ class GameWorld:
             # and our custom code should start +3 after that
 
             # if R7 is turned on, we want this to be a check for 7 star pieces, not 6
+
             if self.settings.is_flag_enabled(flags.SevenStarHunt):
                 patch.add_data(0x1FF454, [0xE0, 0x35, 0x07, 0x5C, 0xF4])
             else:
@@ -668,6 +724,120 @@ class GameWorld:
             patch.add_data(0x23D3CE, [0x44, 0x6F, 0x0F, 0x20, 0x77, 0x61, 0x6E, 0x74, 0x11, 0x67, 0x6F, 0x11, 0x53,
                                       0x6D, 0x69, 0x74, 0x68, 0x79, 0x3F, 0x02, 0x08, 0x07, 0x20, 0x28, 0x4E, 0x6F,
                                       0x29, 0x01, 0x08, 0x07, 0x20, 0x28, 0x59, 0x65, 0x73, 0x29, 0x00])
+
+
+
+
+
+        #### Logic for rewriting overworld sprites ####
+
+        #Some sprites are not default, and need an event to set the proper mold.
+        #This array will contain a set of building blocks for those sprites and where they should appear, and rewrite 3727 to control it.
+        spritePhaseEvents = []
+
+
+        for location in self.boss_locations:
+            if (location.name in ["HammerBros", "Croco1", "Mack", "Belome1", "Bowyer", "Croco2", "Punchinello",
+                                  "Booster", "Bundt", "Johnny", "Belome2", "Jagger", "Jinx3",
+                                  "Megasmilax", "Dodo", "Valentina", "Magikoopa", "Boomer", "CzarDragon", "AxemRangers",
+                                  "Magikoopa", "Boomer", "Countdown", "Clerk", "Manager", "Director", "Gunyolk"]):
+                for enemy in location.pack.common_enemies:
+                    if enemy.overworld_sprite is not None:
+                        shuffled_boss = enemy
+
+                # Mushroom Way
+                if location.name == "HammerBros":
+                    print(location, shuffled_boss)
+                    # reassign NPC 283's sprite
+                    # try big sprite
+                    patch.add_data(0x1DBfbd, calcpointer(shuffled_boss.battle_sprite, [0x00, 0x68]));
+                    #for sprites that require a specific mold or sequence, change the room load events to set the proper sequence or mold first
+                    if shuffled_boss.battle_sequence > 0 or shuffled_boss.battle_mold > 0:
+                        if shuffled_boss.battle_sequence > 0:
+                            sub_sequence = True
+                        elif shuffled_boss.battle_mold > 0:
+                            sub_sequence = False
+                        spritePhaseEvents.append(SpritePhaseEvent(7, shuffled_boss.overworld_sprite_plus, shuffled_boss.battle_mold, sub_sequence, shuffled_boss.battle_sequence, False, 205, 2814, 0x20f045))
+                # Bandit's Way
+                if location.name == "Croco1":
+                    print(location, shuffled_boss)
+                    # use npc 110, set properties to match croco's
+                    for addr in [0x1495e1, 0x14963a, 0x14969f, 0x14b4c7, 0x14b524]:
+                        patch.add_data(addr, [0xBB, 0x01])
+                    # replace its sprite - only use small sprites here, graphics engine breaks otherwise
+                    patch.add_data(0x1DBB02, calcpointer(shuffled_boss.overworld_sprite, [0x00, 0x00]));
+                    patch.add_data(0x1DBB04, [0x80, 0x02, 0x55, 0x0a]);
+                    #for sprites that require a specific mold or sequence, change the room load events to set the proper sequence or mold first
+                    #for this spot specifically, delete the event scripts that change the mold/sequence
+                    if shuffled_boss.overworld_sequence > 0 or shuffled_boss.overworld_mold > 0:
+                        if shuffled_boss.overworld_sequence > 0:
+                            sub_sequence = True
+                        elif shuffled_boss.overworld_mold > 0:
+                            sub_sequence = False
+                        #bandits way 1
+                        spritePhaseEvents.append(SpritePhaseEvent(5, shuffled_boss.overworld_sprite_plus, shuffled_boss.overworld_mold, sub_sequence, shuffled_boss.overworld_sequence, False, 76, 1714, 0x20e8e0))
+                        patch.add_data(0x1f3bac, [0x08, 0x40 + shuffled_boss.overworld_sprite_plus, 0x80 + shuffled_boss.overworld_sequence])
+                        patch.add_data(0x1f3bb1, [0x9b])
+                        #bandits way 2
+                        spritePhaseEvents.append(SpritePhaseEvent(8, shuffled_boss.overworld_sprite_plus, shuffled_boss.overworld_mold, sub_sequence, shuffled_boss.overworld_sequence, False, 207, 1702, 0x20F07b))
+                        patch.add_data(0x1f3541, [0x08, 0x40 + shuffled_boss.overworld_sprite_plus, 0x80 + shuffled_boss.overworld_sequence])
+                        patch.add_data(0x1f3552, [0x9b])
+                        #bandits way 3
+                        spritePhaseEvents.append(SpritePhaseEvent(8, shuffled_boss.overworld_sprite_plus, shuffled_boss.overworld_mold, sub_sequence, shuffled_boss.overworld_sequence, False, 77, 1713, 0x20e8e3))
+                        patch.add_data(0x1f3b81, [0x08, 0x40 + shuffled_boss.overworld_sprite_plus, 0x80 + shuffled_boss.overworld_sequence])
+                        patch.add_data(0x1f3b90, [0x9b])
+                        #bandits way 4
+                        spritePhaseEvents.append(SpritePhaseEvent(12, shuffled_boss.overworld_sprite_plus, shuffled_boss.overworld_mold, sub_sequence, shuffled_boss.overworld_sequence, False, 78, 1698, 0x20e8e6))
+                        #bandits way 5
+                        spritePhaseEvents.append(SpritePhaseEvent(8, shuffled_boss.overworld_sprite_plus, shuffled_boss.overworld_mold, sub_sequence, shuffled_boss.overworld_sequence, False, 206, 1708, 0x20f078))
+                        patch.add_data(0x1f3863, [0x08, 0x40 + shuffled_boss.overworld_sprite_plus, 0x80 + shuffled_boss.overworld_sequence])
+                        patch.add_data(0x1f3872, [0x9b])
+                if location.name == "Mack":
+                    print(location, shuffled_boss)
+                    # reassign NPC 480's sprite
+                    patch.add_data(0x1Dc520, calcpointer(shuffled_boss.battle_sprite, [0x00, 0x68]));
+                    #face southwest
+                    patch.add_data(0x14ca86, 0x63);
+                    #for this spot specifically, delete the event scripts that change the sequence
+                    patch.add_data(0x1e2921, [0x08, 0x40, shuffled_boss.battle_sequence])
+                    #for sprites that require a specific mold or sequence, change the room load events to set the proper sequence or mold first
+                    if shuffled_boss.battle_sequence > 0 or shuffled_boss.battle_mold > 0:
+                        if shuffled_boss.battle_sequence > 0:
+                            sub_sequence = True
+                        elif shuffled_boss.battle_mold > 0:
+                            sub_sequence = False
+                        spritePhaseEvents.append(SpritePhaseEvent(3, shuffled_boss.overworld_sprite_plus, shuffled_boss.overworld_mold, sub_sequence, shuffled_boss.overworld_sequence, False, 305, 360, 0x20f47d))
+                if location.name == "Belome1":
+                    print(location, shuffled_boss)
+                    # reassign NPC 455's sprite
+                    # try big sprite
+                    patch.add_data(0x1dc471, calcpointer(shuffled_boss.battle_sprite, [0x00, 0x08]));
+                    if shuffled_boss.battle_sequence > 0 or shuffled_boss.battle_mold > 0:
+                        if shuffled_boss.battle_sequence > 0:
+                            sub_sequence = True
+                        elif shuffled_boss.battle_mold > 0:
+                            sub_sequence = False
+                        spritePhaseEvents.append(SpritePhaseEvent(3, 0, shuffled_boss.battle_mold, sub_sequence, shuffled_boss.battle_sequence, False, 302, 3135, 0x20f3be))
+        #set sprite molds and sequences where necessary
+        if len(spritePhaseEvents) > 0:
+            patch.add_data(0x20ab6f, 0xC3)
+            start_instructions = 0x20ab70
+            shortened_start_instructions = 0xab70
+            append_jumps = []
+            total_jump_length = len(spritePhaseEvents) * 5
+            iterator = 0
+            for event in spritePhaseEvents:
+                patch.add_data(event.original_event_location, calcpointer(3727))
+                append_jumps.append(0xe2)
+                append_jumps.extend(calcpointer(event.level))
+                append_jumps.extend(calcpointer(shortened_start_instructions + total_jump_length + (len(event.generate_code()) * iterator)))
+                iterator += 1
+            for event in spritePhaseEvents:
+                append_jumps.extend(event.generate_code())
+            patch.add_data(start_instructions, append_jumps)
+
+
+
 
         # Choose character for the file select screen.
         i = cursor_id

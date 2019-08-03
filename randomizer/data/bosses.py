@@ -97,6 +97,8 @@ class BossLocation:
     battlefield = None
     can_run_away = False
     music = BattleMusic.Normal
+    wide_sprite = False
+    tall_sprite = False
 
     def __init__(self, world):
         """
@@ -207,6 +209,7 @@ class HammerBros(BossAndStarLocation):
     pack_number = 183
     battlefield = Battlefields.MushroomWay
     music = BattleMusic.Boss1
+    tall_sprite = True
 
 
 class Croco1(BossAndStarLocation):
@@ -224,6 +227,7 @@ class Mack(BossAndStarLocation):
     pack_number = 179
     battlefield = Battlefields.MushroomKingdomThroneRoom
     music = BattleMusic.Boss2
+    tall_sprite = True
 
 
 class Pandorite(BossAndStarLocation):
@@ -248,6 +252,7 @@ class Bowyer(BossAndStarLocation):
     pack_number = 181
     battlefield = Battlefields.Bowyer
     music = BattleMusic.Boss2
+    tall_sprite = True
 
 
 class Croco2(BossAndStarLocation):
@@ -341,6 +346,7 @@ class Yaridovich(BossAndStarLocation):
     pack_number = 180
     battlefield = Battlefields.Yaridovich
     music = BattleMusic.Boss2
+    tall_sprite = True
 
 
 class Belome2(BossAndStarLocation):
@@ -437,6 +443,8 @@ class CzarDragon(BossAndStarLocation):
     pack_number = 172
     battlefield = Battlefields.CzarDragon
     music = BattleMusic.Boss1
+    tall_sprite = True
+    wide_sprite = True
 
 
 class AxemRangers(BossAndStarLocation):
@@ -462,6 +470,7 @@ class Boomer(BowsersKeepLocation):
     pack_number = 210
     battlefield = Battlefields.Boomer
     music = BattleMusic.Boss1
+    tall_sprite = True
 
 
 class Exor(BowsersKeepLocation):
@@ -509,6 +518,8 @@ class Gunyolk(BossLocation):
     pack_number = 149
     battlefield = Battlefields.Factory
     music = BattleMusic.Boss1
+    wide_sprite = True
+    tall_sprite = True
 
 
 # ********************* Default lists for the world.
