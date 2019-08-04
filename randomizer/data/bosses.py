@@ -99,6 +99,8 @@ class BossLocation:
     music = BattleMusic.Normal
     wide_sprite = False
     tall_sprite = False
+    sprite_width = 32
+    sprite_height = 32
 
     def __init__(self, world):
         """
@@ -209,7 +211,8 @@ class HammerBros(BossAndStarLocation):
     pack_number = 183
     battlefield = Battlefields.MushroomWay
     music = BattleMusic.Boss1
-    tall_sprite = True
+    sprite_width = 40;
+    sprite_height = 45;
 
 
 class Croco1(BossAndStarLocation):
@@ -228,6 +231,8 @@ class Mack(BossAndStarLocation):
     battlefield = Battlefields.MushroomKingdomThroneRoom
     music = BattleMusic.Boss2
     tall_sprite = True
+    sprite_height = 57
+    sprite_width = 43
 
 
 class Pandorite(BossAndStarLocation):
@@ -243,6 +248,8 @@ class Belome1(BossAndStarLocation):
     pack_number = 168
     battlefield = Battlefields.KeroSewers
     music = BattleMusic.Boss1
+    sprite_height = 54
+    sprite_width = 49
 
 
 class Bowyer(BossAndStarLocation):
@@ -253,6 +260,8 @@ class Bowyer(BossAndStarLocation):
     battlefield = Battlefields.Bowyer
     music = BattleMusic.Boss2
     tall_sprite = True
+    sprite_width = 47
+    sprite_height = 52
 
 
 class Croco2(BossAndStarLocation):
@@ -270,6 +279,8 @@ class Punchinello(BossAndStarLocation):
     pack_number = 140
     battlefield = Battlefields.MolevilleMines
     music = BattleMusic.Boss1
+    sprite_width = 45
+    sprite_height = 45
 
 
 class Booster(BossAndStarLocation):
@@ -322,6 +333,7 @@ class KingCalamari(BossAndStarLocation):
     pack_number = 167
     battlefield = Battlefields.SunkenShip
     music = BattleMusic.Boss1
+    sprite_width = 48
 
 
 class Hidon(BossAndStarLocation):
@@ -355,6 +367,8 @@ class Belome2(BossAndStarLocation):
     pack_number = 169
     battlefield = Battlefields.BelomeTemple
     music = BattleMusic.Boss1
+    sprite_height = 54
+    sprite_width = 49
 
 
 class Jagger(BossAndStarLocation):
@@ -419,6 +433,8 @@ class Dodo(BossAndStarLocation):
     pack_number = 208
     battlefield = Battlefields.NimbusCastle
     music = BattleMusic.Boss1
+    sprite_height = 56
+    sprite_width = 46
 
 
 class Birdo(BossAndStarLocation):
@@ -445,6 +461,8 @@ class CzarDragon(BossAndStarLocation):
     music = BattleMusic.Boss1
     tall_sprite = True
     wide_sprite = True
+    sprite_width = 59
+    sprite_height = 54
 
 
 class AxemRangers(BossAndStarLocation):
@@ -471,6 +489,8 @@ class Boomer(BowsersKeepLocation):
     battlefield = Battlefields.Boomer
     music = BattleMusic.Boss1
     tall_sprite = True
+    sprite_width = 52
+    sprite_width = 49
 
 
 class Exor(BowsersKeepLocation):
@@ -520,6 +540,8 @@ class Gunyolk(BossLocation):
     music = BattleMusic.Boss1
     wide_sprite = True
     tall_sprite = True
+    sprite_width = 71
+    sprite_height = 63
 
 
 # ********************* Default lists for the world.

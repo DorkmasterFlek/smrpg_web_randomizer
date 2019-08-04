@@ -77,9 +77,30 @@ class Enemy:
     overworld_sprite_plus = 0
     battle_mold = 0
     battle_sequence = 0
+    battle_sprite_plus = 0
     other_npcs = []
     other_sprites = []
     statue_only = False
+    sprite_width = 32;
+    sprite_height = 32;
+    overworld_sesw_only = False
+    battle_sesw_only = False
+    overworld_front_sequence = 0
+    overworld_back_sequence = 1
+    battle_front_sequence = 0
+    battle_back_sequence = 1
+    overworld_invert_se_sw = False
+    battle_invert_se_sw = False
+    overworld_freeze = False
+    battle_freeze = False
+    overworld_extra_sequence = False
+    overworld_push_sequence = False
+    overworld_push_length = 0
+    battle_push_sequence = False
+    battle_push_length = 0
+    overworld_northeast_mold = False
+    battle_northeast_mold = False
+    overworld_dont_reverse_northeast = False
 
     def __init__(self, world):
         """
@@ -976,6 +997,12 @@ class Pandorite(Enemy):
     battle_sprite = 279
     overworld_mold = 4
     statue_only = True
+    sprite_width = 37
+    sprite_height = 40
+    overworld_freeze = True
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 22
 
 
 class ShyRanger(Enemy):
@@ -1095,12 +1122,17 @@ class HammerBro(Enemy):
     ratio_fp = 0.5
 
     #shuffled overworld sprites
-    overworld_sprite = 31
-    overworld_npc = 31
+    overworld_sprite = 545
+    overworld_sesw_only = True
     battle_sprite = 283
     battle_npc = 283
     statue_only = True
     battle_sprite_is_tall = True
+    sprite_width = 40;
+    sprite_height = 45;
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 40
 
 class Buzzer(Enemy):
     index = 28
@@ -1265,6 +1297,14 @@ class Magikoopa(Enemy):
     overworld_sprite = 129
     battle_npc = 289
     battle_sprite = 289
+    sprite_height = 42
+    sprite_width = 45
+    overworld_extra_sequence = 10
+    battle_push_sequence = 3
+    battle_push_length = 48
+    overworld_push_sequence = 10
+    overworld_push_length = 52
+    overworld_northeast_mold = 3
 
 
 
@@ -1732,6 +1772,12 @@ class Clerk(Enemy):
     other_sprites = [259]
     battle_sprite_is_wide = True
     battle_sprite_is_tall = True
+    sprite_width = 60
+    sprite_height = 58
+    battle_push_sequence = 3
+    battle_push_length = 32
+    overworld_northeast_mold = 2
+    overworld_dont_reverse_northeast = True
 
 
 class Gunyolk(Enemy):
@@ -1752,6 +1798,8 @@ class Gunyolk(Enemy):
     palette = 32
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    sprite_width = 71
+    sprite_height = 63
 
     # Reward attributes
     reward_address = 0x3918b8
@@ -1775,6 +1823,12 @@ class Gunyolk(Enemy):
     battle_npc = 307
     battle_sprite_is_wide = True
     battle_sprite_is_tall = True
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    overworld_push_sequence = 3
+    battle_push_length = 52
+    overworld_push_length = 30
+    overworld_northeast_mold = 3
 
 
 class Boomer(Enemy):
@@ -1808,10 +1862,17 @@ class Boomer(Enemy):
     #shuffled overworld sprites
     overworld_sprite = 346
     overworld_npc = 159
-    battle_sprite = 308
-    battle_npc = 308
+    battle_sprite = 169
+    battle_npc = 482
     statue_only = True
     battle_sprite_is_tall = True
+    sprite_width = 52
+    sprite_width = 49
+    battle_sesw_only = True
+    overworld_extra_sequence = 5
+    overworld_push_sequence = 3
+    overworld_push_length = 40
+    overworld_northeast_mold = 3
 
     def get_patch(self):
         """Update battle events for switching between blue and red states for Boomer with shuffled stat changes.
@@ -2545,6 +2606,12 @@ class Manager(Enemy):
     other_sprites = [323]
     battle_sprite_is_wide = True
     battle_sprite_is_tall = True
+    sprite_width = 60
+    sprite_height = 58
+    battle_push_sequence = 3
+    battle_push_length = 32
+    overworld_northeast_mold = 2
+    overworld_dont_reverse_northeast = True
 
 
 class Bluebird(Enemy):
@@ -2816,6 +2883,12 @@ class Hidon(Enemy):
     battle_npc = 343
     overworld_mold = 4
     statue_only = True
+    sprite_width = 37
+    sprite_height = 40
+    overworld_freeze = True
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 44
 
 
 class SlingShy(Enemy):
@@ -3507,6 +3580,12 @@ class Director(Enemy):
     other_sprites = [324]
     battle_sprite_is_wide = True
     battle_sprite_is_tall = True
+    sprite_width = 60
+    sprite_height = 58
+    battle_push_sequence = 3
+    battle_push_length = 32
+    overworld_northeast_mold = 2
+    overworld_dont_reverse_northeast = True
 
 
 
@@ -3801,6 +3880,12 @@ class BoxBoy(Enemy):
     battle_npc = 390
     overworld_mold = 4
     statue_only = True
+    sprite_width = 37
+    sprite_height = 40
+    overworld_freeze = True
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 90
 
 
 class Shelly(Enemy):
@@ -3904,10 +3989,16 @@ class DodoSolo(Enemy):
     #shuffled overworld sprites
     overworld_sprite = 131
     overworld_npc = 131
+    overworld_sequence = 2
     battle_sprite = 312
     battle_npc = 21
-    overworld_mold = 4
     statue_only = True
+    sprite_height = 56
+    sprite_width = 46
+    overworld_freeze = True
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 16
 
 
 class Oerlikon(Enemy):
@@ -4976,6 +5067,13 @@ class Jagger(Enemy):
     overworld_npc = 237
     battle_sprite = 237
     battle_npc = 237
+    overworld_extra_sequence = 8
+    battle_extra_sequence = 8
+    overworld_push_sequence = 4
+    battle_push_sequence = 4
+    battle_push_length = 48
+    overworld_northeast_mold = 3
+    battle_northeast_mold = 3
 
 
 class Chompweed(Enemy):
@@ -5156,6 +5254,8 @@ class YaridovichMirage(Enemy):
     ratio_magic_attack = 0.8571
     ratio_magic_defense = 0.1333
     ratio_speed = 0.8
+    sprite_width = 56
+    sprite_height = 84
 
 
 class Helio(Enemy):
@@ -5334,6 +5434,12 @@ class KnifeGuy(Enemy):
     other_battle_sprites = [448]
     other_battle_npcs = [448]
     battle_sprite_is_tall = True
+    sprite_width = 41
+    sprite_height = 57
+    battle_sesw_only = True
+    battle_push_length = 44
+    battle_push_sequence = 3
+    overworld_northeast_mold = 3
 
 
 class GrateGuy(Enemy):
@@ -5411,8 +5517,13 @@ class Bundt(Enemy):
     #shuffled overworld sprites
     overworld_sprite = 470
     overworld_npc = 470
-    battle_sprite = 471
-    battle_sprite_is_wide = True
+    overworld_sequence = 8
+    battle_sprite = 450
+    sprite_height = 56
+    sprite_width = 35
+    overworld_freeze = True
+    battle_sesw_only = True
+    other_sprites = [398]
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5478,7 +5589,13 @@ class Jinx1(Enemy):
     #shuffled overworld sprites
     overworld_sprite = 207
     overworld_npc = 207
-    battle_sprite = 474
+    battle_sprite = 207
+    battle_push_sequence = 3
+    overworld_push_sequence = 3
+    battle_push_length = 10
+    overworld_push_length = 10
+    overworld_northeast_mold = 3
+    battle_northeast_mold = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5530,7 +5647,13 @@ class Jinx2(Enemy):
     #shuffled overworld sprites
     overworld_sprite = 207
     overworld_npc = 207
-    battle_sprite = 474
+    battle_sprite = 207
+    battle_push_sequence = 3
+    overworld_push_sequence = 3
+    battle_push_length = 10
+    overworld_push_length = 10
+    overworld_northeast_mold = 3
+    battle_northeast_mold = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5585,6 +5708,8 @@ class CountDown(Enemy):
     overworld_npc = 454
     battle_sprite = 454
     battle_npc = 454
+    overworld_freeze = True
+    battle_freeze = True
 
 
 class DingALing(Enemy):
@@ -5655,8 +5780,16 @@ class Belome1(Enemy):
     overworld_sprite = 39
     battle_sprite = 455
     battle_npc = 455
-    overworld_mold = 9
+    overworld_sequence = 1
     statue_only = True
+    sprite_height = 54
+    sprite_width = 49
+    overworld_invert_se_sw = True
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 38
+    overworld_northeast_mold = 6
+
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5709,8 +5842,15 @@ class Belome2(Enemy):
     overworld_sprite = 39
     battle_sprite = 455
     battle_npc = 455
-    overworld_mold = 9
+    overworld_sequence = 1
     statue_only = True
+    sprite_height = 54
+    sprite_width = 49
+    overworld_invert_se_sw = True
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 38
+    overworld_northeast_mold = 6
 
 class Smilax(Enemy):
     index = 202
@@ -5797,6 +5937,14 @@ class Megasmilax(Enemy):
     overworld_npc = 138
     battle_sprite = 460
     battle_npc = 460
+    sprite_width = 37
+    sprite_height = 37
+    battle_push_sequence = 3
+    overworld_push_sequence = 3
+    battle_push_length = 20
+    overworld_push_length = 22
+    other_sprites = [263]
+    overworld_northeast_mold = 3
 
 
 class Birdo(Enemy):
@@ -5834,6 +5982,12 @@ class Birdo(Enemy):
     battle_npc = 461
     statue_only = True
     battle_sprite_is_tall = True
+    sprite_height = 57
+    sprite_width = 38
+    battle_sesw_only = True
+    overworld_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 42
 
 
 class Eggbert(Enemy):
@@ -5919,6 +6073,8 @@ class Punchinello(Enemy):
     status_immunities = [0, 1, 2, 3]
     palette = 16
     flower_bonus_type = 1
+    overworld_sesw_only = True
+    battle_sesw_only = True
 
     # Reward attributes
     reward_address = 0x391a98
@@ -5930,13 +6086,19 @@ class Punchinello(Enemy):
     ratio_fp = 1.0
 
     #shuffled overworld sprites
-    overworld_sprite = 62
-    overworld_npc = 37
+    overworld_sprite = 281
+    overworld_npc = 145
     battle_sprite = 464
     battle_npc = 464
     other_npcs = [145]
     other_sprites = [145]
     statue_only = True
+    sprite_width = 45
+    sprite_height = 45
+    battle_push_length = 26
+    battle_push_sequence = 3
+    other_sprites = [281]
+    overworld_northeast_mold = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6230,8 +6392,16 @@ class KingCalamari(Enemy):
     #shuffled overworld sprites
     overworld_sprite = 465
     overworld_npc = 465
+    overworld_mold = 21
     battle_sprite = 465
+    battle_mold = 21
     statue_only = True
+    overworld_freeze = True
+    battle_freeze = True
+    overworld_push_sequence = 3
+    overworld_push_length = 35
+    battle_push_sequence = 3
+    battle_push_length = 35
 
 
 class TentaclesLeft(Enemy):
@@ -6300,7 +6470,13 @@ class Jinx3(Enemy):
     #shuffled overworld sprites
     overworld_sprite = 207
     overworld_npc = 207
-    battle_sprite = 474
+    battle_sprite = 207
+    battle_push_sequence = 3
+    overworld_push_sequence = 3
+    battle_push_length = 10
+    overworld_push_length = 10
+    overworld_northeast_mold = 3
+    battle_northeast_mold = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6405,6 +6581,12 @@ class CzarDragon(Enemy):
     battle_npc = 216
     statue_only = True
     battle_sprite_is_wide = True
+    sprite_width = 59
+    sprite_height = 54
+    battle_sesw_only = True
+    overworld_push_sequence = 3
+    overworld_push_length = 30
+    other_sprites = [277]
 
 
 class Cloaker(Enemy):
@@ -6446,6 +6628,12 @@ class Cloaker(Enemy):
     other_battle_sprites = [478, 499, 479]
     statue_only = True
     battle_sprite_is_tall = True
+    sprite_width = 50
+    sprite_height = 62
+    overworld_freeze = True
+    battle_sesw_only = True
+    battle_push_sequence = 3
+    battle_push_length = 42
 
 
 class Domino(Enemy):
@@ -6549,8 +6737,15 @@ class Mack(Enemy):
     overworld_npc = 414
     battle_sprite = 480
     battle_npc = 480
+    battle_sequence = 7
     statue_only = True
     battle_sprite_is_tall = True
+    battle_sesw_only = True
+    sprite_height = 57
+    sprite_width = 43
+    overworld_push_sequence = 4
+    other_sprites = [414]
+    overworld_northeast_mold = 3
 
 
 class Bodyguard(Enemy):
@@ -6615,12 +6810,19 @@ class Yaridovich(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+    battle_push_length = 78
 
     #shuffled overworld sprites
     overworld_sprite = 163
     overworld_npc = 40
     battle_sprite = 482
     battle_sprite_is_tall = True
+    overworld_freeze = True
+    battle_sesw_only = True
+    sprite_width = 56
+    sprite_height = 84
+    battle_push_sequence = 3
+    overworld_northeast_mold = 3
 
 
 class DrillBit(Enemy):
@@ -6755,6 +6957,11 @@ class Bowyer(Enemy):
     battle_npc = 241
     statue_only = True
     battle_sprite_is_tall = True
+    sprite_width = 47
+    sprite_height = 52
+    overworld_sesw_only = True
+    battle_sesw_only = True
+    other_sprites = [487]
 
 
 class Aero(Enemy):
@@ -6811,6 +7018,8 @@ class Exor(Enemy):
     battle_sequence = 10
     overworld_sprite_plus = 3
     battle_sprite_plus = 3
+    overworld_sesw_only = True
+    battle_sesw_only = True
 
     def get_patch(self):
         """Extra patch data for this enemy.
@@ -7008,6 +7217,10 @@ class Croco1(Enemy):
     overworld_npc = 48
     battle_sprite = 48
     battle_npc = 48
+    overworld_extra_sequence = 5
+    other_sprites = [261]
+    overworld_northeast_mold = 3
+    battle_northeast_mold = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7063,6 +7276,9 @@ class Croco2(Enemy):
     overworld_npc = 48
     battle_sprite = 48
     battle_npc = 48
+    overworld_extra_sequence = 5
+    overworld_northeast_mold = 3
+    battle_northeast_mold = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7178,6 +7394,10 @@ class AxemRangers(Enemy):
     battle_npc = 466
     other_npcs = [209, 210, 211, 212]
     other_sprites = [209, 210, 211, 212]
+    battle_push_sequence = 3
+    battle_push_length = 24
+    overworld_push_sequence = 3
+    overworld_push_length = 24
 
 
 class Booster(Enemy):
@@ -7219,6 +7439,11 @@ class Booster(Enemy):
     battle_npc = 50
     other_npcs = [504]
     other_sprites = [504]
+    overworld_extra_sequence = 2
+    overworld_push_sequence = 4
+    battle_push_sequence = 4
+    overworld_push_length = 72
+    battle_push_length = 72
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7325,6 +7550,13 @@ class Johnny(Enemy):
     other_npcs = [331]
     other_sprites = [331]
     battle_sprite_is_wide = True
+    sprite_height = 55
+    sprite_width = 64
+    overworld_extra_sequence = 10
+    battle_push_sequence = 3
+    battle_push_length = 38
+    other_sprites = [331]
+    overworld_northeast_mold = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7414,6 +7646,14 @@ class Valentina(Enemy):
     overworld_npc = 56
     battle_sprite = 507
     battle_sprite_is_tall = True
+    sprite_height = 82
+    sprite_width = 51
+    overworld_extra_sequence = 2
+    battle_push_sequence = 3
+    battle_push_length = 18
+    overworld_northeast_mold = 3
+    overworld_sesw_only = True
+    battle_sesw_only = True
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7546,6 +7786,10 @@ class Culex(Enemy):
     overworld_mold = 7
     overworld_sequence = 8
     other_sprites = [405, 406, 407, 408]
+    sprite_height = 143
+    sprite_width = 90
+    overworld_sesw_only = True
+    battle_sesw_only = True
 
 # ********************* Default lists for the world.
 
