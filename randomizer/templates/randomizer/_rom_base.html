@@ -79,9 +79,7 @@
             if (!bytes.length) {
                 this.u_array[seek] = bytes;
             } else {
-                for (let i = 0; i < bytes.length; i++) {
-                    this.u_array[seek + i] = bytes[i];
-                }
+                this.u_array.set(bytes, seek);
             }
         }
 
