@@ -68,6 +68,21 @@ class SpritePhaseEvent:
 
     # convert a sprite value to a pointer that can be patched in
 
+    def generate_code_culex(self):
+
+        for i in range(len(self.npc)):
+            returnBytes = [];
+            returnBytes.extend([(0x14 + self.npc[i]), 0x83])
+            if not self.reverse[i]:
+                returnBytes.extend([0x08, 0x40 + self.sprite, self.sequence[i]])
+            else:
+                returnBytes.extend([0x08, 0x40 + self.sprite, 0x80 + self.sequence[i]])
+        returnBytes.append(0xD0)
+        eventpointer = calcpointer(self.original_event)
+        returnBytes.extend(eventpointer)
+        returnBytes.append(0xFE)
+        return returnBytes
+
     def generate_code(self):
         returnBytes = [];
         if not isinstance(self.npc, list):
@@ -89,6 +104,43 @@ class SpritePhaseEvent:
         eventpointer = calcpointer(self.original_event)
         returnBytes.extend(eventpointer)
         returnBytes.append(0xFE)
+        return returnBytes
+
+    def export_sprite_load(self):
+        returnBytes = [];
+        if not isinstance(self.npc, list):
+            npcs = [];
+            npcs.append(self.npc)
+        else:
+            npcs = self.npc
+        for npc in npcs:
+            returnBytes.extend([(0x14 + npc), 0x83])
+            if self.is_sequence_and_not_mold and not self.reverse:
+                returnBytes.extend([0x08, 0x40 + self.sprite, self.sequence])
+            elif self.is_sequence_and_not_mold and self.reverse:
+                returnBytes.extend([0x08, 0x40 + self.sprite, 0x80 + self.sequence])
+            elif not self.is_sequence_and_not_mold and not self.reverse:
+                returnBytes.extend([0x08, 0x08 + self.sprite, self.mold])
+            elif not self.is_sequence_and_not_mold and self.reverse:
+                returnBytes.extend([0x08, 0x08 + self.sprite, 0x80 + self.mold])
+        return returnBytes
+
+    def export_sprite_sequence(self):
+        returnBytes = [];
+        if not isinstance(self.npc, list):
+            npcs = [];
+            npcs.append(self.npc)
+        else:
+            npcs = self.npc
+        for npc in npcs:
+            if self.is_sequence_and_not_mold and not self.reverse:
+                returnBytes.extend([0x08, 0x40 + self.sprite, self.sequence])
+            elif self.is_sequence_and_not_mold and self.reverse:
+                returnBytes.extend([0x08, 0x40 + self.sprite, 0x80 + self.sequence])
+            elif not self.is_sequence_and_not_mold and not self.reverse:
+                returnBytes.extend([0x08, 0x08 + self.sprite, self.mold])
+            elif not self.is_sequence_and_not_mold and self.reverse:
+                returnBytes.extend([0x08, 0x08 + self.sprite, 0x80 + self.mold])
         return returnBytes
 
 
@@ -525,6 +577,7 @@ class GameWorld:
                 if dialogue_iterator == 5:
                     #show character in marrymore
                     patch.add_data(0x14a94d, character.forest_maze_sprite_id)
+                    patch.add_data(0x148f91, character.forest_maze_sprite_id)
                     if character.name is not "Toadstool":
                         if character.name is "Mario":
                             #surprised
@@ -550,6 +603,16 @@ class GameWorld:
                             patch.add_data(0x20d5d8, [0x08, 0x43, 0x80])
                             #crying in other direction
                             patch.add_data(0x20d5e3, [0x08, 0x43, 0x84])
+                            #booster hill
+                            patch.add_data(0x207147, [0x08, 0x43, 0x89])
+                            patch.add_data(0x20714E, [0x08, 0x43, 0x09])
+                            patch.add_data(0x207160, [0x08, 0x43, 0x89])
+                            patch.add_data(0x207165, [0x08, 0x43, 0x88])
+                            patch.add_data(0x206b1a, [0x08, 0x43, 0x88])
+                            patch.add_data(0x206d19, [0x08, 0x43, 0x89])
+                            patch.add_data(0x206d20, [0x08, 0x43, 0x09])
+                            patch.add_data(0x206d34, [0x08, 0x43, 0x89])
+                            patch.add_data(0x206d39, [0x08, 0x43, 0x88])
                         else:
                             #surprised
                             patch.add_data(0x20d338, [0x08, 0x42, 0x00])
@@ -558,6 +621,16 @@ class GameWorld:
                             patch.add_data(0x20d5d8, [0x08, 0x42, 0x80])
                             #sitting
                             patch.add_data(0x20d43b, [0x08, 0x49, 0x1f])
+                            #booster hill
+                            patch.add_data(0x207147, [0x08, 0x42, 0x09])
+                            patch.add_data(0x20714E, [0x08, 0x42, 0x89])
+                            patch.add_data(0x207160, [0x08, 0x42, 0x09])
+                            patch.add_data(0x207165, [0x08, 0x42, 0x88])
+                            patch.add_data(0x206b1a, [0x08, 0x42, 0x88])
+                            patch.add_data(0x206d19, [0x08, 0x42, 0x09])
+                            patch.add_data(0x206d20, [0x08, 0x42, 0x89])
+                            patch.add_data(0x206d34, [0x08, 0x42, 0x09])
+                            patch.add_data(0x206d39, [0x08, 0x42, 0x88])
                             if character.name is "Geno":
                                 #crying
                                 patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
@@ -750,12 +823,12 @@ class GameWorld:
         for location in self.boss_locations:
             if (location.name in ["HammerBros", "Croco1", "Mack", "Belome1", "Bowyer", "Croco2", "Punchinello", "KingCalamari",
                                   "Booster", "Johnny", "Belome2", "Jagger", "Jinx3",
-                                  "Megasmilax", "Dodo", "Valentina", "Magikoopa", "Boomer", "CzarDragon", "AxemRangers",
+                                  "MegaSmilax", "Dodo", "Valentina", "Magikoopa", "Boomer", "CzarDragon", "AxemRangers",
                                   "Countdown", "Clerk", "Manager", "Director", "Gunyolk"]):
                 for enemy in location.pack.common_enemies:
                     if enemy.overworld_sprite is not None:
                         shuffled_boss = enemy
-                if (approximate_dimension(shuffled_boss.sprite_height) <= approximate_dimension(location.sprite_height) and approximate_dimension(shuffled_boss.sprite_width) <= approximate_dimension(location.sprite_width)) or location.name in ["Belome1", "Belome2", "Johnny", "Jagger", "Jinx3", "Dodo", "Magikoopa", "Boomer", "Countdown"]:
+                if (location.name is not "Gunyolk" and (approximate_dimension(shuffled_boss.sprite_height) <= approximate_dimension(location.sprite_height) and approximate_dimension(shuffled_boss.sprite_width) <= approximate_dimension(location.sprite_width)) or location.name in ["Belome1", "Belome2", "Dodo"]):
                     sprite = shuffled_boss.battle_sprite
                     mold = shuffled_boss.battle_mold
                     sequence = shuffled_boss.battle_sequence
@@ -763,7 +836,7 @@ class GameWorld:
                     freeze = shuffled_boss.battle_freeze
                     sesw_only = shuffled_boss.battle_sesw_only
                     invert_se_sw = shuffled_boss.battle_invert_se_sw
-                    extra_sequence = False
+                    extra_sequence = shuffled_boss.battle_extra_sequence
                     push_sequence = shuffled_boss.battle_push_sequence
                     push_length = shuffled_boss.battle_push_length
                     northeast_mold = shuffled_boss.battle_northeast_mold
@@ -781,11 +854,9 @@ class GameWorld:
                     push_length = shuffled_boss.overworld_push_length
                     northeast_mold = shuffled_boss.overworld_northeast_mold
                     dont_reverse_northeast = shuffled_boss.overworld_dont_reverse_northeast
-                    
 
-                # Mushroom Way
                 if location.name == "HammerBros":
-                    print(location, shuffled_boss)
+                    print(location.name + ": " + shuffled_boss.name)
                     # reassign NPC 283's sprite
                     # try big sprite
                     patch.add_data(0x1DBfbd, calcpointer(sprite, [0x00, 0x68]));
@@ -796,9 +867,8 @@ class GameWorld:
                         elif mold > 0:
                             sub_sequence = False
                         spritePhaseEvents.append(SpritePhaseEvent(7, plus, mold, sub_sequence, sequence, False, 205, 2814, 0x20f045))
-                # Bandit's Way
                 if location.name == "Croco1":
-                    print(location, shuffled_boss)
+                    print(location.name + ": " + shuffled_boss.name)
                     # use npc 110, set properties to match croco's
                     for addr in [0x1495e1, 0x14963a, 0x14969f, 0x14b4c7, 0x14b524]:
                         patch.add_data(addr, [0xBB, 0x01])
@@ -937,7 +1007,7 @@ class GameWorld:
                     #if freeze or (not sub_sequence and mold > 0): #dont loop
                     #    patch.add_data(0x211fc5, [0x9b])
                 if location.name == "Mack":
-                    print(location, shuffled_boss)
+                    print(location.name + ": " + shuffled_boss.name)
                     # reassign NPC 480's sprite
                     patch.add_data(0x1Dc520, calcpointer(sprite, [0x00, 0x68]));
                     #face southwest
@@ -955,12 +1025,12 @@ class GameWorld:
                             sub_sequence = False
                         spritePhaseEvents.append(SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 326, 368, 0x20f47d))
                 if location.name == "Belome1":
+                    print(location.name + ": " + shuffled_boss.name)
                     # use npc 371, set properties to match belome's
                     patch.add_data(0x14c67a, [0xcd, 0x05]);
                     # replace its sprite
                     patch.add_data(0x1Dc225, calcpointer(sprite, [0x00, 0xA8]));
                     patch.add_data(0x1Dc227, [0x60, 0x02, 0xaa, 0x12, 0x00]);
-                    print(location, shuffled_boss)
                     if sequence > 0 or mold > 0:
                         if sequence > 0:
                             sub_sequence = True
@@ -968,7 +1038,7 @@ class GameWorld:
                             sub_sequence = False
                         spritePhaseEvents.append(SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 302, 3135, 0x20f3be))
                 if location.name == "Bowyer":
-                    print(location, shuffled_boss)
+                    print(location.name + ": " + shuffled_boss.name)
                     # reassign NPC 455's sprite
                     # try big sprite
                     patch.add_data(0x1dc54a, calcpointer(sprite, [0x00, 0x68]));
@@ -979,7 +1049,7 @@ class GameWorld:
                             sub_sequence = False
                         spritePhaseEvents.append(SpritePhaseEvent(16, plus, mold, sub_sequence, sequence, False, 232, 15, 0x20F1C6))
                 if location.name == "Croco2":
-                    print(location, shuffled_boss)
+                    print(location.name + ": " + shuffled_boss.name)
                     # use npc 367, set properties to match croco's
                     patch.add_data(0x14c2a2, [0xBE, 0xA5]);
                     patch.add_data(0x14c300, [0xBE, 0xE5]);
@@ -1043,7 +1113,7 @@ class GameWorld:
                         spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 279, 15, 0x20f319))
                         spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 283, 3204, 0x20f32b))
                 if location.name == "Punchinello":
-                    print(location, shuffled_boss)
+                    print(location.name + ": " + shuffled_boss.name)
                     patch.add_data(0x1dc4b0, calcpointer(sprite, [0x00, 0x48]));
                     #push animations
                     if not freeze and push_sequence is not False:
@@ -1065,7 +1135,7 @@ class GameWorld:
                         sub_sequence = False
                     spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 289, 592, 0x20F36b))
                 if location.name == "KingCalamari":
-                    print(location, shuffled_boss)
+                    print(location.name + ": " + shuffled_boss.name)
                     if (shuffled_boss.name is not "KingCalamari"):
                         patch.add_data(0x1dbc98, calcpointer(sprite, [0x00, 0x28]))
                         patch.add_data(0x214068, 0x9b)
@@ -1081,7 +1151,7 @@ class GameWorld:
                             patch.add_data(0x21406c, [0x08, 0x58 + plus, mold])
                         spritePhaseEvents.append(SpritePhaseEvent(7, plus, mold, sub_sequence, sequence, False, 177, 3224, 0x20eef1))
                 if location.name == "Booster":
-                    print(location, shuffled_boss)
+                    print(location.name + ": " + shuffled_boss.name)
                     if (shuffled_boss.name is not "Booster"):
                         #replace sprite for npc 50
                         if freeze or sesw_only:
@@ -1090,67 +1160,69 @@ class GameWorld:
                             patch.add_data(0x1db95e, calcpointer(sprite, [0x00, 0x00]))
                         #was gonna replace snifits too for axems + culex's sidekicks, but they are cloned + it wouldnt work
                         #only do it for clerk, manager, director, croco, mack, bowyer, punchinello, johnny, megasmilax, czar dragon
-                        if shuffled_boss.name in ["Bundt", "Clerk", "Manager", "Director", "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello", "Johnny", "Megasmilax", "CzarDragon"]:
+                        if shuffled_boss.name in ["Bundt", "Clerk", "Manager", "Director", "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello", "Johnny", "Megasmilax", "CzarDragon", "Birdo", "Valentina", "Hidon", "Yaridovich", "Boomer"]:
                             patch.add_data(0x1dc5c8, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x20]))
+                            patch.add_data(0x1db8fc, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x00]))
                             #tower
-                            patch.add_data(0x1ee8b4, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x216b3d, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x216b42, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x216b47, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x216b4d, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x216b52, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x216b57, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x216b5c, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ee8ff, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ee98e, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ee9d7, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eea69, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eea7a, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eeae0, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eeaef, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eeb5b, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eeb6b, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eebe3, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eec02, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eec16, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eeca5, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eecad, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eed16, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eed28, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eed91, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eeda3, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eee78, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eee7f, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eee86, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eef0d, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eef1d, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eef2d, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eefc0, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eefc5, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1eefca, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef05d, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef062, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef067, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef0fa, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef109, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef10e, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef11a, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef11f, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef12b, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef1e0, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef1fe, [0x9b, 0x9b, 0x9b])
-                            patch.add_data(0x1ef217, [0x9b, 0x9b, 0x9b])
-                        if freeze: #never change directions
+                            patch.add_data(0x1ee8b4, [0x75, 0x75, 0x75])
+                            patch.add_data(0x216b3d, [0x75, 0x75, 0x75])
+                            patch.add_data(0x216b42, [0x75, 0x75, 0x75])
+                            patch.add_data(0x216b47, [0x75, 0x75, 0x75])
+                            patch.add_data(0x216b4d, [0x75, 0x75, 0x75])
+                            patch.add_data(0x216b52, [0x75, 0x75, 0x75])
+                            patch.add_data(0x216b57, [0x75, 0x75, 0x75])
+                            patch.add_data(0x216b5c, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ee8ff, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1EE947, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ee98e, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ee9d7, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eea69, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eea7a, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eeae0, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eeaef, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eeb5b, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eeb6b, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eebe3, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eec02, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eec16, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eeca5, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eecad, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eed16, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eed28, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eed91, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eeda3, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eee78, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eee7f, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eee86, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eef0d, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eef1d, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eef2d, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eefc0, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eefc5, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1eefca, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef05d, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef062, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef067, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef0fa, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef109, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef10e, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef11a, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef11f, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef12b, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef1e0, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef1fe, [0x75, 0x75, 0x75])
+                            patch.add_data(0x1ef217, [0x75, 0x75, 0x75])
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            patch.add_data(0x14a93f, 0x40)
                             #portrait room
                             patch.add_data(0x1ee055, 0x9b)
                             patch.add_data(0x1ee073, 0x9b)
                             #tower
                             patch.add_data(0x1ed899, 0x9b)
-                            patch.add_data(0x1ee4ce, 0x9b)
                             patch.add_data(0x1ee4d4, 0x9b)
                             patch.add_data(0x1ee541, 0x9b)
                             patch.add_data(0x1ee6c9, 0x9b)
-                            patch.add_data(0x1eea36, 0x9b)
+                            patch.add_data(0x1eea39, 0x9b)
                             patch.add_data(0x1ef2bc, 0x9b)
                             patch.add_data(0x1ef2f2, 0x9b)
                             patch.add_data(0x1ef35c, 0x9b)
@@ -1164,6 +1236,15 @@ class GameWorld:
                             patch.add_data(0x20d5d3, 0x9b)
                             patch.add_data(0x20d5fe, 0x9b)
                             patch.add_data(0x20d6fe, 0x9b)
+                            #booster hill
+                            patch.add_data(0x207158, 0x9b)
+                            patch.add_data(0x20715B, 0x9b)
+                            patch.add_data(0x20716E, 0x9b)
+                            patch.add_data(0x207171, 0x9b)
+                            patch.add_data(0x206d2b, 0x9b)
+                            patch.add_data(0x206d2e, 0x9b)
+                            patch.add_data(0x206d44, 0x9b)
+                            patch.add_data(0x206d47, 0x9b)
                         sub_sequence = True
                         if sequence == 0 and mold > 0:
                             sub_sequence = False
@@ -1172,7 +1253,10 @@ class GameWorld:
                             patch.add_data(0x1ed89a, 0x9b)
                             patch.add_data(0x1ef2fa, 0x9b)
                             patch.add_data(0x1ef35a, 0x9b)
-                        if freeze or (not sub_sequence and mold > 0): #dont reset properties
+                            #booster hill
+                            patch.add_data(0x206b58, 0x9b)
+                            patch.add_data(0x206b64, 0x9b)
+                        if freeze or sequence > 0 or mold > 0: #dont reset properties
                             #portrait room
                             patch.add_data(0x1ee090, 0x9b)
                             #tower
@@ -1186,6 +1270,8 @@ class GameWorld:
                             patch.add_data(0x1ef4f5, 0x9b)
                             #marrymore
                             patch.add_data(0x20d6fc, 0x9b)
+                            #booster hill
+                            patch.add_data(0x211fc5, 0x9b)
                         if invert_se_sw: #change north-south cardinality on everything
                             #portrait room
                             patch.add_data(0x1ee055, 0x77)
@@ -1195,6 +1281,7 @@ class GameWorld:
                             patch.add_data(0x1ee4d4, 0x71)
                             patch.add_data(0x1ee541, 0x75)
                             patch.add_data(0x1ee6c9, 0x73)
+                            patch.add_data(0x1eea39, 0x73)
                             patch.add_data(0x1ef2bc, 0x73)
                             patch.add_data(0x1ef2f2, 0x73)
                             patch.add_data(0x1ef35c, 0x73)
@@ -1208,11 +1295,25 @@ class GameWorld:
                             patch.add_data(0x20d5d3, 0x71)
                             patch.add_data(0x20d5fe, 0x75)
                             patch.add_data(0x20d6fe, 0x71)
+                            #booster hill
+                            patch.add_data(0x207158, 0x75)
+                            patch.add_data(0x20715B, 0x77)
+                            patch.add_data(0x20716E, 0x75)
+                            patch.add_data(0x207171, 0x73)
+                            patch.add_data(0x206d2b, 0x75)
+                            patch.add_data(0x206d2e, 0x77)
+                            patch.add_data(0x206d44, 0x75)
+                            patch.add_data(0x206d47, 0x73)
                         #portrait room
                         patch.add_data(0x1ee078, [0x9b, 0x9b, 0x9b])
                         #tower
                         patch.add_data(0x1ef2c9, [0x9b, 0x9b, 0x9b])
                         patch.add_data(0x1ef2ce, [0x9b, 0x9b, 0x9b])
+                        #shovel knight enemies have weird sprite layouts
+                        if dont_reverse_northeast:
+                            patch.add_data(0x14a93f, 0x40)
+                            patch.add_data(0x20d6fc, 0x9b)
+                            patch.add_data(0x20d6fe, 0x9b)
                         #special animations
                         if not freeze:
                             if extra_sequence is not False:
@@ -1245,6 +1346,14 @@ class GameWorld:
                             else:
                                 patch.add_data(0x20d31b, [0x08, 0x48, 0x80 + northeast_mold])
                         #preload sprite form if needed
+                        if sequence > 0:
+                            patch.add_data(0x1ee4cc, [0x08, 0x40 + plus, sequence])
+                            patch.add_data(0x1ef4d5, [(0x14 + 7), 0x83, 0x08, 0x40 + plus, sequence])
+                        elif mold > 0:
+                            patch.add_data(0x1ee4cc, [0x08, 0x08 + plus, mold])
+                            patch.add_data(0x1ef4d5, [(0x14 + 7), 0x83, 0x08, 0x08 + plus, mold])
+                        elif freeze:
+                            patch.add_data(0x1ee4ce, 0x9b)
                         if sequence > 0 or mold > 0:
                             #tower
                             spritePhaseEvents.append(SpritePhaseEvent([0, 7], plus, mold, sub_sequence, sequence, False, 192, 1359, 0x20efad))
@@ -1254,6 +1363,623 @@ class GameWorld:
                             spritePhaseEvents.append(SpritePhaseEvent(6, plus, mold, sub_sequence, sequence, False, 195, 1339, 0x20efe4))
                             # stair room
                             spritePhaseEvents.append(SpritePhaseEvent(6, plus, mold, sub_sequence, sequence, False, 193, 15, 0x20efce))
+                            # booster hill
+                            spritePhaseEvents.append(SpritePhaseEvent(7, plus, mold, sub_sequence, sequence, False, 54, 3499, 0x20e74f))
+                if location.name == "Johnny":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if (shuffled_boss.name is not "Johnny"):
+                        #replace sprite for npc 52
+                        if freeze or sesw_only:
+                            patch.add_data(0x1db96c, calcpointer(sprite, [0x00, 0x08]))
+                        else:
+                            patch.add_data(0x1db96c, calcpointer(sprite, [0x00, 0x00]))
+                        # these bosses will have someone replace bandana blues
+                        if shuffled_boss.name in ["Booster", "Bundt", "Clerk", "Manager", "Director", "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello", "Booster", "Megasmilax", "CzarDragon", "Birdo", "Valentina", "Hidon", "Yaridovich", "Boomer"]:
+                            patch.add_data(0x1dc10d, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x20]))
+                        if freeze: #never change directions
+                            patch.add_data(0x203873, 0x9b)
+                        sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        if freeze or (not sub_sequence and mold > 0): #dont loop
+                            patch.add_data(0x213faa, 0x9b)
+                            patch.add_data(0x213fb2, 0x9b)
+                        if freeze or sequence > 0 or mold > 0: #dont reset properties
+                            patch.add_data(0x213fb1, 0x9b)
+                            patch.add_data(0x203871, 0x9b)
+                        if invert_se_sw: #change north-south cardinality on everything
+                            patch.add_data(0x203873, 0x73)
+                        #preload sprite form if needed
+                        patch.add_data(0x213FA7, [0x9b, 0x9b, 0x9b])
+                        if sequence > 0 or mold > 0:
+                            spritePhaseEvents.append(SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, False, 28, 3282, 0x20E586))
+                if location.name == "Belome2":
+                    # replace belome's sprite
+                    print(location.name + ": " + shuffled_boss.name)
+                    patch.add_data(0x1Dc471, calcpointer(sprite, [0x00, 0xA8]))
+                    if sequence > 0 or mold > 0:
+                        if sequence > 0:
+                            sub_sequence = True
+                        elif mold > 0:
+                            sub_sequence = False
+                        spritePhaseEvents.append(SpritePhaseEvent(4, plus, mold, sub_sequence, sequence, False, 268, 1771, 0x20f2e6))
+                if location.name == "Jagger":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Jagger":
+                        # replace jagger's sprite
+                        if freeze or sesw_only:
+                            patch.add_data(0x1Dbc44, calcpointer(sprite, [0x00, 0x28]))
+                        else:
+                            patch.add_data(0x1Dbc44, calcpointer(sprite, [0x00, 0x20]))
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            patch.add_data(0x14be67, 0x40)
+                            sub_sequence = True
+                            patch.add_data(0x1f6bb9, 0x9b)
+                            patch.add_data(0x1f6bc6, 0x9b)
+                            patch.add_data(0x1f6bcf, 0x9b)
+                            patch.add_data(0x1f6be0, 0x9b)
+                            patch.add_data(0x1f6c00, 0x9b)
+                            patch.add_data(0x1f6c7b, 0x9b)
+                            patch.add_data(0x1f6cc2, 0x9b)
+                            patch.add_data(0x1f6d18, 0x9b)
+                            patch.add_data(0x1f6d29, 0x9b)
+                            patch.add_data(0x1f6f4c, 0x9b)
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        #if freeze or (not sub_sequence and mold > 0): #dont loop
+                        if freeze or sequence > 0 or mold > 0: #dont reset properties
+                            patch.add_data(0x1f6c0a, 0x9b)
+                            patch.add_data(0x1f6c2f, 0x9b)
+                            patch.add_data(0x1f6cc1, 0x9b)
+                            patch.add_data(0x1f6d17, 0x9b)
+                        if invert_se_sw: #change north-south cardinality on everything
+                            patch.add_data(0x1f6bb9, 0x71)
+                            patch.add_data(0x1f6bc6, 0x75)
+                            patch.add_data(0x1f6bcf, 0x77)
+                            patch.add_data(0x1f6be0, 0x75)
+                            patch.add_data(0x1f6c00, 0x75)
+                            patch.add_data(0x1f6c7b, 0x75)
+                            patch.add_data(0x1f6cc2, 0x75)
+                            patch.add_data(0x1f6d20, 0x71)
+                            patch.add_data(0x1f6d29, 0x77)
+                            patch.add_data(0x1f6f4c, 0x75)
+                        #if dont_reverse_northeast: #factory clerks
+                        #special animations
+                        if not freeze:
+                            if push_sequence is not False:
+                                patch.add_data(0x1f6c8c, [0x08, 0x50, push_sequence])
+                            else:
+                                patch.add_data(0x1f6c8c, [0x08, 0x50, sequence])
+                            if extra_sequence is not False:
+                                patch.add_data(0x1f6d12, [0x08, 0x40, extra_sequence])
+                            else:
+                                patch.add_data(0x1f6d12, [0x9b,0x9b, 0x9b])
+                        else:
+                            patch.add_data(0x1f6c8c, [0x9b,0x9b, 0x9b])
+                            patch.add_data(0x1f6d12, [0x9b,0x9b, 0x9b])
+                        #remove sfx
+                        patch.add_data(0x1f6c8a, [0x9b, 0x9b])
+                        patch.add_data(0x1f6c05, [0x9b, 0x9b, 0x9b])
+                        #If Jinx needs preloading, do it now
+                        for l in self.boss_locations:
+                            if (l.name in ["HammerBros", "Croco1", "Mack", "Belome1", "Bowyer", "Croco2",
+                                                  "Punchinello", "KingCalamari",
+                                                  "Booster", "Johnny", "Belome2", "Jagger", "Jinx3",
+                                                  "Megasmilax", "Dodo", "Valentina", "Magikoopa", "Boomer",
+                                                  "CzarDragon", "AxemRangers",
+                                                  "Countdown", "Clerk", "Manager", "Director", "Gunyolk"]):
+                                for e in l.pack.common_enemies:
+                                    if e.overworld_sprite is not None:
+                                        if l.name is "Jinx3" and e.name is not "Jinx3":
+                                            if e.overworld_sequence > 0 or e.overworld_mold > 0:
+                                                if e.overworld_sequence > 0:
+                                                    patch.add_data(0x1f6c5e, [0x14, 0x86, 0x08, 0x40 + e.overworld_sprite_plus, e.overworld_sequence, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                                                elif e.overworld_mold > 0:
+                                                    patch.add_data(0x1f6c5e, [0x14, 0x86, 0x08, 0x08 + e.overworld_sprite_plus, e.overworld_mold, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(1, plus, mold, sub_sequence, sequence, False, 255, 2064, 0x20f2a1))
+                if location.name == "Jinx3":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Jinx3":
+                        if freeze or sesw_only:
+                            patch.add_data(0x1Dbda9, calcpointer(sprite, [0x00, 0x08]))
+                        else:
+                            patch.add_data(0x1Dbda9, calcpointer(sprite, [0x00, 0x00]))
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            patch.add_data(0x14be5b, 0x40)
+                            sub_sequence = True
+                            patch.add_data(0x1f6bd7, 0x9b)
+                            patch.add_data(0x1f6bea, 0x9b)
+                            patch.add_data(0x1f6cba, 0x9b)
+                            patch.add_data(0x1f6d30, 0x9b)
+                            patch.add_data(0x1f6d82, 0x9b)
+                            patch.add_data(0x1f6d9b, 0x9b)
+                            patch.add_data(0x1f6dc2, 0x9b)
+                            patch.add_data(0x1f6dd8, 0x9b)
+                            patch.add_data(0x1f6deb, 0x9b)
+                            patch.add_data(0x1f6e19, 0x9b)
+                            patch.add_data(0x1f6eb9, 0x9b)
+                            patch.add_data(0x1f6f37, 0x9b)
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        #if freeze or (not sub_sequence and mold > 0): #dont loop
+                        if freeze or sequence > 0 or mold > 0: #dont reset properties
+                            patch.add_data(0x1f6d50, 0x9b)
+                            patch.add_data(0x1f6eb8, 0x9b)
+                        if invert_se_sw: #change north-south cardinality on everything
+                            patch.add_data(0x1f6bd7, 0x75)
+                            patch.add_data(0x1f6bea, 0x75)
+                            patch.add_data(0x1f6cba, 0x75)
+                            patch.add_data(0x1f6d30, 0x77)
+                            patch.add_data(0x1f6d82, 0x71)
+                            patch.add_data(0x1f6d9b, 0x71)
+                            patch.add_data(0x1f6dc2, 0x77)
+                            patch.add_data(0x1f6dd8, 0x75)
+                            patch.add_data(0x1f6deb, 0x75)
+                            patch.add_data(0x1f6e19, 0x75)
+                            patch.add_data(0x1f6eb9, 0x75)
+                            patch.add_data(0x1f6f37, 0x75)
+                        #if dont_reverse_northeast: #factory clerks
+                        #special animations
+                        if not freeze:
+                            if push_sequence is not False:
+                                patch.add_data(0x1f6e69, [0x08, 0x50, push_sequence])
+                            else:
+                                patch.add_data(0x1f6e69, [0x08, 0x50, sequence])
+                        else:
+                            patch.add_data(0x1f6e69, [0x9b, 0x9b, 0x9b])
+                if location.name == "MegaSmilax":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "MegaSmilax":
+                        # use npc 154, set properties to match smilax's
+                        #fix scripts
+                        patch.add_data(0x14be2c, [0x6B, 0xF2, 0xC0, 0xFC, 0x69, 0x00, 0x9B, 0x46, 0x61, 0x00, 0x40, 0x50, 0x2B, 0xF7, 0xC0, 0xFC, 0x09, 0x00, 0x1B])
+                        patch.add_data(0x1dbc36, calcpointer(sprite, [0x00, 0x08]))
+                        patch.add_data(0x1dbc38, [0x80, 0x81, 0x44, 0x07])
+                        patch.add_data(0x1fdb24, [0x15, 0xF9])
+                        patch.add_data(0x1fdb26, [0x16, 0xF9])
+                        patch.add_data(0x1fdb3b, [0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1fdb2d, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 254, 2555, 0x20f299))
+                            patch.add_data(0x1fdb28, SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 254, 2555, 0x20f299).export_sprite_load())
+                        else:
+                            patch.add_data(0x1fdb28, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                if location.name == "Dodo":
+                    print(location.name + ": " + shuffled_boss.name)
+                    #load dodo in save room if you won statue game
+                    patch.add_data(0x1f759f, SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, True, 112, 2108, 0x20eb0f).export_sprite_sequence())
+                    patch.add_data(0x1dbb95, calcpointer(sprite, [0x00, 0x88]))
+                if location.name == "Valentina":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Valentina":
+                        if freeze or sesw_only:
+                            patch.add_data(0x1db988, calcpointer(sprite, [0x00, 0x08]))
+                            #patch.add_data(0x1db9b9, calcpointer(sprite, [0x00, 0x08]))
+                        else:
+                            patch.add_data(0x1db988, calcpointer(sprite, [0x00, 0x00]))
+                            #patch.add_data(0x1db9b9, calcpointer(sprite, [0x00, 0x00]))
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                            patch.add_data(0x1ea3e2, 0x9b)
+                            patch.add_data(0x1ea515, 0x9b)
+                            patch.add_data(0x1ea405, 0x9b)
+                            patch.add_data(0x1ea428, 0x9b)
+                            patch.add_data(0x1ea434, 0x9b)
+                            patch.add_data(0x1ea443, 0x9b)
+                            patch.add_data(0x1ea44c, 0x9b)
+                            patch.add_data(0x1ea42b, 0x9b)
+                            patch.add_data(0x1ea43a, 0x9b)
+                            patch.add_data(0x1ea449, 0x9b)
+                            patch.add_data(0x1ea452, 0x9b)
+                            patch.add_data(0x1ea512, 0x9b)
+                            patch.add_data(0x1ea524, 0x9b)
+                            patch.add_data(0x1ea595, 0x9b)
+                            patch.add_data(0x1ea5a7, 0x9b)
+                            patch.add_data(0x1ea42e, 0x9b)
+                            patch.add_data(0x1ea437, 0x9b)
+                            patch.add_data(0x1ea43d, 0x9b)
+                            patch.add_data(0x1ea437, 0x9b)
+                            patch.add_data(0x1ea446, 0x9b)
+                            patch.add_data(0x1ea44f, 0x9b)
+                            patch.add_data(0x1ea458, 0x9b)
+                            patch.add_data(0x1ea518, 0x9b)
+                            patch.add_data(0x1ea573, 0x9b)
+                            patch.add_data(0x1ea59d, 0x9b)
+                            patch.add_data(0x1ea431, 0x9b)
+                            patch.add_data(0x1ea440, 0x9b)
+                            patch.add_data(0x1ea455, 0x9b)
+                            patch.add_data(0x1ea50f, 0x9b)
+                            patch.add_data(0x1ea521, 0x9b)
+                            patch.add_data(0x1ea570, 0x9b)
+                            patch.add_data(0x1ea592, 0x9b)
+                            patch.add_data(0x1ea59a, 0x9b)
+                            patch.add_data(0x1ea5a4, 0x9b)
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        if freeze or (not sub_sequence and mold > 0): #dont loop
+                            patch.add_data(0x1ea528, 0x9b)
+                            patch.add_data(0x1ea52b, 0x9b)
+                        #if freeze or sequence > 0 or mold > 0: #dont reset properties
+                        if invert_se_sw: #change north-south cardinality on everything
+                            patch.add_data(0x1ea3e2, 0x75)
+                            patch.add_data(0x1ea515, 0x75)
+                            patch.add_data(0x1ea405, 0x77)
+                            patch.add_data(0x1ea428, 0x73)
+                            patch.add_data(0x1ea434, 0x73)
+                            patch.add_data(0x1ea443, 0x73)
+                            patch.add_data(0x1ea44c, 0x73)
+                            patch.add_data(0x1ea42b, 0x75)
+                            patch.add_data(0x1ea43a, 0x75)
+                            patch.add_data(0x1ea449, 0x75)
+                            patch.add_data(0x1ea452, 0x75)
+                            patch.add_data(0x1ea512, 0x75)
+                            patch.add_data(0x1ea524, 0x75)
+                            patch.add_data(0x1ea595, 0x75)
+                            patch.add_data(0x1ea5a7, 0x75)
+                            patch.add_data(0x1ea42e, 0x71)
+                            patch.add_data(0x1ea437, 0x71)
+                            patch.add_data(0x1ea43d, 0x71)
+                            patch.add_data(0x1ea437, 0x71)
+                            patch.add_data(0x1ea446, 0x71)
+                            patch.add_data(0x1ea44f, 0x71)
+                            patch.add_data(0x1ea458, 0x71)
+                            patch.add_data(0x1ea518, 0x71)
+                            patch.add_data(0x1ea573, 0x71)
+                            patch.add_data(0x1ea59d, 0x71)
+                            patch.add_data(0x1ea431, 0x77)
+                            patch.add_data(0x1ea440, 0x77)
+                            patch.add_data(0x1ea455, 0x77)
+                            patch.add_data(0x1ea50f, 0x77)
+                            patch.add_data(0x1ea521, 0x77)
+                            patch.add_data(0x1ea570, 0x77)
+                            patch.add_data(0x1ea592, 0x77)
+                            patch.add_data(0x1ea59a, 0x77)
+                            patch.add_data(0x1ea5a4, 0x77)
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(9, plus, mold, sub_sequence, sequence, True, 430, 738, 0x20fa1a))
+                        #statues
+                        #for addr in [0x209f9b, 0x209f9f, 0x209fa3, 0x209fa7, 0x209fab, 0x209faf]:
+                        #    patch.add_data(addr, [0x9b, 0x9b, 0x9b, 0x9b])
+                        #patch.add_data(0x213005, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #patch.add_data(0x21300d, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #patch.add_data(0x213015, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #patch.add_data(0x21301d, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                if location.name == "CzarDragon":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "CzarDragon":
+                        #for added hilarity, use npc 155 to summon other sprites instead of sparky
+                        if shuffled_boss.name in ["Booster", "Bundt", "Clerk", "Manager", "Director", "Mack", "Bowyer", "Punchinello", "Johnny", "Megasmilax", "CzarDragon", "Birdo", "Valentina", "Hidon", "Yaridovich", "Boomer"]:
+                            patch.add_data(0x14cfd4, [0x6f, 0x82])
+                            if len(shuffled_boss.czar_sprite) > 0:
+                                patch.add_data(0x1dbc3d, calcpointer(shuffled_boss.czar_sprite[0], [0x00, 0x08]))
+                            else:
+                                patch.add_data(0x1dbc3d, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x08]))
+                            patch.add_data(0x1dbc3f, [0x80, 0x23, 0x55, 0x2b])
+                        patch.add_data(0x1dbde8, calcpointer(sprite, [0x00, 0x68]))
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(1, plus, mold, sub_sequence, sequence, True, 352, 3330, 0x20f608))
+                if location.name == "AxemRangers":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "AxemRangers":
+                        #just skip a hard cutscene, i dont wanna deal with it
+                        #nevermind, this hardlocks, dumb game
+                        #patch.add_data(0x204b30, [0xD2, 0x3A, 0x4B, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #patch.add_data(0x204b5f, [0xD2, 0x69, 0x4B, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #patch.add_data(0x204b75, [0xD2, 0x74, 0x4B, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #patch.add_data(0x204b92, [0xD2, 0x9c, 0x4B, 0x9b, 0x9b, 0x9b, 0x9b])
+                        #axem red
+                        patch.add_data(0x1dbdb0, calcpointer(sprite, [0x00, 0x08]))
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        if shuffled_boss.name is not "Culex":
+                            if len(shuffled_boss.other_sprites) < 1:
+                                #dont show axem green
+                                #room 4
+                                patch.add_data(0x20496d, [0xD9, 0xF4, 0x87, 0x49, 0xA1, 0xF4, 0x15, 0x05, 0x01, 0xFD, 0xF2, 0x57, 0x02, 0x14, 0x07, 0x01, 0xFD, 0xF2, 0x08, 0x40, 0x81, 0x47, 0xD1, 0x0F, 0x00, 0xFE, 0xD0, 0x0F, 0x00])
+                                #visibility, for some reason this doesnt do anything, why is this game so dumb
+                                patch.add_data(0x14d729, [0x0C, 0x2D, 0x60, 0x00, 0x40, 0x04, 0x43, 0x33, 0xC0, 0x00, 0x01, 0x04, 0x0C, 0x2F, 0x20, 0x15, 0x00, 0x41, 0x00, 0x4B, 0xF1, 0xC0, 0xFD, 0x00])
+                                patch.add_data(0x14d752, 0x12)
+                                #room 6 visibility
+                                patch.add_data(0x2049b4, [0x9b, 0x9b, 0x9b, 0x9b])
+                                #trampoline
+                                patch.add_data(0x204a39, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                            if len(shuffled_boss.other_sprites) < 2:
+                                #dont show axem yellow
+                                # visibility, for some reason this doesnt do anything, why is this game so dumb
+                                patch.add_data(0x14d756, 0x12)
+                                #room 6 visibility
+                                patch.add_data(0x2049bb, [0x9b, 0x9b, 0x9b, 0x9b])
+                                patch.add_data(0x204a6a,
+                                               [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b])
+                            if len(shuffled_boss.other_sprites) < 3:
+                                #dont show axem pink
+                                # visibility, for some reason this doesnt do anything, why is this game so dumb
+                                patch.add_data(0x14d7b0, 0x1c)
+                                patch.add_data(0x14d75a, 0x13)
+                                # room 6 visibility
+                                patch.add_data(0x2049c2, [0x9b, 0x9b, 0x9b, 0x9b])
+                                #trampoline
+                                patch.add_data(0x204a9b,
+                                               [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b])
+                            if len(shuffled_boss.other_sprites) < 4:
+                                #dont show axem black
+                                # visibility, for some reason this doesnt do anything, why is this game so dumb
+                                patch.add_data(0x14d7ac, 0x1c)
+                                patch.add_data(0x14d75e, 0x13)
+                                #room 6 visibility
+                                patch.add_data(0x2049c9, [0x9b, 0x9b, 0x9b, 0x9b])
+                                #trampoline
+                                patch.add_data(0x204acc,
+                                               [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                                0x9b])
+                            #trampoline bounces
+                            patch.add_data(0x204aff, [0xD4, len(shuffled_boss.other_sprites)])
+                            #load sprites from whatever boss is there
+                            if len(shuffled_boss.other_sprites) >= 1:
+                                patch.add_data(0x1dbdcc, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x08]))
+                            if len(shuffled_boss.other_sprites) >= 2:
+                                patch.add_data(0x1dbdc5, calcpointer(shuffled_boss.other_sprites[1], [0x00, 0x08]))
+                            if len(shuffled_boss.other_sprites) >= 3:
+                                patch.add_data(0x1dbdbe, calcpointer(shuffled_boss.other_sprites[2], [0x00, 0x08]))
+                            if len(shuffled_boss.other_sprites) >= 4:
+                                patch.add_data(0x1dbdb7, calcpointer(shuffled_boss.other_sprites[3], [0x00, 0x08]))
+                                #why is this loading sequence 5 for pandorite????????????? the event literally says sequence 4
+                            if len(shuffled_boss.other_sprites) < 4:
+                                spritePhaseEvents.append(SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, False, 393, 2120, 0x20f8a2))
+                                bytesFor2120 = [0xF2, 0x89, 0x35, 0x1a, 0xf9]
+                                if len(shuffled_boss.other_sprites) < 3:
+                                    bytesFor2120.extend([0xF2, 0x89, 0x33, 0x19, 0xf9])
+                                    if len(shuffled_boss.other_sprites) < 2:
+                                        bytesFor2120.extend([0xF2, 0x89, 0x31, 0x18, 0xf9])
+                                        if len(shuffled_boss.other_sprites) < 2:
+                                            bytesFor2120.extend([0xF2, 0x89, 0x2f, 0x17, 0xf9])
+                                bytesFor2120.append(0xD0)
+                                bytesFor2120.extend(calcpointer(3344))
+                                bytesFor2120.append(0xFE)
+                                for i in range(0x1f7a4d + len(bytesFor2120), 0x1f7a90):
+                                    bytesFor2120.append(0x9b)
+                                patch.add_data(0x1f7a4d, bytesFor2120)
+                            if sequence > 0 or mold > 0:
+                                if sequence > 0:
+                                    sub_sequence = True
+                                elif mold > 0:
+                                    sub_sequence = False
+                                spritePhaseEvents.append(SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, True, 357, 3332, 0x20f63b))
+                                spritePhaseEvents.append(SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, False, 388, 3339, 0x20f88d))
+                                spritePhaseEvents.append(SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, True, 394, 3342, 0x20f8a5))
+                                spritePhaseEvents.append(SpritePhaseEvent(1, plus, mold, sub_sequence, sequence, False, 392, 15, 0x20f899))
+                                if len(shuffled_boss.other_sprites) == 4:
+                                    spritePhaseEvents.append(SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, False, 393, 3344, 0x20f8a2))
+                        #culex needs special rules
+                        else:
+                            patch.add_data(0x1dbdcc, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x08]))
+                            patch.add_data(0x1dbdc5, calcpointer(shuffled_boss.other_sprites[1], [0x00, 0x08]))
+                            patch.add_data(0x1dbdbe, calcpointer(shuffled_boss.other_sprites[2], [0x00, 0x08]))
+                            patch.add_data(0x1dbdb7, calcpointer(shuffled_boss.other_sprites[3], [0x00, 0x08]))
+                            spritePhaseEvents.append(SpritePhaseEvent([2, 4, 5, 6], 0, 0, True, [sequence, shuffled_boss.other_sprites_sequences[0], shuffled_boss.other_sprites_sequences[1], shuffled_boss.other_sprites_sequences[2], shuffled_boss.other_sprites_sequences[3]], [True, True, True, True, True], 357, 3332, 0x20f63b))
+                            spritePhaseEvents.append(SpritePhaseEvent([2, 4, 5, 6], 0, 0, True, [sequence, shuffled_boss.other_sprites_sequences[0], shuffled_boss.other_sprites_sequences[1], shuffled_boss.other_sprites_sequences[2], shuffled_boss.other_sprites_sequences[3]], [True, True, True, False, False], 388, 3339, 0x20f88d))
+                            spritePhaseEvents.append(SpritePhaseEvent(1, 0, 0, True, shuffled_boss.other_sprites_sequences[2], True, 365, 15, 0x20f653))
+                            spritePhaseEvents.append(SpritePhaseEvent(1, 0, 0, True, shuffled_boss.other_sprites_sequences[1], True, 391, 3341, 0x20f896))
+                            spritePhaseEvents.append(SpritePhaseEvent([1, 2, 3], 0, 0, True, [shuffled_boss.other_sprites_sequences[4], shuffled_boss.other_sprites_sequences[3], sequence], [True, False, True], 394, 3342, 0x20f8a5))
+                            spritePhaseEvents.append(SpritePhaseEvent([1, 2, 4, 5], 0, 0, True, [sequence, shuffled_boss.other_sprites_sequences[0], shuffled_boss.other_sprites_sequences[1], shuffled_boss.other_sprites_sequences[2], shuffled_boss.other_sprites_sequences[3]], [False, False, False, False, False], 392, 15, 0x20f899))
+                            spritePhaseEvents.append(SpritePhaseEvent([2, 4, 5, 6], 0, 0, True, [sequence, shuffled_boss.other_sprites_sequences[0], shuffled_boss.other_sprites_sequences[1], shuffled_boss.other_sprites_sequences[2], shuffled_boss.other_sprites_sequences[3]], [False, False, False, False, False], 393, 3344, 0x20f8a2))
+                if location.name == "Magikoopa":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Magikoopa":
+                        if freeze or sesw_only:
+                            patch.add_data(0x1dbd32, calcpointer(sprite, [0x00, 0x48]))
+                        else:
+                            patch.add_data(0x1dbd32, calcpointer(sprite, [0x00, 0x40]))
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                            patch.add_data(0x1f881c, 0x9b)
+                            patch.add_data(0x1f885b, 0x9b)
+                            patch.add_data(0x1f88cb, 0x9b)
+                            patch.add_data(0x1f88d3, 0x9b)
+                            patch.add_data(0x1f8801, 0x9b)
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        if freeze or (not sub_sequence and mold > 0): #dont loop
+                            patch.add_data(0x1f88d6, 0x9b)
+                            patch.add_data(0x1f8802, 0x9b)
+                        if freeze or sequence > 0 or mold > 0: #dont reset properties
+                            patch.add_data(0x1f88ca, 0x9b)
+                        if invert_se_sw: #change north-south cardinality on everything
+                            patch.add_data(0x1f881c, 0x75)
+                            patch.add_data(0x1f885b, 0x77)
+                            patch.add_data(0x1f88cb, 0x75)
+                            patch.add_data(0x1f88d3, 0x77)
+                            patch.add_data(0x1f8801, 0x77)
+                        #if dont_reverse_northeast: #factory clerks
+                        #special animations
+                        if not freeze:
+                            if push_sequence is not False:
+                                patch.add_data(0x1f8842, [0x08, 0x50, push_sequence])
+                            else:
+                                patch.add_data(0x1f8842, [0x9b, 0x9b, 0x9b])
+                            if extra_sequence is not False:
+                                patch.add_data(0x1f885e, [0x08, 0x50, extra_sequence])
+                            elif push_sequence is not False:
+                                patch.add_data(0x1f885e, [0x08, 0x50, push_sequence])
+                            else:
+                                patch.add_data(0x1f885e, [0x9b, 0x9b, 0x9b])
+                        else:
+                            patch.add_data(0x1f8842, [0x9b, 0x9b, 0x9b])
+                            patch.add_data(0x1f885e, [0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1f8861, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1f8881,
+                                       [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                        0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b,
+                                        0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1f8855, [0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1f87f1, [0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1f87f4, [0x9b, 0x9b, 0x9b])
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, False, 266, 2208, 0x20F2Da))
+                if location.name == "Boomer":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Boomer":
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        patch.add_data(0x1dc52e, calcpointer(sprite, [0x00, 0x68]))
+                        #special animations
+                        if not freeze:
+                            if push_sequence is not False:
+                                patch.add_data(0x1f8a34, [0x08, 0x50, push_sequence])
+                            elif extra_sequence is not False:
+                                patch.add_data(0x1f8a34, [0x08, 0x40, extra_sequence])
+                            else:
+                                patch.add_data(0x1f8a34, [0x08, 0x40, sequence])
+                        else:
+                            patch.add_data(0x1f8a34, [0x9b, 0x9b, 0x9b])
+                            patch.add_data(0x1f8a34, [0x9b, 0x9b, 0x9b])
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 400, 2224, 0x20F8e1))
+                if location.name == "Countdown":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "CountDown":
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        patch.add_data(0x1dc463, calcpointer(sprite, [0x00, 0x28]))
+                        if shuffled_boss.name in ["Bundt", "Clerk", "Manager", "Director", "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello", "Johnny", "Megasmilax", "CzarDragon", "Birdo", "Valentina", "Hidon", "Yaridovich", "Boomer"]:
+                            if len(shuffled_boss.czar_sprite) > 0:
+                                patch.add_data(0x1dc46A, calcpointer(shuffled_boss.czar_sprite[0], [0x00, 0x28]))
+                            else:
+                                patch.add_data(0x1dc46A, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x28]))
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 223, 2363, 0x20F145))
+                if location.name == "Clerk":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Clerk":
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        patch.add_data(0x1dc55f, calcpointer(sprite, [0x00, 0x08]))
+                        if shuffled_boss.name in ["Booster", "Bundt", "Clerk", "Manager", "Director", "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello", "Johnny", "Megasmilax", "CzarDragon", "Birdo", "Valentina", "Hidon", "Yaridovich", "Boomer"]:
+                            patch.add_data(0x1dbf15, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x00]))
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(9, plus, mold, sub_sequence, sequence, True, 469, 2605, 0x20Fc24))
+                        patch.add_data(0x1fe34f, [0x9b, 0x9b, 0x9b])
+                if location.name == "Manager":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Manager":
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        patch.add_data(0x1dc57b, calcpointer(sprite, [0x00, 0x28]))
+                        if shuffled_boss.name in ["Booster", "Bundt", "Clerk", "Manager", "Director", "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello", "Johnny", "Megasmilax", "CzarDragon", "Birdo", "Valentina", "Hidon", "Yaridovich", "Boomer"]:
+                            patch.add_data(0x1dc0d5, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x00]))
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(16, plus, mold, sub_sequence, sequence, True, 471, 2617, 0x20Fc3c))
+                        patch.add_data(0x1fe69c, [0x9b, 0x9b, 0x9b])
+                if location.name == "Director":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Director":
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        patch.add_data(0x1dc597, calcpointer(sprite, [0x00, 0x28]))
+                        if shuffled_boss.name in ["Booster", "Bundt", "Clerk", "Manager", "Director", "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello", "Johnny", "Megasmilax", "CzarDragon", "Birdo", "Valentina", "Hidon", "Yaridovich", "Boomer"]:
+                            patch.add_data(0x1dc50b, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x20]))
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(10, plus, mold, sub_sequence, sequence, True, 472, 2621, 0x20Fc51))
+                        patch.add_data(0x1fe92e, [0x9b, 0x9b, 0x9b])
+                if location.name == "Gunyolk":
+                    print(location.name + ": " + shuffled_boss.name)
+                    if shuffled_boss.name is not "Gunyolk":
+                        if freeze or sequence > 0 or mold > 0: #never change directions
+                            sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        patch.add_data(0x1dc53c, calcpointer(sprite, [0x00, 0x00]))
+                        #preload if needed
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(13, plus, mold, sub_sequence, sequence, True, 470, 2601, 0x20Fc2d))
+                        patch.add_data(0x14e839, 0x20)
+                        patch.add_data(0x1fe1bd, [0x01, 0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1fe1c4, [0x01, 0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1fe1cb, [0x01, 0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1fe1d2, [0x01, 0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1fe1d9, [0x01, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1fe1e4, [0x01, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1fe1ed, [0x01, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+
+
         #set sprite molds and sequences where necessary
         if len(spritePhaseEvents) > 0:
             patch.add_data(0x20ab6f, 0xC3)
@@ -1267,9 +1993,15 @@ class GameWorld:
                 append_jumps.append(0xe2)
                 append_jumps.extend(calcpointer(event.level))
                 append_jumps.extend(calcpointer(shortened_start_instructions + total_jump_length + current_length_of_npc_code))
-                current_length_of_npc_code += len(event.generate_code())
+                if isinstance(event.sequence, list):
+                    current_length_of_npc_code += len(event.generate_code_culex())
+                else:
+                    current_length_of_npc_code += len(event.generate_code())
             for event in spritePhaseEvents:
-                append_jumps.extend(event.generate_code())
+                if isinstance(event.sequence, list):
+                    append_jumps.extend(event.generate_code_culex())
+                else:
+                    append_jumps.extend(event.generate_code())
             patch.add_data(start_instructions, append_jumps)
 
 

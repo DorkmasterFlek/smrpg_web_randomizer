@@ -94,6 +94,7 @@ class Enemy:
     overworld_freeze = False
     battle_freeze = False
     overworld_extra_sequence = False
+    battle_extra_sequence = False
     overworld_push_sequence = False
     overworld_push_length = 0
     battle_push_sequence = False
@@ -101,6 +102,7 @@ class Enemy:
     overworld_northeast_mold = False
     battle_northeast_mold = False
     overworld_dont_reverse_northeast = False
+    czar_sprite = []
 
     def __init__(self, world):
         """
@@ -995,7 +997,7 @@ class Pandorite(Enemy):
     overworld_sprite = 195
     overworld_npc = 199
     battle_sprite = 279
-    overworld_mold = 4
+    overworld_sequence = 4
     statue_only = True
     sprite_width = 37
     sprite_height = 40
@@ -1769,7 +1771,7 @@ class Clerk(Enemy):
     battle_sprite = 306
     battle_npc = 306
     other_npcs = [259]
-    other_sprites = [259]
+    other_sprites = [259, 259]
     battle_sprite_is_wide = True
     battle_sprite_is_tall = True
     sprite_width = 60
@@ -1873,6 +1875,7 @@ class Boomer(Enemy):
     overworld_push_sequence = 3
     overworld_push_length = 40
     overworld_northeast_mold = 3
+    other_sprites = [346, 346]
 
     def get_patch(self):
         """Update battle events for switching between blue and red states for Boomer with shuffled stat changes.
@@ -2603,7 +2606,7 @@ class Manager(Enemy):
     overworld_npc = 492
     battle_sprite = 332
     other_npcs = [323]
-    other_sprites = [323]
+    other_sprites = [323, 323, 323]
     battle_sprite_is_wide = True
     battle_sprite_is_tall = True
     sprite_width = 60
@@ -2875,13 +2878,14 @@ class Hidon(Enemy):
     # Boss shuffle attributes.
     ratio_hp = 1.0
     ratio_fp = 1.0
+    other_sprites = [349, 349, 349, 349]
 
     #shuffled overworld sprites
     overworld_sprite = 195
     overworld_npc = 199
     battle_sprite = 343
     battle_npc = 343
-    overworld_mold = 4
+    overworld_sequence = 4
     statue_only = True
     sprite_width = 37
     sprite_height = 40
@@ -3577,7 +3581,7 @@ class Director(Enemy):
     battle_sprite = 370
     battle_npc = 370
     other_npcs = [324]
-    other_sprites = [324]
+    other_sprites = [324, 324, 324, 324]
     battle_sprite_is_wide = True
     battle_sprite_is_tall = True
     sprite_width = 60
@@ -3878,7 +3882,7 @@ class BoxBoy(Enemy):
     overworld_npc = 199
     battle_sprite = 390
     battle_npc = 390
-    overworld_mold = 4
+    overworld_sequence = 4
     statue_only = True
     sprite_width = 37
     sprite_height = 40
@@ -5523,7 +5527,7 @@ class Bundt(Enemy):
     sprite_width = 35
     overworld_freeze = True
     battle_sesw_only = True
-    other_sprites = [398]
+    other_sprites = [398, 398]
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5708,6 +5712,8 @@ class CountDown(Enemy):
     overworld_npc = 454
     battle_sprite = 454
     battle_npc = 454
+    overworld_sequence = 0
+    battle_sequence = 0
     overworld_freeze = True
     battle_freeze = True
 
@@ -5943,8 +5949,9 @@ class Megasmilax(Enemy):
     overworld_push_sequence = 3
     battle_push_length = 20
     overworld_push_length = 22
-    other_sprites = [263]
+    other_sprites = [263, 263, 263, 263, 263, 263]
     overworld_northeast_mold = 3
+    czar_sprite = [458]
 
 
 class Birdo(Enemy):
@@ -5988,6 +5995,7 @@ class Birdo(Enemy):
     overworld_sesw_only = True
     battle_push_sequence = 3
     battle_push_length = 42
+    other_sprites = [462, 462, 462, 462]
 
 
 class Eggbert(Enemy):
@@ -6091,13 +6099,12 @@ class Punchinello(Enemy):
     battle_sprite = 464
     battle_npc = 464
     other_npcs = [145]
-    other_sprites = [145]
     statue_only = True
     sprite_width = 45
     sprite_height = 45
     battle_push_length = 26
     battle_push_sequence = 3
-    other_sprites = [281]
+    other_sprites = [281, 281, 281, 281]
     overworld_northeast_mold = 3
 
     def get_patch(self):
@@ -6586,7 +6593,7 @@ class CzarDragon(Enemy):
     battle_sesw_only = True
     overworld_push_sequence = 3
     overworld_push_length = 30
-    other_sprites = [277]
+    other_sprites = [277, 277, 277, 277]
 
 
 class Cloaker(Enemy):
@@ -6744,7 +6751,7 @@ class Mack(Enemy):
     sprite_height = 57
     sprite_width = 43
     overworld_push_sequence = 4
-    other_sprites = [414]
+    other_sprites = [414, 414, 414, 414]
     overworld_northeast_mold = 3
 
 
@@ -6817,12 +6824,12 @@ class Yaridovich(Enemy):
     overworld_npc = 40
     battle_sprite = 482
     battle_sprite_is_tall = True
-    overworld_freeze = True
     battle_sesw_only = True
     sprite_width = 56
     sprite_height = 84
     battle_push_sequence = 3
     overworld_northeast_mold = 3
+    other_sprites = [162, 162, 162, 162]
 
 
 class DrillBit(Enemy):
@@ -6961,7 +6968,7 @@ class Bowyer(Enemy):
     sprite_height = 52
     overworld_sesw_only = True
     battle_sesw_only = True
-    other_sprites = [487]
+    other_sprites = [487, 487, 487, 487]
 
 
 class Aero(Enemy):
@@ -7218,7 +7225,8 @@ class Croco1(Enemy):
     battle_sprite = 48
     battle_npc = 48
     overworld_extra_sequence = 5
-    other_sprites = [261]
+    battle_extra_sequence = 5
+    other_sprites = [261, 261, 261]
     overworld_northeast_mold = 3
     battle_northeast_mold = 3
 
@@ -7277,8 +7285,10 @@ class Croco2(Enemy):
     battle_sprite = 48
     battle_npc = 48
     overworld_extra_sequence = 5
+    battle_extra_sequence = 5
     overworld_northeast_mold = 3
     battle_northeast_mold = 3
+    other_sprites = [261, 261, 261]
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7438,8 +7448,9 @@ class Booster(Enemy):
     battle_sprite = 50
     battle_npc = 50
     other_npcs = [504]
-    other_sprites = [504]
+    other_sprites = [504, 504, 504]
     overworld_extra_sequence = 2
+    battle_extra_sequence = 2
     overworld_push_sequence = 4
     battle_push_sequence = 4
     overworld_push_length = 72
@@ -7548,14 +7559,13 @@ class Johnny(Enemy):
     overworld_npc = 52
     battle_sprite = 505
     other_npcs = [331]
-    other_sprites = [331]
     battle_sprite_is_wide = True
     sprite_height = 55
     sprite_width = 64
     overworld_extra_sequence = 10
     battle_push_sequence = 3
     battle_push_length = 38
-    other_sprites = [331]
+    other_sprites = [331, 331, 331, 331]
     overworld_northeast_mold = 3
 
     def get_patch(self):
@@ -7654,6 +7664,8 @@ class Valentina(Enemy):
     overworld_northeast_mold = 3
     overworld_sesw_only = True
     battle_sesw_only = True
+
+    other_sprites = [333, 333, 333, 333]
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7785,7 +7797,8 @@ class Culex(Enemy):
     battle_sprite = 511
     overworld_mold = 7
     overworld_sequence = 8
-    other_sprites = [405, 406, 407, 408]
+    other_sprites = [786, 789, 789, 786]
+    other_sprites_sequences = [1, 0, 1, 0]
     sprite_height = 143
     sprite_width = 90
     overworld_sesw_only = True
