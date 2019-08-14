@@ -539,17 +539,40 @@ class ArrowRain(EnemySpell):
     power = 40
     hit_rate = 99
 
-
 class BigBang(EnemySpell):
     index = 103
     power = 100
     hit_rate = 100
 
+class ChestScrow(EnemySpell):
+    index = 104
+    power = 0
+    hit_rate = 85
+
+class ChestFear(EnemySpell):
+    index = 105
+    power = 0
+    hit_rate = 82
+
+class ChestMute(EnemySpell):
+    index = 106
+    power = 0
+    hit_rate = 85
+
+class ChestPoison(EnemySpell):
+    index = 107
+    power = 0
+    hit_rate = 85
 
 class ChainSaw(EnemySpell):
     index = 108
     power = 50
     hit_rate = 90
+
+class Nothing(EnemySpell):
+    index = 251
+    power = 0
+    hit_rate = 100
 
 
 # ********************* Default lists for the world.
@@ -632,5 +655,69 @@ def get_default_spells(world):
         SpearRain(world),
         ArrowRain(world),
         BigBang(world),
+        # ChestScrow(world),
+        # ChestFear(world),
+        # ChestMute(world),
+        # ChestPoison(world),
         ChainSaw(world),
+        # Nothing(world),
     ]
+
+# BigBang is not in any of these tables. It's just a bad idea.
+SingleTargets = [Drain, LightningOrb, Flame, Bolt, Crystal, FlameStone, MegaDrain, WillyWisp, DiamondSaw, Electroshock, Blast, Storm, IceRock, DarkStar]
+Heals = [Recover, MegaRecover, WeirdMushroom]
+MultiTargets = [FlameWall, StaticE, SandStorm, Blizzard, DrainBeam, MeteorBlast, LightBeam, WaterBlast, Solidify, PetalBlast, AuroraFlash, Boulder, Corona, MeteorSwarm, KnockOut, BreakerBeam, Shredder, Sledge, SwordRain, SpearRain, ArrowRain, ChestScrow, ChestFear, ChestMute, ChestPoison, ChainSaw]
+DoNothing = [Nothing]
+Run = [Escape]
+
+SpellsToTargets = {
+    Drain.index: SingleTargets,
+    LightningOrb.index: SingleTargets,
+    Flame.index: SingleTargets,
+    Bolt.index: SingleTargets,
+    Crystal.index: SingleTargets,
+    FlameStone.index: SingleTargets,
+    MegaDrain.index: SingleTargets,
+    WillyWisp.index: SingleTargets,
+    DiamondSaw.index: SingleTargets,
+    Electroshock.index: SingleTargets,
+    Blast.index: SingleTargets,
+    Storm.index: SingleTargets,
+    IceRock.index: SingleTargets,
+    DarkStar.index: SingleTargets,
+
+    Recover.index: Heals,
+    MegaRecover.index: Heals,
+    WeirdMushroom.index: Heals,
+
+    FlameWall.index: MultiTargets,
+    StaticE.index: MultiTargets,
+    SandStorm.index: MultiTargets,
+    Blizzard.index: MultiTargets,
+    DrainBeam.index: MultiTargets,
+    MeteorBlast.index: MultiTargets,
+    LightBeam.index: MultiTargets,
+    WaterBlast.index: MultiTargets,
+    Solidify.index: MultiTargets,
+    PetalBlast.index: MultiTargets,
+    AuroraFlash.index: MultiTargets,
+    Boulder.index: MultiTargets,
+    Corona.index: MultiTargets,
+    MeteorSwarm.index: MultiTargets,
+    KnockOut.index: MultiTargets,
+    BreakerBeam.index: MultiTargets,
+    Shredder.index: MultiTargets,
+    Sledge.index: MultiTargets,
+    SwordRain.index: MultiTargets,
+    SpearRain.index: MultiTargets,
+    ArrowRain.index: MultiTargets,
+    BigBang.index: MultiTargets,
+    ChestScrow.index: MultiTargets,
+    ChestFear.index: MultiTargets,
+    ChestMute.index: MultiTargets,
+    ChestPoison.index: MultiTargets,
+    ChainSaw.index: MultiTargets,
+
+    Nothing.index: DoNothing,
+    Escape.index: Run,
+}

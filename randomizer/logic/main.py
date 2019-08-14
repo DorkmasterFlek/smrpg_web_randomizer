@@ -21,6 +21,7 @@ from . import map
 from . import spells
 from . import utils
 from .patch import Patch
+from .battleassembler import assemble_battle_scripts
 
 # Current version number
 VERSION = '8.2.0'
@@ -558,6 +559,7 @@ class GameWorld:
         # Enemies
         for enemy in self.enemies:
             patch += enemy.get_patch()
+            enemy.patch_script()
         patch += data.enemies.Enemy.build_psychopath_patch(self)
 
         # Enemy attacks
@@ -676,6 +678,9 @@ class GameWorld:
             patch.add_data(0x23D3CE, [0x44, 0x6F, 0x0F, 0x20, 0x77, 0x61, 0x6E, 0x74, 0x11, 0x67, 0x6F, 0x11, 0x53,
                                       0x6D, 0x69, 0x74, 0x68, 0x79, 0x3F, 0x02, 0x08, 0x07, 0x20, 0x28, 0x4E, 0x6F,
                                       0x29, 0x01, 0x08, 0x07, 0x20, 0x28, 0x59, 0x65, 0x73, 0x29, 0x00])
+
+        # This needs to happen after all battle script randomization.
+        patch += assemble_battle_scripts(self)
 
         # Choose character for the file select screen.
         i = cursor_id
