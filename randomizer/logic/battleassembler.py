@@ -2,8 +2,10 @@ from . import utils
 from .dialogs import allocate_string
 from .patch import Patch
 from randomizer.data import battlescripts 
+from randomizer.data.attacks import EnemyAttack
 from randomizer.data.items import Item
-from randomizer.data.spells import Spell
+from randomizer.data.spells import Spell, CharacterSpell, EnemySpell
+
 
 mem_base = 0x7EE000
 
@@ -197,8 +199,17 @@ class BattleScriptAssember:
         self.counter_called = True
         return self.commands.append(0xFF)
 
+def type_assert(t, *args):
+    for i, arg in enumerate(args):
+        if isinstance(arg, int):
+            if not (0 <= arg <= 0xFF):
+                raise Exception('arg %d is out of range 0 <= %d <= 0xFF'%(i, arg))
+        elif arg and not issubclass(arg, t):
+            raise Exception('arg %s is not of type %s'%(arg, t))
+
 class BattleScript:
     def __init__(self):
+        self.counter_called = False
         self.script = []
 
     def append(self, name, *args):
@@ -206,9 +217,11 @@ class BattleScript:
         return self
 
     def fin(self):
+        assert self.counter_called
         return self.script
 
     def attack(self, arg_0, arg_1=None, arg_2=None):
+        type_assert(EnemyAttack, arg_0, arg_1, arg_2)
         return self.append('attack', arg_0, arg_1, arg_2)
 
     def set_target(self, arg_0):
@@ -254,6 +267,7 @@ class BattleScript:
         return self.append('rand', arg_0)
 
     def cast_spell(self, arg_0, arg_1=None, arg_2=None):
+        type_assert(EnemySpell, arg_0, arg_1, arg_2)
         return self.append('cast_spell', arg_0, arg_1, arg_2)
 
     def animate(self, arg_0):
@@ -281,9 +295,11 @@ class BattleScript:
         return self.append('if_command', arg_0, arg_1)
 
     def if_spell(self, arg_0, arg_1=None):
+        type_assert(CharacterSpell, arg_0, arg_1)
         return self.append('if_spell', arg_0, arg_1)
 
     def if_item(self, arg_0, arg_1=None):
+        type_assert(Item, arg_0, arg_1)
         return self.append('if_item', arg_0, arg_1)
 
     def if_element(self, arg_0):
@@ -335,6 +351,8 @@ class BattleScript:
         return self.append('wait_return')
 
     def start_counter(self):
+        assert not self.counter_called
+        counter_called = True
         return self.append('start_counter')
 
 
