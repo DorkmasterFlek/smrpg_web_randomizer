@@ -91,15 +91,18 @@ class SpritePhaseEvent:
         else:
             npcs = self.npc
         for npc in npcs:
-            returnBytes.extend([(0x14 + npc), 0x83])
+            rb = [];
             if self.is_sequence_and_not_mold and not self.reverse:
-                returnBytes.extend([0x08, 0x40 + self.sprite, self.sequence])
+                rb.extend([0x08, 0x40 + self.sprite, self.sequence])
             elif self.is_sequence_and_not_mold and self.reverse:
-                returnBytes.extend([0x08, 0x40 + self.sprite, 0x80 + self.sequence])
+                rb.extend([0x08, 0x40 + self.sprite, 0x80 + self.sequence])
             elif not self.is_sequence_and_not_mold and not self.reverse:
-                returnBytes.extend([0x08, 0x08 + self.sprite, self.mold])
+                rb.extend([0x08, 0x08 + self.sprite, self.mold])
             elif not self.is_sequence_and_not_mold and self.reverse:
-                returnBytes.extend([0x08, 0x08 + self.sprite, 0x80 + self.mold])
+                rb.extend([0x08, 0x08 + self.sprite, 0x80 + self.mold])
+            initial_bytes = [(0x14 + npc), 0x80 + len(rb)]
+            initial_bytes.extend(rb)
+            returnBytes.extend(initial_bytes)
         returnBytes.append(0xD0)
         eventpointer = calcpointer(self.original_event)
         returnBytes.extend(eventpointer)
@@ -559,12 +562,15 @@ class GameWorld:
                             patch.add_data(0x221475, messagebytes)
                             patch.add_data(0x1e8b49, [0x60, 0x48, 0xa2, 0x00])
                     patch.add_data(addr, [0x36, 0x80 + character.index])
-                #replace overworld characters in recruitment spots
+                #replace overworld characters in recruitment spots - there are no partitions identical to 89 that have CBC set to 3 instead of 4, so modify 89 since it's only used by this room
                 if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 2:
                     #mushroom way
                     patch.add_data(0x14b3BC, character.mway_1_npc_id)
                     patch.add_data(0x14b411, character.mway_2_npc_id)
                     patch.add_data(0x14b452, character.mway_3_npc_id)
+                    #change partition to accommodate mallow's sprite in mway
+                    if character.name is "Mallow":
+                        patch.add_data(0x1ddf67, 0x80)
                 if (dialogue_iterator == 4 and not self.settings.is_flag_enabled(flags.NoFreeCharacters)) or (self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 3):
                     #forest maze
                     patch.add_data(0x14b8eb, character.forest_maze_sprite_id)
@@ -841,6 +847,10 @@ class GameWorld:
                     push_length = shuffled_boss.battle_push_length
                     northeast_mold = shuffled_boss.battle_northeast_mold
                     dont_reverse_northeast = False
+                    if shuffled_boss.battle_sprite == shuffled_boss.overworld_sprite:
+                        overworld_is_skinny = shuffled_boss.overworld_is_skinny
+                    else:
+                        overworld_is_skinny = False
                 else:
                     sprite = shuffled_boss.overworld_sprite
                     mold = shuffled_boss.overworld_mold
@@ -854,286 +864,421 @@ class GameWorld:
                     push_length = shuffled_boss.overworld_push_length
                     northeast_mold = shuffled_boss.overworld_northeast_mold
                     dont_reverse_northeast = shuffled_boss.overworld_dont_reverse_northeast
+                    overworld_is_skinny = shuffled_boss.overworld_is_skinny
+
+                bank_1e_scarecrow_queues = []
+                bank_1e_scarecrow_addresses = []
+                bank_1f_scarecrow_queues = []
+                bank_1f_scarecrow_addresses = []
+                bank_20_scarecrow_queues = []
+                bank_20_scarecrow_addresses = []
+                bank_21_scarecrow_queues = []
+                bank_21_scarecrow_addresses = []
+                scarecrow_face_northwest = [0x08, 0x40, 0x80]
+                scarecrow_face_northeast = [0x08, 0x40, 0x00]
+                scarecrow_face_southwest = [0x08, 0x40, 0x01]
+                scarecrow_face_southeast = [0x08, 0x40, 0x81]
+
+                def add_scarecrow_script(npc, instructions, referencing_address, is_sync):
+                    if referencing_address > 0x210000:
+                        bank_21_scarecrow_addresses.add(referencing_address)
+                        bank_21_scarecrow_queues.add(instructions)
+                        #add jump to surrogate action in main action, do important actions, jump back to next address in main action
+                    else:
+                        if is_sync:
+                            script_to_add = [0x14 + npc, len(instructions)]
+                        else:
+                            script_to_add = [0x14 + npc, 0x80 + len(instructions)]
+                        script_to_add.extend(instructions)
+                        script_to_add.append(0xFE)
+                        if referencing_address > 0x200000:
+                            bank_20_scarecrow_queues.add(script_to_add)
+                            bank_20_scarecrow_addresses.add(referencing_address)
+                        if referencing_address > 0x1f0000:
+                            bank_1f_scarecrow_queues.add(script_to_add)
+                            bank_1f_scarecrow_addresses.add(referencing_address)
+                        if referencing_address > 0x1e0000:
+                            bank_1e_scarecrow_queues.add(script_to_add)
+                            bank_1e_scarecrow_addresses.add(referencing_address)
 
                 if location.name == "HammerBros":
                     print(location.name + ": " + shuffled_boss.name)
-                    # reassign NPC 283's sprite
-                    # try big sprite
-                    patch.add_data(0x1DBfbd, calcpointer(sprite, [0x00, 0x68]));
-                    #for sprites that require a specific mold or sequence, change the room load events to set the proper sequence or mold first
-                    if sequence > 0 or mold > 0:
-                        if sequence > 0:
-                            sub_sequence = True
-                        elif mold > 0:
-                            sub_sequence = False
-                        spritePhaseEvents.append(SpritePhaseEvent(7, plus, mold, sub_sequence, sequence, False, 205, 2814, 0x20f045))
+                    if shuffled_boss.name is not "HammerBros":
+                        # reassign NPC 283's sprite
+                        # try big sprite
+                        patch.add_data(0x1DBfbd, calcpointer(sprite, [0x00, 0x68]));
+                        #for sprites that require a specific mold or sequence, change the room load events to set the proper sequence or mold first
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(7, plus, mold, sub_sequence, sequence, False, 205, 2814, 0x20f045))
                 if location.name == "Croco1":
                     print(location.name + ": " + shuffled_boss.name)
-                    # use npc 110, set properties to match croco's
-                    for addr in [0x1495e1, 0x14963a, 0x14969f, 0x14b4c7, 0x14b524]:
-                        patch.add_data(addr, [0xBB, 0x01])
-                    # replace its sprite
-                    if freeze or sesw_only:
-                        patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x08]));
-                    else:
-                        patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x00]));
-                    patch.add_data(0x1DBB04, [0x80, 0x02, 0x55, 0x0a]);
-                    #need to change a lot of things in bandit's way to get every boss to work
-                    sub_sequence = False
-                    if sequence > 0:
-                        sub_sequence = True
-                    #bandits way 1
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(SpritePhaseEvent(5, plus, mold, sub_sequence, sequence, False, 76, 1714, 0x20e8e0))
-                    if not freeze:
-                        if extra_sequence is not False:
-                            patch.add_data(0x1f3bac, [0x08, 0x40, 0x80 + extra_sequence])
+                    if shuffled_boss.name not in ["Croco1", "Croco2"]:
+                        # use npc 110, set properties to match croco's
+                        for addr in [0x1495e1, 0x14963a, 0x14969f, 0x14b4c7, 0x14b524]:
+                            patch.add_data(addr, [0xBB, 0x01])
+                        # replace its sprite
+                        if freeze or sesw_only:
+                            patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x08]));
                         else:
-                            patch.add_data(0x1f3bac, [0x08, 0x40 + plus, 0x80 + sequence])
-                    else:
-                        patch.add_data(0x1f3bac, [0x9b, 0x9b, 0x9b])
-                    if invert_se_sw: #scarecrow sprite sequence 0 and 1 are inverted
-                        patch.add_data(0x1f3be4, [0x75]) #face northwest
-                        patch.add_data(0x1f3be7, [0x73]) #face southwest
-                    if freeze or sequence > 0 or (not sub_sequence and mold > 0): #dont reset properties
-                        patch.add_data(0x1f3bb1, [0x9b])
-                    if sesw_only: #dont face another direction
-                        patch.add_data(0x1f3be7, [0x73]) #face southwest
-                    if freeze: #dont face southwest
-                        patch.add_data(0x1f3be4, [0x9b])
-                        patch.add_data(0x1f3be7, [0x9b])
-                    if freeze or (not sub_sequence and mold > 0): #dont loop
-                        patch.add_data(0x1f3be8, [0x9b])
-                    #bandits way 2
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 207, 1702, 0x20F07b))
-                    if not freeze:
-                        if extra_sequence is not False:
-                            patch.add_data(0x1f3541, [0x08, 0x40, 0x80 + extra_sequence])
+                            patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x00]));
+                        patch.add_data(0x1DBB04, [0x80, 0x02, 0x55, 0x0a]);
+                        #need to change a lot of things in bandit's way to get every boss to work
+                        sub_sequence = False
+                        if sequence > 0:
+                            sub_sequence = True
+                        #bandits way 1
+                        if sequence > 0 or mold > 0:
+                            spritePhaseEvents.append(SpritePhaseEvent(5, plus, mold, sub_sequence, sequence, False, 76, 1714, 0x20e8e0))
+                        if not freeze:
+                            if extra_sequence is not False:
+                                patch.add_data(0x1f3bac, [0x08, 0x40, 0x80 + extra_sequence])
+                            else:
+                                patch.add_data(0x1f3bac, [0x08, 0x40 + plus, 0x80 + sequence])
                         else:
-                            patch.add_data(0x1f3541, [0x08, 0x40 + plus, 0x80 + sequence])
-                    else:
-                        patch.add_data(0x1f3541, [0x9b, 0x9b, 0x9b])
-                    if invert_se_sw:  #scarecrow sprite sequence 0 and 1 are inverted
-                        patch.add_data(0x1f3553, [0x75])  #face northwest
-                        patch.add_data(0x1f3556, [0x73])  #face southwest
-                        patch.add_data(0x1f356e, [0x71])  #face southeast
-                        patch.add_data(0x1f357d, [0x77])  #face northeast
-                    if freeze or sequence > 0 or (not sub_sequence and mold > 0): #dont reset properties
-                        patch.add_data(0x1f3552, [0x9b])
-                    if sesw_only: #dont face north
-                        patch.add_data(0x1f3556, [0x73])  #face southwest
-                        patch.add_data(0x1f356e, [0x71])  #face southeast
-                    if freeze: #dont face southwest
-                        patch.add_data(0x1f3553, [0x9b])
-                        patch.add_data(0x1f357d, [0x9b])
-                        patch.add_data(0x1f3556, [0x9b])
-                        patch.add_data(0x1f356e, [0x9b])
-                    if freeze or (not sub_sequence and mold > 0): #dont loop
-                        patch.add_data(0x1f3563, [0x9b])
-                    #bandits way 3
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 77, 1713, 0x20e8e3))
-                    if not freeze:
-                        if extra_sequence is not False:
-                            patch.add_data(0x1f3b81, [0x08, 0x40, 0x80 + extra_sequence])
+                            patch.add_data(0x1f3bac, [0x9b, 0x9b, 0x9b])
+                        if invert_se_sw: #scarecrow needs a special script
+                            scarecrow_script = []
+                            #play sound, jump, pause
+                            scarecrow_script.extend([0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x07])
+                            #face southwest
+                            scarecrow_script.extend(scarecrow_face_southwest)
+                            #pause for 8 frames
+                            scarecrow_script.extend([0xF0, 0x07])
+                            #face northwest
+                            scarecrow_script.extend(scarecrow_face_northwest)
+                            #sequence looping on
+                            scarecrow_script.extend([0x04])
+                            add_scarecrow_script(5, scarecrow_script, 0x1f3bda, False)
+                        if freeze or sequence > 0 or (not sub_sequence and mold > 0): #dont reset properties
+                            patch.add_data(0x1f3bb1, [0x9b])
+                        # if sesw_only: #dont face another direction
+                        #     patch.add_data(0x1f3be7, [0x73]) #face southwest
+                        if freeze: #dont face southwest
+                            patch.add_data(0x1f3be4, [0x9b])
+                            patch.add_data(0x1f3be7, [0x9b])
+                        if freeze or (not sub_sequence and mold > 0): #dont loop
+                            patch.add_data(0x1f3be8, [0x9b])
+                        #bandits way 2
+                        if sequence > 0 or mold > 0:
+                            spritePhaseEvents.append(SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 207, 1702, 0x20F07b))
+                        if not freeze:
+                            if extra_sequence is not False:
+                                patch.add_data(0x1f3541, [0x08, 0x40, 0x80 + extra_sequence])
+                            else:
+                                patch.add_data(0x1f3541, [0x08, 0x40 + plus, 0x80 + sequence])
                         else:
-                            patch.add_data(0x1f3b81, [0x08, 0x40 + plus, 0x80 + sequence])
-                    else:
-                        patch.add_data(0x1f3b81, [0x9b, 0x9b, 0x9b])
-                    if invert_se_sw: #scarecrow sprite sequence 0 and 1 are inverted
-                        patch.add_data(0x1f3b91, [0x75]) #face northwest
-                        patch.add_data(0x211ffa, [0x75]) #face northwest
-                        patch.add_data(0x21202b, [0x75]) #face northwest
-                        patch.add_data(0x212059, [0x77]) #face northeast
-                    if freeze or sequence > 0 or (not sub_sequence and mold > 0): #dont reset properties
-                        patch.add_data(0x1f3b90, [0x9b])
-                    if freeze: #dont face another direction
-                        patch.add_data(0x1f3b91, [0x9b])
-                    if freeze or (not sub_sequence and mold > 0): #dont loop
-                        patch.add_data(0x211fd8, [0x9b])
-                        patch.add_data(0x211ff0, [0x9b])
-                    if freeze: #dont face southwest
-                        patch.add_data(0x211ffa, [0x9b])
-                        patch.add_data(0x21202b, [0x9b])
-                        patch.add_data(0x212059, [0x9b])
-                    #bandits way 4
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(SpritePhaseEvent(12, plus, mold, sub_sequence, sequence, False, 78, 1698, 0x20e8e6))
-                    if invert_se_sw: #scarecrow sprite sequence 0 and 1 are inverted
-                        patch.add_data(0x1f33d0, [0x71])  #face southeast
-                        patch.add_data(0x1f3406, [0x77])  #face northeast
-                        patch.add_data(0x1f3409, [0x75])  #face northwest
-                        patch.add_data(0x1f3414, [0x77])  #face northeast
-                    if freeze or (not sub_sequence and mold > 0): #dont loop
-                        patch.add_data(0x1f33c9, [0x9b])
-                        #patch.add_data(0x1f340e, [0x9b])
-                    if sesw_only: #dont face another direction
-                        patch.add_data(0x1f33d0, [0x71])  #face southeast
-                    if freeze: #dont face southwest
-                        patch.add_data(0x1f3406, [0x9b])
-                        patch.add_data(0x1f3409, [0x9b])
-                        patch.add_data(0x1f3414, [0x9b])
-                        patch.add_data(0x1f33d0, [0x9b])
-                    #bandits way 5
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 206, 1708, 0x20f078))
-                    if not freeze:
-                        if extra_sequence is not False:
-                            patch.add_data(0x1f3863, [0x08, 0x40, 0x80 + extra_sequence])
+                            patch.add_data(0x1f3541, [0x9b, 0x9b, 0x9b])
+                        if invert_se_sw: #scarecrow needs a special script
+                            #####
+                            #####first script
+                            scarecrow_script = []
+                            #clear solidity, play sound jump, pause
+                            scarecrow_script.extend([0x0C, 0x04, 0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x07])
+                            #dont reset
+                            scarecrow_script.extend([0x9B])
+                            #face southwest
+                            scarecrow_script.extend(scarecrow_face_southwest)
+                            #pause for 8 frames
+                            scarecrow_script.extend([0xF0, 0x07])
+                            #face northwest
+                            scarecrow_script.extend(scarecrow_face_northwest)
+                            add_scarecrow_script(8, scarecrow_script, 0x1f3546, False)
+                            #####
+                            #####second script
+                            scarecrow_script = []
+                            #everything before 0x1f356e
+                            scarecrow_script.extend([0x04, 0x10, 0xC1, 0x57, 0x02, 0x41, 0x13, 0x03, 0xFD, 0x0F, 0x03])
+                            #face northeast
+                            scarecrow_script.extend(scarecrow_face_northeast)
+                            #everything before 0x1f357d
+                            scarecrow_script.extend([0x0B, 0x04, 0xF0, 0x0C, 0xFD, 0x9E, 0x21, 0x7F, 0x90, 0x00, 0x57, 0x04, 0x67, 0x10])
+                            #everything else
+                            scarecrow_script.extend([0x06, 0xF0, 0x09, 0x60, 0x32, 0xFD, 0x9E, 0x21, 0x7F, 0x50, 0x00, 0x60, 0x28, 0xF0, 0x00, 0xFD, 0x3D, 0x1C, 0x8B, 0x35, 0x10, 0xC1, 0xFD, 0x9E, 0x21, 0x7F, 0x80, 0x00, 0x50, 0x04, 0x01])
+                            add_scarecrow_script(8, scarecrow_script, 0x1f3561, True)
+                        if freeze or sequence > 0 or (not sub_sequence and mold > 0): #dont reset properties
+                            patch.add_data(0x1f3552, [0x9b])
+                        # if sesw_only: #dont face north
+                        #     patch.add_data(0x1f3556, [0x73])  #face southwest
+                        #     patch.add_data(0x1f356e, [0x71])  #face southeast
+                        # if freeze: #dont face southwest
+                        #     patch.add_data(0x1f3553, [0x9b])
+                        #     patch.add_data(0x1f357d, [0x9b])
+                        #     patch.add_data(0x1f3556, [0x9b])
+                        #     patch.add_data(0x1f356e, [0x9b])
+                        if freeze or (not sub_sequence and mold > 0): #dont loop
+                            patch.add_data(0x1f3563, [0x9b])
+                        #bandits way 3
+                        if sequence > 0 or mold > 0:
+                            spritePhaseEvents.append(SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 77, 1713, 0x20e8e3))
+                        if not freeze:
+                            if extra_sequence is not False:
+                                patch.add_data(0x1f3b81, [0x08, 0x40, 0x80 + extra_sequence])
+                            else:
+                                patch.add_data(0x1f3b81, [0x08, 0x40 + plus, 0x80 + sequence])
                         else:
-                            patch.add_data(0x1f3863, [0x08, 0x40 + plus, 0x80 + sequence])
-                    else:
-                        patch.add_data(0x1f3863, [0x9b, 0x9b, 0x9b])
-                    if invert_se_sw:  #scarecrow sprite sequence 0 and 1 are inverted
-                        patch.add_data(0x1f3873, [0x75])  #face northwest
-                        patch.add_data(0x1f3995, [0x73])  #face southwest
-                        patch.add_data(0x1f39ac, [0x73])  #face southwest
-                        patch.add_data(0x1f3876, [0x73])  #face southwest
-                        patch.add_data(0x1f38e4, [0x71])  #face southeast
-                        patch.add_data(0x1f39da, [0x77])  #face northeast
-                    if freeze or sequence > 0 or (not sub_sequence and mold > 0): #dont reset properties
-                        patch.add_data(0x1f3872, [0x9b])
-                    if sesw_only: #dont face north
-                        patch.add_data(0x1f3876, [0x73])
-                        patch.add_data(0x1f38e4, [0x71])  #face southeast
-                    if freeze: #dont face southwest
-                        patch.add_data(0x1f3873, [0x9b])
-                        patch.add_data(0x1f3876, [0x9b])
-                        patch.add_data(0x1f38e4, [0x9b])
-                        patch.add_data(0x1f39da, [0x9b])
-                        patch.add_data(0x1f3995, [0x9b])  #face southwest
-                        patch.add_data(0x1f39ac, [0x9b])  #face southwest
-                    #if freeze or (not sub_sequence and mold > 0): #dont loop
-                    #    patch.add_data(0x211fc5, [0x9b])
+                            patch.add_data(0x1f3b81, [0x9b, 0x9b, 0x9b])
+                        if invert_se_sw: #scarecrow needs a special script
+                            scarecrow_script = []
+                            #standard script
+                            scarecrow_script.extend([0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x1D])
+                            #dont reset
+                            scarecrow_script.extend([0x9B])
+                            #face southwest
+                            scarecrow_script.extend(scarecrow_face_southwest)
+                            add_scarecrow_script(8, scarecrow_script, 0x1f3b86, False)
+                            #action script replacements
+                            scarecrow_script = []
+                            scarecrow_script.extend(scarecrow_face_southwest)
+                            scarecrow_script.extend([0xF0, 0x00])
+                            add_scarecrow_script(None, scarecrow_script, 0x211ffa, False)
+                            scarecrow_script = []
+                            scarecrow_script.extend(scarecrow_face_southwest)
+                            scarecrow_script.extend([0xF0, 0x00])
+                            add_scarecrow_script(None, scarecrow_script, 0x21202b, False)
+                            scarecrow_script = []
+                            scarecrow_script.extend(scarecrow_face_southeast)
+                            scarecrow_script.extend([0xF0, 0x00])
+                            add_scarecrow_script(None, scarecrow_script, 0x212059, False)
+                        if freeze or sequence > 0 or (not sub_sequence and mold > 0): #dont reset properties
+                            patch.add_data(0x1f3b90, [0x9b])
+                        # if freeze: #dont face another direction
+                        #     patch.add_data(0x1f3b91, [0x9b])
+                        if freeze or (not sub_sequence and mold > 0): #dont loop
+                            patch.add_data(0x211fd8, [0x9b])
+                            patch.add_data(0x211ff0, [0x9b])
+                        # if freeze: #dont face southwest
+                        #     patch.add_data(0x211ffa, [0x9b])
+                        #     patch.add_data(0x21202b, [0x9b])
+                        #     patch.add_data(0x212059, [0x9b])
+                        #bandits way 4
+                        if sequence > 0 or mold > 0:
+                            spritePhaseEvents.append(SpritePhaseEvent(12, plus, mold, sub_sequence, sequence, False, 78, 1698, 0x20e8e6))
+                        if invert_se_sw: #scarecrow needs a special script
+                            #####script 1
+                            scarecrow_script = []
+                            scarecrow_script.extend([0xFD, 0x01, 0x00, 0x04, 0x67, 0x01, 0x06, 0x62, 0x08, 0x07])
+                            scarecrow_script.extend(scarecrow_face_northeast)
+                            add_scarecrow_script(12, scarecrow_script, 0x1f33c4, True)
+                            #####script 2
+                            scarecrow_script = []
+                            scarecrow_script.extend([0xF0, 0x13])
+                            scarecrow_script.extend(scarecrow_face_southeast)
+                            scarecrow_script.extend([0xF0, 0x07])
+                            scarecrow_script.extend(scarecrow_face_southwest)
+                            scarecrow_script.extend([0xF0, 0x13, 0x53, 0x03, 0x10, 0x80])
+                            add_scarecrow_script(12, scarecrow_script, 0x1f3402, False)
+                            #####script 3
+                            scarecrow_script = []
+                            scarecrow_script.extend([0x10, 0xC1])
+                            scarecrow_script.extend(scarecrow_face_southeast)
+                            scarecrow_script.extend([0xF0, 0x1D, 0xFD, 0x9E, 0x21, 0x7F, 0x70, 0x00, 0x06, 0x50, 0x04, 0x01])
+                            add_scarecrow_script(12, scarecrow_script, 0x1f3410, False)
+                        if freeze or (not sub_sequence and mold > 0): #dont loop
+                            patch.add_data(0x1f33c9, [0x9b])
+                            #patch.add_data(0x1f340e, [0x9b])
+                        # if sesw_only: #dont face another direction
+                        #     patch.add_data(0x1f33d0, [0x71])  #face southeast
+                        # if freeze: #dont face southwest
+                        #     patch.add_data(0x1f3406, [0x9b])
+                        #     patch.add_data(0x1f3409, [0x9b])
+                        #     patch.add_data(0x1f3414, [0x9b])
+                        #     patch.add_data(0x1f33d0, [0x9b])
+                        #bandits way 5
+                        if sequence > 0 or mold > 0:
+                            spritePhaseEvents.append(SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 206, 1708, 0x20f078))
+                        if not freeze:
+                            if extra_sequence is not False:
+                                patch.add_data(0x1f3863, [0x08, 0x40, 0x80 + extra_sequence])
+                            else:
+                                patch.add_data(0x1f3863, [0x08, 0x40 + plus, 0x80 + sequence])
+                        else:
+                            patch.add_data(0x1f3863, [0x9b, 0x9b, 0x9b])
+                        if invert_se_sw:  #scarecrow sprite sequence 0 and 1 are inverted
+                            patch.add_data(0x1f39da, [0x77])  #face northeast
+                            #####script 1
+                            scarecrow_script = []
+                            scarecrow_script.extend([0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x07])
+                            scarecrow_script.extend([0x9b])
+                            scarecrow_script.extend(scarecrow_face_southwest)
+                            scarecrow_script.extend([0xF0, 0x13])
+                            scarecrow_script.extend(scarecrow_face_northwest)
+                            add_scarecrow_script(8, scarecrow_script, 0x1f3868, False)
+                            #replace "Face Mario" since dont know what direction that will be
+                            patch.add_data(0x1f3995, [0x9b])
+                            patch.add_data(0x1f39ac, [0x9b])
+                            #####script 2
+                            scarecrow_script = []
+                            scarecrow_script.extend([0x92, 0x0B, 0x73, 0x00])
+                            scarecrow_script.extend(scarecrow_face_northeast)
+                            scarecrow_script.extend([0x00])
+                            add_scarecrow_script(8, scarecrow_script, 0x1f38DE, False)
+                            #####script 3
+                            scarecrow_script = []
+                            scarecrow_script.extend([0x07])
+                            scarecrow_script.extend(scarecrow_face_southeast)
+                            add_scarecrow_script(8, scarecrow_script, 0x1f39d7, False)
+                        if freeze or sequence > 0 or (not sub_sequence and mold > 0): #dont reset properties
+                            patch.add_data(0x1f3872, [0x9b])
+                        # if sesw_only: #dont face north
+                        #     patch.add_data(0x1f3876, [0x73])
+                        #     patch.add_data(0x1f38e4, [0x71])  #face southeast
+                        # if freeze: #dont face southwest
+                        #     patch.add_data(0x1f3873, [0x9b])
+                        #     patch.add_data(0x1f3876, [0x9b])
+                        #     patch.add_data(0x1f38e4, [0x9b])
+                        #     patch.add_data(0x1f39da, [0x9b])
+                        #     patch.add_data(0x1f3995, [0x9b])  #face southwest
+                        #     patch.add_data(0x1f39ac, [0x9b])  #face southwest
+                        #if freeze or (not sub_sequence and mold > 0): #dont loop
+                        #    patch.add_data(0x211fc5, [0x9b])
                 if location.name == "Mack":
                     print(location.name + ": " + shuffled_boss.name)
-                    # reassign NPC 480's sprite
-                    patch.add_data(0x1Dc520, calcpointer(sprite, [0x00, 0x68]));
-                    #face southwest
-                    patch.add_data(0x14ca86, 0x63);
-                    #delete sequence init if character shouldnt move
-                    if not freeze:
-                        patch.add_data(0x1e2921, [0x08, 0x40 + plus, sequence])
-                    else:
+                    if shuffled_boss.name is not "Mack":
+                        # reassign NPC 480's sprite
+                        patch.add_data(0x1Dc520, calcpointer(sprite, [0x00, 0x68]));
+                        #face southwest
+                        patch.add_data(0x14ca86, 0x63);
+                        #delete sequence init, this can be delegated to spritePhaseEvents if special sequence needs to be loaded
                         patch.add_data(0x1e2921, [0x9b, 0x9b, 0x9b])
-                    #for sprites that require a specific mold or sequence, change the room load events to set the proper sequence or mold first
-                    if sequence > 0 or mold > 0:
-                        if sequence > 0:
-                            sub_sequence = True
-                        elif mold > 0:
-                            sub_sequence = False
-                        spritePhaseEvents.append(SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 326, 368, 0x20f47d))
+                        #for sprites that require a specific mold or sequence, change the room load events to set the proper sequence or mold first
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 326, 368, 0x20f47d))
                 if location.name == "Belome1":
                     print(location.name + ": " + shuffled_boss.name)
-                    # use npc 371, set properties to match belome's
-                    patch.add_data(0x14c67a, [0xcd, 0x05]);
-                    # replace its sprite
-                    patch.add_data(0x1Dc225, calcpointer(sprite, [0x00, 0xA8]));
-                    patch.add_data(0x1Dc227, [0x60, 0x02, 0xaa, 0x12, 0x00]);
-                    if sequence > 0 or mold > 0:
-                        if sequence > 0:
-                            sub_sequence = True
-                        elif mold > 0:
-                            sub_sequence = False
-                        spritePhaseEvents.append(SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 302, 3135, 0x20f3be))
+                    if shuffled_boss.name not in ["Belome1", "Belome2"]:
+                        # use npc 371, set properties to match belome's
+                        patch.add_data(0x14c67a, [0xcd, 0x05]);
+                        # replace its sprite
+                        patch.add_data(0x1Dc225, calcpointer(sprite, [0x00, 0xA8]));
+                        patch.add_data(0x1Dc227, [0x60, 0x02, 0xaa, 0x12, 0x00]);
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 302, 3135, 0x20f3be))
                 if location.name == "Bowyer":
                     print(location.name + ": " + shuffled_boss.name)
-                    # reassign NPC 455's sprite
-                    # try big sprite
-                    patch.add_data(0x1dc54a, calcpointer(sprite, [0x00, 0x68]));
-                    if sequence > 0 or mold > 0:
-                        if sequence > 0:
-                            sub_sequence = True
-                        elif mold > 0:
-                            sub_sequence = False
-                        spritePhaseEvents.append(SpritePhaseEvent(16, plus, mold, sub_sequence, sequence, False, 232, 15, 0x20F1C6))
+                    if shuffled_boss.name is not "Bowyer":
+                        # reassign NPC 455's sprite
+                        # try big sprite
+                        patch.add_data(0x1dc54a, calcpointer(sprite, [0x00, 0x68]));
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(16, plus, mold, sub_sequence, sequence, False, 232, 15, 0x20F1C6))
                 if location.name == "Croco2":
                     print(location.name + ": " + shuffled_boss.name)
-                    # use npc 367, set properties to match croco's
-                    patch.add_data(0x14c2a2, [0xBE, 0xA5]);
-                    patch.add_data(0x14c300, [0xBE, 0xE5]);
-                    patch.add_data(0x14c33e, [0xBE, 0xF5]);
-                    patch.add_data(0x14c398, [0xBE, 0xC5]);
-                    patch.add_data(0x14c3e6, [0xBE, 0xD5]);
-                    patch.add_data(0x14c448, [0xBE, 0xB5]);
-                    # replace its sprite
-                    if freeze or sesw_only:
-                        patch.add_data(0x1Dc209, calcpointer(sprite, [0x00, 0x08]));
-                    else:
-                        patch.add_data(0x1Dc209, calcpointer(sprite, [0x00, 0x00]));
-                    patch.add_data(0x1Dc20b, [0x80, 0xa2, 0x55, 0x2a]);
-                    #need to change a lot of things in moleville to get this to work
-                    sub_sequence = True
-                    if sequence == 0 and mold > 0:
-                        sub_sequence = False
-                    if freeze or (not sub_sequence and mold > 0): #dont loop
-                        patch.add_data(0x202615, [0x9b])
-                        patch.add_data(0x21887f, [0x9b])
-                        patch.add_data(0x218885, [0x9b])
-                        patch.add_data(0x218b4e, [0x9b])
-                        patch.add_data(0x218b56, [0x9b])
-                        patch.add_data(0x218ac4, [0x9b])
-                        patch.add_data(0x218acb, [0x9b])
-                        patch.add_data(0x218a34, [0x9b])
-                        patch.add_data(0x218a3d, [0x9b])
-                        patch.add_data(0x2189aa, [0x9b])
-                        patch.add_data(0x2189ad, [0x9b])
-                        patch.add_data(0x218915, [0x9b])
-                        patch.add_data(0x21891B, [0x9b])
-                    if freeze: #dont do directional commands
-                        patch.add_data(0x21886f, [0x9b])
-                        patch.add_data(0x218b41, [0x9b])
-                        patch.add_data(0x218ab7, [0x9b])
-                        patch.add_data(0x218a27, [0x9b])
-                        patch.add_data(0x218a37, [0x9b])
-                        patch.add_data(0x218a3a, [0x9b])
-                        patch.add_data(0x21899D, [0x9b])
-                        patch.add_data(0x218905, [0x9b])
-                        patch.add_data(0x218914, [0x9b])
-                    if sesw_only: #dont face north
-                        patch.add_data(0x218a37, [0x73])
-                        patch.add_data(0x21899D, [0x73])
-                        patch.add_data(0x218905, [0x71])
-                    if invert_se_sw: #scarecrow sprite sequence 0 and 1 are inverted
-                        patch.add_data(0x21886f, [0x77])
-                        patch.add_data(0x218b41, [0x77])
-                        patch.add_data(0x218ab7, [0x77])
-                        patch.add_data(0x218a27, [0x75])
-                        patch.add_data(0x218a37, [0x73])
-                        patch.add_data(0x218a3a, [0x77])
-                        patch.add_data(0x21899D, [0x73])
-                        patch.add_data(0x218905, [0x71])
-                        patch.add_data(0x218914, [0x77])
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 273, 15, 0x20f301))
-                        spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 277, 15, 0x20f313))
-                        spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 275, 15, 0x20f30d))
-                        spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 281, 15, 0x20f325))
-                        spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 279, 15, 0x20f319))
-                        spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 283, 3204, 0x20f32b))
+                    if shuffled_boss.name not in ["Croco1", "Croco2"]:
+                        # use npc 367, set properties to match croco's
+                        patch.add_data(0x14c2a2, [0xBE, 0xA5]);
+                        patch.add_data(0x14c300, [0xBE, 0xE5]);
+                        patch.add_data(0x14c33e, [0xBE, 0xF5]);
+                        patch.add_data(0x14c398, [0xBE, 0xC5]);
+                        patch.add_data(0x14c3e6, [0xBE, 0xD5]);
+                        patch.add_data(0x14c448, [0xBE, 0xB5]);
+                        # replace its sprite
+                        if freeze or sesw_only:
+                            patch.add_data(0x1Dc209, calcpointer(sprite, [0x00, 0x08]));
+                        else:
+                            patch.add_data(0x1Dc209, calcpointer(sprite, [0x00, 0x00]));
+                        patch.add_data(0x1Dc20b, [0x80, 0x22, 0x55, 0x2a]);
+                        #change partitions for small sprites
+                        if overworld_is_skinny:
+                            #area 4 - modify partition 53
+                            patch.add_data(0x1DDED5, 0x81)
+                            #area 5 and 7 - reconfigure and use partition 2
+                            patch.add_data(0x14c33a, 0x02)
+                            patch.add_data(0x14c3e2, 0x02)
+                            patch.add_data(0x1dde08, [0xB1, 0x81, 0x80, 0x80]);
+                            #area 6 and 8 can use partition 60, it meets its needs when a small sprite is on croco
+                            patch.add_data(0x14c2fc, 0x3c)
+                            patch.add_data(0x14c394, 0x3c)
+                            #area 9 - reconfigure and use partition 1
+                            patch.add_data(0x14c444, 0x01)
+                            patch.add_data(0x1dde04, [0xB2, 0x81, 0x80, 0x80]);
+                        #need to change a lot of things in moleville to get this to work
+                        sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        if freeze or (not sub_sequence and mold > 0): #dont loop
+                            patch.add_data(0x202615, [0x9b])
+                            patch.add_data(0x21887f, [0x9b])
+                            patch.add_data(0x218885, [0x9b])
+                            patch.add_data(0x218b4e, [0x9b])
+                            patch.add_data(0x218b56, [0x9b])
+                            patch.add_data(0x218ac4, [0x9b])
+                            patch.add_data(0x218acb, [0x9b])
+                            patch.add_data(0x218a34, [0x9b])
+                            patch.add_data(0x218a3d, [0x9b])
+                            patch.add_data(0x2189aa, [0x9b])
+                            patch.add_data(0x2189ad, [0x9b])
+                            patch.add_data(0x218915, [0x9b])
+                            patch.add_data(0x21891B, [0x9b])
+                        # if freeze: #dont do directional commands
+                        #     patch.add_data(0x21886f, [0x9b])
+                        #     patch.add_data(0x218b41, [0x9b])
+                        #     patch.add_data(0x218ab7, [0x9b])
+                        #     patch.add_data(0x218a27, [0x9b])
+                        #     patch.add_data(0x218a37, [0x9b])
+                        #     patch.add_data(0x218a3a, [0x9b])
+                        #     patch.add_data(0x21899D, [0x9b])
+                        #     patch.add_data(0x218905, [0x9b])
+                        #     patch.add_data(0x218914, [0x9b])
+                        # if sesw_only: #dont face north
+                        #     patch.add_data(0x218a37, [0x73])
+                        #     patch.add_data(0x21899D, [0x73])
+                        #     patch.add_data(0x218905, [0x71])
+                        if invert_se_sw: #scarecrow sprite sequence 0 and 1 are inverted
+                            patch.add_data(0x21886f, [0x77])
+                            patch.add_data(0x218b41, [0x77])
+                            patch.add_data(0x218ab7, [0x77])
+                            patch.add_data(0x218a27, [0x75])
+                            patch.add_data(0x218a37, [0x73])
+                            patch.add_data(0x218a3a, [0x77])
+                            patch.add_data(0x21899D, [0x73])
+                            patch.add_data(0x218905, [0x71])
+                            patch.add_data(0x218914, [0x77])
+                        if sequence > 0 or mold > 0:
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 273, 15, 0x20f301))
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 277, 15, 0x20f313))
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 275, 15, 0x20f30d))
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 281, 15, 0x20f325))
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 279, 15, 0x20f319))
+                            spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 283, 3204, 0x20f32b))
                 if location.name == "Punchinello":
                     print(location.name + ": " + shuffled_boss.name)
-                    patch.add_data(0x1dc4b0, calcpointer(sprite, [0x00, 0x48]));
-                    #push animations
-                    if not freeze and push_sequence is not False:
-                        if shuffled_boss.name is "Booster":
-                            patch.add_data(0x1dc4b0, calcpointer(502, [0x00, 0x48]));
-                            patch.add_data(0x1e6d8b, [0x08, 0x50, 3])
+                    if shuffled_boss.name is not "Punchinello":
+                        patch.add_data(0x1dc4b0, calcpointer(sprite, [0x00, 0x48]));
+                        #push animations
+                        if not freeze and push_sequence is not False:
+                            if shuffled_boss.name is "Booster":
+                                patch.add_data(0x1dc4b0, calcpointer(502, [0x00, 0x48]));
+                                patch.add_data(0x1e6d8b, [0x08, 0x50, 3])
+                            else:
+                                patch.add_data(0x1e6d8b, [0x08, 0x50, push_sequence])
                         else:
-                            patch.add_data(0x1e6d8b, [0x08, 0x50, push_sequence])
-                    else:
-                        patch.add_data(0x1e6d8b, [0x9b, 0x9b, 0x9b])
-                    patch.add_data(0x1e6d99, [0xf0, (max(1, push_length - 1))]);
-                    patch.add_data(0x1e6da4, [0xf0, (max(1, push_length - 1))]);
-                    patch.add_data(0x1e6d90, [0x9b, 0x9b, 0x9b])
-                    patch.add_data(0x1e6e04, [0x9b, 0x9b, 0x9b, 0x9b])
-                    patch.add_data(0x1e6e1b, [0x9b, 0x9b, 0x9b, 0x9b])
-                    patch.add_data(0x1e6e32, [0x9b, 0x9b, 0x9b, 0x9b])
-                    sub_sequence = True
-                    if sequence == 0 and mold > 0:
-                        sub_sequence = False
-                    spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 289, 592, 0x20F36b))
+                            patch.add_data(0x1e6d8b, [0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1e6d99, [0xf0, (max(1, push_length - 1))]);
+                        patch.add_data(0x1e6da4, [0xf0, (max(1, push_length - 1))]);
+                        patch.add_data(0x1e6d90, [0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1e6e04, [0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1e6e1b, [0x9b, 0x9b, 0x9b, 0x9b])
+                        patch.add_data(0x1e6e32, [0x9b, 0x9b, 0x9b, 0x9b])
+                        sub_sequence = True
+                        if sequence == 0 and mold > 0:
+                            sub_sequence = False
+                        spritePhaseEvents.append(SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 289, 592, 0x20F36b))
                 if location.name == "KingCalamari":
                     print(location.name + ": " + shuffled_boss.name)
                     if (shuffled_boss.name is not "KingCalamari"):
@@ -1153,6 +1298,10 @@ class GameWorld:
                 if location.name == "Booster":
                     print(location.name + ": " + shuffled_boss.name)
                     if (shuffled_boss.name is not "Booster"):
+                        #fix marrymore if fat sprite is used
+                        if not overworld_is_skinny:
+                            #chapel
+                            patch.add_data(0x14a8c9, 0x29)
                         #replace sprite for npc 50
                         if freeze or sesw_only:
                             patch.add_data(0x1db95e, calcpointer(sprite, [0x00, 0x08]))
@@ -1212,39 +1361,39 @@ class GameWorld:
                             patch.add_data(0x1ef1e0, [0x75, 0x75, 0x75])
                             patch.add_data(0x1ef1fe, [0x75, 0x75, 0x75])
                             patch.add_data(0x1ef217, [0x75, 0x75, 0x75])
-                        if freeze or sequence > 0 or mold > 0: #never change directions
-                            patch.add_data(0x14a93f, 0x40)
-                            #portrait room
-                            patch.add_data(0x1ee055, 0x9b)
-                            patch.add_data(0x1ee073, 0x9b)
-                            #tower
-                            patch.add_data(0x1ed899, 0x9b)
-                            patch.add_data(0x1ee4d4, 0x9b)
-                            patch.add_data(0x1ee541, 0x9b)
-                            patch.add_data(0x1ee6c9, 0x9b)
-                            patch.add_data(0x1eea39, 0x9b)
-                            patch.add_data(0x1ef2bc, 0x9b)
-                            patch.add_data(0x1ef2f2, 0x9b)
-                            patch.add_data(0x1ef35c, 0x9b)
-                            patch.add_data(0x1ef360, 0x9b)
-                            patch.add_data(0x1ef3f7, 0x9b)
-                            patch.add_data(0x1ef431, 0x9b)
-                            patch.add_data(0x1ef4dd, 0x9b)
-                            patch.add_data(0x1ef5be, 0x9b)
-                            patch.add_data(0x1ef509, 0x9b)
-                            #marrymore
-                            patch.add_data(0x20d5d3, 0x9b)
-                            patch.add_data(0x20d5fe, 0x9b)
-                            patch.add_data(0x20d6fe, 0x9b)
-                            #booster hill
-                            patch.add_data(0x207158, 0x9b)
-                            patch.add_data(0x20715B, 0x9b)
-                            patch.add_data(0x20716E, 0x9b)
-                            patch.add_data(0x207171, 0x9b)
-                            patch.add_data(0x206d2b, 0x9b)
-                            patch.add_data(0x206d2e, 0x9b)
-                            patch.add_data(0x206d44, 0x9b)
-                            patch.add_data(0x206d47, 0x9b)
+                        # if freeze or sequence > 0 or mold > 0: #never change directions
+                        #     patch.add_data(0x14a93f, 0x40)
+                        #     #portrait room
+                        #     patch.add_data(0x1ee055, 0x9b)
+                        #     patch.add_data(0x1ee073, 0x9b)
+                        #     #tower
+                        #     patch.add_data(0x1ed899, 0x9b)
+                        #     patch.add_data(0x1ee4d4, 0x9b)
+                        #     patch.add_data(0x1ee541, 0x9b)
+                        #     patch.add_data(0x1ee6c9, 0x9b)
+                        #     patch.add_data(0x1eea39, 0x9b)
+                        #     patch.add_data(0x1ef2bc, 0x9b)
+                        #     patch.add_data(0x1ef2f2, 0x9b)
+                        #     patch.add_data(0x1ef35c, 0x9b)
+                        #     patch.add_data(0x1ef360, 0x9b)
+                        #     patch.add_data(0x1ef3f7, 0x9b)
+                        #     patch.add_data(0x1ef431, 0x9b)
+                        #     patch.add_data(0x1ef4dd, 0x9b)
+                        #     patch.add_data(0x1ef5be, 0x9b)
+                        #     patch.add_data(0x1ef509, 0x9b)
+                        #     #marrymore
+                        #     patch.add_data(0x20d5d3, 0x9b)
+                        #     patch.add_data(0x20d5fe, 0x9b)
+                        #     patch.add_data(0x20d6fe, 0x9b)
+                        #     #booster hill
+                        #     patch.add_data(0x207158, 0x9b)
+                        #     patch.add_data(0x20715B, 0x9b)
+                        #     patch.add_data(0x20716E, 0x9b)
+                        #     patch.add_data(0x207171, 0x9b)
+                        #     patch.add_data(0x206d2b, 0x9b)
+                        #     patch.add_data(0x206d2e, 0x9b)
+                        #     patch.add_data(0x206d44, 0x9b)
+                        #     patch.add_data(0x206d47, 0x9b)
                         sub_sequence = True
                         if sequence == 0 and mold > 0:
                             sub_sequence = False
@@ -1310,10 +1459,11 @@ class GameWorld:
                         patch.add_data(0x1ef2c9, [0x9b, 0x9b, 0x9b])
                         patch.add_data(0x1ef2ce, [0x9b, 0x9b, 0x9b])
                         #shovel knight enemies have weird sprite layouts
-                        if dont_reverse_northeast:
-                            patch.add_data(0x14a93f, 0x40)
-                            patch.add_data(0x20d6fc, 0x9b)
-                            patch.add_data(0x20d6fe, 0x9b)
+                        #unsure if this is still necessary - im commenting it out since i made their sequences match everyone elses
+                        # if dont_reverse_northeast:
+                        #     patch.add_data(0x14a93f, 0x40)
+                        #     patch.add_data(0x20d6fc, 0x9b)
+                        #     patch.add_data(0x20d6fe, 0x9b)
                         #special animations
                         if not freeze:
                             if extra_sequence is not False:
@@ -1376,8 +1526,8 @@ class GameWorld:
                         # these bosses will have someone replace bandana blues
                         if shuffled_boss.name in ["Booster", "Bundt", "Clerk", "Manager", "Director", "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello", "Booster", "Megasmilax", "CzarDragon", "Birdo", "Valentina", "Hidon", "Yaridovich", "Boomer"]:
                             patch.add_data(0x1dc10d, calcpointer(shuffled_boss.other_sprites[0], [0x00, 0x20]))
-                        if freeze: #never change directions
-                            patch.add_data(0x203873, 0x9b)
+                        # if freeze: #never change directions
+                        #     patch.add_data(0x203873, 0x9b)
                         sub_sequence = True
                         if sequence == 0 and mold > 0:
                             sub_sequence = False
@@ -1396,13 +1546,14 @@ class GameWorld:
                 if location.name == "Belome2":
                     # replace belome's sprite
                     print(location.name + ": " + shuffled_boss.name)
-                    patch.add_data(0x1Dc471, calcpointer(sprite, [0x00, 0xA8]))
-                    if sequence > 0 or mold > 0:
-                        if sequence > 0:
-                            sub_sequence = True
-                        elif mold > 0:
-                            sub_sequence = False
-                        spritePhaseEvents.append(SpritePhaseEvent(4, plus, mold, sub_sequence, sequence, False, 268, 1771, 0x20f2e6))
+                    if shuffled_boss.name not in ["Belome1", "Belome2"]:
+                        patch.add_data(0x1Dc471, calcpointer(sprite, [0x00, 0xA8]))
+                        if sequence > 0 or mold > 0:
+                            if sequence > 0:
+                                sub_sequence = True
+                            elif mold > 0:
+                                sub_sequence = False
+                            spritePhaseEvents.append(SpritePhaseEvent(4, plus, mold, sub_sequence, sequence, False, 268, 1771, 0x20f2e6))
                 if location.name == "Jagger":
                     print(location.name + ": " + shuffled_boss.name)
                     if shuffled_boss.name is not "Jagger":
@@ -1411,19 +1562,19 @@ class GameWorld:
                             patch.add_data(0x1Dbc44, calcpointer(sprite, [0x00, 0x28]))
                         else:
                             patch.add_data(0x1Dbc44, calcpointer(sprite, [0x00, 0x20]))
-                        if freeze or sequence > 0 or mold > 0: #never change directions
-                            patch.add_data(0x14be67, 0x40)
-                            sub_sequence = True
-                            patch.add_data(0x1f6bb9, 0x9b)
-                            patch.add_data(0x1f6bc6, 0x9b)
-                            patch.add_data(0x1f6bcf, 0x9b)
-                            patch.add_data(0x1f6be0, 0x9b)
-                            patch.add_data(0x1f6c00, 0x9b)
-                            patch.add_data(0x1f6c7b, 0x9b)
-                            patch.add_data(0x1f6cc2, 0x9b)
-                            patch.add_data(0x1f6d18, 0x9b)
-                            patch.add_data(0x1f6d29, 0x9b)
-                            patch.add_data(0x1f6f4c, 0x9b)
+                        # if freeze or sequence > 0 or mold > 0: #never change directions
+                        #     patch.add_data(0x14be67, 0x40)
+                        #     sub_sequence = True
+                        #     patch.add_data(0x1f6bb9, 0x9b)
+                        #     patch.add_data(0x1f6bc6, 0x9b)
+                        #     patch.add_data(0x1f6bcf, 0x9b)
+                        #     patch.add_data(0x1f6be0, 0x9b)
+                        #     patch.add_data(0x1f6c00, 0x9b)
+                        #     patch.add_data(0x1f6c7b, 0x9b)
+                        #     patch.add_data(0x1f6cc2, 0x9b)
+                        #     patch.add_data(0x1f6d18, 0x9b)
+                        #     patch.add_data(0x1f6d29, 0x9b)
+                        #     patch.add_data(0x1f6f4c, 0x9b)
                         if sequence == 0 and mold > 0:
                             sub_sequence = False
                         #if freeze or (not sub_sequence and mold > 0): #dont loop
@@ -1485,26 +1636,26 @@ class GameWorld:
                             spritePhaseEvents.append(SpritePhaseEvent(1, plus, mold, sub_sequence, sequence, False, 255, 2064, 0x20f2a1))
                 if location.name == "Jinx3":
                     print(location.name + ": " + shuffled_boss.name)
-                    if shuffled_boss.name is not "Jinx3":
+                    if shuffled_boss.name not in ["Jinx1", "Jinx2", "Jinx3"]:
                         if freeze or sesw_only:
                             patch.add_data(0x1Dbda9, calcpointer(sprite, [0x00, 0x08]))
                         else:
                             patch.add_data(0x1Dbda9, calcpointer(sprite, [0x00, 0x00]))
-                        if freeze or sequence > 0 or mold > 0: #never change directions
-                            patch.add_data(0x14be5b, 0x40)
-                            sub_sequence = True
-                            patch.add_data(0x1f6bd7, 0x9b)
-                            patch.add_data(0x1f6bea, 0x9b)
-                            patch.add_data(0x1f6cba, 0x9b)
-                            patch.add_data(0x1f6d30, 0x9b)
-                            patch.add_data(0x1f6d82, 0x9b)
-                            patch.add_data(0x1f6d9b, 0x9b)
-                            patch.add_data(0x1f6dc2, 0x9b)
-                            patch.add_data(0x1f6dd8, 0x9b)
-                            patch.add_data(0x1f6deb, 0x9b)
-                            patch.add_data(0x1f6e19, 0x9b)
-                            patch.add_data(0x1f6eb9, 0x9b)
-                            patch.add_data(0x1f6f37, 0x9b)
+                        # if freeze or sequence > 0 or mold > 0: #never change directions
+                        #     patch.add_data(0x14be5b, 0x40)
+                        #     sub_sequence = True
+                        #     patch.add_data(0x1f6bd7, 0x9b)
+                        #     patch.add_data(0x1f6bea, 0x9b)
+                        #     patch.add_data(0x1f6cba, 0x9b)
+                        #     patch.add_data(0x1f6d30, 0x9b)
+                        #     patch.add_data(0x1f6d82, 0x9b)
+                        #     patch.add_data(0x1f6d9b, 0x9b)
+                        #     patch.add_data(0x1f6dc2, 0x9b)
+                        #     patch.add_data(0x1f6dd8, 0x9b)
+                        #     patch.add_data(0x1f6deb, 0x9b)
+                        #     patch.add_data(0x1f6e19, 0x9b)
+                        #     patch.add_data(0x1f6eb9, 0x9b)
+                        #     patch.add_data(0x1f6f37, 0x9b)
                         if sequence == 0 and mold > 0:
                             sub_sequence = False
                         #if freeze or (not sub_sequence and mold > 0): #dont loop
@@ -1534,6 +1685,7 @@ class GameWorld:
                         else:
                             patch.add_data(0x1f6e69, [0x9b, 0x9b, 0x9b])
                 if location.name == "MegaSmilax":
+                    #maybe bring shy away back for added comedy
                     print(location.name + ": " + shuffled_boss.name)
                     if shuffled_boss.name is not "MegaSmilax":
                         # use npc 154, set properties to match smilax's
@@ -1556,6 +1708,7 @@ class GameWorld:
                         else:
                             patch.add_data(0x1fdb28, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
                 if location.name == "Dodo":
+                    #always replace npc sprite here, it's normally just the feather
                     print(location.name + ": " + shuffled_boss.name)
                     #load dodo in save room if you won statue game
                     patch.add_data(0x1f759f, SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, True, 112, 2108, 0x20eb0f).export_sprite_sequence())
@@ -1569,42 +1722,42 @@ class GameWorld:
                         else:
                             patch.add_data(0x1db988, calcpointer(sprite, [0x00, 0x00]))
                             #patch.add_data(0x1db9b9, calcpointer(sprite, [0x00, 0x00]))
-                        if freeze or sequence > 0 or mold > 0: #never change directions
-                            sub_sequence = True
-                            patch.add_data(0x1ea3e2, 0x9b)
-                            patch.add_data(0x1ea515, 0x9b)
-                            patch.add_data(0x1ea405, 0x9b)
-                            patch.add_data(0x1ea428, 0x9b)
-                            patch.add_data(0x1ea434, 0x9b)
-                            patch.add_data(0x1ea443, 0x9b)
-                            patch.add_data(0x1ea44c, 0x9b)
-                            patch.add_data(0x1ea42b, 0x9b)
-                            patch.add_data(0x1ea43a, 0x9b)
-                            patch.add_data(0x1ea449, 0x9b)
-                            patch.add_data(0x1ea452, 0x9b)
-                            patch.add_data(0x1ea512, 0x9b)
-                            patch.add_data(0x1ea524, 0x9b)
-                            patch.add_data(0x1ea595, 0x9b)
-                            patch.add_data(0x1ea5a7, 0x9b)
-                            patch.add_data(0x1ea42e, 0x9b)
-                            patch.add_data(0x1ea437, 0x9b)
-                            patch.add_data(0x1ea43d, 0x9b)
-                            patch.add_data(0x1ea437, 0x9b)
-                            patch.add_data(0x1ea446, 0x9b)
-                            patch.add_data(0x1ea44f, 0x9b)
-                            patch.add_data(0x1ea458, 0x9b)
-                            patch.add_data(0x1ea518, 0x9b)
-                            patch.add_data(0x1ea573, 0x9b)
-                            patch.add_data(0x1ea59d, 0x9b)
-                            patch.add_data(0x1ea431, 0x9b)
-                            patch.add_data(0x1ea440, 0x9b)
-                            patch.add_data(0x1ea455, 0x9b)
-                            patch.add_data(0x1ea50f, 0x9b)
-                            patch.add_data(0x1ea521, 0x9b)
-                            patch.add_data(0x1ea570, 0x9b)
-                            patch.add_data(0x1ea592, 0x9b)
-                            patch.add_data(0x1ea59a, 0x9b)
-                            patch.add_data(0x1ea5a4, 0x9b)
+                        # if freeze or sequence > 0 or mold > 0: #never change directions
+                        #     sub_sequence = True
+                        #     patch.add_data(0x1ea3e2, 0x9b)
+                        #     patch.add_data(0x1ea515, 0x9b)
+                        #     patch.add_data(0x1ea405, 0x9b)
+                        #     patch.add_data(0x1ea428, 0x9b)
+                        #     patch.add_data(0x1ea434, 0x9b)
+                        #     patch.add_data(0x1ea443, 0x9b)
+                        #     patch.add_data(0x1ea44c, 0x9b)
+                        #     patch.add_data(0x1ea42b, 0x9b)
+                        #     patch.add_data(0x1ea43a, 0x9b)
+                        #     patch.add_data(0x1ea449, 0x9b)
+                        #     patch.add_data(0x1ea452, 0x9b)
+                        #     patch.add_data(0x1ea512, 0x9b)
+                        #     patch.add_data(0x1ea524, 0x9b)
+                        #     patch.add_data(0x1ea595, 0x9b)
+                        #     patch.add_data(0x1ea5a7, 0x9b)
+                        #     patch.add_data(0x1ea42e, 0x9b)
+                        #     patch.add_data(0x1ea437, 0x9b)
+                        #     patch.add_data(0x1ea43d, 0x9b)
+                        #     patch.add_data(0x1ea437, 0x9b)
+                        #     patch.add_data(0x1ea446, 0x9b)
+                        #     patch.add_data(0x1ea44f, 0x9b)
+                        #     patch.add_data(0x1ea458, 0x9b)
+                        #     patch.add_data(0x1ea518, 0x9b)
+                        #     patch.add_data(0x1ea573, 0x9b)
+                        #     patch.add_data(0x1ea59d, 0x9b)
+                        #     patch.add_data(0x1ea431, 0x9b)
+                        #     patch.add_data(0x1ea440, 0x9b)
+                        #     patch.add_data(0x1ea455, 0x9b)
+                        #     patch.add_data(0x1ea50f, 0x9b)
+                        #     patch.add_data(0x1ea521, 0x9b)
+                        #     patch.add_data(0x1ea570, 0x9b)
+                        #     patch.add_data(0x1ea592, 0x9b)
+                        #     patch.add_data(0x1ea59a, 0x9b)
+                        #     patch.add_data(0x1ea5a4, 0x9b)
                         if sequence == 0 and mold > 0:
                             sub_sequence = False
                         if freeze or (not sub_sequence and mold > 0): #dont loop
@@ -1653,13 +1806,22 @@ class GameWorld:
                             elif mold > 0:
                                 sub_sequence = False
                             spritePhaseEvents.append(SpritePhaseEvent(9, plus, mold, sub_sequence, sequence, True, 430, 738, 0x20fa1a))
-                        #statues
-                        #for addr in [0x209f9b, 0x209f9f, 0x209fa3, 0x209fa7, 0x209fab, 0x209faf]:
-                        #    patch.add_data(addr, [0x9b, 0x9b, 0x9b, 0x9b])
-                        #patch.add_data(0x213005, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
-                        #patch.add_data(0x21300d, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
-                        #patch.add_data(0x213015, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
-                        #patch.add_data(0x21301d, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                        ###statues
+                        ##room 109
+                        #change partition to 12
+                        patch.add_data(0x149e3e, 0x0c)
+                        #change statue sprite
+                        patch.add_data(0x1db9b9, 0x0c)
+                        #set SESW only if necessary
+                        if sesw_only:
+                            patch.add_data(0x1db9b9, calcpointer(sprite, [0x00, 0x08]))
+                        else:
+                            patch.add_data(0x1db9b9, calcpointer(sprite, [0x00, 0x00]))
+                    #dont change statues back to king nimbus after castle finished, since doesnt exist in changed mold
+                    #always doing this, bc using those action scripts for scarecrow
+                    #entrance hall
+                    for addr in [0x209f9b, 0x209f9f, 0x209fa3, 0x209fa7, 0x209fab, 0x209faf]:
+                        patch.add_data(addr, [0x9b, 0x9b, 0x9b, 0x9b])
                 if location.name == "CzarDragon":
                     print(location.name + ": " + shuffled_boss.name)
                     if shuffled_boss.name is not "CzarDragon":
@@ -1682,6 +1844,14 @@ class GameWorld:
                 if location.name == "AxemRangers":
                     print(location.name + ": " + shuffled_boss.name)
                     if shuffled_boss.name is not "AxemRangers":
+                        #change partitions for small sprites
+                        if overworld_is_skinny:
+                            #trampoline room
+                            #use and modify partition 3
+                            patch.add_data(0x14d761, 0x03)
+                            #may need to make partition data different depending on underling sprites
+                            #ie bowyer arrows may also need slot C modified
+                            patch.add_data(0x1dde0c, [0xA0, 0x87, 0x81]);
                         #just skip a hard cutscene, i dont wanna deal with it
                         #nevermind, this hardlocks, dumb game
                         #patch.add_data(0x204b30, [0xD2, 0x3A, 0x4B, 0x9b, 0x9b, 0x9b, 0x9b])
@@ -1794,7 +1964,7 @@ class GameWorld:
                             spritePhaseEvents.append(SpritePhaseEvent([2, 4, 5, 6], 0, 0, True, [sequence, shuffled_boss.other_sprites_sequences[0], shuffled_boss.other_sprites_sequences[1], shuffled_boss.other_sprites_sequences[2], shuffled_boss.other_sprites_sequences[3]], [True, True, True, False, False], 388, 3339, 0x20f88d))
                             spritePhaseEvents.append(SpritePhaseEvent(1, 0, 0, True, shuffled_boss.other_sprites_sequences[2], True, 365, 15, 0x20f653))
                             spritePhaseEvents.append(SpritePhaseEvent(1, 0, 0, True, shuffled_boss.other_sprites_sequences[1], True, 391, 3341, 0x20f896))
-                            spritePhaseEvents.append(SpritePhaseEvent([1, 2, 3], 0, 0, True, [shuffled_boss.other_sprites_sequences[4], shuffled_boss.other_sprites_sequences[3], sequence], [True, False, True], 394, 3342, 0x20f8a5))
+                            spritePhaseEvents.append(SpritePhaseEvent([1, 2, 3], 0, 0, True, [shuffled_boss.other_sprites_sequences[3], shuffled_boss.other_sprites_sequences[3], sequence], [True, False, True], 394, 3342, 0x20f8a5))
                             spritePhaseEvents.append(SpritePhaseEvent([1, 2, 4, 5], 0, 0, True, [sequence, shuffled_boss.other_sprites_sequences[0], shuffled_boss.other_sprites_sequences[1], shuffled_boss.other_sprites_sequences[2], shuffled_boss.other_sprites_sequences[3]], [False, False, False, False, False], 392, 15, 0x20f899))
                             spritePhaseEvents.append(SpritePhaseEvent([2, 4, 5, 6], 0, 0, True, [sequence, shuffled_boss.other_sprites_sequences[0], shuffled_boss.other_sprites_sequences[1], shuffled_boss.other_sprites_sequences[2], shuffled_boss.other_sprites_sequences[3]], [False, False, False, False, False], 393, 3344, 0x20f8a2))
                 if location.name == "Magikoopa":
@@ -1804,13 +1974,13 @@ class GameWorld:
                             patch.add_data(0x1dbd32, calcpointer(sprite, [0x00, 0x48]))
                         else:
                             patch.add_data(0x1dbd32, calcpointer(sprite, [0x00, 0x40]))
-                        if freeze or sequence > 0 or mold > 0: #never change directions
-                            sub_sequence = True
-                            patch.add_data(0x1f881c, 0x9b)
-                            patch.add_data(0x1f885b, 0x9b)
-                            patch.add_data(0x1f88cb, 0x9b)
-                            patch.add_data(0x1f88d3, 0x9b)
-                            patch.add_data(0x1f8801, 0x9b)
+                        # if freeze or sequence > 0 or mold > 0: #never change directions
+                        #     sub_sequence = True
+                        #     patch.add_data(0x1f881c, 0x9b)
+                        #     patch.add_data(0x1f885b, 0x9b)
+                        #     patch.add_data(0x1f88cb, 0x9b)
+                        #     patch.add_data(0x1f88d3, 0x9b)
+                        #     patch.add_data(0x1f8801, 0x9b)
                         if sequence == 0 and mold > 0:
                             sub_sequence = False
                         if freeze or (not sub_sequence and mold > 0): #dont loop
@@ -1824,7 +1994,6 @@ class GameWorld:
                             patch.add_data(0x1f88cb, 0x75)
                             patch.add_data(0x1f88d3, 0x77)
                             patch.add_data(0x1f8801, 0x77)
-                        #if dont_reverse_northeast: #factory clerks
                         #special animations
                         if not freeze:
                             if push_sequence is not False:
@@ -1832,9 +2001,9 @@ class GameWorld:
                             else:
                                 patch.add_data(0x1f8842, [0x9b, 0x9b, 0x9b])
                             if extra_sequence is not False:
-                                patch.add_data(0x1f885e, [0x08, 0x50, extra_sequence])
+                                patch.add_data(0x1f885e, [0x08, 0x50, 0x80 + extra_sequence])
                             elif push_sequence is not False:
-                                patch.add_data(0x1f885e, [0x08, 0x50, push_sequence])
+                                patch.add_data(0x1f885e, [0x08, 0x50, 0x80 + push_sequence])
                             else:
                                 patch.add_data(0x1f885e, [0x9b, 0x9b, 0x9b])
                         else:
@@ -1869,6 +2038,9 @@ class GameWorld:
                                 patch.add_data(0x1f8a34, [0x08, 0x50, push_sequence])
                             elif extra_sequence is not False:
                                 patch.add_data(0x1f8a34, [0x08, 0x40, extra_sequence])
+                            elif sequence > 0 or mold > 0:
+                                #needed for exor
+                                patch.add_data(0x1f8a34, [0x9b, 0x9b, 0x9b])
                             else:
                                 patch.add_data(0x1f8a34, [0x08, 0x40, sequence])
                         else:
@@ -1904,7 +2076,10 @@ class GameWorld:
                 if location.name == "Clerk":
                     print(location.name + ": " + shuffled_boss.name)
                     if shuffled_boss.name is not "Clerk":
-                        if freeze or sequence > 0 or mold > 0: #never change directions
+                        #change sequence 01 of Clerk, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
+                        patch.add_data(0x265f53, 0x02)
+                        patch.add_data(0x265f82, 0x43)
+                        if freeze or sequence > 0 or mold > 0:
                             sub_sequence = True
                         if sequence == 0 and mold > 0:
                             sub_sequence = False
@@ -1922,6 +2097,9 @@ class GameWorld:
                 if location.name == "Manager":
                     print(location.name + ": " + shuffled_boss.name)
                     if shuffled_boss.name is not "Manager":
+                        # change sequence 01 of Manager, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
+                        patch.add_data(0x36923e, 0x02)
+                        patch.add_data(0x36926d, 0x43)
                         if freeze or sequence > 0 or mold > 0: #never change directions
                             sub_sequence = True
                         if sequence == 0 and mold > 0:
@@ -1938,6 +2116,9 @@ class GameWorld:
                             spritePhaseEvents.append(SpritePhaseEvent(16, plus, mold, sub_sequence, sequence, True, 471, 2617, 0x20Fc3c))
                         patch.add_data(0x1fe69c, [0x9b, 0x9b, 0x9b])
                 if location.name == "Director":
+                    # chance sequence 01 of Manager, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
+                    patch.add_data(0x369296, 0x02)
+                    patch.add_data(0x3692C5, 0x43)
                     print(location.name + ": " + shuffled_boss.name)
                     if shuffled_boss.name is not "Director":
                         if freeze or sequence > 0 or mold > 0: #never change directions

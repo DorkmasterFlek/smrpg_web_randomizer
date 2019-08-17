@@ -103,6 +103,7 @@ class Enemy:
     battle_northeast_mold = False
     overworld_dont_reverse_northeast = False
     czar_sprite = []
+    overworld_is_skinny = False
 
     def __init__(self, world):
         """
@@ -1005,6 +1006,7 @@ class Pandorite(Enemy):
     battle_sesw_only = True
     battle_push_sequence = 3
     battle_push_length = 22
+    overworld_is_skinny = True
 
 
 class ShyRanger(Enemy):
@@ -1135,6 +1137,7 @@ class HammerBro(Enemy):
     battle_sesw_only = True
     battle_push_sequence = 3
     battle_push_length = 40
+    overworld_is_skinny = True
 
 class Buzzer(Enemy):
     index = 28
@@ -1298,7 +1301,7 @@ class Magikoopa(Enemy):
     overworld_npc = 190
     overworld_sprite = 129
     battle_npc = 289
-    battle_sprite = 289
+    battle_sprite = 353
     sprite_height = 42
     sprite_width = 45
     overworld_extra_sequence = 10
@@ -1307,6 +1310,7 @@ class Magikoopa(Enemy):
     overworld_push_sequence = 10
     overworld_push_length = 52
     overworld_northeast_mold = 3
+    overworld_is_skinny = True
 
 
 
@@ -1876,6 +1880,7 @@ class Boomer(Enemy):
     overworld_push_length = 40
     overworld_northeast_mold = 3
     other_sprites = [346, 346]
+    overworld_is_skinny = True
 
     def get_patch(self):
         """Update battle events for switching between blue and red states for Boomer with shuffled stat changes.
@@ -2893,6 +2898,7 @@ class Hidon(Enemy):
     battle_sesw_only = True
     battle_push_sequence = 3
     battle_push_length = 44
+    overworld_is_skinny = True
 
 
 class SlingShy(Enemy):
@@ -3890,6 +3896,7 @@ class BoxBoy(Enemy):
     battle_sesw_only = True
     battle_push_sequence = 3
     battle_push_length = 90
+    overworld_is_skinny = True
 
 
 class Shelly(Enemy):
@@ -4003,6 +4010,7 @@ class DodoSolo(Enemy):
     battle_sesw_only = True
     battle_push_sequence = 3
     battle_push_length = 16
+    overworld_is_skinny = True
 
 
 class Oerlikon(Enemy):
@@ -5078,6 +5086,7 @@ class Jagger(Enemy):
     battle_push_length = 48
     overworld_northeast_mold = 3
     battle_northeast_mold = 3
+    overworld_is_skinny = True
 
 
 class Chompweed(Enemy):
@@ -5600,6 +5609,7 @@ class Jinx1(Enemy):
     overworld_push_length = 10
     overworld_northeast_mold = 3
     battle_northeast_mold = 3
+    overworld_is_skinny = True
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5658,6 +5668,7 @@ class Jinx2(Enemy):
     overworld_push_length = 10
     overworld_northeast_mold = 3
     battle_northeast_mold = 3
+    overworld_is_skinny = True
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5952,6 +5963,7 @@ class Megasmilax(Enemy):
     other_sprites = [263, 263, 263, 263, 263, 263]
     overworld_northeast_mold = 3
     czar_sprite = [458]
+    overworld_is_skinny = True
 
 
 class Birdo(Enemy):
@@ -5996,6 +6008,7 @@ class Birdo(Enemy):
     battle_push_sequence = 3
     battle_push_length = 42
     other_sprites = [462, 462, 462, 462]
+    overworld_is_skinny = True
 
 
 class Eggbert(Enemy):
@@ -6081,7 +6094,6 @@ class Punchinello(Enemy):
     status_immunities = [0, 1, 2, 3]
     palette = 16
     flower_bonus_type = 1
-    overworld_sesw_only = True
     battle_sesw_only = True
 
     # Reward attributes
@@ -6106,6 +6118,7 @@ class Punchinello(Enemy):
     battle_push_sequence = 3
     other_sprites = [281, 281, 281, 281]
     overworld_northeast_mold = 3
+    overworld_is_skinny = True
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6484,6 +6497,7 @@ class Jinx3(Enemy):
     overworld_push_length = 10
     overworld_northeast_mold = 3
     battle_northeast_mold = 3
+    overworld_is_skinny = True
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6594,6 +6608,7 @@ class CzarDragon(Enemy):
     overworld_push_sequence = 3
     overworld_push_length = 30
     other_sprites = [277, 277, 277, 277]
+    overworld_is_skinny = True
 
 
 class Cloaker(Enemy):
@@ -6753,6 +6768,7 @@ class Mack(Enemy):
     overworld_push_sequence = 4
     other_sprites = [414, 414, 414, 414]
     overworld_northeast_mold = 3
+    overworld_is_skinny = True
 
 
 class Bodyguard(Enemy):
@@ -6830,6 +6846,7 @@ class Yaridovich(Enemy):
     battle_push_sequence = 3
     overworld_northeast_mold = 3
     other_sprites = [162, 162, 162, 162]
+    overworld_is_skinny = True
 
 
 class DrillBit(Enemy):
@@ -6969,6 +6986,7 @@ class Bowyer(Enemy):
     overworld_sesw_only = True
     battle_sesw_only = True
     other_sprites = [487, 487, 487, 487]
+    overworld_is_skinny = True
 
 
 class Aero(Enemy):
@@ -7027,6 +7045,7 @@ class Exor(Enemy):
     battle_sprite_plus = 3
     overworld_sesw_only = True
     battle_sesw_only = True
+    overworld_is_skinny = True
 
     def get_patch(self):
         """Extra patch data for this enemy.
@@ -7455,6 +7474,7 @@ class Booster(Enemy):
     battle_push_sequence = 4
     overworld_push_length = 72
     battle_push_length = 72
+    overworld_is_skinny = True
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7662,8 +7682,8 @@ class Valentina(Enemy):
     battle_push_sequence = 3
     battle_push_length = 18
     overworld_northeast_mold = 3
-    overworld_sesw_only = True
     battle_sesw_only = True
+    overworld_is_skinny = True
 
     other_sprites = [333, 333, 333, 333]
 
