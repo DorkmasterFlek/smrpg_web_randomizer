@@ -352,7 +352,7 @@ class BattleScript:
 
     def start_counter(self):
         assert not self.counter_called
-        counter_called = True
+        self.counter_called = True
         return self.append('start_counter')
 
 
