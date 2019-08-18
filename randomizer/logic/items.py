@@ -359,17 +359,14 @@ def randomize_all(world):
              item.price = round(high_accessory_costs.pop() / 62.5)
 
     # Designate 1-4 magic weapons
-    if item.world.settings.is_flag_enabled(flags.EquipmentStats):
+    if world.settings.is_flag_enabled(flags.EquipmentStats):
         magic_weapon_count = random.randint(1, 4)
         magic_weapon_candidates = []
         for item in world.items:
             if item.is_weapon and item.attack < 40:
-                magic_weapon_candidates.append(item.index)
-        random.shuffle(magic_weapon_candidates)
-        magic_weapon_candidates[:magic_weapon_count]
-        for item in world.items:
-            if item.index in magic_weapon_candidates:
-                item.magic_weapon = True
+                magic_weapon_candidates.append(item)
+        for item in random.sample(magic_weapon_candidates, magic_weapon_count):
+            item.magic_weapon = True
 
     # Shuffle equipment stats and equip characters.
     for item in world.items:
