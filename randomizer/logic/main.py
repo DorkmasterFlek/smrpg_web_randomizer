@@ -449,64 +449,64 @@ class GameWorld:
                             patch.add_data(0x1e8b49, [0x60, 0x48, 0xa2, 0x00])
                     patch.add_data(addr, [0x36, 0x80 + character.index])
 
-                #replace overworld characters in recruitment spots
-                if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 2:
-                    #mushroom way
-                    patch.add_data(0x14b3BC, character.mway_1_npc_id)
-                    patch.add_data(0x14b411, character.mway_2_npc_id)
-                    patch.add_data(0x14b452, character.mway_3_npc_id)
-                if ((dialogue_iterator == 4 and not self.settings.is_flag_enabled(flags.NoFreeCharacters)) or
-                        (self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 3)):
-                    #forest maze
-                    patch.add_data(0x14b8eb, character.forest_maze_sprite_id)
-                    if character.name is "Mario":
-                        patch.add_data(0x215e4f, 0x42)
-                        patch.add_data(0x215e56, 0x12)
-                if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 4:
-                    #moleville
-                    patch.add_data(0x14c491, character.moleville_sprite_id)
-                if dialogue_iterator == 5:
-                    # show character in marrymore
-                    patch.add_data(0x14a94d, character.forest_maze_sprite_id)
-                    if character.name is not "Toadstool":
+                    # replace overworld characters in recruitment spots
+                    if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 2:
+                        # mushroom way
+                        patch.add_data(0x14b3BC, character.mway_1_npc_id)
+                        patch.add_data(0x14b411, character.mway_2_npc_id)
+                        patch.add_data(0x14b452, character.mway_3_npc_id)
+                    if ((dialogue_iterator == 4 and not self.settings.is_flag_enabled(flags.NoFreeCharacters)) or
+                            (self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 3)):
+                        # forest maze
+                        patch.add_data(0x14b8eb, character.forest_maze_sprite_id)
                         if character.name is "Mario":
-                            # surprised
-                            patch.add_data(0x20d338, [0x08, 0x43, 0x00])
-                            # on ground
-                            patch.add_data(0x20d34e, [0x08, 0x4B, 0x01])
-                            # sitting
-                            patch.add_data(0x20d43b, [0x08, 0x4a, 0x1f])
-                            # looking down
-                            patch.add_data(0x20d445, [0x08, 0x48, 0x06])
-                            patch.add_data(0x20d459, [0x08, 0x48, 0x06])
-                            # crying
-                            patch.add_data(0x20d464, [0x10, 0x80])
-                            patch.add_data(0x20d466, [0x08, 0x43, 0x03])
-                            # surprised
-                            patch.add_data(0x20d48c, [0x08, 0x43, 0x00])
-                            # looking down
-                            patch.add_data(0x20d4d4, [0x08, 0x48, 0x06])
-                            # crying
-                            patch.add_data(0x20d4d9, [0x10, 0x80])
-                            patch.add_data(0x20d4db, [0x08, 0x43, 0x03])
-                            # surprised reversed
-                            patch.add_data(0x20d5d8, [0x08, 0x43, 0x80])
-                            # crying in other direction
-                            patch.add_data(0x20d5e3, [0x08, 0x43, 0x84])
-                        else:
-                            # surprised
-                            patch.add_data(0x20d338, [0x08, 0x42, 0x00])
-                            patch.add_data(0x20d48c, [0x08, 0x42, 0x00])
-                            # surprised reversed
-                            patch.add_data(0x20d5d8, [0x08, 0x42, 0x80])
-                            # sitting
-                            patch.add_data(0x20d43b, [0x08, 0x49, 0x1f])
-                            if character.name is "Geno":
+                            patch.add_data(0x215e4f, 0x42)
+                            patch.add_data(0x215e56, 0x12)
+                    if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 4:
+                        # moleville
+                        patch.add_data(0x14c491, character.moleville_sprite_id)
+                    if dialogue_iterator == 5:
+                        # show character in marrymore
+                        patch.add_data(0x14a94d, character.forest_maze_sprite_id)
+                        if character.name is not "Peach":
+                            if character.name is "Mario":
+                                # surprised
+                                patch.add_data(0x20d338, [0x08, 0x43, 0x00])
+                                # on ground
+                                patch.add_data(0x20d34e, [0x08, 0x4B, 0x01])
+                                # sitting
+                                patch.add_data(0x20d43b, [0x08, 0x4a, 0x1f])
+                                # looking down
+                                patch.add_data(0x20d445, [0x08, 0x48, 0x06])
+                                patch.add_data(0x20d459, [0x08, 0x48, 0x06])
                                 # crying
-                                patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
-                                patch.add_data(0x20d4db, [0x08, 0x40, 0x0B])
+                                patch.add_data(0x20d464, [0x10, 0x80])
+                                patch.add_data(0x20d466, [0x08, 0x43, 0x03])
+                                # surprised
+                                patch.add_data(0x20d48c, [0x08, 0x43, 0x00])
+                                # looking down
+                                patch.add_data(0x20d4d4, [0x08, 0x48, 0x06])
+                                # crying
+                                patch.add_data(0x20d4d9, [0x10, 0x80])
+                                patch.add_data(0x20d4db, [0x08, 0x43, 0x03])
+                                # surprised reversed
+                                patch.add_data(0x20d5d8, [0x08, 0x43, 0x80])
                                 # crying in other direction
-                                patch.add_data(0x20d5e3, [0x08, 0x40, 0x8C])
+                                patch.add_data(0x20d5e3, [0x08, 0x43, 0x84])
+                            else:
+                                # surprised
+                                patch.add_data(0x20d338, [0x08, 0x42, 0x00])
+                                patch.add_data(0x20d48c, [0x08, 0x42, 0x00])
+                                # surprised reversed
+                                patch.add_data(0x20d5d8, [0x08, 0x42, 0x80])
+                                # sitting
+                                patch.add_data(0x20d43b, [0x08, 0x49, 0x1f])
+                                if character.name is "Geno":
+                                    # crying
+                                    patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
+                                    patch.add_data(0x20d4db, [0x08, 0x40, 0x0B])
+                                    # crying in other direction
+                                    patch.add_data(0x20d5e3, [0x08, 0x40, 0x8C])
 
         else:
             # For standard mode, Mario is the first character.  Update the other four only.
@@ -526,7 +526,13 @@ class GameWorld:
                     0x3ab95a,
             ):
                 patch.add_data(addr, self.character_join_order[1].index)
-        cursor_id = self.character_join_order[0].index
+
+        # Use first character to join as file select cursor.
+        cursor_id = 0
+        for character in self.character_join_order:
+            if character is not None:
+                cursor_id = character.index
+                break
 
         # Learned spells and level-up exp.
         patch += self.levelup_xps.get_patch()
