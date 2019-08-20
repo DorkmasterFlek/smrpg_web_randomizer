@@ -48,7 +48,11 @@ def _randomize_spell_casting(world):
             if command != 'cast_spell': continue
             new_args = []
             for arg in args:
-                new_args.append(random.choice(spells.SpellsToTargets[getattr(arg, 'index', arg)]).index)
+                possible_spells = [spell for spell in spells.SpellsToTargets[getattr(arg, 'index', arg)] if spell.fp <= enemy.fp]
+                # This should probably never happen...probably.
+                if not possible_spells:
+                    possible_spells = [arg]
+                new_args.append(random.choice(possible_spells).index)
             script[i] = command, new_args
 
 
