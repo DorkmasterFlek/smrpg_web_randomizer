@@ -5075,6 +5075,7 @@ class RightEye(Enemy):
         script.set(0x7ee002, 0x01)
         script.set(0x7ee000, 0x01)
         script.clear(0x7ee000, 0x04)
+        script.set_untargetable(Monsters.SELF)
 
         if self.world.settings.is_flag_enabled(flags.NoGenoWhirlExor):
             script.set_targetable(Monsters.MONSTER_1)
