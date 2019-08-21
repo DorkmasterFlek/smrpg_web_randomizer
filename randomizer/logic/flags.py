@@ -1033,7 +1033,6 @@ class PaletteSwaps(Flag):
     name = 'Palette Swaps'
     description = 'Your party members get a change of wardrobe!'
     inverse_description = '(Sprite colours are not modified.)'
-    modes = ['open']
     value = '-palette'
 
 
