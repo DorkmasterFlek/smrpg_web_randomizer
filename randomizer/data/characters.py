@@ -321,7 +321,7 @@ class Character:
 
 # ******************* Actual character data classes.
 class Mario(Character):
-    name: "Mario"
+    original_name = "Mario"
     index = 0
     starting_level = 1
     max_hp = 20
@@ -443,7 +443,7 @@ class Mario(Character):
 
 class Peach(Character):
     index = 1
-    name: "Toadstool"
+    original_name = "Toadstool"
     starting_level = 9
     max_hp = 15
     speed = 24
@@ -537,7 +537,7 @@ class Peach(Character):
 
 class Bowser(Character):
     index = 2
-    name: "Bowser"
+    original_name = "Bowser"
     starting_level = 8
     max_hp = 25
     speed = 15
@@ -629,7 +629,7 @@ class Bowser(Character):
 
 class Geno(Character):
     index = 3
-    name: "Geno"
+    original_name = "Geno"
     starting_level = 6
     max_hp = 20
     speed = 30
@@ -722,7 +722,7 @@ class Geno(Character):
 
 class Mallow(Character):
     index = 4
-    name: "Mallow"
+    original_name = "Mallow"
     starting_level = 2
     max_hp = 16
     speed = 18
