@@ -238,11 +238,13 @@ class ExcludeToadstool(Flag):
 class NoFreeCharacters(Flag):
     name = 'No Free Characters'
     description = "Instead of starting with 3 characters, you start off with only one. Mushroom Way and Moleville Mines area bosses will add characters to your party in addition to Marrymore and Forest Maze."
+    modes = ['open']
     value = '-nfc'
 
 class ExcludeCharacters(Flag):
     name = 'Exclude characters'
     description = "If a character is excluded, their designated recruitment spot will be empty."
+    modes = ['open']
     value = '@Z'
     options = [
         ExcludeMario,
@@ -255,6 +257,7 @@ class ExcludeCharacters(Flag):
 class ChooseStarter(Flag):
     name = 'Choose starting character'
     description = "Guarantees that your first party slot will be the chosen character"
+    modes = ['open']
     value = '@Y'
     choices = [
         StartMario,
@@ -262,17 +265,6 @@ class ChooseStarter(Flag):
         StartGeno,
         StartBowser,
         StartToadstool
-    ]
-
-
-
-# TODO: ******** Starting character flags
-
-class ChooseStartingCharacter(Flag):
-    name = 'Choose starting character'
-    value = '@starting'
-    choices = [
-        # TODO: Add options for this when we add the "no free characters" option.
     ]
 
 
@@ -1131,31 +1123,31 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Csj Edf B Tc4yg M1 Sc4 Qa X2'
+    flags = 'K R Csj Tc4y $ M1 Sc4 Edf B Qa X2 P1 Nbmq D1s W'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Edf B Tc3yg M1 Sb4 Qsa X2'
+    flags = 'Ks R7 Cspjl Tc3y $ M1 Sb4 Edf B Qsa X2 Nbmq D2s W'
 
 
 class AdvancedPreset(Preset):
     name = 'Advanced'
     description = 'More difficult options for advanced players, requiring you to manage your equips more.'
-    flags = 'Ks R7k Cspjl Edfsa Bc Tb2kd M2 Sb2 Qsba X2 P1 Gm -fakeout'
+    flags = 'Ks R7k Cspjl -nfc Tb2kd $ M2 Sb2 Edfsa Bc Qsba X2 P1 Nbmq Gm -fakeout D4s'
 
 
 class ExpertPreset(Preset):
     name = 'Expert'
     description = 'A highly chaotic shuffle with everything difficult enabled and helpful glitches disabled.'
-    flags = 'Ks R7kc Cspjl Edfsa! Bmcs Tb2kduhi M2x Sv1 Qsba! X2x P2 Gsmke -fakeout'
+    flags = 'Ks R7kc Cspjl -nfc Tb2kduhi $ M2x Sv1 Edfsac! Bmcs Qsba! X2 P2 Nbmq Gsmke -fakeout D4s'
 
 
 class QuickPreset(Preset):
     name = 'Quick'
     description = 'A faster playthrough with free shops and XP acceleration for faster progression'
-    flags = 'K Rk Csjl Tc4yzm M2 Sc4 -freeshops Ed Bm Qsba X3 D1'
+    flags = 'K Rk Csjl Tc4yzm $ M2 Sc4 -freeshops Ed Bm Qsba X3 D1 W'
 
 
 # ************************************** Default lists for the site.
