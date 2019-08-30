@@ -415,6 +415,58 @@ def randomize_all(world):
             random.shuffle(extra_characters)
             world.character_join_order = world.character_join_order[:1] + extra_characters
 
+    #No Free Characters and Choose Starting Characters logic - adjust join order where appropriate
+    if world.open_mode:
+        # Fail if starter is excluded, or if everyone excluded
+        if (world.settings.is_flag_enabled(flags.ExcludeMario) and world.settings.is_flag_enabled(
+                flags.StartMario)) or (
+                world.settings.is_flag_enabled(flags.ExcludeMallow) and world.settings.is_flag_enabled(
+            flags.StartMallow)) or (
+                world.settings.is_flag_enabled(flags.ExcludeGeno) and world.settings.is_flag_enabled(
+            flags.StartGeno)) or (
+                world.settings.is_flag_enabled(flags.ExcludeBowser) and world.settings.is_flag_enabled(
+            flags.StartBowser)) or (
+                world.settings.is_flag_enabled(flags.ExcludeToadstool) and world.settings.is_flag_enabled(
+            flags.StartToadstool)):
+            raise Exception("Cannot exclude your starter")
+        elif world.settings.is_flag_enabled(flags.ExcludeMario) and world.settings.is_flag_enabled(
+                flags.ExcludeMallow) and world.settings.is_flag_enabled(
+            flags.ExcludeGeno) and world.settings.is_flag_enabled(
+            flags.ExcludeBowser) and world.settings.is_flag_enabled(flags.ExcludeToadstool):
+            raise Exception("Cannot exclude all 5 characters")
+        # Move chosen starting character to front of join order
+        else:
+            for char in world.character_join_order:
+                if (world.settings.is_flag_enabled(flags.StartMario) and char.index == 0) or (
+                        world.settings.is_flag_enabled(flags.StartMallow) and char.index == 4) or (
+                        world.settings.is_flag_enabled(flags.StartGeno) and char.index == 3) or (
+                        world.settings.is_flag_enabled(flags.StartBowser) and char.index == 2) or (
+                        world.settings.is_flag_enabled(flags.StartToadstool) and char.index == 1):
+                    world.character_join_order.insert(0, world.character_join_order.pop(
+                        world.character_join_order.index(char)))
+        #Count number of excluded characters, and empty their slots
+        position_iterator = 0
+        empties = 0
+        world.meta_join_order = world.character_join_order.copy()
+        for char in world.meta_join_order:
+            if (world.settings.is_flag_enabled(flags.ExcludeMario) and char.index == 0) or (
+                    world.settings.is_flag_enabled(flags.ExcludeMallow) and char.index == 4) or (
+                    world.settings.is_flag_enabled(flags.ExcludeGeno) and char.index == 3) or (
+                    world.settings.is_flag_enabled(flags.ExcludeBowser) and char.index == 2) or (
+                    world.settings.is_flag_enabled(flags.ExcludeToadstool) and char.index == 1):
+                world.meta_join_order[position_iterator] = None
+                empties += 1
+            position_iterator += 1
+        #Make sure first three slots are filled when NFC is turned off, when possible
+        if not world.settings.is_flag_enabled(flags.NoFreeCharacters):
+            for i in range(empties):
+                position_iterator = 0
+                for char in world.meta_join_order:
+                    if char is None and position_iterator < 3:
+                        world.meta_join_order.append(world.meta_join_order.pop(world.meta_join_order.index(char)))
+                        world.character_join_order.append(world.character_join_order.pop(world.character_join_order[position_iterator]))
+                    position_iterator += 1
+
     # Adjust starting levels according to join order.  Get original levels, then update starting levels based on
     # join order with Mallow = 4, Geno = 3, Bowser = 2, Peach = 1.
     orig_levels = {}

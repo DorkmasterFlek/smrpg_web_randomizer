@@ -6,6 +6,12 @@ from . import items
 
 # Number of enemies
 NUM_ENEMIES = 256
+NO_SHADOW = 0
+SMALL_SHADOW = 1
+MED_SHADOW = 2
+LARGE_SHADOW = 3
+BLOCK_SHADOW = 4
+
 
 
 class Enemy:
@@ -107,6 +113,11 @@ class Enemy:
     overworld_is_empty = False
     fat_sidekicks = False
     empty_sidekicks = False
+    shadow = None
+    overworld_solidity = []
+    battle_solidity = []
+    overworld_y_shift = 0
+    battle_y_shift = 0
 
     def __init__(self, world):
         """
@@ -1011,6 +1022,9 @@ class Pandorite(Enemy):
     battle_push_sequence = 3
     battle_push_length = 22
     overworld_is_empty = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 5]
+    overworld_y_shift = 0
 
 
 class ShyRanger(Enemy):
@@ -1142,6 +1156,11 @@ class HammerBro(Enemy):
     battle_push_sequence = 3
     battle_push_length = 40
     overworld_is_empty = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 9]
+    battle_solidity = [8, 7, 19]
+    overworld_y_shift = 1
+    battle_y_shift = 1
 
 class Buzzer(Enemy):
     index = 28
@@ -1314,6 +1333,9 @@ class Magikoopa(Enemy):
     overworld_push_sequence = 10
     overworld_push_length = 52
     overworld_is_skinny = True
+    shadow = MED_SHADOW
+    overworld_solidity = [3, 3, 10]
+    overworld_y_shift = 1
 
 
 
@@ -1787,6 +1809,9 @@ class Clerk(Enemy):
     battle_push_length = 32
     overworld_dont_reverse_northeast = True
     overworld_extra_sequence = 2
+    shadow = MED_SHADOW
+    overworld_solidity = [7, 7, 13]
+    overworld_y_shift = 1
 
 
 class Gunyolk(Enemy):
@@ -1837,6 +1862,9 @@ class Gunyolk(Enemy):
     overworld_push_sequence = 3
     battle_push_length = 52
     overworld_push_length = 30
+    shadow = MED_SHADOW
+    overworld_solidity = [7, 7, 12]
+    overworld_y_shift = 1
 
 
 class Boomer(Enemy):
@@ -1881,6 +1909,10 @@ class Boomer(Enemy):
     overworld_push_sequence = 3
     overworld_push_length = 40
     overworld_is_skinny = True
+    other_sprites = [346, 346]
+    shadow = MED_SHADOW
+    overworld_solidity = [3, 3, 7]
+    overworld_y_shift = 1
 
     def get_patch(self):
         """Update battle events for switching between blue and red states for Boomer with shuffled stat changes.
@@ -2620,6 +2652,9 @@ class Manager(Enemy):
     battle_push_length = 32
     overworld_dont_reverse_northeast = True
     overworld_extra_sequence = 2
+    shadow = MED_SHADOW
+    overworld_solidity = [9, 9, 15]
+    overworld_y_shift = 1
 
 
 class Bluebird(Enemy):
@@ -2899,6 +2934,9 @@ class Hidon(Enemy):
     battle_push_sequence = 3
     battle_push_length = 44
     overworld_is_empty = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 5]
+    overworld_y_shift = 0
 
 
 class SlingShy(Enemy):
@@ -3596,6 +3634,9 @@ class Director(Enemy):
     battle_push_length = 32
     overworld_dont_reverse_northeast = True
     overworld_extra_sequence = 2
+    shadow = MED_SHADOW
+    overworld_solidity = [9, 9, 15]
+    overworld_y_shift = 1
 
 
 
@@ -3897,6 +3938,9 @@ class BoxBoy(Enemy):
     battle_push_sequence = 3
     battle_push_length = 90
     overworld_is_empty = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 5]
+    overworld_y_shift = 0
 
 
 class Shelly(Enemy):
@@ -4011,6 +4055,11 @@ class DodoSolo(Enemy):
     battle_push_sequence = 3
     battle_push_length = 16
     overworld_is_empty = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 5]
+    battle_solidity = [9, 9, 14]
+    overworld_y_shift = 0
+    battle_y_shift = 0
 
 
 class Oerlikon(Enemy):
@@ -5085,6 +5134,11 @@ class Jagger(Enemy):
     battle_push_sequence = 4
     battle_push_length = 48
     overworld_is_skinny = True
+    shadow = MED_SHADOW
+    overworld_solidity = [4, 4, 11]
+    battle_solidity = [4, 4, 11]
+    overworld_y_shift = 1
+    battle_y_shift = 1
 
 
 class Chompweed(Enemy):
@@ -5448,6 +5502,9 @@ class KnifeGuy(Enemy):
     battle_push_length = 44
     battle_push_sequence = 3
     fat_sidekicks = True
+    shadow = MED_SHADOW
+    overworld_solidity = [3, 3, 12]
+    overworld_y_shift = 1
 
 
 class GrateGuy(Enemy):
@@ -5533,6 +5590,9 @@ class Bundt(Enemy):
     battle_sesw_only = True
     other_sprites = [398, 398]
     overworld_sesw_only = True
+    shadow = LARGE_SHADOW
+    overworld_solidity = [7, 7, 8]
+    overworld_y_shift = 1
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5604,6 +5664,11 @@ class Jinx1(Enemy):
     battle_push_length = 10
     overworld_push_length = 10
     overworld_is_empty = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 5]
+    battle_solidity = [2, 2, 5]
+    overworld_y_shift = 0
+    battle_y_shift = 0
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5661,6 +5726,11 @@ class Jinx2(Enemy):
     battle_push_length = 10
     overworld_push_length = 10
     overworld_is_empty = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 5]
+    battle_solidity = [2, 2, 5]
+    overworld_y_shift = 0
+    battle_y_shift = 0
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5720,6 +5790,11 @@ class CountDown(Enemy):
     overworld_freeze = True
     battle_freeze = True
     overworld_is_empty = True
+    shadow = LARGE_SHADOW
+    overworld_solidity = [11, 11, 13]
+    battle_solidity = [11, 11, 13]
+    overworld_y_shift = 1
+    battle_y_shift = 1
 
 
 class DingALing(Enemy):
@@ -5799,6 +5874,15 @@ class Belome1(Enemy):
     battle_push_sequence = 3
     battle_push_length = 38
     overworld_is_empty = True
+    shadow = NO_SHADOW
+    overworld_solidity = []
+    battle_solidity = []
+    overworld_y_shift = 0
+    battle_y_shift = 0
+    overworld_solidity = [8, 8, 12]
+    battle_solidity = [10, 10, 18]
+    overworld_y_shift = 0
+    battle_y_shift = 2
 
 
     def get_patch(self):
@@ -5861,6 +5945,11 @@ class Belome2(Enemy):
     battle_push_sequence = 3
     battle_push_length = 38
     overworld_is_empty = True
+    shadow = NO_SHADOW
+    overworld_solidity = [8, 8, 12]
+    battle_solidity = [10, 10, 18]
+    overworld_y_shift = 0
+    battle_y_shift = 2
 
 class Smilax(Enemy):
     index = 202
@@ -5958,6 +6047,9 @@ class Megasmilax(Enemy):
     overworld_is_skinny = True
     overworld_sesw_only = True
     battle_sesw_only = True
+    shadow = MED_SHADOW
+    overworld_solidity = [5, 5, 11]
+    overworld_y_shift = 1
 
 
 class Birdo(Enemy):
@@ -6004,6 +6096,11 @@ class Birdo(Enemy):
     other_sprites = [462, 462, 462, 462]
     overworld_is_empty = True
     empty_sidekicks = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 5]
+    battle_solidity = [11, 11, 13]
+    overworld_y_shift = 0
+    battle_y_shift = 1
 
 
 class Eggbert(Enemy):
@@ -6113,6 +6210,11 @@ class Punchinello(Enemy):
     battle_push_sequence = 3
     other_sprites = [281, 281, 281, 281]
     overworld_is_skinny = True
+    shadow = MED_SHADOW
+    overworld_solidity = [4, 4, 10]
+    battle_solidity = [11, 8, 9]
+    overworld_y_shift = 1
+    battle_y_shift = 1
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6416,6 +6518,11 @@ class KingCalamari(Enemy):
     sprite_height = 52
     overworld_sesw_only = True
     battle_sesw_only = True
+    shadow = MED_SHADOW
+    overworld_solidity = [5, 5, 11]
+    battle_solidity = [11, 11, 13]
+    overworld_y_shift = -2
+    battle_y_shift = 1
 
 
 class TentaclesLeft(Enemy):
@@ -6490,6 +6597,11 @@ class Jinx3(Enemy):
     battle_push_length = 10
     overworld_push_length = 10
     overworld_is_empty = True
+    shadow = SMALL_SHADOW
+    overworld_solidity = [2, 2, 5]
+    battle_solidity = [2, 2, 5]
+    overworld_y_shift = 0
+    battle_y_shift = 0
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -6602,6 +6714,9 @@ class CzarDragon(Enemy):
     other_sprites = [277, 277, 277, 277]
     overworld_is_skinny = True
     overworld_sesw_only = True
+    shadow = MED_SHADOW
+    overworld_solidity = [5, 5, 11]
+    overworld_y_shift = 3
 
 
 class Cloaker(Enemy):
@@ -6650,6 +6765,9 @@ class Cloaker(Enemy):
     battle_sesw_only = True
     battle_push_sequence = 3
     battle_push_length = 42
+    shadow = BLOCK_SHADOW
+    overworld_solidity = [7, 7, 7]
+    overworld_y_shift = -3
 
 
 class Domino(Enemy):
@@ -6763,6 +6881,11 @@ class Mack(Enemy):
     other_sprites = [414, 414, 414, 414]
     overworld_is_skinny = True
     overworld_push_length = 54
+    shadow = MED_SHADOW
+    overworld_solidity = [3, 3, 11]
+    battle_solidity = [13, 13, 23]
+    overworld_y_shift = 1
+    battle_y_shift = 1
 
 
 class Bodyguard(Enemy):
@@ -6840,6 +6963,9 @@ class Yaridovich(Enemy):
     battle_push_sequence = 3
     other_sprites = [162, 162, 162, 162]
     overworld_is_skinny = True
+    shadow = MED_SHADOW
+    overworld_solidity = [4, 4, 9]
+    overworld_y_shift = 1
 
 
 class DrillBit(Enemy):
@@ -6982,6 +7108,11 @@ class Bowyer(Enemy):
     overworld_is_skinny = True
     overworld_freeze = True
     overworld_sequence = 1
+    shadow = SMALL_SHADOW
+    overworld_solidity = [3, 3, 13]
+    battle_solidity = [6, 8, 16]
+    overworld_y_shift = 1
+    battle_y_shift = 1
 
 
 class Aero(Enemy):
@@ -7041,6 +7172,11 @@ class Exor(Enemy):
     overworld_is_empty = True
     overworld_freeze = True
     battle_freeze = True
+    shadow = MED_SHADOW
+    overworld_solidity = [3, 3, 12]
+    battle_solidity = [3, 3, 12]
+    overworld_y_shift = 1
+    battle_y_shift = 1
 
     def get_patch(self):
         """Extra patch data for this enemy.
@@ -7242,6 +7378,11 @@ class Croco1(Enemy):
     battle_extra_sequence = 5
     other_sprites = [261, 261, 261]
     fat_sidekicks = True
+    shadow = MED_SHADOW
+    overworld_solidity = [5, 5, 10]
+    battle_solidity = [5, 5, 10]
+    overworld_y_shift = 2
+    battle_y_shift = 2
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7301,6 +7442,11 @@ class Croco2(Enemy):
     battle_extra_sequence = 5
     other_sprites = [261, 261, 261]
     fat_sidekicks = True
+    shadow = MED_SHADOW
+    overworld_solidity = [5, 5, 10]
+    battle_solidity = [5, 5, 10]
+    overworld_y_shift = 2
+    battle_y_shift = 2
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7421,6 +7567,11 @@ class AxemRangers(Enemy):
     overworld_push_sequence = 3
     overworld_push_length = 24
     fat_sidekicks = True
+    shadow = MED_SHADOW
+    overworld_solidity = [5, 5, 12]
+    battle_solidity = [5, 5, 12]
+    overworld_y_shift = 0
+    battle_y_shift = 0
 
 
 class Booster(Enemy):
@@ -7469,6 +7620,11 @@ class Booster(Enemy):
     overworld_push_length = 72
     battle_push_length = 72
     overworld_is_skinny = True
+    shadow = MED_SHADOW
+    overworld_solidity = [5, 5, 12]
+    battle_solidity = [5, 5, 12]
+    overworld_y_shift = 2
+    battle_y_shift = 2
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7580,6 +7736,9 @@ class Johnny(Enemy):
     battle_push_sequence = 3
     battle_push_length = 38
     other_sprites = [331, 331, 331, 331]
+    shadow = MED_SHADOW
+    overworld_solidity = [5, 5, 11]
+    overworld_y_shift = 2
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7676,9 +7835,12 @@ class Valentina(Enemy):
     battle_push_length = 18
     battle_sesw_only = True
     overworld_is_skinny = True
+    shadow = SMALL_SHADOW
 
     other_sprites = [333, 333, 333, 333]
     fat_sidekicks = True
+    overworld_solidity = [3, 3, 12]
+    overworld_y_shift = 1
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7817,6 +7979,9 @@ class Culex(Enemy):
     battle_sesw_only = True
     overworld_is_empty = True
     overworld_freeze = True
+    shadow = LARGE_SHADOW
+    overworld_solidity = [4, 4, 8]
+    overworld_y_shift = 1
 
 # ********************* Default lists for the world.
 

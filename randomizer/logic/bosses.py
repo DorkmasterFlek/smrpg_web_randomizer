@@ -72,17 +72,17 @@ def randomize_all(world):
         if world.settings.is_flag_enabled(flags.BossShuffle):
             locations = [b for b in world.boss_locations if _boss_fight_filter(world, b)]
             shuffled_locations = locations[:]
-            random.shuffle(shuffled_locations)
+            #random.shuffle(shuffled_locations)
             #alpha testing: set the order manually
-            # shuffle_count = 0
-            # while shuffle_count < 6:
-            #     position_iterator = 0
-            #     while position_iterator < 1:
-            #         for location in shuffled_locations:
-            #             if position_iterator < 1:
-            #                 shuffled_locations.append(shuffled_locations.pop(shuffled_locations.index(location)))
-            #                 position_iterator += 1
-            #     shuffle_count += 1
+            shuffle_count = 0
+            while shuffle_count < 16:
+                position_iterator = 0
+                while position_iterator < 1:
+                    for location in shuffled_locations:
+                        if position_iterator < 1:
+                            shuffled_locations.append(shuffled_locations.pop(shuffled_locations.index(location)))
+                            position_iterator += 1
+                shuffle_count += 1
             shuffled_packs = [b.pack for b in shuffled_locations]
 
             # Randomize boss music for locations if enabled.

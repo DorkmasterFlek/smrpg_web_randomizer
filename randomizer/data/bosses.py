@@ -211,8 +211,10 @@ class HammerBros(BossAndStarLocation):
     pack_number = 183
     battlefield = Battlefields.MushroomWay
     music = BattleMusic.Boss1
-    sprite_width = 40;
-    sprite_height = 45;
+    sprite_width = 40
+    sprite_height = 45
+    sprite_offset = 0x1DBfbd
+    original_data = [0x1B, 0x69, 0x80, 0xA1, 0x78, 0x33, 0x00]
 
 
 class Croco1(BossAndStarLocation):
@@ -221,6 +223,8 @@ class Croco1(BossAndStarLocation):
     pack_number = 163
     battlefield = Battlefields.MushroomWay
     music = BattleMusic.Boss1
+    sprite_offset = 0x1DBB02
+    original_data = [0x30, 0x00, 0x80, 0x22, 0x55, 0x2A, 0x00]
 
 
 class Mack(BossAndStarLocation):
@@ -233,6 +237,8 @@ class Mack(BossAndStarLocation):
     tall_sprite = True
     sprite_height = 57
     sprite_width = 43
+    sprite_offset = 0x1Dc520
+    original_data = [0xE0, 0x69, 0x80, 0xC1, 0xDD, 0x37, 0x00]
 
 
 class Pandorite(BossAndStarLocation):
@@ -250,6 +256,8 @@ class Belome1(BossAndStarLocation):
     music = BattleMusic.Boss1
     sprite_height = 54
     sprite_width = 49
+    sprite_offset = 0x1Dc225
+    original_data = [0xC7, 0xA9, 0x60, 0x02, 0xAA, 0x12, 0x00]
 
 
 class Bowyer(BossAndStarLocation):
@@ -262,6 +270,8 @@ class Bowyer(BossAndStarLocation):
     tall_sprite = True
     sprite_width = 47
     sprite_height = 52
+    sprite_offset = 0x1dc54a
+    original_data = [0xF1, 0x68, 0x80, 0x81, 0x86, 0x10, 0x00]
 
 
 class Croco2(BossAndStarLocation):
@@ -270,6 +280,8 @@ class Croco2(BossAndStarLocation):
     pack_number = 164
     battlefield = Battlefields.MolevilleMines
     music = BattleMusic.Boss1
+    sprite_offset = 0x1Dc209
+    original_data = [0x30, 0x00, 0x80, 0x22, 0x55, 0x2A, 0x00]
 
 
 class Punchinello(BossAndStarLocation):
@@ -281,6 +293,8 @@ class Punchinello(BossAndStarLocation):
     music = BattleMusic.Boss1
     sprite_width = 45
     sprite_height = 45
+    sprite_offset = 0x1dc4b0
+    original_data = [0xD0, 0x49, 0x80, 0x81, 0x8B, 0x13, 0x00]
 
 
 class Booster(BossAndStarLocation):
@@ -289,6 +303,8 @@ class Booster(BossAndStarLocation):
     pack_number = 161
     battlefield = Battlefields.BoosterTower
     music = BattleMusic.Boss1
+    sprite_offset = 0x1db95e
+    original_data = [0x32, 0x00, 0x80, 0x22, 0x55, 0x2C, 0x00]
 
 
 class ClownBros(BossAndStarLocation):
@@ -305,6 +321,8 @@ class Bundt(BossAndStarLocation):
     pack_number = 176
     battlefield = Battlefields.Bundt
     music = BattleMusic.Boss1
+    sprite_offset = 0x1DC4DA
+    original_data = [0xD6, 0x09, 0x80, 0x81, 0x77, 0x08, 0x00]
 
 
 class StarHill(StarLocation):
@@ -334,6 +352,8 @@ class KingCalamari(BossAndStarLocation):
     battlefield = Battlefields.SunkenShip
     music = BattleMusic.Boss1
     sprite_width = 48
+    sprite_offset = 0x1dbc98
+    original_data = [0xDF, 0x28, 0x80, 0x81, 0x92, 0x05, 0x00]
 
 
 class Hidon(BossAndStarLocation):
@@ -349,6 +369,8 @@ class Johnny(BossAndStarLocation):
     pack_number = 166
     battlefield = Battlefields.SunkenShip
     music = BattleMusic.Boss1
+    sprite_offset = 0x1DB96C
+    original_data = [0x37, 0x00, 0x80, 0xA2, 0x55, 0x2B, 0x00]
 
 
 class Yaridovich(BossAndStarLocation):
@@ -359,6 +381,10 @@ class Yaridovich(BossAndStarLocation):
     battlefield = Battlefields.Yaridovich
     music = BattleMusic.Boss2
     tall_sprite = True
+    sprite_width = 32
+    sprite_height = 32
+    sprite_offset = 0x1DB918
+    original_data = [0xA3, 0x00, 0x80, 0x21, 0x44, 0xA9, 0x00]
 
 
 class Belome2(BossAndStarLocation):
@@ -369,6 +395,8 @@ class Belome2(BossAndStarLocation):
     music = BattleMusic.Boss1
     sprite_height = 54
     sprite_width = 49
+    sprite_offset = 0x1Dc471
+    original_data = [0xC7, 0xA9, 0x60, 0x02, 0xAA, 0x12, 0x00]
 
 
 class Jagger(BossAndStarLocation):
@@ -377,6 +405,8 @@ class Jagger(BossAndStarLocation):
     pack_number = 189
     battlefield = Battlefields.JinxDojo
     can_run_away = True
+    sprite_offset = 0x1dbc44
+    original_data = [0x00, 0x21, 0x80, 0xA1, 0x44, 0x2B, 0x00]
 
 
 class Jinx1(BossLocation):
@@ -402,6 +432,8 @@ class Jinx3(BossAndStarLocation):
     battlefield = Battlefields.JinxDojo
     can_run_away = True
     music = BattleMusic.Boss1
+    sprite_offset = 0x1dbda9
+    original_data = [0xCF, 0x08, 0x80, 0x80, 0x22, 0x05, 0x00]
 
 
 class Culex(BossAndStarLocation):
@@ -425,6 +457,8 @@ class MegaSmilax(BossAndStarLocation):
     pack_number = 173
     battlefield = Battlefields.BeanValley
     music = BattleMusic.Boss1
+    sprite_offset = 0x1dbc36
+    original_data = [0x9F, 0x29, 0x80, 0x81, 0x33, 0x01, 0x00]
 
 
 class Dodo(BossAndStarLocation):
@@ -435,6 +469,8 @@ class Dodo(BossAndStarLocation):
     music = BattleMusic.Boss1
     sprite_height = 56
     sprite_width = 46
+    sprite_offset = 0x1dbb95
+    original_data = [0x83, 0x88, 0x80, 0xC0, 0x99, 0x2E, 0x00]
 
 
 class Birdo(BossAndStarLocation):
@@ -451,6 +487,9 @@ class Valentina(BossAndStarLocation):
     pack_number = 171
     battlefield = Battlefields.Valentina
     music = BattleMusic.Boss1
+    sprite_offset = 0x1db988
+    original_data = [0x38, 0x00, 0x80, 0x21, 0x33, 0x2C, 0x00]
+    statue_offset = 0x1db9B9
 
 
 class CzarDragon(BossAndStarLocation):
@@ -463,6 +502,8 @@ class CzarDragon(BossAndStarLocation):
     wide_sprite = True
     sprite_width = 59
     sprite_height = 54
+    sprite_offset = 0x1dbde8
+    original_data = [0xD8, 0x68, 0x80, 0x80, 0x11, 0x01, 0x00]
 
 
 class AxemRangers(BossAndStarLocation):
@@ -472,6 +513,8 @@ class AxemRangers(BossAndStarLocation):
     pack_number = 182
     battlefield = Battlefields.AxemRangers
     music = BattleMusic.Boss2
+    sprite_offset = 0x1dbdb0
+    original_data = [0xD0, 0x08, 0x80, 0x00, 0x55, 0x0C, 0x00]
 
 
 class Magikoopa(BowsersKeepLocation):
@@ -480,6 +523,8 @@ class Magikoopa(BowsersKeepLocation):
     pack_number = 209
     battlefield = Battlefields.BowsersKeep
     music = BattleMusic.Boss1
+    sprite_offset = 0x1dbd32
+    original_data = [0x81, 0x40, 0x80, 0x01, 0x33, 0x0A, 0x00]
 
 
 class Boomer(BowsersKeepLocation):
@@ -491,6 +536,8 @@ class Boomer(BowsersKeepLocation):
     tall_sprite = True
     sprite_width = 52
     sprite_width = 49
+    sprite_offset = 0x1dc52e
+    original_data = [0xA9, 0x68, 0x80, 0x41, 0x88, 0x31, 0x00]
 
 
 class Exor(BowsersKeepLocation):
@@ -506,6 +553,8 @@ class Countdown(BossLocation):
     pack_number = 174
     battlefield = Battlefields.Gate
     music = BattleMusic.Boss1
+    sprite_offset = 0x1dc463
+    original_data = [0xC5, 0x29, 0x80, 0x81, 0xBB, 0x0D, 0x00]
 
 
 class CloakerDomino(BossLocation):
@@ -519,18 +568,24 @@ class Clerk(BossLocation):
     battle_address = 0x1fe3ec
     pack_number = 146
     battlefield = Battlefields.Factory
+    sprite_offset = 0x1dc55f
+    original_data = [0x8E, 0x08, 0x80, 0x21, 0x44, 0x28, 0x00]
 
 
 class Manager(BossLocation):
     battle_address = 0x1fe819
     pack_number = 147
     battlefield = Battlefields.Factory
+    sprite_offset = 0x1dc57b
+    original_data = [0xA7, 0x28, 0x80, 0xC1, 0x99, 0x2F, 0x00]
 
 
 class Director(BossLocation):
     battle_address = 0x1fea21
     pack_number = 148
     battlefield = Battlefields.Factory
+    sprite_offset = 0x1dc597
+    original_data = [0xA8, 0x28, 0x80, 0xC1, 0x99, 0x2F, 0x00]
 
 
 class Gunyolk(BossLocation):
@@ -542,6 +597,8 @@ class Gunyolk(BossLocation):
     tall_sprite = True
     sprite_width = 71
     sprite_height = 63
+    sprite_offset = 0x1dc53c
+    original_data = [0x4A, 0x01, 0x80, 0x21, 0x77, 0x2C, 0x00]
 
 
 # ********************* Default lists for the world.
