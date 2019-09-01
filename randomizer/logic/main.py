@@ -28,9 +28,6 @@ from .patch import Patch
 # Current version number
 VERSION = '8.1.2'
 
-global preloaded_events
-preloaded_events = {}
-
 def calcpointer(dec, origBytes=[]):
     if (dec > 0xFFFF):
         dec = dec % 0x10000
@@ -442,6 +439,8 @@ class GameWorld:
                     if character.name in ["Mario", "Peach", "Geno"]:
                         #patch moleville minecart room partition
                         patch.add_data(0x1DDF45, 0x81)
+                        if character.name is "Mario":
+                            patch.add_data(0x1DB801, 0x00)
                 if dialogue_iterator == 5:
                     #show character in marrymore
                     patch.add_data(0x14a94d, character.forest_maze_sprite_id)

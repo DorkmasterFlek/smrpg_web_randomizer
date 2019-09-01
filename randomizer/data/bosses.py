@@ -224,7 +224,7 @@ class Croco1(BossAndStarLocation):
     battlefield = Battlefields.MushroomWay
     music = BattleMusic.Boss1
     sprite_offset = 0x1DBB02
-    original_data = [0x30, 0x00, 0x80, 0x22, 0x55, 0x2A, 0x00]
+    original_data = [0x30, 0x00, 0x80, 0x22, 0x55, 0x0A, 0x00]
 
 
 class Mack(BossAndStarLocation):

@@ -119,6 +119,23 @@ class Enemy:
     overworld_y_shift = 0
     battle_y_shift = 0
 
+    statue_east_shift = False
+    statue_southeast_shift = False
+    statue_south_shift = False
+    statue_southwest_shift = False
+    statue_west_shift = False
+    statue_northwest_shift = False
+    statue_north_shift = False
+    statue_northeast_shift = False
+    opposite_statue_east_shift = False
+    opposite_statue_southeast_shift = False
+    opposite_statue_south_shift = False
+    opposite_statue_southwest_shift = False
+    opposite_statue_west_shift = False
+    opposite_statue_northwest_shift = False
+    opposite_statue_north_shift = False
+    opposite_statue_northeast_shift = False
+
     def __init__(self, world):
         """
 
@@ -1336,6 +1353,9 @@ class Magikoopa(Enemy):
     shadow = MED_SHADOW
     overworld_solidity = [3, 3, 10]
     overworld_y_shift = 1
+    statue_east_shift = 2
+    opposite_statue_west_shift = 4
+    opposite_statue_south_shift = 1
 
 
 
@@ -5879,7 +5899,7 @@ class Belome1(Enemy):
     battle_solidity = []
     overworld_y_shift = 0
     battle_y_shift = 0
-    overworld_solidity = [8, 8, 12]
+    overworld_solidity = [8, 3, 10]
     battle_solidity = [10, 10, 18]
     overworld_y_shift = 0
     battle_y_shift = 2
@@ -5946,7 +5966,7 @@ class Belome2(Enemy):
     battle_push_length = 38
     overworld_is_empty = True
     shadow = NO_SHADOW
-    overworld_solidity = [8, 8, 12]
+    overworld_solidity = [8, 3, 10]
     battle_solidity = [10, 10, 18]
     overworld_y_shift = 0
     battle_y_shift = 2
@@ -6042,7 +6062,7 @@ class Megasmilax(Enemy):
     overworld_push_sequence = 3
     battle_push_length = 20
     overworld_push_length = 22
-    other_sprites = [263, 263, 263, 263, 263, 263]
+    other_sprites = [263, 263, 263, 263]
     czar_sprite = [458]
     overworld_is_skinny = True
     overworld_sesw_only = True
@@ -6050,6 +6070,8 @@ class Megasmilax(Enemy):
     shadow = MED_SHADOW
     overworld_solidity = [5, 5, 11]
     overworld_y_shift = 1
+    statue_west_shift = 1
+    statue_south_shift = 4
 
 
 class Birdo(Enemy):
@@ -6767,7 +6789,7 @@ class Cloaker(Enemy):
     battle_push_length = 42
     shadow = BLOCK_SHADOW
     overworld_solidity = [7, 7, 7]
-    overworld_y_shift = -3
+    overworld_y_shift = 0
 
 
 class Domino(Enemy):
@@ -7572,6 +7594,9 @@ class AxemRangers(Enemy):
     battle_solidity = [5, 5, 12]
     overworld_y_shift = 0
     battle_y_shift = 0
+    overworld_sesw_only = True
+    battle_sesw_only = True
+    statue_west_shift = 6
 
 
 class Booster(Enemy):
@@ -7841,6 +7866,9 @@ class Valentina(Enemy):
     fat_sidekicks = True
     overworld_solidity = [3, 3, 12]
     overworld_y_shift = 1
+    statue_west_shift = 3
+    statue_south_shift = 1
+    opposite_statue_west_shift = 2
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.

@@ -75,7 +75,7 @@ def randomize_all(world):
             #random.shuffle(shuffled_locations)
             #alpha testing: set the order manually
             shuffle_count = 0
-            while shuffle_count < 16:
+            while shuffle_count < 36:
                 position_iterator = 0
                 while position_iterator < 1:
                     for location in shuffled_locations:
