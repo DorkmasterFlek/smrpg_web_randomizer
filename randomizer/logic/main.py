@@ -441,18 +441,32 @@ class GameWorld:
                         patch.add_data(0x1DDF45, 0x81)
                         if character.name is "Mario":
                             patch.add_data(0x1DB801, 0x00)
+                    #make cutscene look less weird
+                    if character.name is not "Bowser":
+                        patch.add_data(0x201F04, [0x3D, 0x02, 0x63])
+                        if character.name is "Mario":
+                            patch.add_data(0x201F07, 0x09)
+                        elif character.name is "Peach":
+                            patch.add_data(0x201F07, 0x0F)
+                        elif character.name is "Mallow":
+                            patch.add_data(0x201F07, 0x0E)
+                        else:
+                            patch.add_data(0x201F07, 0x0C)
+                    patch.add_data(0x201F5B, 0x00)
                 if dialogue_iterator == 5:
                     #show character in marrymore
                     patch.add_data(0x14a94d, character.forest_maze_sprite_id)
                     patch.add_data(0x148f91, character.forest_maze_sprite_id)
+                    #fix booster hill solidity
+                    if character.name is "Mallow":
+                        patch.add_data(0x1DB819, [0x56, 0x2C])
+                    elif character.name is "Geno":
+                        patch.add_data(0x1DB820, 0x56)
+                    elif character.name is "Mario":
+                        patch.add_data(0x1DB804, 0x56)
+                    elif character.name is "Peach":
+                        patch.add_data(0x1DB80B, 0x56)
                     if character.name is not "Peach":
-                        #fix booster hill solidity
-                        if character.name is "Mallow":
-                            patch.add_data(0x1DB819, [0x56, 0x2C])
-                        elif character.name is "Geno":
-                            patch.add_data(0x1DB820, 0x56)
-                        elif character.name is "Mario":
-                            patch.add_data(0x1DB804, 0x56)
                         #marrymore sequence
                         if character.name is "Mario":
                             #surprised

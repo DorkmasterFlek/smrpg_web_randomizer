@@ -136,6 +136,8 @@ class Enemy:
     opposite_statue_north_shift = False
     opposite_statue_northeast_shift = False
 
+    statue_mold = None
+
     def __init__(self, world):
         """
 
@@ -1040,7 +1042,7 @@ class Pandorite(Enemy):
     battle_push_length = 22
     overworld_is_empty = True
     shadow = SMALL_SHADOW
-    overworld_solidity = [2, 2, 5]
+    overworld_solidity = [1, 1, 1]
     overworld_y_shift = 0
 
 
@@ -1174,7 +1176,7 @@ class HammerBro(Enemy):
     battle_push_length = 40
     overworld_is_empty = True
     shadow = SMALL_SHADOW
-    overworld_solidity = [2, 2, 9]
+    overworld_solidity = [2, 2, 6]
     battle_solidity = [8, 7, 19]
     overworld_y_shift = 1
     battle_y_shift = 1
@@ -1832,6 +1834,8 @@ class Clerk(Enemy):
     shadow = MED_SHADOW
     overworld_solidity = [7, 7, 13]
     overworld_y_shift = 1
+    statue_west_shift = 3
+    opposite_statue_west_shift = 5
 
 
 class Gunyolk(Enemy):
@@ -1885,6 +1889,7 @@ class Gunyolk(Enemy):
     shadow = MED_SHADOW
     overworld_solidity = [7, 7, 12]
     overworld_y_shift = 1
+    statue_west_shift = 2
 
 
 class Boomer(Enemy):
@@ -1933,6 +1938,8 @@ class Boomer(Enemy):
     shadow = MED_SHADOW
     overworld_solidity = [3, 3, 7]
     overworld_y_shift = 1
+    statue_east_shift = 2
+    opposite_statue_west_shift = 2
 
     def get_patch(self):
         """Update battle events for switching between blue and red states for Boomer with shuffled stat changes.
@@ -2675,6 +2682,8 @@ class Manager(Enemy):
     shadow = MED_SHADOW
     overworld_solidity = [9, 9, 15]
     overworld_y_shift = 1
+    statue_west_shift = 3
+    opposite_statue_west_shift = 5
 
 
 class Bluebird(Enemy):
@@ -2955,7 +2964,7 @@ class Hidon(Enemy):
     battle_push_length = 44
     overworld_is_empty = True
     shadow = SMALL_SHADOW
-    overworld_solidity = [2, 2, 5]
+    overworld_solidity = [1, 1, 1]
     overworld_y_shift = 0
 
 
@@ -3657,6 +3666,8 @@ class Director(Enemy):
     shadow = MED_SHADOW
     overworld_solidity = [9, 9, 15]
     overworld_y_shift = 1
+    statue_west_shift = 3
+    opposite_statue_west_shift = 5
 
 
 
@@ -3959,7 +3970,7 @@ class BoxBoy(Enemy):
     battle_push_length = 90
     overworld_is_empty = True
     shadow = SMALL_SHADOW
-    overworld_solidity = [2, 2, 5]
+    overworld_solidity = [1, 1, 1]
     overworld_y_shift = 0
 
 
@@ -4080,6 +4091,7 @@ class DodoSolo(Enemy):
     battle_solidity = [9, 9, 14]
     overworld_y_shift = 0
     battle_y_shift = 0
+    statue_south_shift = 3
 
 
 class Oerlikon(Enemy):
@@ -5525,6 +5537,8 @@ class KnifeGuy(Enemy):
     shadow = MED_SHADOW
     overworld_solidity = [3, 3, 12]
     overworld_y_shift = 1
+    statue_west_shift = 3
+    opposite_statue_west_shift = 2
 
 
 class GrateGuy(Enemy):
@@ -5613,6 +5627,7 @@ class Bundt(Enemy):
     shadow = LARGE_SHADOW
     overworld_solidity = [7, 7, 8]
     overworld_y_shift = 1
+    statue_west_shift = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -5810,9 +5825,11 @@ class CountDown(Enemy):
     overworld_freeze = True
     battle_freeze = True
     overworld_is_empty = True
+    overworld_sesw_only = True
+    battle_sesw_only = True
     shadow = LARGE_SHADOW
-    overworld_solidity = [11, 11, 13]
-    battle_solidity = [11, 11, 13]
+    overworld_solidity = [11, 11, 10]
+    battle_solidity = [11, 11, 10]
     overworld_y_shift = 1
     battle_y_shift = 1
 
@@ -6790,6 +6807,8 @@ class Cloaker(Enemy):
     shadow = BLOCK_SHADOW
     overworld_solidity = [7, 7, 7]
     overworld_y_shift = 0
+    statue_west_shift = 4
+    statue_south_shift = 3
 
 
 class Domino(Enemy):
@@ -7135,6 +7154,7 @@ class Bowyer(Enemy):
     battle_solidity = [6, 8, 16]
     overworld_y_shift = 1
     battle_y_shift = 1
+    statue_mold = 3
 
 
 class Aero(Enemy):
@@ -7199,6 +7219,7 @@ class Exor(Enemy):
     battle_solidity = [3, 3, 12]
     overworld_y_shift = 1
     battle_y_shift = 1
+    statue_mold = 22
 
     def get_patch(self):
         """Extra patch data for this enemy.
@@ -7405,6 +7426,7 @@ class Croco1(Enemy):
     battle_solidity = [5, 5, 10]
     overworld_y_shift = 2
     battle_y_shift = 2
+    statue_west_shift = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -7469,6 +7491,7 @@ class Croco2(Enemy):
     battle_solidity = [5, 5, 10]
     overworld_y_shift = 2
     battle_y_shift = 2
+    statue_west_shift = 3
 
     def get_patch(self):
         """Update battle event triggers based on HP to use shuffled HP value instead.
@@ -8010,6 +8033,7 @@ class Culex(Enemy):
     shadow = LARGE_SHADOW
     overworld_solidity = [4, 4, 8]
     overworld_y_shift = 1
+    statue_mold = 3
 
 # ********************* Default lists for the world.
 

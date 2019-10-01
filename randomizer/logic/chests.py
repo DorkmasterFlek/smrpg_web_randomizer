@@ -45,6 +45,7 @@ def randomize_all(world):
     elif world.settings.is_flag_enabled(flags.ChestTier3):
         tiers_allowed = 3
 
+
     coins_allowed = not world.settings.is_flag_enabled(flags.ChestExcludeCoins)
     flowers_allowed = not world.settings.is_flag_enabled(flags.ChestExcludeFlowers)
     frogcoins_allowed = not world.settings.is_flag_enabled(flags.ChestExcludeFrogCoins)
@@ -58,6 +59,19 @@ def randomize_all(world):
              items.CoinsDoubleBig]
     stars = [items.BanditsWayStar, items.KeroSewersStar, items.MolevilleMinesStar, items.SeaStar,
              items.LandsEndVolcanoStar, items.NimbusLandStar, items.LandsEndStar2, items.LandsEndStar3]
+
+    forceCoinsInBanditsWay = False
+    # special case: coins only if countdown in BW5 -- pre-set it in case B is set but T is not
+    for location in world.boss_locations:
+        if location.name in ["Croco1"]:
+            for enemy in location.pack.common_enemies:
+                if enemy.overworld_sprite is not None:
+                    shuffled_boss = enemy
+                    if shuffled_boss.name is "CountDown":
+                        forceCoinsInBanditsWay = True
+                        forced_coins = [chest for chest in world.chest_locations if isinstance(chest, chests.BanditsWayCroco)]
+                        print(forced_coins)
+                        forced_coins[0].item = random.choice([i for i in coins])
 
     # Open mode-specific shuffles.
     if world.open_mode:
@@ -82,6 +96,9 @@ def randomize_all(world):
                         chest.item = items.YouMissed
                     elif chest.item_allowed(items.Mushroom):
                         chest.item = items.Mushroom
+            if forceCoinsInBanditsWay:
+                forced_coins = [chest for chest in world.chest_locations if isinstance(chest, chests.BanditsWayCroco)]
+                forced_coins[0].item = random.choice([i for i in coins])
 
         # Empty chests.
         elif world.settings.is_flag_enabled(flags.ChestShuffleEmpty):
@@ -163,6 +180,12 @@ def randomize_all(world):
                     for chest in eligible_chests:
                         eligible_chests.remove(chest)
                 denominator -= ratio_stars
+
+            if forceCoinsInBanditsWay:
+                print(1)
+                forced_coins = [chest for chest in world.chest_locations if isinstance(chest, chests.BanditsWayCroco)]
+                forced_coins[0].item = random.choice([i for i in coins])
+                finished_chests.append(forced_coins[0])
 
             # then do the rest
             # biasing of items for chest
