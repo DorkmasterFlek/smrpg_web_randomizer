@@ -5,7 +5,6 @@ import hashlib
 import random
 import re
 import binascii
-import math
 
 
 from randomizer import data
@@ -24,9 +23,10 @@ from . import map
 from . import spells
 from . import utils
 from .patch import Patch
+from .battleassembler import assemble_battle_scripts
 
 # Current version number
-VERSION = '8.1.2'
+VERSION = '8.2.0'
 
 def calcpointer(dec, origBytes=[]):
     if (dec > 0xFFFF):
@@ -373,7 +373,56 @@ class GameWorld:
 
         # Update party join script events for the final order.  These are different for standard vs open mode.
         if self.open_mode:
-            #Add characters to Mushroom Way and Moleville when NFC is turned on
+            # Fail if starter is excluded, or if everyone excluded
+            if (self.settings.is_flag_enabled(flags.ExcludeMario) and self.settings.is_flag_enabled(
+                    flags.StartMario)) or (
+                    self.settings.is_flag_enabled(flags.ExcludeMallow) and self.settings.is_flag_enabled(
+                    flags.StartMallow)) or (
+                    self.settings.is_flag_enabled(flags.ExcludeGeno) and self.settings.is_flag_enabled(
+                    flags.StartGeno)) or (
+                    self.settings.is_flag_enabled(flags.ExcludeBowser) and self.settings.is_flag_enabled(
+                    flags.StartBowser)) or (
+                    self.settings.is_flag_enabled(flags.ExcludeToadstool) and self.settings.is_flag_enabled(
+                    flags.StartToadstool)):
+                raise flags.FlagError("Cannot exclude your starter")
+            elif self.settings.is_flag_enabled(flags.ExcludeMario) and self.settings.is_flag_enabled(
+                    flags.ExcludeMallow) and self.settings.is_flag_enabled(
+                    flags.ExcludeGeno) and self.settings.is_flag_enabled(
+                    flags.ExcludeBowser) and self.settings.is_flag_enabled(flags.ExcludeToadstool):
+                raise flags.FlagError("Cannot exclude all 5 characters")
+            # Move chosen starting character to front of join order
+            else:
+                for char in self.character_join_order:
+                    if ((self.settings.is_flag_enabled(flags.StartMario) and char.index == 0) or
+                            (self.settings.is_flag_enabled(flags.StartMallow) and char.index == 4) or
+                            (self.settings.is_flag_enabled(flags.StartGeno) and char.index == 3) or
+                            (self.settings.is_flag_enabled(flags.StartBowser) and char.index == 2) or
+                            (self.settings.is_flag_enabled(flags.StartToadstool) and char.index == 1)):
+                        self.character_join_order.insert(0, self.character_join_order.pop(
+                            self.character_join_order.index(char)))
+
+            # Count number of excluded characters, and empty their slots
+            position_iterator = 0
+            empties = 0
+            for char in self.character_join_order:
+                if (self.settings.is_flag_enabled(flags.ExcludeMario) and char.index == 0) or (
+                        self.settings.is_flag_enabled(flags.ExcludeMallow) and char.index == 4) or (
+                        self.settings.is_flag_enabled(flags.ExcludeGeno) and char.index == 3) or (
+                        self.settings.is_flag_enabled(flags.ExcludeBowser) and char.index == 2) or (
+                        self.settings.is_flag_enabled(flags.ExcludeToadstool) and char.index == 1):
+                    self.character_join_order[position_iterator] = None
+                    empties += 1
+                position_iterator += 1
+            # Make sure first three slots are filled when NFC is turned off, when possible
+            if not self.settings.is_flag_enabled(flags.NoFreeCharacters):
+                for i in range(empties):
+                    position_iterator = 0
+                    for char in self.character_join_order:
+                        if char is None and position_iterator < 3:
+                            self.character_join_order.append(self.character_join_order.pop(
+                                self.character_join_order.index(char)))
+                        position_iterator += 1
+            # Add characters to Mushroom Way and Moleville when NFC is turned on
             if self.settings.is_flag_enabled(flags.NoFreeCharacters):
                 addresses = [0x1ef86c, 0x1ffd82, 0x1fc4f1, 0x1e6d58, 0x1e8b71]
             else:
@@ -381,9 +430,9 @@ class GameWorld:
             dialogue_iterator = 0
             for addr, character in zip(addresses, self.meta_join_order):
                 dialogue_iterator += 1
-                #Character joins and dialogues are 0x9B by default, replaced with this code when populated
+                # Character joins and dialogues are 0x9B by default, replaced with this code when populated
                 if character is not None:
-                    #Write message stating who joined
+                    # Write message stating who joined
                     if character.palette is not None and character.palette.rename_character:
                         message = '"' + character.palette.name + '" (' + character.original_name + ') joins!'
                     else:
@@ -391,7 +440,7 @@ class GameWorld:
                     messagestring = binascii.hexlify(bytes(message, encoding='ascii'))
                     messagebytes = [int(messagestring[i:i+2],16) for i in range(0,len(messagestring),2)]
                     messagebytes.append(0x00)
-                    #Append character join event and corresponding message to code
+                    # Append character join event and corresponding message to code
                     if self.settings.is_flag_enabled(flags.NoFreeCharacters):
                         if dialogue_iterator == 2:
                             patch.add_data(0x242c52, messagebytes)
@@ -399,7 +448,7 @@ class GameWorld:
                         if dialogue_iterator == 3:
                             patch.add_data(0x221475, messagebytes)
                             patch.add_data(0x1fc8dd, [0x60, 0x48, 0xa2, 0x00])
-                            #show character walking around forest maze
+                            # show character walking around forest maze
                         if dialogue_iterator == 4:
                             patch.add_data(0x242238, messagebytes)
                             patch.add_data(0x1e6d5a, [0x60, 0x89, 0xac, 0x00])
@@ -419,6 +468,7 @@ class GameWorld:
             for character in self.character_join_order:
                 dialogue_iterator += 1
                 #replace overworld characters in recruitment spots - there are no partitions identical to 89 that have CBC set to 3 instead of 4, so modify 89 since it's only used by this room
+
                 if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 2:
                     #mushroom way
                     patch.add_data(0x14b3BC, character.mway_1_npc_id)
@@ -454,7 +504,7 @@ class GameWorld:
                             patch.add_data(0x201F07, 0x0C)
                     patch.add_data(0x201F5B, 0x00)
                 if dialogue_iterator == 5:
-                    #show character in marrymore
+                    # show character in marrymore
                     patch.add_data(0x14a94d, character.forest_maze_sprite_id)
                     patch.add_data(0x148f91, character.forest_maze_sprite_id)
                     #fix booster hill solidity
@@ -469,28 +519,28 @@ class GameWorld:
                     if character.name is not "Peach":
                         #marrymore sequence
                         if character.name is "Mario":
-                            #surprised
+                            # surprised
                             patch.add_data(0x20d338, [0x08, 0x43, 0x00])
-                            #on ground
+                            # on ground
                             patch.add_data(0x20d34e, [0x08, 0x4B, 0x01])
-                            #sitting
+                            # sitting
                             patch.add_data(0x20d43b, [0x08, 0x4a, 0x1f])
-                            #looking down
+                            # looking down
                             patch.add_data(0x20d445, [0x08, 0x48, 0x06])
                             patch.add_data(0x20d459, [0x08, 0x48, 0x06])
-                            #crying
+                            # crying
                             patch.add_data(0x20d464, [0x10, 0x80])
                             patch.add_data(0x20d466, [0x08, 0x43, 0x03])
-                            #surprised
+                            # surprised
                             patch.add_data(0x20d48c, [0x08, 0x43, 0x00])
-                            #looking down
+                            # looking down
                             patch.add_data(0x20d4d4, [0x08, 0x48, 0x06])
-                            #crying
+                            # crying
                             patch.add_data(0x20d4d9, [0x10, 0x80])
                             patch.add_data(0x20d4db, [0x08, 0x43, 0x03])
-                            #surprised reversed
+                            # surprised reversed
                             patch.add_data(0x20d5d8, [0x08, 0x43, 0x80])
-                            #crying in other direction
+                            # crying in other direction
                             patch.add_data(0x20d5e3, [0x08, 0x43, 0x84])
                             #booster hill
                             patch.add_data(0x207147, [0x08, 0x43, 0x89])
@@ -503,12 +553,12 @@ class GameWorld:
                             patch.add_data(0x206d34, [0x08, 0x43, 0x89])
                             patch.add_data(0x206d39, [0x08, 0x43, 0x88])
                         else:
-                            #surprised
+                            # surprised
                             patch.add_data(0x20d338, [0x08, 0x42, 0x00])
                             patch.add_data(0x20d48c, [0x08, 0x42, 0x00])
-                            #surprised reversed
+                            # surprised reversed
                             patch.add_data(0x20d5d8, [0x08, 0x42, 0x80])
-                            #sitting
+                            # sitting
                             patch.add_data(0x20d43b, [0x08, 0x49, 0x1f])
                             #booster hill
                             patch.add_data(0x207147, [0x08, 0x42, 0x09])
@@ -522,10 +572,10 @@ class GameWorld:
                             patch.add_data(0x206d39, [0x08, 0x42, 0x88])
                             patch.add_data(0x206F40, [0x08, 0x42, 0x09])
                             if character.name is "Geno":
-                                #crying
+                                # crying
                                 patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
                                 patch.add_data(0x20d4db, [0x08, 0x40, 0x0B])
-                                #crying in other direction
+                                # crying in other direction
                                 patch.add_data(0x20d5e3, [0x08, 0x40, 0x8C])
 
         else:
@@ -579,6 +629,7 @@ class GameWorld:
         # Enemies
         for enemy in self.enemies:
             patch += enemy.get_patch()
+            enemy.patch_script()
         patch += data.enemies.Enemy.build_psychopath_patch(self)
 
         # Enemy attacks
@@ -701,6 +752,9 @@ class GameWorld:
 
         #Overworld boss sprites
         patch += bosses_overworld.patch_overworld_bosses(self)
+
+        # This needs to happen after all battle script randomization.
+        patch += assemble_battle_scripts(self)
 
         # Choose character for the file select screen.
         i = cursor_id

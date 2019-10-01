@@ -6,6 +6,10 @@ from markdown import markdown
 
 # ************************************** Flag classes
 
+class FlagError(ValueError):
+    pass
+
+
 class Flag:
     """Class representing a flag with its description, and possible values/choices/options."""
     name = ''
@@ -304,6 +308,15 @@ class EnemyAttacks(Flag):
     value = 'Ea'
 
 
+class EnemySpells(Flag):
+    name = 'Randomize enemy spells'
+    description = "Enemies can cast random spells. I.E. Mack could cast Blast instead of Flame."
+    inverse_description = ("(Enemies cast the normal spells they're expected to.)")
+    value = 'Ec'
+    hard = True
+    modes = ['open']
+
+
 class EnemyNoSafetyChecks(Flag):
     name = 'No safety checks'
     description = "Removes safety checks on enemy attack shuffle that prevent abnormally large effects."
@@ -320,6 +333,7 @@ class EnemyShuffle(Flag):
         EnemyFormations,
         EnemyStats,
         EnemyAttacks,
+        EnemySpells,
         EnemyNoSafetyChecks,
     ]
 

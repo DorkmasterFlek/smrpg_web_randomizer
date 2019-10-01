@@ -4,6 +4,7 @@ import random
 
 from . import flags, utils
 
+from randomizer.data import enemies
 from randomizer.data import spells
 
 
@@ -39,6 +40,21 @@ def _randomize_spell(spell):
             max_hit_rate = 100
         spell.hit_rate = utils.mutate_normal(spell.hit_rate, minimum=1, maximum=max_hit_rate)
 
+def _randomize_spell_casting(world):
+    for enemy in world.enemies:
+        script = enemy.script
+        for i in range(len(script)):
+            command,args = script[i]
+            if command != 'cast_spell': continue
+            new_args = []
+            for arg in args:
+                possible_spells = [spell for spell in spells.SpellsToTargets[getattr(arg, 'index', arg)] if spell.fp <= enemy.fp]
+                # This should probably never happen...probably.
+                if not possible_spells:
+                    possible_spells = [arg]
+                new_args.append(random.choice(possible_spells).index)
+            script[i] = command, new_args
+
 
 def randomize_all(world):
     """Randomize everything for spells for a single seed.
@@ -59,6 +75,9 @@ def randomize_all(world):
         for spell in world.spells:
             if isinstance(spell, spells.EnemySpell):
                 _randomize_spell(spell)
+
+    if world.settings.is_flag_enabled(flags.EnemySpells):
+        _randomize_spell_casting(world)
 
     # If we're generating a debug mode seed for testing, set max FP to start.
     if world.debug_mode:

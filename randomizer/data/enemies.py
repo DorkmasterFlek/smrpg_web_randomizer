@@ -1,8 +1,13 @@
 # Data module for enemy data.
 
 from randomizer.logic import flags, utils
+from randomizer.logic.battleassembler import BattleScript
 from randomizer.logic.patch import Patch
+from . import attacks
+from . import battlescripts
 from . import items
+from . import spells
+from .battletables import Monsters, Targets
 
 # Number of enemies
 NUM_ENEMIES = 256
@@ -49,6 +54,7 @@ class Enemy:
     flying = False
     high_flying = False
     one_per_battle = False  # Flag if enemy is unique per battle (only 1 max per formation)
+    hp_counter_ratios = []
 
     # Reward attributes.
     reward_address = 0x000000
@@ -152,6 +158,8 @@ class Enemy:
             self.normal_item = self.world.get_item_instance(self.normal_item)
         if self.rare_item is not None:
             self.rare_item = self.world.get_item_instance(self.rare_item)
+        # Check world type....
+        self.script = list(battlescripts.scripts[self.index])
 
     def __str__(self):
         return "<{}>".format(self.name)
@@ -286,6 +294,26 @@ class Enemy:
         index = utils.mutate_normal(index, maximum=len(candidates) - 1)
         return candidates[index]
 
+    def fix_hp_counters(self):
+        """Fixes up battlescripts that rely on countering when their HP goes down.
+
+        Returns: None
+
+        """
+        dex = 0
+        script = self.script
+        hps = self.hp_counter_ratios
+        for i in range(len(script)):
+            (name, _) = script[i]
+            if name == 'if_hp':
+                hp = self.round_for_battle_script(self.hp * hps[dex])
+                script[i] = ('if_hp', [hp])
+                dex += 1
+                if dex == len(hps):
+                    break
+        else:
+            raise Exception('More HP values than counters')
+
     def get_patch(self):
         """Get patch for this enemy.
 
@@ -351,6 +379,17 @@ class Enemy:
             patch.add_data(addr, self.name_override.upper().encode().ljust(13, b'\x20'))
 
         return patch
+
+    def patch_script(self):
+        if self.world.open_mode and self.hp_counter_ratios:
+            self.fix_hp_counters()
+
+        if type(self) in (MarioClone, MallowClone, GenoClone, BowserClone, PeachClone):
+            for i in range(len(self.script)):
+                name, args = self.script[i]
+                if name == 'if_item':
+                    # Good luck using that in battle
+                    self.script[i] = ('if_item', [items.BrightCard])
 
     @classmethod
     def build_psychopath_patch(cls, world):
@@ -2064,6 +2103,7 @@ class Dodo(Enemy):
     palette = 24
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [0.6]
 
     # Reward attributes
     reward_address = 0x391c12
@@ -2091,11 +2131,9 @@ class Dodo(Enemy):
         """
         patch = super().get_patch()
 
-        run_away = self.round_for_battle_script(self.hp * 0.6)
         # Open mode event address is the same as vanilla, but standard mode patch is in a different spot.
-        if self.world.open_mode:
-            patch.add_data(0x395702, utils.ByteField(run_away, num_bytes=2).as_bytes())
-        else:
+        if not self.world.open_mode:
+            run_away = self.round_for_battle_script(self.hp * 0.6)
             patch.add_data(0x393818, utils.ByteField(run_away, num_bytes=2).as_bytes())
 
         return patch
@@ -3986,6 +4024,7 @@ class Shelly(Enemy):
     palette = 24
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [0.8, 0.6, 0.4, 0.2]
 
     # Reward attributes
     reward_address = 0x39198a
@@ -4001,32 +4040,6 @@ class Shelly(Enemy):
     ratio_speed = 0.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
-
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 0.8)
-            patch.add_data(0x39f6d9, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-            phase3_hp = self.round_for_battle_script(self.hp * 0.6)
-            patch.add_data(0x39f6e8, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
-
-            phase4_hp = self.round_for_battle_script(self.hp * 0.4)
-            patch.add_data(0x39f6f7, utils.ByteField(phase4_hp, num_bytes=2).as_bytes())
-
-            phase5_hp = self.round_for_battle_script(self.hp * 0.2)
-            patch.add_data(0x39f706, utils.ByteField(phase5_hp, num_bytes=2).as_bytes())
-
-        return patch
-
 
 class Superspike(Enemy):
     index = 136
@@ -4537,21 +4550,6 @@ class MarioClone(Enemy):
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
 
-    def get_patch(self):
-        """Extra patch data for this enemy.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # Check if No OHKO flag is enabled.
-        if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x3944C3, bytes([0xFF]))
-
-        return patch
-
 
 class PeachClone(Enemy):
     index = 154
@@ -4585,21 +4583,6 @@ class PeachClone(Enemy):
     ratio_speed = 5.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
-
-    def get_patch(self):
-        """Extra patch data for this enemy.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # Check if No OHKO flag is enabled.
-        if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x39452F, bytes([0xFF]))
-
-        return patch
 
 
 class BowserClone(Enemy):
@@ -4636,21 +4619,6 @@ class BowserClone(Enemy):
     ratio_speed = 3.0
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
-
-    def get_patch(self):
-        """Extra patch data for this enemy.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # Check if No OHKO flag is enabled.
-        if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x39458D, bytes([0xFF]))
-
-        return patch
 
 
 class GenoClone(Enemy):
@@ -4689,21 +4657,6 @@ class GenoClone(Enemy):
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
 
-    def get_patch(self):
-        """Extra patch data for this enemy.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # Check if No OHKO flag is enabled.
-        if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x3945F3, bytes([0xFF]))
-
-        return patch
-
 
 class MallowClone(Enemy):
     index = 157
@@ -4739,21 +4692,6 @@ class MallowClone(Enemy):
     ratio_speed = 3.5
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
-
-    def get_patch(self):
-        """Extra patch data for this enemy.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # Check if No OHKO flag is enabled.
-        if self.world.settings.is_flag_enabled(flags.NoOHKO):
-            patch.add_data(0x39465B, bytes([0xFF]))
-
-        return patch
 
 
 class Shyster(Enemy):
@@ -5433,6 +5371,47 @@ class RightEye(Enemy):
 
         return patch
 
+    def patch_script(self):
+        script = BattleScript()
+        script.if_bits_set(0x7ee002, 0x01)
+        script.if_greater_or_equal(0x7ee004, 0x03)
+        script.set_targetable(Monsters.SELF)
+        script.zero(0x7ee004)
+        script.zero(0x7ee002)
+        script.animate(0x0d)
+        script.wait_return()
+
+        script.if_bits_set(0x7ee002, 0x01)
+        script.inc(0x7ee004)
+        script.wait_return()
+
+        script.zero(0x7ee005)
+        script.rand(0x07)
+        script.if_less_than(0x7ee005, 0x04)
+        script.cast_spell(spells.Bolt, spells.DiamondSaw, spells.MegaDrain)
+        script.wait_return()
+
+        script.cast_spell(spells.FlameStone, spells.DarkStar, spells.Blast)
+        script.start_counter()
+
+        script.if_hp(0x0000)
+        script.if_bits_clear(0x7ee008, 0x01)
+        script.set(0x7ee002, 0x01)
+        script.set(0x7ee000, 0x01)
+        script.clear(0x7ee000, 0x04)
+        script.set_untargetable(Monsters.SELF)
+
+        if self.world.settings.is_flag_enabled(flags.NoGenoWhirlExor):
+            script.set_targetable(Monsters.MONSTER_1)
+        else:
+            script.uninvuln(Targets.MONSTER_1)
+
+        script.animate(0x0b)
+        script.battle_dialog(0xdb)
+        script.wait_return()
+
+        self.script = script.fin()
+
 
 class LeftEye(Enemy):
     index = 191
@@ -5481,6 +5460,51 @@ class LeftEye(Enemy):
             patch.add_data(0x35368e, utils.ByteField(self.hp, num_bytes=2).as_bytes())
 
         return patch
+
+    def patch_script(self):
+        script = BattleScript()
+        script.if_bits_set(0x7ee003, 0x01)
+        script.if_greater_or_equal(0x7ee004, 0x02)
+        script.set_targetable(Monsters.SELF)
+        script.zero(0x7ee004)
+        script.zero(0x7ee003)
+        script.animate(0x0d)
+        script.wait_return()
+
+        script.if_bits_set(0x7ee003, 0x01)
+        script.inc(0x7ee004)
+        script.wait_return()
+
+        script.zero(0x7ee005)
+        script.rand(0x07)
+        script.if_less_than(0x7ee005, 0x04)
+        script.set(0x7ee00f, 0x01)
+        script.attack(attacks.PhysicalAttack0, attacks.GunkBall, attacks.PhysicalAttack0)
+        script.clear(0x7ee00f, 0x01)
+        script.wait_return()
+
+        script.set(0x7ee00f, 0x01)
+        script.attack(attacks.PhysicalAttack0, attacks.VenomDrool, attacks.ScrowBell)
+        script.clear(0x7ee00f, 0x01)
+        script.start_counter()
+
+        script.if_hp(0x0000)
+        script.if_bits_clear(0x7ee008, 0x01)
+        script.set(0x7ee003, 0x01)
+        script.set(0x7ee000, 0x02)
+        script.clear(0x7ee000, 0x04)
+        script.set_untargetable(Monsters.SELF)
+
+        if self.world.settings.is_flag_enabled(flags.NoGenoWhirlExor):
+            script.set_targetable(Monsters.MONSTER_1)
+        else:
+            script.uninvuln(Targets.MONSTER_1)
+
+        script.animate(0x0c)
+        script.battle_dialog(0xdb)
+        script.wait_return()
+
+        self.script = script.fin()
 
 
 class KnifeGuy(Enemy):
@@ -5679,6 +5703,7 @@ class Jinx1(Enemy):
     palette = 8
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [0.5]
 
     # Reward attributes
     reward_address = 0x391ac2
@@ -5721,7 +5746,6 @@ class Jinx1(Enemy):
 
         return patch
 
-
 class Jinx2(Enemy):
     index = 196
     address = 0x390ce6
@@ -5741,6 +5765,7 @@ class Jinx2(Enemy):
     palette = 8
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [0.5]
 
     # Reward attributes
     reward_address = 0x391ac8
@@ -5886,6 +5911,7 @@ class Belome1(Enemy):
     palette = 24
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [300 / 500]
 
     # Reward attributes
     reward_address = 0x391ae6
@@ -6226,6 +6252,7 @@ class Punchinello(Enemy):
     palette = 16
     flower_bonus_type = 1
     battle_sesw_only = True
+    hp_counter_ratios = [2/3, 2/3, 1/3, 1/3]
 
     # Reward attributes
     reward_address = 0x391a98
@@ -6415,6 +6442,29 @@ class KingBomb(Enemy):
     ratio_evade = 0.0
     ratio_magic_evade = 0.0
 
+    def patch_script(self):
+        script = BattleScript()
+
+        script.if_phase(0x03)
+        if self.world.settings.is_flag_enabled(flags.FixMagikoopa):
+            script.zero(0x7ee000)
+        script.set_targetable(Monsters.MONSTER_1)
+        script.cast_spell(spells.BigBang)
+        script.remove(0x1b)
+        script.wait_return()
+
+        script.start_counter()
+
+        script.if_hp(0x0000)
+        script.zero(0x7ee000)
+        script.set_targetable(Monsters.MONSTER_1)
+        script.animate(0x03)
+        script.remove(0x1b)
+        script.wait_return()
+
+        self.script = script.fin()
+
+        super().patch_script()
 
 class MezzoBomb(Enemy):
     index = 213
@@ -6616,6 +6666,7 @@ class Jinx3(Enemy):
     palette = 8
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [0.6, 0.3]
 
     # Reward attributes
     reward_address = 0x391ace
@@ -7221,21 +7272,32 @@ class Exor(Enemy):
     battle_y_shift = 1
     statue_mold = 22
 
-    def get_patch(self):
-        """Extra patch data for this enemy.
+    def patch_script(self):
+        script = BattleScript()
+        script.if_bits_clear(0x7ee000, 0x07)
+        script.if_target_alive(Targets.MONSTER_3)
+        script.if_target_alive(Targets.MONSTER_4)
+        script.set(0x7ee000, 0x04)
+        script.battle_dialog(0xda)
 
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # Check if no Geno Whirl flag is enabled.
         if self.world.settings.is_flag_enabled(flags.NoGenoWhirlExor):
-            patch.add_data(0x393226, bytes([0x8a, 0xf6, 0x2e, 0xf6]))
-            patch.add_data(0x39327c, bytes([0xfe, 0xf5]))
+            script.set_untargetable(Monsters.MONSTER_1)
+        else:
+            script.invuln(Targets.MONSTER_1)
 
-        return patch
+        script.wait_return()
+
+        script.start_counter()
+
+        script.if_hp(0x0000)
+        script.set(0x7ee008, 0x01)
+        script.set_untargetable(Monsters.MONSTER_2)
+        script.set_untargetable(Monsters.MONSTER_3)
+        script.set_untargetable(Monsters.MONSTER_4)
+        script.remove(0x1b)
+        script.wait_return()
+
+        self.script = script.fin()
 
 
 class Smithy1(Enemy):
@@ -7398,6 +7460,7 @@ class Croco1(Enemy):
     status_immunities = [1, 5, 6]
     palette = 8
     flower_bonus_type = 1
+    hp_counter_ratios = [100 / 320]
 
     # Reward attributes
     reward_address = 0x391bdc
@@ -7464,6 +7527,7 @@ class Croco2(Enemy):
     palette = 8
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [400 / 750]
 
     # Reward attributes
     reward_address = 0x391be2
@@ -7641,6 +7705,7 @@ class Booster(Enemy):
     palette = 16
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [500 / 800]
 
     # Reward attributes
     reward_address = 0x391bf4
@@ -7761,6 +7826,7 @@ class Johnny(Enemy):
     palette = 32
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [400 / 820]
 
     # Reward attributes
     reward_address = 0x391c00
@@ -7859,6 +7925,7 @@ class Valentina(Enemy):
     palette = 24
     flower_bonus_type = 1
     flower_bonus_chance = 2
+    hp_counter_ratios = [0.6]
 
     # Reward attributes
     reward_address = 0x391c0c
