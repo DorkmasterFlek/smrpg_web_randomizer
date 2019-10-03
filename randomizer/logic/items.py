@@ -499,8 +499,7 @@ def randomize_all(world):
                             shop = random.choice(eligible_shops)
                             if item not in assignments[shop.index]:
                                 assignments[shop.index].append(item)
-                        else:
-                            print(item)
+
 
             # Randomly assign anything to shops with space remaining
             done_already.clear()
