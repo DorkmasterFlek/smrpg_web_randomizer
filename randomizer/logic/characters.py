@@ -463,8 +463,10 @@ def randomize_all(world):
                 position_iterator = 0
                 for char in world.meta_join_order:
                     if char is None and position_iterator < 3:
-                        world.meta_join_order.append(world.meta_join_order.pop(world.meta_join_order.index(char)))
-                        world.character_join_order.append(world.character_join_order.pop(world.character_join_order[position_iterator]))
+                        if char in world.meta_join_order:
+                            world.meta_join_order.append(world.meta_join_order.pop(world.meta_join_order.index(char)))
+                        if char in world.character_join_order:
+                            world.character_join_order.append(world.character_join_order.pop(world.character_join_order[position_iterator]))
                     position_iterator += 1
 
     # Adjust starting levels according to join order.  Get original levels, then update starting levels based on
