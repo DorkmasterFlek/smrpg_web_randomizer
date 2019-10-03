@@ -22,7 +22,7 @@ from django.views.generic import TemplateView, FormView
 
 from .models import Seed, Patch
 from .forms import GenerateForm
-from .logic.flags import CATEGORIES, PRESETS
+from .logic.flags import CATEGORIES, PRESETS, FlagError
 from .logic.main import GameWorld, Settings, VERSION
 from .logic.patch import PatchJSONEncoder
 
@@ -154,6 +154,12 @@ class GenerateView(FormView):
         try:
             world.randomize()
             patches = {'US': world.build_patch()}
+        except FlagError as e:
+            # Catch error with flags and return that error message instead.
+            result = {
+                'error': e.args[0],
+            }
+            return JsonResponse(result, encoder=PatchJSONEncoder)
         except Exception:
             logger.error("ERROR form data: {!r}, generated seed: {!r}".format(data, seed))
             raise
