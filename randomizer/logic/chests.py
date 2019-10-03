@@ -70,7 +70,6 @@ def randomize_all(world):
                     if shuffled_boss.name is "CountDown":
                         forceCoinsInBanditsWay = True
                         forced_coins = [chest for chest in world.chest_locations if isinstance(chest, chests.BanditsWayCroco)]
-                        print(forced_coins)
                         forced_coins[0].item = random.choice([i for i in coins])
 
     # Open mode-specific shuffles.
@@ -182,7 +181,6 @@ def randomize_all(world):
                 denominator -= ratio_stars
 
             if forceCoinsInBanditsWay:
-                print(1)
                 forced_coins = [chest for chest in world.chest_locations if isinstance(chest, chests.BanditsWayCroco)]
                 forced_coins[0].item = random.choice([i for i in coins])
                 finished_chests.append(forced_coins[0])

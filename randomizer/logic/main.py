@@ -24,6 +24,7 @@ from . import spells
 from . import utils
 from .patch import Patch
 from .battleassembler import assemble_battle_scripts
+from itertools import permutations
 
 # Current version number
 VERSION = '8.2.0'
@@ -373,55 +374,6 @@ class GameWorld:
 
         # Update party join script events for the final order.  These are different for standard vs open mode.
         if self.open_mode:
-            # Fail if starter is excluded, or if everyone excluded
-            if (self.settings.is_flag_enabled(flags.ExcludeMario) and self.settings.is_flag_enabled(
-                    flags.StartMario)) or (
-                    self.settings.is_flag_enabled(flags.ExcludeMallow) and self.settings.is_flag_enabled(
-                    flags.StartMallow)) or (
-                    self.settings.is_flag_enabled(flags.ExcludeGeno) and self.settings.is_flag_enabled(
-                    flags.StartGeno)) or (
-                    self.settings.is_flag_enabled(flags.ExcludeBowser) and self.settings.is_flag_enabled(
-                    flags.StartBowser)) or (
-                    self.settings.is_flag_enabled(flags.ExcludeToadstool) and self.settings.is_flag_enabled(
-                    flags.StartToadstool)):
-                raise flags.FlagError("Cannot exclude your starter")
-            elif self.settings.is_flag_enabled(flags.ExcludeMario) and self.settings.is_flag_enabled(
-                    flags.ExcludeMallow) and self.settings.is_flag_enabled(
-                    flags.ExcludeGeno) and self.settings.is_flag_enabled(
-                    flags.ExcludeBowser) and self.settings.is_flag_enabled(flags.ExcludeToadstool):
-                raise flags.FlagError("Cannot exclude all 5 characters")
-            # Move chosen starting character to front of join order
-            else:
-                for char in self.character_join_order:
-                    if ((self.settings.is_flag_enabled(flags.StartMario) and char.index == 0) or
-                            (self.settings.is_flag_enabled(flags.StartMallow) and char.index == 4) or
-                            (self.settings.is_flag_enabled(flags.StartGeno) and char.index == 3) or
-                            (self.settings.is_flag_enabled(flags.StartBowser) and char.index == 2) or
-                            (self.settings.is_flag_enabled(flags.StartToadstool) and char.index == 1)):
-                        self.character_join_order.insert(0, self.character_join_order.pop(
-                            self.character_join_order.index(char)))
-
-            # Count number of excluded characters, and empty their slots
-            position_iterator = 0
-            empties = 0
-            for char in self.character_join_order:
-                if (self.settings.is_flag_enabled(flags.ExcludeMario) and char.index == 0) or (
-                        self.settings.is_flag_enabled(flags.ExcludeMallow) and char.index == 4) or (
-                        self.settings.is_flag_enabled(flags.ExcludeGeno) and char.index == 3) or (
-                        self.settings.is_flag_enabled(flags.ExcludeBowser) and char.index == 2) or (
-                        self.settings.is_flag_enabled(flags.ExcludeToadstool) and char.index == 1):
-                    self.character_join_order[position_iterator] = None
-                    empties += 1
-                position_iterator += 1
-            # Make sure first three slots are filled when NFC is turned off, when possible
-            if not self.settings.is_flag_enabled(flags.NoFreeCharacters):
-                for i in range(empties):
-                    position_iterator = 0
-                    for char in self.character_join_order:
-                        if char is None and position_iterator < 3:
-                            self.character_join_order.append(self.character_join_order.pop(
-                                self.character_join_order.index(char)))
-                        position_iterator += 1
             # Add characters to Mushroom Way and Moleville when NFC is turned on
             if self.settings.is_flag_enabled(flags.NoFreeCharacters):
                 addresses = [0x1ef86c, 0x1ffd82, 0x1fc4f1, 0x1e6d58, 0x1e8b71]
@@ -464,7 +416,6 @@ class GameWorld:
                             patch.add_data(0x1e8b49, [0x60, 0x48, 0xa2, 0x00])
                     patch.add_data(addr, [0x36, 0x80 + character.index])
             dialogue_iterator = 0
-            print(self.character_join_order)
             for character in self.character_join_order:
                 dialogue_iterator += 1
                 #replace overworld characters in recruitment spots - there are no partitions identical to 89 that have CBC set to 3 instead of 4, so modify 89 since it's only used by this room

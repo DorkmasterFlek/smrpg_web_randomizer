@@ -1400,22 +1400,6 @@ class Magikoopa(Enemy):
 
 
 
-    def get_patch(self):
-        """Extra patch data for this enemy.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # Check if fix Magikoopa flag is enabled.
-        if self.world.settings.is_flag_enabled(flags.FixMagikoopa):
-            patch.add_data(0x393252, bytes([0xdc, 0xf5]))
-
-        return patch
-
-
 class Leuko(Enemy):
     index = 34
     address = 0x390566
@@ -5730,21 +5714,6 @@ class Jinx1(Enemy):
     overworld_y_shift = 0
     battle_y_shift = 0
 
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 0.5)
-            patch.add_data(0x39f402, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-        return patch
 
 class Jinx2(Enemy):
     index = 196
@@ -5791,22 +5760,6 @@ class Jinx2(Enemy):
     battle_solidity = [2, 2, 5]
     overworld_y_shift = 0
     battle_y_shift = 0
-
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 0.5)
-            patch.add_data(0x39f438, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-        return patch
 
 class CountDown(Enemy):
     index = 197
@@ -5946,23 +5899,6 @@ class Belome1(Enemy):
     battle_solidity = [10, 10, 18]
     overworld_y_shift = 0
     battle_y_shift = 2
-
-
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 300 / 500)
-            patch.add_data(0x3943ae, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-        return patch
 
 
 class Belome2(Enemy):
@@ -6166,6 +6102,7 @@ class Birdo(Enemy):
     battle_solidity = [11, 11, 13]
     overworld_y_shift = 0
     battle_y_shift = 1
+    name_override = 'BIRDETTA'
 
 
 class Eggbert(Enemy):
@@ -6281,28 +6218,6 @@ class Punchinello(Enemy):
     battle_solidity = [11, 8, 9]
     overworld_y_shift = 1
     battle_y_shift = 1
-
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 2 / 3)
-            patch.add_data(0x39f555, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-            patch.add_data(0x39f56c, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-            phase3_hp = self.round_for_battle_script(self.hp * 1 / 3)
-            patch.add_data(0x39f585, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
-            patch.add_data(0x39f5a0, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
-
-        return patch
-
 
 class TentaclesRight(Enemy):
     index = 209
@@ -6693,24 +6608,6 @@ class Jinx3(Enemy):
     overworld_y_shift = 0
     battle_y_shift = 0
 
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 0.6)
-            patch.add_data(0x39f481, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-            phase3_hp = self.round_for_battle_script(self.hp * 0.3)
-            patch.add_data(0x39f493, utils.ByteField(phase3_hp, num_bytes=2).as_bytes())
-
-        return patch
 
 
 class Zombone(Enemy):
@@ -7491,23 +7388,6 @@ class Croco1(Enemy):
     battle_y_shift = 2
     statue_west_shift = 3
 
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 100 / 320)
-            patch.add_data(0x395543, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-        return patch
-
-
 class Croco2(Enemy):
     index = 241
     address = 0x391046
@@ -7556,22 +7436,6 @@ class Croco2(Enemy):
     overworld_y_shift = 2
     battle_y_shift = 2
     statue_west_shift = 3
-
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 400 / 750)
-            patch.add_data(0x395588, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-        return patch
 
 
 class Earthlink(Enemy):
@@ -7739,22 +7603,6 @@ class Booster(Enemy):
     overworld_y_shift = 2
     battle_y_shift = 2
 
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 500 / 800)
-            patch.add_data(0x3955cc, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-        return patch
-
 
 class Booster2(Enemy):
     index = 247
@@ -7854,22 +7702,6 @@ class Johnny(Enemy):
     overworld_solidity = [5, 5, 11]
     overworld_y_shift = 2
 
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 400 / 820)
-            patch.add_data(0x395650, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-        return patch
-
 
 class JohnnySolo(Enemy):
     index = 250
@@ -7959,22 +7791,6 @@ class Valentina(Enemy):
     statue_west_shift = 3
     statue_south_shift = 1
     opposite_statue_west_shift = 2
-
-    def get_patch(self):
-        """Update battle event triggers based on HP to use shuffled HP value instead.
-
-        Returns:
-            randomizer.logic.patch.Patch: Patch data
-
-        """
-        patch = super().get_patch()
-
-        # TODO: Get addresses for linear mode.
-        if self.world.open_mode:
-            phase2_hp = self.round_for_battle_script(self.hp * 0.6)
-            patch.add_data(0x3956bF, utils.ByteField(phase2_hp, num_bytes=2).as_bytes())
-
-        return patch
 
 
 class Cloaker2(Enemy):

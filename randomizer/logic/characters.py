@@ -428,12 +428,12 @@ def randomize_all(world):
             flags.StartBowser)) or (
                 world.settings.is_flag_enabled(flags.ExcludeToadstool) and world.settings.is_flag_enabled(
             flags.StartToadstool)):
-            raise Exception("Cannot exclude your starter")
+            raise flags.FlagError("Cannot exclude your starter")
         elif world.settings.is_flag_enabled(flags.ExcludeMario) and world.settings.is_flag_enabled(
                 flags.ExcludeMallow) and world.settings.is_flag_enabled(
             flags.ExcludeGeno) and world.settings.is_flag_enabled(
             flags.ExcludeBowser) and world.settings.is_flag_enabled(flags.ExcludeToadstool):
-            raise Exception("Cannot exclude all 5 characters")
+            raise flags.FlagError("Cannot exclude all 5 characters")
         # Move chosen starting character to front of join order
         else:
             for char in world.character_join_order:

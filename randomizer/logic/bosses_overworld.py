@@ -188,7 +188,6 @@ def patch_overworld_bosses(world):
             byte5 = set_bit(byte5, 2, False)
             byte5 = set_bit(byte5, 3, False)
             byte5 = set_bit(byte5, 4, False)
-            print(bin(byte5))
             byte5 += solidity[2];
         output.append(byte5)
         output.append(original_data[6])
@@ -518,7 +517,8 @@ def patch_overworld_bosses(world):
                 bank_21_array_index += 1
                 bank_21_address_index = 0
                 if bank_21_array_index >= len(bank_21_free_event_lengths):
-                    raise Exception("Bank 21 needs more events")
+                    #print( '21 too long: ', world.boss_locations )
+                    raise flags.FlagError("B flag error: Bank 21 needs more space! Please tell the devs about this. Paste your flag string and the seed value " + world.seed)
             patch.add_data(bank_21_free_events[bank_21_array_index] + bank_21_address_index, script_to_add)
             # replace original script with a pointer to new one
             replace_original_script = []
@@ -549,7 +549,8 @@ def patch_overworld_bosses(world):
                     bank_20_array_index += 1
                     bank_20_address_index = 0
                     if bank_20_array_index >= len(bank_20_free_event_lengths):
-                        raise Exception("Bank 20 needs more events")
+                        #print( '20 too long: ', world.boss_locations )
+                        raise flags.FlagError("B flag error: Bank 20 needs more space! Please tell the devs about this. Paste your flag string and the seed value " + world.seed)
                 patch.add_data(bank_20_free_events[bank_20_array_index] + bank_20_address_index, script_to_add)
                 # replace original script with a pointer to new one
                 replace_original_script = []
@@ -568,7 +569,8 @@ def patch_overworld_bosses(world):
                     bank_1F_array_index += 1
                     bank_1F_address_index = 0
                     if bank_1F_array_index >= len(bank_1F_free_event_lengths):
-                        raise Exception("Bank 1F needs more events")
+                        #print( '1F too long: ', world.boss_locations )
+                        raise flags.FlagError("B flag error: Bank 1F needs more space! Please tell the devs about this. Paste your flag string and the seed value " + world.seed)
                 patch.add_data(bank_1F_free_events[bank_1F_array_index] + bank_1F_address_index, script_to_add)
                 # replace original script with a pointer to new one
                 replace_original_script = []
@@ -595,7 +597,8 @@ def patch_overworld_bosses(world):
                     bank_1E_array_index += 1
                     bank_1E_address_index = 0
                     if bank_1E_array_index >= len(bank_1E_free_event_lengths):
-                        raise Exception("Bank 1E needs more events")
+                        #print( '1E too long: ', world.boss_locations )
+                        raise flags.FlagError("B flag error: Bank 1E needs more space! Please tell the devs about this. Paste your flag string and the seed value " + world.seed)
                 patch.add_data(bank_1E_free_events[bank_1E_array_index] + bank_1E_address_index, script_to_add)
                 # replace original script with a pointer to new one
                 replace_original_script = [];
@@ -735,7 +738,7 @@ def patch_overworld_bosses(world):
             # print (shuffled_boss.name, invert_se_sw)
 
             if location.name == "HammerBros":
-                print(location.name + ": " + shuffled_boss.name)
+                #location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "HammerBro":
                     #patch.add_data(location.sprite_offset, calcpointer(sprite, [0x00, 0x68]));
                     patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x68]), shadow, solidity, y_shift, location))
@@ -749,7 +752,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(7, plus, mold, sub_sequence, sequence, False, 205, 2814, 0x20f045))
 
             if location.name == "Croco1":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name not in ["Croco1", "Croco2"]:
                     # use npc 110, set properties to match croco's
                     for addr in [0x1495e1, 0x14963a, 0x14969f, 0x14b4c7, 0x14b524]:
@@ -1058,7 +1061,7 @@ def patch_overworld_bosses(world):
                         patch.add_data(0x1f3872, [0x9b])
 
             if location.name == "Mack":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Mack":
                     # reassign NPC 480's sprite
                     patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x68]), shadow, solidity, y_shift, location))
@@ -1077,9 +1080,8 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 326, 368, 0x20f47d))
 
             if location.name == "Belome1":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name not in ["Belome1", "Belome2"]:
-                    print(solidity)
                     # use npc 371, set properties to match belome's
                     patch.add_data(0x14c67a, [0xcd, 0x05]);
                     # replace its sprite
@@ -1095,7 +1097,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 302, 3135, 0x20f3be))
 
             if location.name == "Bowyer":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Bowyer":
                     # reassign NPC 455's sprite
                     # try big sprite
@@ -1109,7 +1111,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(16, plus, mold, sub_sequence, sequence, False, 232, 15, 0x20F1C6))
 
             if location.name == "Croco2":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name not in ["Croco1", "Croco2"]:
                     # use npc 367, set properties to match croco's
                     patch.add_data(0x14c2a2, [0xBE, 0xA5]);
@@ -1412,7 +1414,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 283, 3204, 0x20f32b))
 
             if location.name == "Punchinello":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Punchinello":
                     patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x48]), shadow, solidity, y_shift, location))
                     #patch.add_data(0x1dc4b0, calcpointer(sprite, [0x00, 0x48]));
@@ -1440,7 +1442,7 @@ def patch_overworld_bosses(world):
                         SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 289, 592, 0x20F36b))
 
             if location.name == "KingCalamari":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if (shuffled_boss.name is not "KingCalamari"):
                     #patch.add_data(0x1dbc98, calcpointer(sprite, [0x00, 0x28]))
                     patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x28]), shadow, solidity, y_shift, location))
@@ -1459,7 +1461,7 @@ def patch_overworld_bosses(world):
                         SpritePhaseEvent(7, plus, mold, sub_sequence, sequence, False, 177, 3224, 0x20eef1))
 
             if location.name == "Booster":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if (shuffled_boss.name is not "Booster"):
 
                     #remove shadows -- these are just way too rough to deal with in here on a case-by-case basis
@@ -1824,7 +1826,7 @@ def patch_overworld_bosses(world):
 
             if location.name == "Bundt":
                 # always replace npc sprite here, it's normally just the feather
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Bundt":
                     if shuffled_boss.name is "CountDown":
                         #patch.add_data(0x1DC4DA, calcpointer(sprite, [0x00, 0x08]))
@@ -1890,7 +1892,7 @@ def patch_overworld_bosses(world):
                     #new_preloader_event(155, npc_queue, 628, 0x20EDD0)
 
             if location.name == "Johnny":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if (shuffled_boss.name is not "Johnny"):
                     # change partition 13 if needed
                     if shuffled_boss.name is "CountDown":
@@ -1948,7 +1950,7 @@ def patch_overworld_bosses(world):
 
             if location.name == "Yaridovich":
                 # replace elder's sprite
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 # always make him face NW, no matter who it is
                 scarecrow_script = []
                 scarecrow_script.append([0x10, 0xC3])
@@ -1979,7 +1981,7 @@ def patch_overworld_bosses(world):
 
             if location.name == "Belome2":
                 # replace belome's sprite
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name not in ["Belome1", "Belome2"]:
                     #patch.add_data(0x1Dc471, calcpointer(sprite, [0x00, 0xA8]))
                     patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0xA8]), shadow, solidity, y_shift, location))
@@ -1995,7 +1997,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(4, plus, mold, sub_sequence, sequence, False, 268, 1771, 0x20f2e6))
 
             if location.name == "Jagger":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Jagger":
                     # partition size for jinx will be decided after entire boss loop, since also depends on jagger
                     if overworld_is_skinny:
@@ -2137,7 +2139,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(1, plus, mold, sub_sequence, sequence, False, 255, 2064, 0x20f2a1))
 
             if location.name == "Jinx3":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name not in ["Jinx1", "Jinx2", "Jinx3"]:
                     # partition size for jinx will be decided after entire boss loop, since also depends on jagger
                     if overworld_is_skinny:
@@ -2270,7 +2272,7 @@ def patch_overworld_bosses(world):
 
             if location.name == "MegaSmilax":
                 # maybe bring shy away back for added comedy
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "MegaSmilax":
                     # use npc 154, set properties to match smilax's
                     # fix scripts
@@ -2301,7 +2303,7 @@ def patch_overworld_bosses(world):
 
             if location.name == "Dodo":
                 # always replace npc sprite here, it's normally just the feather
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 # load dodo in save room if you won statue game
                 sub_sequence = True
                 if sequence == 0 and mold > 0:
@@ -2313,7 +2315,7 @@ def patch_overworld_bosses(world):
                 patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x88]), shadow, solidity, y_shift, location))
 
             if location.name == "Valentina":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 #statue vars
                 total_shift = [0x84]
                 total_opposite_shift = [0x84]
@@ -2915,11 +2917,14 @@ def patch_overworld_bosses(world):
                                     npc_queue.extend(total_opposite_shift)
                                     new_preloader_event(120, npc_queue, 3729, 0x20EB79)
                                 for npc in northeast_110:
-                                    npc_queue = [0x14 + npc, len(total_opposite_dodo_shift)]
+                                    npc_queue = [0x14 + npc, len(total_opposite_shift)]
                                     npc_queue.extend(total_opposite_dodo_shift)
                                     new_preloader_event(110, npc_queue, 2112, 0x20EB0A)
                                 for npc in northwest_341:
-                                    npc_queue = [0x14 + npc, len(total_opposite_dodo_shift)]
+                                    if is_scarecrow:
+                                        npc_queue = [0x14 + npc, 0x80 + len(total_opposite_dodo_shift)]
+                                    else:
+                                        npc_queue = [0x14 + npc, len(total_opposite_dodo_shift)]
                                     npc_queue.extend(total_opposite_dodo_shift)
                                     new_preloader_event(341, npc_queue, 737, 0x20F595)
                                 for npc in northwest_113:
@@ -2998,7 +3003,10 @@ def patch_overworld_bosses(world):
                                     npc_queue.extend(total_shift)
                                     new_preloader_event(120, npc_queue, 3729, 0x20EB79)
                                 for npc in northwest_341:
-                                    npc_queue = [0x14 + npc, len(total_shift)]
+                                    if is_scarecrow:
+                                        npc_queue = [0x14 + npc, 0x80 + len(total_shift)]
+                                    else:
+                                        npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
                                     new_preloader_event(341, npc_queue, 737, 0x20F595)
                                 for npc in northeast_110:
@@ -3412,7 +3420,7 @@ def patch_overworld_bosses(world):
                     patch.add_data(addr, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
 
             if location.name == "CzarDragon":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "CzarDragon":
                     if shuffled_boss.name in ["Culex", "Birdo", "Johnny"]:
                         remove_shadows(352, 9, 3330, 0x20F608)
@@ -3449,7 +3457,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(1, plus, mold, sub_sequence, sequence, False, 352, 3330, 0x20f608))
 
             if location.name == "AxemRangers":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "AxemRangers":
                     # change partitions for small sprites
                     if shuffled_boss.name is "Exor":
@@ -3631,7 +3639,7 @@ def patch_overworld_bosses(world):
                                                                   0x20f8a2))
 
             if location.name == "Magikoopa":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Magikoopa":
                     if shuffled_boss.name is "Booster":
                         #patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(502, [0x00, 0x40]), shadow, solidity, y_shift, location))
@@ -3785,7 +3793,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(2, plus, mold, sub_sequence, sequence, False, 266, 2208, 0x20F2Da))
 
             if location.name == "Boomer":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Boomer":
                     if freeze or sequence > 0 or mold > 0:  # never change directions
                         sub_sequence = True
@@ -3817,7 +3825,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 400, 2224, 0x20F8e1))
 
             if location.name == "Countdown":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "CountDown":
                     if freeze or invert_se_sw:
                         scarecrow_script = []
@@ -3848,7 +3856,7 @@ def patch_overworld_bosses(world):
                             SpritePhaseEvent(0, plus, mold, sub_sequence, sequence, False, 223, 2363, 0x20F145))
 
             if location.name == "Clerk":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 # fix cannon action scripts
                 patch.add_data(0x219565, [0x08, 0x40, 0x01])
                 patch.add_data(0x2195B9, [0x08, 0x40, 0x02])
@@ -3889,7 +3897,7 @@ def patch_overworld_bosses(world):
                     patch.add_data(0x1fe34f, [0x9b, 0x9b, 0x9b])
 
             if location.name == "Manager":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Manager":
                     # change sequence 01 of Manager, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
                     patch.add_data(0x36923e, 0x02)
@@ -3920,7 +3928,7 @@ def patch_overworld_bosses(world):
                 patch.add_data(0x369296, 0x02)
                 patch.add_data(0x369299, 0x01)
                 patch.add_data(0x3692C5, 0x43)
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Director":
                     if shuffled_boss.name is "Mack":
                         # change animation of background guys
@@ -3948,7 +3956,7 @@ def patch_overworld_bosses(world):
                     patch.add_data(0x1fe92e, [0x9b, 0x9b, 0x9b])
 
             if location.name == "Gunyolk":
-                print(location.name + ": " + shuffled_boss.name)
+                #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Gunyolk":
                     if freeze or sequence > 0 or mold > 0:  # never change directions
                         sub_sequence = True
@@ -3999,7 +4007,9 @@ def patch_overworld_bosses(world):
             full_instructions.extend(script.event_jump)
             append_jumps.extend(full_instructions)
         patch.add_data(start_instructions, append_jumps)
-
+        if len(append_jumps) > 1312:
+            raise flags.FlagError("B flag error: Event 1110 cannot contain all the necessary preloaders! Please tell the devs about this. Paste your flag string and the seed value " + world.seed)
+            #print( 'preloaders too long: ', len(append_jumps), world.boss_locations )
     # set dojo partition
     if jinx_size > 0:
         # use and modify partition 5

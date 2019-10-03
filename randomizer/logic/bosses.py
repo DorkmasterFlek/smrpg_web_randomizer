@@ -46,6 +46,10 @@ def _boss_fight_filter(world, location):
     return True
 
 
+def swapPositions(list, pos1, pos2):
+    list[pos1], list[pos2] = list[pos2], list[pos1]
+    return list
+
 def randomize_all(world):
     """Randomize all the boss settings for the world.
 
@@ -72,17 +76,38 @@ def randomize_all(world):
         if world.settings.is_flag_enabled(flags.BossShuffle):
             locations = [b for b in world.boss_locations if _boss_fight_filter(world, b)]
             shuffled_locations = locations[:]
-            #random.shuffle(shuffled_locations)
+            random.shuffle(shuffled_locations)
             #alpha testing: set the order manually
-            shuffle_count = 0
-            while shuffle_count < 36:
-                position_iterator = 0
-                while position_iterator < 1:
-                    for location in shuffled_locations:
-                        if position_iterator < 1:
-                            shuffled_locations.append(shuffled_locations.pop(shuffled_locations.index(location)))
-                            position_iterator += 1
-                shuffle_count += 1
+            # shuffle_count = 0
+            # while shuffle_count < 5:
+            #     position_iterator = 0
+            #     while position_iterator < 1:
+            #         for location in shuffled_locations:
+            #             if position_iterator < 1:
+            #                 shuffled_locations.append(shuffled_locations.pop(shuffled_locations.index(location)))
+            #                 position_iterator += 1
+            #     shuffle_count += 1
+
+            # index_jinx = -1
+            # index_jagger = -1
+            # index_countdown = -1
+            # index_exor = -1
+            # for l in locations:
+            #     if l.name == 'Jinx3':
+            #         index_jinx = locations.index(l)
+            #     if l.name == 'Jagger':
+            #         index_jagger = locations.index(l)
+            #
+            # for l in shuffled_locations:
+            #     if l.name == 'Countdown':
+            #         index_countdown = shuffled_locations.index(l)
+            #     if l.name == 'Booster':
+            #         index_exor = shuffled_locations.index(l)
+            # print(index_jinx, index_jagger, index_countdown, index_exor)
+            #
+            # swapPositions(shuffled_locations, index_jinx, index_exor)
+            # swapPositions(shuffled_locations, index_jagger, index_countdown)
+
             shuffled_packs = [b.pack for b in shuffled_locations]
 
             # Randomize boss music for locations if enabled.
@@ -217,16 +242,19 @@ def randomize_all(world):
                     for i, enemy in enumerate(location.formation.stat_scaling_enemies):
                         # Do not raise King Bomb's stats more than normal.
                         no_raise = isinstance(enemy, enemies.KingBomb)
+                        # dont raise def on jinx clone or bahamutt, gets ridiculous and or boring. attack tho, learn 2 block
+                        no_raise_defense = isinstance(enemy, enemies.Bahamutt) or isinstance(enemy, enemies.JinxClone)
+
 
                         enemy.hp = min(int(round(stats['hp'] * enemy.ratio_hp)), enemy.hp if no_raise else 65535)
                         enemy.attack = min(int(round(stats['attack'] * enemy.ratio_attack)),
                                            enemy.attack if no_raise else 255)
                         enemy.defense = min(int(round(stats['defense'] * enemy.ratio_defense)),
-                                            enemy.defense if no_raise else 255)
+                                            enemy.defense if no_raise or no_raise_defense else 255)
                         enemy.magic_attack = min(int(round(stats['magic_attack'] * enemy.ratio_magic_attack)),
                                                  enemy.magic_attack if no_raise else 255)
                         enemy.magic_defense = min(int(round(stats['magic_defense'] * enemy.ratio_magic_defense)),
-                                                  enemy.magic_defense if no_raise else 255)
+                                                  enemy.magic_defense if no_raise or no_raise_defense else 255)
                         enemy.evade = min(int(round(stats['evade'] * enemy.ratio_evade)), 100)
                         enemy.magic_evade = min(int(round(stats['magic_evade'] * enemy.ratio_magic_evade)), 100)
 
