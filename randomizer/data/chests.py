@@ -1131,6 +1131,11 @@ class NimbusLandShop(NonCoinChest):
     item = items.FrogCoin
     access = 1
 
+class NimbusLandInn(Reward):
+    area = locations.Area.NimbusLand
+    addresses = [0x1e122c]
+    item = items.RedEssence
+    access = 3
 
 class NimbusCastleBeforeBirdo1(Chest):
     area = locations.Area.NimbusLand
@@ -1760,6 +1765,7 @@ def get_default_chests(world):
         ThreeMustyFears(world),
         TroopaClimb(world),
         DodoReward(world),
+        NimbusLandInn(world),
         NimbusLandPrisoners(world),
         NimbusLandSignalRing(world),
         NimbusLandCellar(world),
