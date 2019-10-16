@@ -6,7 +6,7 @@
         <div class="card-body">
             <p>First off, head on over to <a href="{% url 'randomizer:randomize' %}">Generate Randomize Game</a>
                 and provide your ROM.</p>
-            <p>If you'd like more detail on what the flags do, check out the 
+            <p>If you'd like more detail on what the flags do, check out the
                 <a href="{% url 'randomizer:options' %}">Flag Explanations</a> page.</p>
             <p>If you haven't played Super Mario RPG in a while, you should check out the
                 <a href="{% url 'randomizer:guide' %}">Player's Guide</a> page to jog your memory!</p>
@@ -29,11 +29,12 @@
             <p>Some emulators available:</p>
             <ul>
                 <li>
-                    <a href="http://www.snes9x.com" target="_blank">Snes9x</a>
+                    <a href="http://www.snes9x.com" target="_blank">Snes9x</a> <strong>*MOST RECOMMENDED*</strong>
                     <ul>
-                        <li>Very popular, generally the easiest to set up and use.</li>
+                        <li>Very popular, widely considered the overall best SNES emulator.</li>
+                        <li>Generally the easiest to set up and use compared to others.</li>
                         <li>Use version <strong>1.56 or later only</strong>! Anything prior to version 1.56 does not
-                            emulate the SA-1 chip properly.
+                            emulate the SA-1 chip properly. Get the latest stable version for best results.
                         </li>
                     </ul>
                 </li>
@@ -53,9 +54,20 @@
                     </ul>
                 </li>
                 <li>
-                    <a href="http://tasvideos.org/Bizhawk.html" target="_blank">Bizhawk</a>
+                    <s>Bizhawk</s> <strong>*DO NOT USE*</strong>
                     <ul>
                         <li>Based on the older Snes9x version 1.54 core, <strong>not recommended</strong>.</li>
+                    </ul>
+                </li>
+                <li>
+                    <s>ZSNES</s> <strong>*DO NOT USE*</strong>
+                    <ul>
+                        <li>ZSNES is no longer under active development and has a long history of accuracy problems with
+                            its emulation.
+                        </li>
+                        <li>Uses various speed hacks that do not emulate the games properly.</li>
+                        <li>Has known issues with SA-1 games, generally does not work with the randomizer.</li>
+                        <li><strong>Do not use this emulator at all.</strong></li>
                     </ul>
                 </li>
             </ul>
