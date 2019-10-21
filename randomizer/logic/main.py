@@ -10,6 +10,7 @@ import binascii
 from randomizer import data
 from . import bosses
 from . import bosses_overworld
+from . import credits
 from . import characters
 from . import chests
 from . import dialogs
@@ -724,6 +725,9 @@ class GameWorld:
 
         # This needs to happen after all battle script randomization.
         patch += assemble_battle_scripts(self)
+
+        # Credit update
+        patch += credits.update_credits(self)
 
         # Choose character for the file select screen.
         i = cursor_id
