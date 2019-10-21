@@ -45,7 +45,6 @@ wish_strings = list(map(compress, [
     '\n\n    I wish I was a little bit taller.',
     '\n\n    I wish I was a baller.',
     '\n\n    I wish for more wishes!',
-    '\n\n    I wish for more wishbones!',
     '\n\n    I wish I was in this game.',
     '\n\n    SMRPG is the best\n    Final Fantasy!',
     '\n\n    I wish this was\n    Ecco the Dolphin.',
@@ -75,7 +74,11 @@ wish_strings = list(map(compress, [
     '\n\n    I wish we raced using\n    currency that wasn\'t\n    also food.',
     '\n\n    I wish I had\n    Justin\'s luck.',
     '\n\n    Expecting a wish?\x03\n\n      TOO BAD.\n    WALUIGI TIME.',
-    '\n\n    It\'s now safe to turn off\n    your Super Nintendo.\x0D\xFF\n    Just kidding!'
+    '\n\n    It\'s now safe to turn off\n    your Super Nintendo.\x0D\xFF\n    Just kidding!',
+    '\n\n    No wish for you!!',
+    '\n\n    Tenth enemy has the wish!',
+    '\n\n    I wish I could grant\n    meta-wishes...',
+    '\n\n    I see the stars pieces,\n    but I have to find an\n    octagon!',
 ]))
 
 wish_dialogs = [
