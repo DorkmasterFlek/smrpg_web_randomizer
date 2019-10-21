@@ -4,6 +4,7 @@ from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 
 from . import spells
+from .utils import color_to_bytes, palette_to_bytes
 
 
 class StatGrowth:
@@ -273,28 +274,9 @@ class Character:
                 patch.add_data(level_addr, utils.ByteField(0xff).as_bytes())
 
         if self.palette:
-            def parse_colours(colours):
-                data = []
-                for colour in colours:
-                    # Sanitize to multiples of 8
-                    r = 8 * round(int(colour[0:2], 16) / 8)
-                    g = 8 * round(int(colour[2:4], 16) / 8)
-                    b = 8 * round(int(colour[4:6], 16) / 8)
-                    r = int(r / 8)
-                    g = int(g / 4)
-                    b = int(b / 2)
-                    r = format(r, 'x').zfill(2)
-                    g = format(g, 'x').zfill(2)
-                    b = format(b, 'x').zfill(2)
-                    bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
-                    bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
-                    data.append(int(bytestring1, 16))
-                    data.append(int(bytestring2, 16))
-                return data
-
-            colourbytes = parse_colours(self.palette.colours)
-            poisonbytes = parse_colours(self.palette.poison_colours)
-            underwaterbytes = parse_colours(self.palette.underwater_colours)
+            colourbytes = palette_to_bytes(self.palette.colours)
+            poisonbytes = palette_to_bytes(self.palette.poison_colours)
+            underwaterbytes = palette_to_bytes(self.palette.underwater_colours)
             for address in self.palette.starting_addresses:
                 patch.add_data(address, colourbytes)
             for address in self.palette.poison_addresses:
@@ -420,19 +402,7 @@ class Mario(Character):
                 i = colours[j]
                 if i is not None:
                     colour = self.palette.colours[i]
-                    # Sanitize to multiples of 8
-                    r = 8 * round(int(colour[0:2], 16) / 8)
-                    g = 8 * round(int(colour[2:4], 16) / 8)
-                    b = 8 * round(int(colour[4:6], 16) / 8)
-                    r = int(r / 8)
-                    g = int(g / 4)
-                    b = int(b / 2)
-                    r = format(r, 'x').zfill(2)
-                    g = format(g, 'x').zfill(2)
-                    b = format(b, 'x').zfill(2)
-                    bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
-                    bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
-                    patch.add_data(address + j*2, [int(bytestring1, 16), int(bytestring2, 16)])
+                    patch.add_data(address + j*2, color_to_bytes(colour))
 
         if self.palette is not None:
             special_palette([0, 1, 2, 3, 4, 6, 7, 8, 8, 10, 11, 11, 12, 13, 14], self.palette.doll_addresses[0])
