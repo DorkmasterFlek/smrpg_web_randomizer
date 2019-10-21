@@ -7,6 +7,7 @@ from . import attacks
 from . import battlescripts
 from . import items
 from . import spells
+from .utils import palette_to_bytes
 from .battletables import Monsters, Targets
 
 # Number of enemies
@@ -5647,23 +5648,8 @@ class Bundt(Enemy):
         patch = super().get_patch()
 
         if self.world.chocolate_cake:
-            data = []
-            for colour in ["A88878", "906858", "906858", "684838", "504028", "382018", "382010", "382818", "201800",
-                           "484020", "483020", "805848", "483020", "806050", "181818"]:
-                # Sanitize to multiples of 8
-                r = 8 * round(int(colour[0:2], 16) / 8)
-                g = 8 * round(int(colour[2:4], 16) / 8)
-                b = 8 * round(int(colour[4:6], 16) / 8)
-                r = int(r / 8)
-                g = int(g / 4)
-                b = int(b / 2)
-                r = format(r, 'x').zfill(2)
-                g = format(g, 'x').zfill(2)
-                b = format(b, 'x').zfill(2)
-                bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
-                bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
-                data.append(int(bytestring1, 16))
-                data.append(int(bytestring2, 16))
+            data = palette_to_bytes(["A88878", "906858", "906858", "684838", "504028", "382018", "382010", "382818", "201800",
+                "484020", "483020", "805848", "483020", "806050", "181818"])
             patch.add_data(0x2547AC, data)
         return patch
 
@@ -6458,23 +6444,8 @@ class Raspberry(Enemy):
         patch = super().get_patch()
 
         if self.world.chocolate_cake:
-            data = []
-            for colour in ["A88878", "806858", "704838", "685040", "604838", "503828", "685040", "684028", "482820",
-                           "584028", "684838", "382820", "402010", "583828", "281808"]:
-                # Sanitize to multiples of 8
-                r = 8 * round(int(colour[0:2], 16) / 8)
-                g = 8 * round(int(colour[2:4], 16) / 8)
-                b = 8 * round(int(colour[4:6], 16) / 8)
-                r = int(r / 8)
-                g = int(g / 4)
-                b = int(b / 2)
-                r = format(r, 'x').zfill(2)
-                g = format(g, 'x').zfill(2)
-                b = format(b, 'x').zfill(2)
-                bytestring1 = format(int(r[0], 16) + int(g[1], 16), 'x') + format(int(r[1], 16), 'x')
-                bytestring2 = format(int(b[0], 16), 'x') + format(int(b[1], 16) + int(g[0], 16), 'x')
-                data.append(int(bytestring1, 16))
-                data.append(int(bytestring2, 16))
+            data = palette_to_bytes(["A88878", "806858", "704838", "685040", "604838", "503828", "685040", "684028", "482820",
+                "584028", "684838", "382820", "402010", "583828", "281808"])
             patch.add_data(0x254770, data)
         return patch
 
