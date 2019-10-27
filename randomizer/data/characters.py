@@ -131,6 +131,7 @@ class Character:
     LEVEL_STATS = ["max_hp", "attack", "defense", "magic_attack", "magic_defense"]
 
     # Base stats.
+    original_name = ''
     index = 0
     starting_level = 1
     max_hp = 1
@@ -142,6 +143,11 @@ class Character:
     xp = 0
     learned_spells = {}
     palette = None
+    forest_maze_sprite_id = 0x0
+    mway_3_npc_id = []
+    mway_2_npc_id = []
+    mway_1_npc_id = []
+    moleville_sprite_id = 0x0
 
     # Placeholders for vanilla starting levelup growth and bonus numbers.
     starting_growths = ()

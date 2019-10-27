@@ -44,6 +44,8 @@ def _randomize_item(item):
 
         # Track increases and decreases for each stat.
         score = item.stat_point_value
+        if item.effect_type == "extra stats":
+            score = max((score + 15), round(score * 1.5))
         up_vals = dict([(u, 0) for u in ups])
         down_vals = dict([(d, 0) for d in downs])
 
@@ -124,7 +126,7 @@ def _randomize_item(item):
         elif item.tier == 4:
             odds = 1 / 8
         elif item.tier == 5:
-            odds = 1 / 16
+            odds = 3 / 32
         else:
             odds = 0
 
@@ -133,19 +135,51 @@ def _randomize_item(item):
 
         if odds > 0:
             # Instant KO protection.
-            item.prevent_ko = utils.coin_flip(odds)
+            KO_odds_factor = 1
+            if item.is_weapon:
+                KO_odds_factor /= 2
+            if item.effect_type in ["extra stats", "few effects"]:
+                KO_odds_factor /= 3
+            if item.effect_type in ["buffs", "elemental immunity"]:
+                KO_odds_factor *= 1.5
+            item.prevent_ko = utils.coin_flip(odds * KO_odds_factor)
 
             # Elemental immunities.
             item.elemental_immunities = []
-            for i in range(4, 7):
-                if utils.coin_flip(odds):
-                    item.elemental_immunities.append(i)
-
-            # Elemental resistances (don't add if we're already immune).
             item.elemental_resistances = []
-            for i in range(4, 7):
-                if i not in item.elemental_immunities and utils.coin_flip(odds):
-                    item.elemental_resistances.append(i)
+            if item.effect_type in ["normal", "buffs", "status protection"]:
+                elemental_multiplier = 0.5
+                if item.effect_type == "normal":
+                    elemental_multiplier = 1
+                if random.randint(1, 2) == 1:
+                    for i in range(4, 7):
+                        if utils.coin_flip(odds * elemental_multiplier):
+                            item.elemental_immunities.append(i)
+                        elif utils.coin_flip(odds * elemental_multiplier):
+                            item.elemental_resistances.append(i)
+                else:
+                    for i in range(4, 7):
+                        if utils.coin_flip(odds * elemental_multiplier):
+                            item.elemental_resistances.append(i)
+                        elif utils.coin_flip(odds * elemental_multiplier):
+                            item.elemental_immunities.append(i)
+            elif item.effect_type in ["extra stats", "few effects", "elemental resistance"]:
+                elemental_multiplier1 = 0.5
+                elemental_multiplier2 = 0.5
+                if item.effect_type == "elemental resistance":
+                    elemental_multiplier1 = 2.5
+                    elemental_multiplier2 = 1
+                for i in range(4, 7):
+                    if utils.coin_flip(odds * elemental_multiplier1):
+                        item.elemental_resistances.append(i)
+                    elif utils.coin_flip(odds * elemental_multiplier2):
+                        item.elemental_immunities.append(i)
+            else:
+                for i in range(4, 7):
+                    if utils.coin_flip(odds * 2):
+                        item.elemental_immunities.append(i)
+                    elif utils.coin_flip(odds * 2):
+                        item.elemental_resistances.append(i)
 
             # For certain namesake items, keep their status immunities so people don't get confused for safety.
             guaranteed_immunities = []
@@ -155,12 +189,17 @@ def _randomize_item(item):
 
             # Status immunities.
             item.status_immunities = []
+            status_multiplier = 1
+            if item.effect_type == "status protection":
+                status_multiplier = 2
+            elif item.effect_type in ["buffs", "extra stats", "few effects"]:
+                status_multiplier = 0.5
             for i in range(0, 7):
                 # Skip berserk status if the safety checks on enemy shuffle is not enabled.
                 if i == 4 and not item.world.settings.is_flag_enabled(flags.EnemyNoSafetyChecks):
                     continue
 
-                if utils.coin_flip(odds):
+                if utils.coin_flip(odds * status_multiplier):
                     item.status_immunities.append(i)
 
             # Add guaranteed immunities back.
@@ -168,15 +207,18 @@ def _randomize_item(item):
                 if i not in item.status_immunities:
                     item.status_immunities.append(i)
 
-            # Weight weapons more towards the status buffs, and weight armor/accessories towards immunities.
-            # For a special set of accessories, keep status buff odds the same as tier:
-            # Jinx Belt, Attack Scarf, Quartz Charm, Troopa Pin, Feather, Ghost Medal, Jump Shoes, Zoom Shoes
-            if item.index in (74, 76, 81, 89, 90, 91, 92, 94):
-                buff_odds = 1
-            elif item.is_weapon:
+            # Weight weapons more toward buffs than armors. Accessories weight based on their stat totals.
+            buff_odds = 1
+            if item.is_weapon or item.index in [74, 77, 92]:
                 buff_odds = 1 / 2
-            else:
+            elif item.is_armor or item.index in [78, 81, 82, 90, 91]:
                 buff_odds = 1 / 5
+            if item.effect_type == "buffs":
+                buff_odds *= 2.5
+            elif item.effect_type == "normal":
+                pass
+            else:
+                buff_odds *= 0.25
 
             # Status buffs.
             item.status_buffs = []
@@ -190,6 +232,141 @@ def randomize_all(world):
 
     :type world: randomizer.logic.main.GameWorld
     """
+    weapon_stats = []
+    weapon_tiers = []
+    armor_tiers = []
+    mega_armor = []
+    happy_armor = []
+    sailor_armor = []
+    fuzzy_armor = []
+    fire_armor = []
+    endgame_armor = []
+    pins_costs = []
+    mid_accessory_costs = []
+    high_accessory_costs = []
+
+    # Base Shuffle for equipment to set up for further shuffling
+    for item in world.items:
+        if not item.is_equipment or not item.world.settings.is_flag_enabled(flags.EquipmentStats):
+            continue
+        if random.randint(1, 10) == 1:
+            item.effect_type = random.choice(["normal", "buffs", "status protection", "elemental resistance", "elemental immunity", "extra stats", "few effects"])
+        if item.is_weapon:
+            temp_weapon_stat = (item.attack, item.price)
+            weapon_stats.append(temp_weapon_stat)
+            weapon_tiers.append(item.tier)
+        elif item.is_armor:
+            armor_tiers.append(item.tier)
+            if item.index in [41, 42, 44]:
+                temp_armor_stat = (item.defense, item.magic_defense)
+                mega_armor.append(temp_armor_stat)
+            elif item.index in [45, 46, 47, 48, 49]:
+                temp_armor_stat = (item.defense, item.magic_defense)
+                happy_armor.append(temp_armor_stat)
+            elif item.index in [50, 51, 52, 53, 54]:
+                temp_armor_stat = (item.defense, item.magic_defense)
+                sailor_armor.append(temp_armor_stat)
+            elif item.index in [55, 56, 57, 58]:
+                temp_armor_stat = (item.defense, item.magic_defense)
+                fuzzy_armor.append(temp_armor_stat)
+            elif item.index in [59, 60, 61, 62, 63]:
+                temp_armor_stat = (item.defense, item.magic_defense)
+                fire_armor.append(temp_armor_stat)
+            elif item.index in [64, 65, 66, 67, 68]:
+                temp_armor_stat = (item.defense, item.magic_defense)
+                endgame_armor.append(temp_armor_stat)
+        elif item.index in [84, 85, 86, 87]:
+            pins_costs.append(item.price)
+        # Zoom Shoes, Safety Badge, Jump Shoes, Amulet, Rare Scarf, B'Tub Ring, Feather, Signal Ring
+        elif item.index in [74, 75, 76, 78, 82, 83, 91, 93]:
+            mid_accessory_costs.append(item.price)
+        # Safety Ring, Attack Scarf, Ghost Medal, Jinx Belt, Troopa Pin
+        elif item.index in [77, 81, 89, 90, 92]:
+             high_accessory_costs.append(item.price)
+        # Scrooge Ring, EXP Booster, Coin Trick
+        elif item.index in [79, 80, 88]:
+             high_accessory_costs.append(round(item.price * 62.5))
+
+    random.shuffle(weapon_stats)
+    random.shuffle(weapon_tiers)
+    random.shuffle(armor_tiers)
+    random.shuffle(mega_armor)
+    random.shuffle(happy_armor)
+    random.shuffle(sailor_armor)
+    random.shuffle(fuzzy_armor)
+    random.shuffle(fire_armor)
+    random.shuffle(endgame_armor)
+    random.shuffle(pins_costs)
+    random.shuffle(mid_accessory_costs)
+    random.shuffle(high_accessory_costs)
+    mega_count = 0
+    happy_count = 0
+    sailor_count = 0
+    fuzzy_count = 0
+    fire_count = 0
+    endgame_count = 0
+
+    for item in world.items:
+        if not item.is_equipment or not item.world.settings.is_flag_enabled(flags.EquipmentStats):
+            continue
+        if item.is_weapon:
+            temp_weapon_stats = weapon_stats[(item.index - 5)]
+            item.attack = temp_weapon_stats[0]
+            item.price = temp_weapon_stats[1]
+            item.tier = weapon_tiers.pop()
+        elif item.is_armor:
+            item.tier = armor_tiers.pop()
+            if item.index in [41, 42, 44]:
+                temp_armor_stat = mega_armor[mega_count]
+                item.defense = temp_armor_stat[0]
+                item.magic_defense = temp_armor_stat[1]
+                mega_count += 1
+            elif item.index in [45, 46, 47, 48, 49]:
+                temp_armor_stat = happy_armor[happy_count]
+                item.defense = temp_armor_stat[0]
+                item.magic_defense = temp_armor_stat[1]
+                happy_count += 1
+            elif item.index in [50, 51, 52, 53, 54]:
+                temp_armor_stat = sailor_armor[sailor_count]
+                item.defense = temp_armor_stat[0]
+                item.magic_defense = temp_armor_stat[1]
+                sailor_count += 1
+            elif item.index in [55, 56, 57, 58]:
+                temp_armor_stat = fuzzy_armor[fuzzy_count]
+                item.defense = temp_armor_stat[0]
+                item.magic_defense = temp_armor_stat[1]
+                fuzzy_count += 1
+            elif item.index in [59, 60, 61, 62, 63]:
+                temp_armor_stat = fire_armor[fire_count]
+                item.defense = temp_armor_stat[0]
+                item.magic_defense = temp_armor_stat[1]
+                fire_count += 1
+            elif item.index in [64, 65, 66, 67, 68]:
+                temp_armor_stat = endgame_armor[endgame_count]
+                item.defense = temp_armor_stat[0]
+                item.magic_defense = temp_armor_stat[1]
+                endgame_count += 1
+        elif item.index in [84, 85, 86, 87]:
+            item.price = pins_costs.pop()
+        # Zoom Shoes, Safety Badge, Jump Shoes, Amulet, Rare Scarf, B'Tub Ring, Feather, Signal Ring
+        elif item.index in [74, 75, 76, 78, 82, 83, 91, 93]:
+            item.price = mid_accessory_costs.pop()
+        # Safety Ring, Attack Scarf, Ghost Medal, Jinx Belt, Troopa Pin
+        elif item.index in [77, 81, 89, 90, 92]:
+             item.price = high_accessory_costs.pop()
+        # Scrooge Ring, EXP Booster, Coin Trick
+        elif item.index in [79, 80, 88]:
+             item.price = round(high_accessory_costs.pop() / 62.5)
+
+    # Designate 1-4 magic weapons
+    if world.settings.is_flag_enabled(flags.EquipmentStats):
+        magic_weapon_count = random.randint(1, 4)
+        magic_weapon_candidates = []
+        for item in world.items:
+            if item.is_weapon and item.attack < 40:
+                magic_weapon_candidates.append(item)
+        for item in random.sample(magic_weapon_candidates, magic_weapon_count):
+            item.magic_weapon = True
 
     # Shuffle equipment stats and equip characters.
     for item in world.items:
@@ -246,6 +423,20 @@ def randomize_all(world):
                 item.hard_tier = 2
             else:
                 item.hard_tier = 1
+
+    # Useful debug function to print equipment property table.
+    """
+    for item in world.items:
+        if item.is_equipment:
+            print(item.name + " " * (19 - len(item.name)) + ": Sp:" + str(item.speed) + ", At:" + str(item.attack) + ", Df:" + str(item.defense) + ", MA:" + str(item.magic_attack) + ", MD:" + str(item.magic_defense) + "; "
+                  + ("KO" if item.prevent_ko else "") + (", " if (item.prevent_ko and item.status_immunities != []) else "") + ("Psn" if (2 in item.status_immunities) else "") + ("Mute" if (0 in item.status_immunities) else "")
+                  + ("Slp" if (1 in item.status_immunities) else "")  + ("SCrow" if (6 in item.status_immunities) else "") + ("Mush" if (5 in item.status_immunities) else "") + ("Fear" if (3 in item.status_immunities) else "")
+                  + ("Bsrk" if (4 in item.status_immunities) else "") + ("; " if (item.prevent_ko or item.status_immunities != []) else "") + ("Imm: " if item.elemental_immunities != [] else "")
+                  + ("Ic" if (4 in item.elemental_immunities) else "") + ("Fi" if (5 in item.elemental_immunities) else "") + ("Th" if (6 in item.elemental_immunities) else "") + ("Ju" if (7 in item.elemental_immunities) else "")
+                  + ("; " if item.elemental_immunities != [] else "") + ("Res: " if item.elemental_resistances != [] else "") + ("Ic" if (4 in item.elemental_resistances) else "") + ("Fi" if (5 in item.elemental_resistances) else "")
+                  + ("Th" if (6 in item.elemental_resistances) else "") + ("Ju" if (7 in item.elemental_resistances) else "")+ ("; " if item.elemental_resistances != [] else "") + ("Buffs: " if item.status_buffs != [] else "")
+                  + ("At" if (3 in item.status_buffs) else "") + ("Df" if (4 in item.status_buffs) else "") + ("MA" if (5 in item.status_buffs) else "") + ("MD" if (6 in item.status_buffs) else ""))
+    """
 
     # Shuffle shop contents and prices.
     free_shops = world.settings.is_flag_enabled(flags.FreeShops)

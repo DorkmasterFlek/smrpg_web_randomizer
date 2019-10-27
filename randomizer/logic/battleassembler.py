@@ -1,7 +1,7 @@
 from . import utils
 from .dialogs import allocate_string
 from .patch import Patch
-from randomizer.data import battlescripts 
+from randomizer.data import battlescripts
 from randomizer.data.attacks import EnemyAttack
 from randomizer.data.items import Item
 from randomizer.data.spells import Spell, CharacterSpell, EnemySpell
@@ -120,12 +120,12 @@ class BattleScriptAssember:
 
     def disable_command(self, arg_0):
         return self.db(0xF3, 0x01, arg_0)
-   
+
     def remove_items(self):
         return self.db(0xF4, 0x00, 0x00, 0x00)
 
     def return_items(self):
-        return self.db(0xF4, 0x00, 0x01, 0x00)        
+        return self.db(0xF4, 0x00, 0x01, 0x00)
 
     # FB Do nothing
     def if_command(self, arg_0, arg_1=None):
@@ -357,10 +357,10 @@ class BattleScript:
 
 
 def assemble_battle_scripts(world):
-    if not world.open_mode:
-        return
-
     patch = Patch()
+
+    if not world.open_mode:
+        return patch
 
     free_list = {
         0x3932AA: 10058, # Original battle script location
@@ -383,6 +383,6 @@ def assemble_battle_scripts(world):
         script_short = script_base & 0xFFFF
 
         patch.add_data(ptr_table_base + offset, utils.ByteField(script_short, num_bytes=2).as_bytes())
-        patch.add_data(script_base, script_bytes) 
+        patch.add_data(script_base, script_bytes)
 
     return patch

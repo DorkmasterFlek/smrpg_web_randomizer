@@ -64,6 +64,8 @@ class Item:
     arbitrary_value = 0
     vanilla_shop = False
     hard_tier = 0
+    magic_weapon = False
+    effect_type = "normal"
 
     # Flag to override whether we include the item stats in the patch data.  By default, we only include equipment but
     # a small handful of consumable items have their effects shuffled as well.
@@ -145,10 +147,16 @@ class Item:
 
         :rtype: list[str]
         """
-        if self.is_weapon:
+        if self.is_weapon and not self.magic_weapon:
             return ["attack"]
-        elif self.is_armor:
+        elif self.magic_weapon:
+            return ["magic_attack"]
+        # Exclude Work Pants and Super Suit, include Rare Scarf
+        elif (self.is_armor and self.index not in [43, 69]) or self.index == 82:
             return ["defense", "magic_defense"]
+        # Speed items are the Zoom Shoes and Feather
+        elif self.index in [74, 91]:
+            return ["speed"]
         return self.EQUIP_STATS
 
     @property
@@ -1251,6 +1259,7 @@ class SuperSuit(Item):
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 700
     rare = True
+    effect_type = "elemental immunity"
 
 
 class LazyShellArmor(Item):
@@ -1269,6 +1278,7 @@ class LazyShellArmor(Item):
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 222
     rare = True
+    effect_type = "elemental immunity"
 
 
 class ZoomShoes(Item):
@@ -1296,6 +1306,7 @@ class SafetyBadge(Item):
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 500
     rare = True
+    effect_type = "status protection"
 
 
 class JumpShoes(Item):
@@ -1328,6 +1339,7 @@ class SafetyRing(Item):
     status_immunities = [0, 1, 2, 3, 4, 5, 6]
     price = 800
     rare = True
+    effect_type = "elemental immunity"
 
 
 class Amulet(Item):
@@ -1345,6 +1357,7 @@ class Amulet(Item):
     elemental_resistances = [4, 5, 6, 7]
     price = 200
     rare = True
+    effect_type = "elemental resistance"
 
 
 class ScroogeRing(Item):
@@ -1371,6 +1384,7 @@ class ExpBooster(Item):
     frog_coin_item = True
     rare = True
     vanilla_shop = True
+    effect_type = "few effects"
 
 
 class AttackScarf(Item):
@@ -1427,6 +1441,7 @@ class AntidotePin(Item):
     status_immunities = [2]
     price = 28
     vanilla_shop = True
+    effect_type = "status protection"
 
 
 class WakeUpPin(Item):
@@ -1441,6 +1456,7 @@ class WakeUpPin(Item):
     status_immunities = [0, 1]
     price = 42
     vanilla_shop = True
+    effect_type = "status protection"
 
 
 class FearlessPin(Item):
@@ -1455,6 +1471,7 @@ class FearlessPin(Item):
     status_immunities = [3]
     price = 130
     vanilla_shop = True
+    effect_type = "status protection"
 
 
 class TrueformPin(Item):
@@ -1469,6 +1486,7 @@ class TrueformPin(Item):
     status_immunities = [5, 6]
     price = 60
     vanilla_shop = True
+    effect_type = "status protection"
 
 
 class CoinTrick(Item):
@@ -1482,6 +1500,7 @@ class CoinTrick(Item):
     frog_coin_item = True
     rare = True
     vanilla_shop = True
+    effect_type = "few effects"
 
 
 class GhostMedal(Item):
@@ -1494,6 +1513,7 @@ class GhostMedal(Item):
     status_buffs = [5, 6]
     price = 1600
     rare = True
+    effect_type = "buffs"
 
 
 class JinxBelt(Item):
@@ -1536,6 +1556,7 @@ class TroopaPin(Item):
     status_buffs = [3, 4]
     price = 1000
     rare = True
+    effect_type = "buffs"
 
 
 class SignalRing(Item):
@@ -1561,6 +1582,7 @@ class QuartzCharm(Item):
     status_buffs = [3, 4, 5, 6]
     price = 7
     rare = True
+    effect_type = "buffs"
 
 
 class Mushroom(Item):

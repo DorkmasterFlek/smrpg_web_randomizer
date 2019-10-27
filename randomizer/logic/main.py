@@ -25,24 +25,10 @@ from . import spells
 from . import utils
 from .patch import Patch
 from .battleassembler import assemble_battle_scripts
-from itertools import permutations
 
 # Current version number
-VERSION = '8.2.0'
+VERSION = '8.2beta2'
 
-def calcpointer(dec, origBytes=[]):
-    if (dec > 0xFFFF):
-        dec = dec % 0x10000
-    origBytes.reverse()
-    str = format(dec, 'x')
-    hexcode = str.zfill(4)
-    hexbytes = [int(hexcode[i:i + 2], 16) for i in range(0, len(hexcode), 2)]
-    iterator = 0
-    for by in origBytes:
-        hexbytes[iterator] += by
-        iterator += 1
-    hexbytes.reverse()
-    return hexbytes
 
 class Settings:
     def __init__(self, mode, debug_mode=False, flag_string=''):
@@ -236,6 +222,7 @@ class GameWorld:
         # Characters
         self.characters = data.characters.get_default_characters(self)
         self.character_join_order = self.characters[:]
+        self.meta_join_order = self.character_join_order.copy()
         self.levelup_xps = data.characters.LevelUpExps()
 
         # Spells
@@ -391,7 +378,7 @@ class GameWorld:
                     else:
                         message = character.original_name + " joins!"
                     messagestring = binascii.hexlify(bytes(message, encoding='ascii'))
-                    messagebytes = [int(messagestring[i:i+2],16) for i in range(0,len(messagestring),2)]
+                    messagebytes = [int(messagestring[i:i + 2], 16) for i in range(0, len(messagestring), 2)]
                     messagebytes.append(0x00)
                     # Append character join event and corresponding message to code
                     if self.settings.is_flag_enabled(flags.NoFreeCharacters):
@@ -419,31 +406,33 @@ class GameWorld:
             dialogue_iterator = 0
             for character in self.character_join_order:
                 dialogue_iterator += 1
-                #replace overworld characters in recruitment spots - there are no partitions identical to 89 that have CBC set to 3 instead of 4, so modify 89 since it's only used by this room
+                # replace overworld characters in recruitment spots - there are no partitions identical to 89 that have
+                # CBC set to 3 instead of 4, so modify 89 since it's only used by this room
 
                 if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 2:
-                    #mushroom way
+                    # mushroom way
                     patch.add_data(0x14b3BC, character.mway_1_npc_id)
                     patch.add_data(0x14b411, character.mway_2_npc_id)
                     patch.add_data(0x14b452, character.mway_3_npc_id)
-                    #change partition to accommodate mallow's sprite in mway
+                    # change partition to accommodate mallow's sprite in mway
                     if character.name is "Mallow":
                         patch.add_data(0x1ddf67, 0x80)
-                if (dialogue_iterator == 4 and not self.settings.is_flag_enabled(flags.NoFreeCharacters)) or (self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 3):
-                    #forest maze
+                if ((dialogue_iterator == 4 and not self.settings.is_flag_enabled(flags.NoFreeCharacters)) or
+                        (self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 3)):
+                    # forest maze
                     patch.add_data(0x14b8eb, character.forest_maze_sprite_id)
                     if character.name is "Mario":
                         patch.add_data(0x215e4f, 0x42)
                         patch.add_data(0x215e56, 0x12)
                 if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 4:
-                    #moleville
+                    # moleville
                     patch.add_data(0x14c491, character.moleville_sprite_id)
                     if character.name in ["Mario", "Peach", "Geno"]:
-                        #patch moleville minecart room partition
+                        # patch moleville minecart room partition
                         patch.add_data(0x1DDF45, 0x81)
                         if character.name is "Mario":
                             patch.add_data(0x1DB801, 0x00)
-                    #make cutscene look less weird
+                    # make cutscene look less weird
                     if character.name is not "Bowser":
                         patch.add_data(0x201F04, [0x3D, 0x02, 0x63])
                         if character.name is "Mario":
@@ -459,7 +448,7 @@ class GameWorld:
                     # show character in marrymore
                     patch.add_data(0x14a94d, character.forest_maze_sprite_id)
                     patch.add_data(0x148f91, character.forest_maze_sprite_id)
-                    #fix booster hill solidity
+                    # fix booster hill solidity
                     if character.name is "Mallow":
                         patch.add_data(0x1DB819, [0x56, 0x2C])
                     elif character.name is "Geno":
@@ -469,7 +458,7 @@ class GameWorld:
                     elif character.name is "Peach":
                         patch.add_data(0x1DB80B, 0x56)
                     if character.name is not "Peach":
-                        #marrymore sequence
+                        # marrymore sequence
                         if character.name is "Mario":
                             # surprised
                             patch.add_data(0x20d338, [0x08, 0x43, 0x00])
@@ -494,7 +483,7 @@ class GameWorld:
                             patch.add_data(0x20d5d8, [0x08, 0x43, 0x80])
                             # crying in other direction
                             patch.add_data(0x20d5e3, [0x08, 0x43, 0x84])
-                            #booster hill
+                            # booster hill
                             patch.add_data(0x207147, [0x08, 0x43, 0x89])
                             patch.add_data(0x20714E, [0x08, 0x43, 0x09])
                             patch.add_data(0x207160, [0x08, 0x43, 0x89])
@@ -525,10 +514,33 @@ class GameWorld:
                             patch.add_data(0x206F40, [0x08, 0x42, 0x09])
                             if character.name is "Geno":
                                 # crying
-                                patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
-                                patch.add_data(0x20d4db, [0x08, 0x40, 0x0B])
+                                patch.add_data(0x20d464, [0x10, 0x80])
+                                patch.add_data(0x20d466, [0x08, 0x43, 0x03])
+                                # surprised
+                                patch.add_data(0x20d48c, [0x08, 0x43, 0x00])
+                                # looking down
+                                patch.add_data(0x20d4d4, [0x08, 0x48, 0x06])
+                                # crying
+                                patch.add_data(0x20d4d9, [0x10, 0x80])
+                                patch.add_data(0x20d4db, [0x08, 0x43, 0x03])
+                                # surprised reversed
+                                patch.add_data(0x20d5d8, [0x08, 0x43, 0x80])
                                 # crying in other direction
-                                patch.add_data(0x20d5e3, [0x08, 0x40, 0x8C])
+                                patch.add_data(0x20d5e3, [0x08, 0x43, 0x84])
+                            else:
+                                # surprised
+                                patch.add_data(0x20d338, [0x08, 0x42, 0x00])
+                                patch.add_data(0x20d48c, [0x08, 0x42, 0x00])
+                                # surprised reversed
+                                patch.add_data(0x20d5d8, [0x08, 0x42, 0x80])
+                                # sitting
+                                patch.add_data(0x20d43b, [0x08, 0x49, 0x1f])
+                                if character.name is "Geno":
+                                    # crying
+                                    patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
+                                    patch.add_data(0x20d4db, [0x08, 0x40, 0x0B])
+                                    # crying in other direction
+                                    patch.add_data(0x20d5e3, [0x08, 0x40, 0x8C])
 
         else:
             # For standard mode, Mario is the first character.  Update the other four only.
@@ -548,7 +560,13 @@ class GameWorld:
                     0x3ab95a,
             ):
                 patch.add_data(addr, self.character_join_order[1].index)
-        cursor_id = self.character_join_order[0].index
+
+        # Use first character to join as file select cursor.
+        cursor_id = 0
+        for character in self.character_join_order:
+            if character is not None:
+                cursor_id = character.index
+                break
 
         # Learned spells and level-up exp.
         patch += self.levelup_xps.get_patch()
@@ -702,7 +720,7 @@ class GameWorld:
                                       0x6D, 0x69, 0x74, 0x68, 0x79, 0x3F, 0x02, 0x08, 0x07, 0x20, 0x28, 0x4E, 0x6F,
                                       0x29, 0x01, 0x08, 0x07, 0x20, 0x28, 0x59, 0x65, 0x73, 0x29, 0x00])
 
-        #Overworld boss sprites
+        # Overworld boss sprites
         patch += bosses_overworld.patch_overworld_bosses(self)
 
         # This needs to happen after all battle script randomization.

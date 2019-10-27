@@ -385,7 +385,8 @@ class Enemy:
         if self.world.open_mode and self.hp_counter_ratios:
             self.fix_hp_counters()
 
-        if type(self) in (MarioClone, MallowClone, GenoClone, BowserClone, PeachClone):
+        if self.world.settings.is_flag_enabled(flags.NoOHKO) and type(self) in (
+                MarioClone, MallowClone, GenoClone, BowserClone, PeachClone):
             for i in range(len(self.script)):
                 name, args = self.script[i]
                 if name == 'if_item':
