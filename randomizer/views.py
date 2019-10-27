@@ -8,7 +8,7 @@ import string
 import tempfile
 import shutil
 
-import Wii
+#import Wii
 import nlzss
 
 from django.conf import settings
