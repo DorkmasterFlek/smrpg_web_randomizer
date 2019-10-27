@@ -282,7 +282,7 @@ def patch_overworld_bosses(world):
 
             returnBytes = [];
             for i in range(len(self.npc)):
-                if self.level in [109, 115, 122, 120, 110, 341, 155, 113, 119, 408, 499, 501, 440, 497]:
+                if self.level in [109, 115, 122, 120, 110, 341, 155, 113, 119, 408, 499, 501, 440, 497, 447]:
                     returnBytes.extend([(0x14 + self.npc[i]), 0x83])
                     if not self.is_sequence_and_not_mold:
                         if not self.reverse[i]:
@@ -325,7 +325,7 @@ def patch_overworld_bosses(world):
                 npcs = self.npc
             for npc in npcs:
                 rb = [];
-                if self.level in [109, 115, 122, 120, 110, 341, 155, 113, 119, 408, 499, 501, 440, 497]:
+                if self.level in [109, 115, 122, 120, 110, 341, 155, 113, 119, 408, 499, 501, 440, 497, 447]:
                     if not self.is_sequence_and_not_mold:
                         if not self.reverse:
                             rb.extend([0x08, 0x18 + self.sprite, self.mold])
@@ -736,6 +736,7 @@ def patch_overworld_bosses(world):
                 is_scarecrow = False
 
             # print (shuffled_boss.name, invert_se_sw)
+
 
             if location.name == "HammerBros":
                 #location.name + ": " + shuffled_boss.name)
@@ -2298,6 +2299,8 @@ def patch_overworld_bosses(world):
                                                         0x20f299).export_sprite_load())
                     else:
                         patch.add_data(0x1fdb28, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                    if shuffled_boss.name in ["Pandorite", "Hidon", "HammerBro", "Culex", "BoxBoy", "DodoSolo"]: # shift up a little bit
+                        patch.add_data(0x14BE33, 0xC6)
 
             if location.name == "Dodo":
                 # always replace npc sprite here, it's normally just the feather
@@ -2624,6 +2627,8 @@ def patch_overworld_bosses(world):
                         spritePhaseEvents.append(
                             SpritePhaseEvent([0, 1], plus, mold, sub_sequence, [0, 0], [True, True], 497, 15,
                                              0x20FD96))
+                        spritePhaseEvents.append(
+                            SpritePhaseEvent([1, 2, 3, 4], plus, [mold, mold, mold, mold], sub_sequence, [1, 1, 0, 0], [True, True, True, True], 447, 3756, 0x20FACF))
                         #wont face properly unless you set all to face south
                         patch.add_data(0x149e56, 0x23)
                         patch.add_data(0x149e5A, 0x23)
@@ -2653,6 +2658,10 @@ def patch_overworld_bosses(world):
                         patch.add_data(0x14EDC2, 0x21)
                         patch.add_data(0x14EE20, 0x21)
                         patch.add_data(0x14EE24, 0x21)
+                        patch.add_data(0x14e306, 0x25)
+                        patch.add_data(0x14e30A, 0x25)
+                        patch.add_data(0x14e30E, 0x25)
+                        patch.add_data(0x14e312, 0x25)
                     elif shuffled_boss.name in ["Clerk", "Manager", "Director"]:
                         patch.add_data(0x149eAB, 0x61)
                         patch.add_data(0x149eAF, 0x61)
@@ -2673,6 +2682,10 @@ def patch_overworld_bosses(world):
                         patch.add_data(0x14EDC2, 0x21)
                         patch.add_data(0x14EE20, 0x21)
                         patch.add_data(0x14EE24, 0x61)
+                        patch.add_data(0x14e306, 0x25)
+                        patch.add_data(0x14e30A, 0x25)
+                        patch.add_data(0x14e30E, 0x65)
+                        patch.add_data(0x14e312, 0x65)
                         spritePhaseEvents.append(
                             SpritePhaseEvent([3, 4, 5], plus, mold, sub_sequence, [1, 1, 1],
                                              [True, True, True], 341, 737, 0x20F595))
@@ -2712,6 +2725,8 @@ def patch_overworld_bosses(world):
                         spritePhaseEvents.append(
                             SpritePhaseEvent([0, 1], plus, mold, sub_sequence, [1, 1], [True, True], 497, 15,
                                              0x20FD96))
+                        spritePhaseEvents.append(
+                            SpritePhaseEvent([1, 2, 3, 4], plus, [mold, mold, mold, mold], sub_sequence, [0, 0, 1, 1], [False, False, True, True], 447, 3756, 0x20FACF))
                     elif sequence > 0 or statue_mold is not None or sesw_only or freeze:
                         mold = statue_mold
                         if sequence == 0:
@@ -2728,6 +2743,10 @@ def patch_overworld_bosses(world):
                             patch.add_data(0x149fbc, 0x61)
                             patch.add_data(0x14a14d, 0x61)
                             patch.add_data(0x14a1f7, 0x63)
+                            patch.add_data(0x14e306, 0x65)
+                            patch.add_data(0x14e30A, 0x65)
+                            patch.add_data(0x14e30E, 0x65)
+                            patch.add_data(0x14e312, 0x65)
                             #post-fight statues
                             patch.add_data(0x149F62, 0x61)
                             patch.add_data(0x14A13C, 0x61)
@@ -2786,6 +2805,8 @@ def patch_overworld_bosses(world):
                             spritePhaseEvents.append(
                                 SpritePhaseEvent([0, 1], plus, [mold, mold], sub_sequence, [sequence, sequence], [False, False], 497, 15,
                                              0x20FD96))
+                            spritePhaseEvents.append(
+                                SpritePhaseEvent([1, 2, 3, 4], plus, [mold, mold, mold, mold], sub_sequence, [sequence, sequence, sequence, sequence], [False, False, False, False], 447, 3756, 0x20FACF))
                         else:
                             spritePhaseEvents.append(
                                 SpritePhaseEvent([3, 4, 5], plus, [mold, mold, mold], sub_sequence, [sequence,
@@ -2829,6 +2850,8 @@ def patch_overworld_bosses(world):
                             spritePhaseEvents.append(
                                 SpritePhaseEvent([0, 1], plus, [mold, mold], sub_sequence, [sequence, sequence], [True, False], 497, 15,
                                              0x20FD96))
+                            spritePhaseEvents.append(
+                                SpritePhaseEvent([1, 2, 3, 4], plus, [mold, mold, mold, mold], sub_sequence, [sequence, sequence, sequence, sequence], [True, True, False, False], 447, 3756, 0x20FACF))
 
 
 
@@ -2845,6 +2868,7 @@ def patch_overworld_bosses(world):
                         northwest_501 = [1]
                         northwest_440 = [1]
                         northwest_497 = [0, 1]
+                        northwest_447 = [3, 4]
 
                         northeast_110 = [0, 1, 2]
 
@@ -2857,6 +2881,7 @@ def patch_overworld_bosses(world):
                         south_499 = [1, 4]
                         south_501 = [0]
                         south_440 = [0]
+                        south_447 = [1, 2]
 
                         if not sesw_only:
                             if len(total_shift) > 1:
@@ -2888,6 +2913,10 @@ def patch_overworld_bosses(world):
                                     npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
                                     new_preloader_event(440, npc_queue, 3740, 0x20FA73)
+                                for npc in south_447:
+                                    npc_queue = [0x14 + npc, len(total_shift)]
+                                    npc_queue.extend(total_shift)
+                                    new_preloader_event(447, npc_queue, 3756, 0x20FACF)
                                 if overworld_is_skinny:
                                     for npc in south_119:
                                         npc_queue = [0x14 + npc, len(total_shift)]
@@ -2945,6 +2974,10 @@ def patch_overworld_bosses(world):
                                     npc_queue = [0x14 + npc, len(total_opposite_shift)]
                                     npc_queue.extend(total_opposite_shift)
                                     new_preloader_event(497, npc_queue, 15, 0x20FD96)
+                                for npc in northwest_447:
+                                    npc_queue = [0x14 + npc, len(total_opposite_shift)]
+                                    npc_queue.extend(total_opposite_shift)
+                                    new_preloader_event(447, npc_queue, 3756, 0x20FACF)
                                 if overworld_is_skinny:
                                     for npc in northwest_119:
                                         npc_queue = [0x14 + npc, len(total_opposite_shift)]
@@ -2984,6 +3017,10 @@ def patch_overworld_bosses(world):
                                     npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
                                     new_preloader_event(440, npc_queue, 3740, 0x20FA73)
+                                for npc in south_447:
+                                    npc_queue = [0x14 + npc, len(total_shift)]
+                                    npc_queue.extend(total_shift)
+                                    new_preloader_event(447, npc_queue, 3756, 0x20FACF)
                                 for npc in northwest_109:
                                     npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
@@ -3031,6 +3068,10 @@ def patch_overworld_bosses(world):
                                     npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
                                     new_preloader_event(497, npc_queue, 15, 0x20FD96)
+                                for npc in northwest_447:
+                                    npc_queue = [0x14 + npc, len(total_shift)]
+                                    npc_queue.extend(total_shift)
+                                    new_preloader_event(447, npc_queue, 3756, 0x20FACF)
                                 if overworld_is_skinny or shuffled_boss.name in ["DodoSolo", "Culex"]:
                                     for npc in northwest_119:
                                         npc_queue = [0x14 + npc, len(total_shift)]
@@ -3141,6 +3182,9 @@ def patch_overworld_bosses(world):
                         ##room 497
                         # change partition to 9
                         patch.add_data(0x14ED40, 0x09)
+                        ##room 447
+                        # change partition to 64
+                        patch.add_data(0x14E2EE, 0x40)
                     else:
                         #remove statue in room 113, partitions are too screwy in here due to the statue swap
                         new_preloader_event(113, [0xF2, 0x71, 0x2E, 0x17, 0xF9], 15, 0x20EB1F)
@@ -3175,6 +3219,9 @@ def patch_overworld_bosses(world):
                             # use parition 32
                             patch.add_data(0x14ED9E, 0x20)
                             remove_shadows(499, 9, 3762, 0x20FDA2)
+                            ##room 447
+                            # change partition to 10, like room 122
+                            patch.add_data(0x14E2EE, 0x0A)
                         else:
                             # countdown, hammerbro, chest monsters all work with this
                             # change npc properties
@@ -3210,6 +3257,9 @@ def patch_overworld_bosses(world):
                             # use parition 32
                             patch.add_data(0x14ED9E, 0x20)
                             remove_shadows(499, 9, 3762, 0x20FDA2)
+                            ##room 447
+                            # change partition to 32
+                            patch.add_data(0x14E2EE, 0x20)
                             if shuffled_boss.name in ["CountDown", "HammerBro"]:
                                 #remove birds in room 499, graphics engine cant handle all NPCs and size 1 sprites
                                 new_preloader_event(499, [0xF2, 0xF3, 0x39, 0xF2, 0xF3, 0x3B, 0x1C, 0xF9, 0x1D, 0xF9], 3762, 0x20FDA2)
@@ -3249,6 +3299,10 @@ def patch_overworld_bosses(world):
                         patch.add_data(0x14CD80, 0x99)
                         patch.add_data(0x14CD84, 0x98)
                         patch.add_data(0x14CD88, 0x97)
+                        patch.add_data(0x14E305, 0xF2)
+                        patch.add_data(0x14E309, 0xEE)
+                        patch.add_data(0x14E30D, 0xF2)
+                        patch.add_data(0x14E311, 0xF6)
 
 
                 else: #shift vanilla statues
@@ -3856,8 +3910,6 @@ def patch_overworld_bosses(world):
             if location.name == "Clerk":
                 #print(location.name + ": " + shuffled_boss.name)
                 # fix cannon action scripts
-                patch.add_data(0x219565, [0x08, 0x40, 0x01])
-                patch.add_data(0x2195B9, [0x08, 0x40, 0x02])
                 if shuffled_boss.name is not "Clerk":
                     if fat_sidekicks and shuffled_boss.name in ["Booster", "Bundt", "Clerk", "Manager", "Director",
                                                                 "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello",
@@ -3871,9 +3923,6 @@ def patch_overworld_bosses(world):
                         # use partition 32
                         patch.add_data(0x14E798, 0x20)
                     # change sequence 01 of Clerk, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
-                    patch.add_data(0x265f53, 0x02)
-                    patch.add_data(0x265F56, 0x01)
-                    patch.add_data(0x265f82, 0x43)
                     if freeze or sequence > 0 or mold > 0:
                         sub_sequence = True
                     if sequence == 0 and mold > 0:
@@ -3897,10 +3946,6 @@ def patch_overworld_bosses(world):
             if location.name == "Manager":
                 #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Manager":
-                    # change sequence 01 of Manager, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
-                    patch.add_data(0x36923e, 0x02)
-                    patch.add_data(0x369241, 0x01)
-                    patch.add_data(0x36926d, 0x43)
                     if freeze or sequence > 0 or mold > 0:  # never change directions
                         sub_sequence = True
                     if sequence == 0 and mold > 0:
@@ -3922,10 +3967,6 @@ def patch_overworld_bosses(world):
                     patch.add_data(0x1fe69c, [0x9b, 0x9b, 0x9b])
 
             if location.name == "Director":
-                # chance sequence 01 of Director, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
-                patch.add_data(0x369296, 0x02)
-                patch.add_data(0x369299, 0x01)
-                patch.add_data(0x3692C5, 0x43)
                 #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Director":
                     if shuffled_boss.name is "Mack":
