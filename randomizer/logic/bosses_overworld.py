@@ -282,7 +282,7 @@ def patch_overworld_bosses(world):
 
             returnBytes = [];
             for i in range(len(self.npc)):
-                if self.level in [109, 115, 122, 120, 110, 341, 155, 113, 119, 408, 499, 501, 440, 497]:
+                if self.level in [109, 115, 122, 120, 110, 341, 155, 113, 119, 408, 499, 501, 440, 497, 447]:
                     returnBytes.extend([(0x14 + self.npc[i]), 0x83])
                     if not self.is_sequence_and_not_mold:
                         if not self.reverse[i]:
@@ -325,7 +325,7 @@ def patch_overworld_bosses(world):
                 npcs = self.npc
             for npc in npcs:
                 rb = [];
-                if self.level in [109, 115, 122, 120, 110, 341, 155, 113, 119, 408, 499, 501, 440, 497]:
+                if self.level in [109, 115, 122, 120, 110, 341, 155, 113, 119, 408, 499, 501, 440, 497, 447]:
                     if not self.is_sequence_and_not_mold:
                         if not self.reverse:
                             rb.extend([0x08, 0x18 + self.sprite, self.mold])
@@ -737,6 +737,7 @@ def patch_overworld_bosses(world):
 
             # print (shuffled_boss.name, invert_se_sw)
 
+
             if location.name == "HammerBros":
                 #location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "HammerBro":
@@ -753,312 +754,311 @@ def patch_overworld_bosses(world):
 
             if location.name == "Croco1":
                 #print(location.name + ": " + shuffled_boss.name)
-                if shuffled_boss.name not in ["Croco1", "Croco2"]:
-                    # use npc 110, set properties to match croco's
-                    for addr in [0x1495e1, 0x14963a, 0x14969f, 0x14b4c7, 0x14b524]:
-                        patch.add_data(addr, [0xBB, 0x01])
-                    # replace its sprite
-                    if shuffled_boss.name is "CountDown":
-                        patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x28]), shadow, solidity, y_shift, location))
-                        #patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x28]).extend([0x80, 0x22, 0x55, 0x2A, 0x00]));
-                    elif freeze or sesw_only:
-                        patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x08]), shadow, solidity, y_shift, location))
-                        #patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x08]).extend([0x80, 0x22, 0x55, 0x2A, 0x00]));
+                # use npc 110, set properties to match croco's
+                for addr in [0x1495e1, 0x14963a, 0x14969f, 0x14b4c7, 0x14b524]:
+                    patch.add_data(addr, [0xBB, 0x01])
+                # replace its sprite
+                if shuffled_boss.name is "CountDown":
+                    patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x28]), shadow, solidity, y_shift, location))
+                    #patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x28]).extend([0x80, 0x22, 0x55, 0x2A, 0x00]));
+                elif freeze or sesw_only:
+                    patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x08]), shadow, solidity, y_shift, location))
+                    #patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x08]).extend([0x80, 0x22, 0x55, 0x2A, 0x00]));
+                else:
+                    patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x00]), shadow, solidity, y_shift, location))
+                    #patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x00]).extend([0x80, 0x22, 0x55, 0x2A, 0x00]));
+                # need to change a lot of things in bandit's way to get every boss to work
+                sub_sequence = False
+                if sequence > 0:
+                    sub_sequence = True
+                # bandits way 1
+                if sequence > 0 or mold > 0:
+                    spritePhaseEvents.append(
+                        SpritePhaseEvent(5, plus, mold, sub_sequence, sequence, False, 76, 1714, 0x20e8e0))
+                if not freeze:
+                    if extra_sequence is not False:
+                        patch.add_data(0x1f3bac, [0x08, 0x40, 0x80 + extra_sequence])
                     else:
-                        patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x00]), shadow, solidity, y_shift, location))
-                        #patch.add_data(0x1DBB02, calcpointer(sprite, [0x00, 0x00]).extend([0x80, 0x22, 0x55, 0x2A, 0x00]));
-                    # need to change a lot of things in bandit's way to get every boss to work
-                    sub_sequence = False
-                    if sequence > 0:
-                        sub_sequence = True
-                    # bandits way 1
+                        patch.add_data(0x1f3bac, [0x08, 0x40 + plus, 0x80 + sequence])
+                else:
+                    patch.add_data(0x1f3bac, [0x9b, 0x9b, 0x9b])
+                if invert_se_sw or freeze:  # scarecrow needs a special script
+                    scarecrow_script = []
+                    scarecrow_script.append([0xFD, 0x0F, 0x03, 0x10, 0xC1])
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append(
+                        [0x43, 0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0x52, 0x04, 0xFD, 0x9E, 0x21, 0x7F, 0x6C, 0x00])
+                    scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x51, 0x06, 0xFD, 0x0E, 0x10, 0xC2, 0x50, 0x06, 0x01])
+                    add_scarecrow_script(5, scarecrow_script, 0x1f3bed, True)
+                if freeze or sequence > 0 or (not sub_sequence and mold > 0):  # dont reset properties
+                    patch.add_data(0x1f3bb1, [0x9b])
+                # bandits way 2
+                if sequence > 0 or mold > 0:
+                    spritePhaseEvents.append(
+                        SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 207, 1702, 0x20F07b))
+                if not freeze:
+                    if extra_sequence is not False:
+                        patch.add_data(0x1f3541, [0x08, 0x40, 0x80 + extra_sequence])
+                    else:
+                        patch.add_data(0x1f3541, [0x08, 0x40 + plus, 0x80 + sequence])
+                else:
+                    patch.add_data(0x1f3541, [0x9b, 0x9b, 0x9b])
+                if invert_se_sw or freeze:  # scarecrow needs a special script
+                    #####
+                    #####first script
+                    scarecrow_script = []
+                    # clear solidity, play sound jump, pause
+                    scarecrow_script.append([0x0C, 0x04, 0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x07])
+                    # dont reset
+                    scarecrow_script.append([0x9B])
+                    # face southwest
+                    scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
+                    # pause for 8 frames
+                    scarecrow_script.append([0xF0, 0x07])
+                    # face northwest
+                    scarecrow_script.append(get_directional_command(plus, northwest, True, sequence, is_scarecrow))
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3546, False)
+                    #####
+                    #####second script
+                    scarecrow_script = []
+                    scarecrow_script.append([0x04, 0x10, 0xC1])
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x57, 0x02])
+                    scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x41, 0x13, 0x03, 0xFD, 0x0F, 0x03])
+                    scarecrow_script.append(get_directional_command(plus, northeast, True, sequence, is_scarecrow))
+                    scarecrow_script.append(
+                        [0x0B, 0x04, 0xF0, 0x0C, 0xFD, 0x9E, 0x21, 0x7F, 0x90, 0x00, 0x57, 0x04, 0x67, 0x10])
+                    scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
+                    # everything else
+                    scarecrow_script.append(
+                        [0x06, 0xF0, 0x09, 0x60, 0x32, 0xFD, 0x9E, 0x21, 0x7F, 0x50, 0x00, 0x60, 0x28, 0xF0, 0x00])
+                    scarecrow_script.append([0xFD, 0x3D, 0x1C, 0x8B, 0x35])
+                    scarecrow_script.append([0x10, 0xC1, 0xFD, 0x9E, 0x21, 0x7F, 0x80, 0x00, 0x50, 0x04, 0x01])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3561, True)
+                elif sequence > 0 or (not sub_sequence and mold > 0):  # dont reset properties
+                    patch.add_data(0x1f3552, [0x9b])
+                # bandits way 3
+                if sequence > 0 or mold > 0:
+                    spritePhaseEvents.append(
+                        SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 77, 1713, 0x20e8e3))
+                if not freeze:
+                    if extra_sequence is not False:
+                        patch.add_data(0x1f3b81, [0x08, 0x40, 0x80 + extra_sequence])
+                    else:
+                        patch.add_data(0x1f3b81, [0x08, 0x40 + plus, 0x80 + sequence])
+                else:
+                    patch.add_data(0x1f3b81, [0x9b, 0x9b, 0x9b])
+                if invert_se_sw or freeze:  # scarecrow needs a special script
+                    scarecrow_script = []
+                    scarecrow_script.append([0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x1D])
+                    scarecrow_script.append([0x9B])
+                    scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3b86, False)
+                    # action script replacements
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x80, 0x14, 0x6C])
+                    add_scarecrow_script(None, scarecrow_script, 0x211fe1, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x55, 0x02, 0x10, 0xC2])
+                    add_scarecrow_script(None, scarecrow_script, 0x211ff1, False)
+                    scarecrow_script = []
+                    scarecrow_script.append([0x92, 0x18, 0x52, 0x00, 0x00])
+                    scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
+                    add_scarecrow_script(None, scarecrow_script, 0x211ff5, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x55, 0x09, 0x10, 0xC2])
+                    add_scarecrow_script(None, scarecrow_script, 0x212018, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x57, 0x02, 0x10, 0xC1])
+                    add_scarecrow_script(None, scarecrow_script, 0x212022, False)
+                    scarecrow_script = []
+                    scarecrow_script.append([0x92, 0x18, 0x2b, 0x00, 0x00])
+                    scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
+                    add_scarecrow_script(None, scarecrow_script, 0x212026, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x55, 0x04, 0x10, 0xC1])
+                    add_scarecrow_script(None, scarecrow_script, 0x212044, False)
+                    scarecrow_script = []
+                    scarecrow_script.append([0x92, 0x14, 0x10, 0x00, 0x00])
+                    scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
+                    add_scarecrow_script(None, scarecrow_script, 0x212054, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x57, 0x05, 0x01])
+                    add_scarecrow_script(None, scarecrow_script, 0x21206D, False)
+                elif sequence > 0 or (not sub_sequence and mold > 0):  # dont reset properties
+                    patch.add_data(0x1f3b90, [0x9b])
+                # bandits way 4
+                #new_preloader_event(78, [0xF2, 0xCE, 0x3C], 1698, 0x20e8e6)
+                if invert_se_sw or freeze:  # scarecrow needs a special script
+                    spritePhaseEvents.append(SpritePhaseEvent(12, plus, mold, True, sequence, False, 78, 1698, 0x20e8e6))
+                    #####script 1
+                    scarecrow_script = []
+                    scarecrow_script.append([0xFD, 0x01, 0x00, 0x04, 0x67, 0x01, 0x06, 0x62, 0x08, 0x07])
+                    scarecrow_script.append(get_directional_command(plus, northeast, True, sequence, is_scarecrow))
+                    add_scarecrow_script(12, scarecrow_script, 0x1f33c4, True)
+                    #####script 2
+                    scarecrow_script = []
+                    scarecrow_script.append([0xF0, 0x13])
+                    scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
+                    scarecrow_script.append([0xF0, 0x07])
+                    scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
+                    scarecrow_script.append([0xF0, 0x13, 0x53, 0x03, 0x10, 0x80])
+                    add_scarecrow_script(12, scarecrow_script, 0x1f3402, False)
+                    #####script 3
+                    scarecrow_script = []
+                    scarecrow_script.append([0x10, 0xC1])
+                    scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
+                    scarecrow_script.append(
+                        [0xF0, 0x1D, 0xFD, 0x9E, 0x21, 0x7F, 0x70, 0x00, 0x06, 0x50, 0x04, 0x01])
+                    add_scarecrow_script(12, scarecrow_script, 0x1f3410, False)
+                else:
                     if sequence > 0 or mold > 0:
                         spritePhaseEvents.append(
-                            SpritePhaseEvent(5, plus, mold, sub_sequence, sequence, False, 76, 1714, 0x20e8e0))
-                    if not freeze:
-                        if extra_sequence is not False:
-                            patch.add_data(0x1f3bac, [0x08, 0x40, 0x80 + extra_sequence])
-                        else:
-                            patch.add_data(0x1f3bac, [0x08, 0x40 + plus, 0x80 + sequence])
+                            SpritePhaseEvent(12, plus, mold, sub_sequence, sequence, False, 78, 1698, 0x20e8e6))
+                # bandits way 5
+                if sequence > 0 or mold > 0:
+                    spritePhaseEvents.append(
+                        SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 206, 1708, 0x20f078))
+                if shuffled_boss.name is "CountDown":
+                    remove_shadows(206, 10, 1708, 0x20f078)
+                    patch.add_data(0x215B53, 0x01)
+                    #partition 114
+                    patch.add_data(0x14b48B, 0x72)
+                #new_preloader_event(206, [0xF2, 0xCE, 0x3C, 0x1E, 0xF9], 1708, 0x20f078)
+                if not freeze:
+                    if extra_sequence is not False:
+                        patch.add_data(0x1f3863, [0x08, 0x40, 0x80 + extra_sequence])
                     else:
-                        patch.add_data(0x1f3bac, [0x9b, 0x9b, 0x9b])
-                    if invert_se_sw or freeze:  # scarecrow needs a special script
-                        scarecrow_script = []
-                        scarecrow_script.append([0xFD, 0x0F, 0x03, 0x10, 0xC1])
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append(
-                            [0x43, 0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0x52, 0x04, 0xFD, 0x9E, 0x21, 0x7F, 0x6C, 0x00])
-                        scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x51, 0x06, 0xFD, 0x0E, 0x10, 0xC2, 0x50, 0x06, 0x01])
-                        add_scarecrow_script(5, scarecrow_script, 0x1f3bed, True)
-                    if freeze or sequence > 0 or (not sub_sequence and mold > 0):  # dont reset properties
-                        patch.add_data(0x1f3bb1, [0x9b])
-                    # bandits way 2
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(
-                            SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 207, 1702, 0x20F07b))
-                    if not freeze:
-                        if extra_sequence is not False:
-                            patch.add_data(0x1f3541, [0x08, 0x40, 0x80 + extra_sequence])
-                        else:
-                            patch.add_data(0x1f3541, [0x08, 0x40 + plus, 0x80 + sequence])
-                    else:
-                        patch.add_data(0x1f3541, [0x9b, 0x9b, 0x9b])
-                    if invert_se_sw or freeze:  # scarecrow needs a special script
-                        #####
-                        #####first script
-                        scarecrow_script = []
-                        # clear solidity, play sound jump, pause
-                        scarecrow_script.append([0x0C, 0x04, 0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x07])
-                        # dont reset
-                        scarecrow_script.append([0x9B])
-                        # face southwest
-                        scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
-                        # pause for 8 frames
-                        scarecrow_script.append([0xF0, 0x07])
-                        # face northwest
-                        scarecrow_script.append(get_directional_command(plus, northwest, True, sequence, is_scarecrow))
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3546, False)
-                        #####
-                        #####second script
-                        scarecrow_script = []
-                        scarecrow_script.append([0x04, 0x10, 0xC1])
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x57, 0x02])
-                        scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x41, 0x13, 0x03, 0xFD, 0x0F, 0x03])
-                        scarecrow_script.append(get_directional_command(plus, northeast, True, sequence, is_scarecrow))
-                        scarecrow_script.append(
-                            [0x0B, 0x04, 0xF0, 0x0C, 0xFD, 0x9E, 0x21, 0x7F, 0x90, 0x00, 0x57, 0x04, 0x67, 0x10])
-                        scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
-                        # everything else
-                        scarecrow_script.append(
-                            [0x06, 0xF0, 0x09, 0x60, 0x32, 0xFD, 0x9E, 0x21, 0x7F, 0x50, 0x00, 0x60, 0x28, 0xF0, 0x00])
-                        scarecrow_script.append([0xFD, 0x3D, 0x1C, 0x8B, 0x35])
-                        scarecrow_script.append([0x10, 0xC1, 0xFD, 0x9E, 0x21, 0x7F, 0x80, 0x00, 0x50, 0x04, 0x01])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3561, True)
-                    elif sequence > 0 or (not sub_sequence and mold > 0):  # dont reset properties
-                        patch.add_data(0x1f3552, [0x9b])
-                    # bandits way 3
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(
-                            SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 77, 1713, 0x20e8e3))
-                    if not freeze:
-                        if extra_sequence is not False:
-                            patch.add_data(0x1f3b81, [0x08, 0x40, 0x80 + extra_sequence])
-                        else:
-                            patch.add_data(0x1f3b81, [0x08, 0x40 + plus, 0x80 + sequence])
-                    else:
-                        patch.add_data(0x1f3b81, [0x9b, 0x9b, 0x9b])
-                    if invert_se_sw or freeze:  # scarecrow needs a special script
-                        scarecrow_script = []
-                        scarecrow_script.append([0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x1D])
-                        scarecrow_script.append([0x9B])
-                        scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3b86, False)
-                        # action script replacements
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x80, 0x14, 0x6C])
-                        add_scarecrow_script(None, scarecrow_script, 0x211fe1, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x55, 0x02, 0x10, 0xC2])
-                        add_scarecrow_script(None, scarecrow_script, 0x211ff1, False)
-                        scarecrow_script = []
-                        scarecrow_script.append([0x92, 0x18, 0x52, 0x00, 0x00])
-                        scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
-                        add_scarecrow_script(None, scarecrow_script, 0x211ff5, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x55, 0x09, 0x10, 0xC2])
-                        add_scarecrow_script(None, scarecrow_script, 0x212018, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x57, 0x02, 0x10, 0xC1])
-                        add_scarecrow_script(None, scarecrow_script, 0x212022, False)
-                        scarecrow_script = []
-                        scarecrow_script.append([0x92, 0x18, 0x2b, 0x00, 0x00])
-                        scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
-                        add_scarecrow_script(None, scarecrow_script, 0x212026, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x55, 0x04, 0x10, 0xC1])
-                        add_scarecrow_script(None, scarecrow_script, 0x212044, False)
-                        scarecrow_script = []
-                        scarecrow_script.append([0x92, 0x14, 0x10, 0x00, 0x00])
-                        scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
-                        add_scarecrow_script(None, scarecrow_script, 0x212054, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x57, 0x05, 0x01])
-                        add_scarecrow_script(None, scarecrow_script, 0x21206D, False)
-                    elif sequence > 0 or (not sub_sequence and mold > 0):  # dont reset properties
-                        patch.add_data(0x1f3b90, [0x9b])
-                    # bandits way 4
-                    #new_preloader_event(78, [0xF2, 0xCE, 0x3C], 1698, 0x20e8e6)
-                    if invert_se_sw or freeze:  # scarecrow needs a special script
-                        spritePhaseEvents.append(SpritePhaseEvent(12, plus, mold, True, sequence, False, 78, 1698, 0x20e8e6))
-                        #####script 1
-                        scarecrow_script = []
-                        scarecrow_script.append([0xFD, 0x01, 0x00, 0x04, 0x67, 0x01, 0x06, 0x62, 0x08, 0x07])
-                        scarecrow_script.append(get_directional_command(plus, northeast, True, sequence, is_scarecrow))
-                        add_scarecrow_script(12, scarecrow_script, 0x1f33c4, True)
-                        #####script 2
-                        scarecrow_script = []
-                        scarecrow_script.append([0xF0, 0x13])
-                        scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
-                        scarecrow_script.append([0xF0, 0x07])
-                        scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
-                        scarecrow_script.append([0xF0, 0x13, 0x53, 0x03, 0x10, 0x80])
-                        add_scarecrow_script(12, scarecrow_script, 0x1f3402, False)
-                        #####script 3
-                        scarecrow_script = []
-                        scarecrow_script.append([0x10, 0xC1])
-                        scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
-                        scarecrow_script.append(
-                            [0xF0, 0x1D, 0xFD, 0x9E, 0x21, 0x7F, 0x70, 0x00, 0x06, 0x50, 0x04, 0x01])
-                        add_scarecrow_script(12, scarecrow_script, 0x1f3410, False)
-                    else:
-                        if sequence > 0 or mold > 0:
-                            spritePhaseEvents.append(
-                                SpritePhaseEvent(12, plus, mold, sub_sequence, sequence, False, 78, 1698, 0x20e8e6))
-                    # bandits way 5
-                    if sequence > 0 or mold > 0:
-                        spritePhaseEvents.append(
-                            SpritePhaseEvent(8, plus, mold, sub_sequence, sequence, False, 206, 1708, 0x20f078))
-                    if shuffled_boss.name is "CountDown":
-                        remove_shadows(206, 10, 1708, 0x20f078)
-                        patch.add_data(0x215B53, 0x01)
-                        #partition 114
-                        patch.add_data(0x14b48B, 0x72)
-                    #new_preloader_event(206, [0xF2, 0xCE, 0x3C, 0x1E, 0xF9], 1708, 0x20f078)
-                    if not freeze:
-                        if extra_sequence is not False:
-                            patch.add_data(0x1f3863, [0x08, 0x40, 0x80 + extra_sequence])
-                        else:
-                            patch.add_data(0x1f3863, [0x08, 0x40 + plus, 0x80 + sequence])
-                    else:
-                        patch.add_data(0x1f3863, [0x9b, 0x9b, 0x9b])
-                    if invert_se_sw or freeze:  # scarecrow sprite sequence 0 and 1 are inverted
-                        #####script 1
-                        scarecrow_script = []
-                        scarecrow_script.append([0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x07])
-                        scarecrow_script.append([0x9b])
-                        scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
-                        scarecrow_script.append([0xF0, 0x13])
-                        scarecrow_script.append(get_directional_command(plus, northwest, True, sequence, is_scarecrow))
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3868, False)
-                        # replace "Face Mario" since dont know what direction that will be
-                        patch.add_data(0x1f3995, [0x9b])
-                        patch.add_data(0x1f39ac, [0x9b])
-                        #####script 2
-                        scarecrow_script = []
-                        scarecrow_script.append([0x92, 0x0B, 0x73, 0x00])
-                        scarecrow_script.append(get_directional_command(plus, northeast, True, sequence, is_scarecrow))
-                        scarecrow_script.append([0x00])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f38DE, False)
-                        #####script 3
-                        scarecrow_script = []
-                        scarecrow_script.append([0x07])
-                        scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
-                        add_scarecrow_script(8, scarecrow_script, 0x1f39d7, False)
-                        #####script 4
-                        scarecrow_script = []
-                        scarecrow_script.append([0xFD, 0x9E, 0x0B, 0x10, 0xC3])
-                        scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x51, 0x03, 0x52, 0x0B, 0x51, 0x04, 0x10, 0xC4, 0xD4, 0x01])
-                        scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x51, 0x04, 0x52, 0x02, 0x51, 0x04])
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x53, 0x08])
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x55, 0x08, 0x56, 0x02])
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x57, 0x08, 0xD7])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3877, True)
-                        ####1707
-                        scarecrow_script = []
-                        scarecrow_script.append(
-                            [0x00, 0x10, 0xC3, 0x0C, 0x04, 0x0C, 0xF0, 0xDC, 0x1F, 0x8E, 0x36, 0x42, 0x41, 0x40])
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x57, 0x03])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f367C, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x57, 0x08])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f36CC, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x47, 0x46])
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x45, 0x56, 0x08])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f36D3, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x47, 0x46])
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x55, 0x09])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f36DD, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x51, 0x07, 0x50, 0x03])
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x57, 0x03])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f370D, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x57, 0x08])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3718, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x51, 0x09, 0x42])
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x43])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f371F, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x51, 0x09, 0x42])
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x43])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f374F, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x53, 0x08])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3758, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x52, 0x08, 0x41])
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x42, 0x43])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f375F, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x47, 0x46])
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x55, 0x09])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3790, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x53, 0x03, 0x54, 0x03])
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x55, 0x07])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f3799, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x53, 0x08])
-                        add_scarecrow_script(8, scarecrow_script, 0x1f37A4, False)
-                        scarecrow_script = []
-                        scarecrow_script.append(get_directional_command(plus, northeast, True, sequence, is_scarecrow))
-                        scarecrow_script.append([0xDC, 0x26, 0x0E, 0x38, 0x10, 0xC4, 0xA0, 0x1F])
-                        scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x53, 0x03, 0x44])
-                        scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
-                        scarecrow_script.append([0x45, 0x46])
-                        scarecrow_script.append(get_directional_command(plus, northwest, True, sequence, is_scarecrow))
-                        add_scarecrow_script(8, scarecrow_script, 0x1f37FD, False)
-                    elif sequence > 0 or (not sub_sequence and mold > 0):  # dont reset properties
-                        patch.add_data(0x1f3872, [0x9b])
+                        patch.add_data(0x1f3863, [0x08, 0x40 + plus, 0x80 + sequence])
+                else:
+                    patch.add_data(0x1f3863, [0x9b, 0x9b, 0x9b])
+                if invert_se_sw or freeze:  # scarecrow sprite sequence 0 and 1 are inverted
+                    #####script 1
+                    scarecrow_script = []
+                    scarecrow_script.append([0xFD, 0x9E, 0x21, 0x7F, 0x60, 0x00, 0xF0, 0x07])
+                    scarecrow_script.append([0x9b])
+                    scarecrow_script.append(get_directional_command(plus, southwest, True, sequence, is_scarecrow))
+                    scarecrow_script.append([0xF0, 0x13])
+                    scarecrow_script.append(get_directional_command(plus, northwest, True, sequence, is_scarecrow))
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3868, False)
+                    # replace "Face Mario" since dont know what direction that will be
+                    patch.add_data(0x1f3995, [0x9b])
+                    patch.add_data(0x1f39ac, [0x9b])
+                    #####script 2
+                    scarecrow_script = []
+                    scarecrow_script.append([0x92, 0x0B, 0x73, 0x00])
+                    scarecrow_script.append(get_directional_command(plus, northeast, True, sequence, is_scarecrow))
+                    scarecrow_script.append([0x00])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f38DE, False)
+                    #####script 3
+                    scarecrow_script = []
+                    scarecrow_script.append([0x07])
+                    scarecrow_script.append(get_directional_command(plus, southeast, True, sequence, is_scarecrow))
+                    add_scarecrow_script(8, scarecrow_script, 0x1f39d7, False)
+                    #####script 4
+                    scarecrow_script = []
+                    scarecrow_script.append([0xFD, 0x9E, 0x0B, 0x10, 0xC3])
+                    scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x51, 0x03, 0x52, 0x0B, 0x51, 0x04, 0x10, 0xC4, 0xD4, 0x01])
+                    scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x51, 0x04, 0x52, 0x02, 0x51, 0x04])
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x53, 0x08])
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x55, 0x08, 0x56, 0x02])
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x57, 0x08, 0xD7])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3877, True)
+                    ####1707
+                    scarecrow_script = []
+                    scarecrow_script.append(
+                        [0x00, 0x10, 0xC3, 0x0C, 0x04, 0x0C, 0xF0, 0xDC, 0x1F, 0x8E, 0x36, 0x42, 0x41, 0x40])
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x57, 0x03])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f367C, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x57, 0x08])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f36CC, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x47, 0x46])
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x45, 0x56, 0x08])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f36D3, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x47, 0x46])
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x55, 0x09])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f36DD, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x51, 0x07, 0x50, 0x03])
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x57, 0x03])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f370D, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x57, 0x08])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3718, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x51, 0x09, 0x42])
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x43])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f371F, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x51, 0x09, 0x42])
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x43])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f374F, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x53, 0x08])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3758, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, southeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x52, 0x08, 0x41])
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x42, 0x43])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f375F, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x47, 0x46])
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x55, 0x09])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3790, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x53, 0x03, 0x54, 0x03])
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x55, 0x07])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f3799, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x53, 0x08])
+                    add_scarecrow_script(8, scarecrow_script, 0x1f37A4, False)
+                    scarecrow_script = []
+                    scarecrow_script.append(get_directional_command(plus, northeast, True, sequence, is_scarecrow))
+                    scarecrow_script.append([0xDC, 0x26, 0x0E, 0x38, 0x10, 0xC4, 0xA0, 0x1F])
+                    scarecrow_script.append(get_directional_command(plus, southwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x53, 0x03, 0x44])
+                    scarecrow_script.append(get_directional_command(plus, northwest, False, sequence, is_scarecrow))
+                    scarecrow_script.append([0x45, 0x46])
+                    scarecrow_script.append(get_directional_command(plus, northwest, True, sequence, is_scarecrow))
+                    add_scarecrow_script(8, scarecrow_script, 0x1f37FD, False)
+                elif sequence > 0 or (not sub_sequence and mold > 0):  # dont reset properties
+                    patch.add_data(0x1f3872, [0x9b])
 
             if location.name == "Mack":
                 #print(location.name + ": " + shuffled_boss.name)
@@ -1081,20 +1081,19 @@ def patch_overworld_bosses(world):
 
             if location.name == "Belome1":
                 #print(location.name + ": " + shuffled_boss.name)
-                if shuffled_boss.name not in ["Belome1", "Belome2"]:
-                    # use npc 371, set properties to match belome's
-                    patch.add_data(0x14c67a, [0xcd, 0x05]);
-                    # replace its sprite
-                    patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0xA8]), shadow, solidity, y_shift, location))
-                    #patch.add_data(0x1Dc225, calcpointer(sprite, [0x00, 0xA8]));
-                    if sequence > 0 or mold > 0:
-                        patch.add_data(0x203513, [0x08, 0x50 + plus, sequence]);
-                        if sequence > 0:
-                            sub_sequence = True
-                        elif mold > 0:
-                            sub_sequence = False
-                        spritePhaseEvents.append(
-                            SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 302, 3135, 0x20f3be))
+                # use npc 371, set properties to match belome's
+                patch.add_data(0x14c67a, [0xcd, 0x05]);
+                # replace its sprite
+                patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0xA8]), shadow, solidity, y_shift, location))
+                #patch.add_data(0x1Dc225, calcpointer(sprite, [0x00, 0xA8]));
+                if sequence > 0 or mold > 0:
+                    patch.add_data(0x203513, [0x08, 0x50 + plus, sequence]);
+                    if sequence > 0:
+                        sub_sequence = True
+                    elif mold > 0:
+                        sub_sequence = False
+                    spritePhaseEvents.append(
+                        SpritePhaseEvent(3, plus, mold, sub_sequence, sequence, False, 302, 3135, 0x20f3be))
 
             if location.name == "Bowyer":
                 #print(location.name + ": " + shuffled_boss.name)
@@ -2300,6 +2299,8 @@ def patch_overworld_bosses(world):
                                                         0x20f299).export_sprite_load())
                     else:
                         patch.add_data(0x1fdb28, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
+                    if shuffled_boss.name in ["Pandorite", "Hidon", "HammerBro", "Culex", "BoxBoy", "DodoSolo"]: # shift up a little bit
+                        patch.add_data(0x14BE33, 0xC6)
 
             if location.name == "Dodo":
                 # always replace npc sprite here, it's normally just the feather
@@ -2626,6 +2627,8 @@ def patch_overworld_bosses(world):
                         spritePhaseEvents.append(
                             SpritePhaseEvent([0, 1], plus, mold, sub_sequence, [0, 0], [True, True], 497, 15,
                                              0x20FD96))
+                        spritePhaseEvents.append(
+                            SpritePhaseEvent([1, 2, 3, 4], plus, [mold, mold, mold, mold], sub_sequence, [1, 1, 0, 0], [True, True, True, True], 447, 3756, 0x20FACF))
                         #wont face properly unless you set all to face south
                         patch.add_data(0x149e56, 0x23)
                         patch.add_data(0x149e5A, 0x23)
@@ -2655,6 +2658,10 @@ def patch_overworld_bosses(world):
                         patch.add_data(0x14EDC2, 0x21)
                         patch.add_data(0x14EE20, 0x21)
                         patch.add_data(0x14EE24, 0x21)
+                        patch.add_data(0x14e306, 0x25)
+                        patch.add_data(0x14e30A, 0x25)
+                        patch.add_data(0x14e30E, 0x25)
+                        patch.add_data(0x14e312, 0x25)
                     elif shuffled_boss.name in ["Clerk", "Manager", "Director"]:
                         patch.add_data(0x149eAB, 0x61)
                         patch.add_data(0x149eAF, 0x61)
@@ -2675,6 +2682,10 @@ def patch_overworld_bosses(world):
                         patch.add_data(0x14EDC2, 0x21)
                         patch.add_data(0x14EE20, 0x21)
                         patch.add_data(0x14EE24, 0x61)
+                        patch.add_data(0x14e306, 0x25)
+                        patch.add_data(0x14e30A, 0x25)
+                        patch.add_data(0x14e30E, 0x65)
+                        patch.add_data(0x14e312, 0x65)
                         spritePhaseEvents.append(
                             SpritePhaseEvent([3, 4, 5], plus, mold, sub_sequence, [1, 1, 1],
                                              [True, True, True], 341, 737, 0x20F595))
@@ -2714,6 +2725,8 @@ def patch_overworld_bosses(world):
                         spritePhaseEvents.append(
                             SpritePhaseEvent([0, 1], plus, mold, sub_sequence, [1, 1], [True, True], 497, 15,
                                              0x20FD96))
+                        spritePhaseEvents.append(
+                            SpritePhaseEvent([1, 2, 3, 4], plus, [mold, mold, mold, mold], sub_sequence, [0, 0, 1, 1], [False, False, True, True], 447, 3756, 0x20FACF))
                     elif sequence > 0 or statue_mold is not None or sesw_only or freeze:
                         mold = statue_mold
                         if sequence == 0:
@@ -2730,6 +2743,10 @@ def patch_overworld_bosses(world):
                             patch.add_data(0x149fbc, 0x61)
                             patch.add_data(0x14a14d, 0x61)
                             patch.add_data(0x14a1f7, 0x63)
+                            patch.add_data(0x14e306, 0x65)
+                            patch.add_data(0x14e30A, 0x65)
+                            patch.add_data(0x14e30E, 0x65)
+                            patch.add_data(0x14e312, 0x65)
                             #post-fight statues
                             patch.add_data(0x149F62, 0x61)
                             patch.add_data(0x14A13C, 0x61)
@@ -2788,6 +2805,8 @@ def patch_overworld_bosses(world):
                             spritePhaseEvents.append(
                                 SpritePhaseEvent([0, 1], plus, [mold, mold], sub_sequence, [sequence, sequence], [False, False], 497, 15,
                                              0x20FD96))
+                            spritePhaseEvents.append(
+                                SpritePhaseEvent([1, 2, 3, 4], plus, [mold, mold, mold, mold], sub_sequence, [sequence, sequence, sequence, sequence], [False, False, False, False], 447, 3756, 0x20FACF))
                         else:
                             spritePhaseEvents.append(
                                 SpritePhaseEvent([3, 4, 5], plus, [mold, mold, mold], sub_sequence, [sequence,
@@ -2831,6 +2850,8 @@ def patch_overworld_bosses(world):
                             spritePhaseEvents.append(
                                 SpritePhaseEvent([0, 1], plus, [mold, mold], sub_sequence, [sequence, sequence], [True, False], 497, 15,
                                              0x20FD96))
+                            spritePhaseEvents.append(
+                                SpritePhaseEvent([1, 2, 3, 4], plus, [mold, mold, mold, mold], sub_sequence, [sequence, sequence, sequence, sequence], [True, True, False, False], 447, 3756, 0x20FACF))
 
 
 
@@ -2847,6 +2868,7 @@ def patch_overworld_bosses(world):
                         northwest_501 = [1]
                         northwest_440 = [1]
                         northwest_497 = [0, 1]
+                        northwest_447 = [3, 4]
 
                         northeast_110 = [0, 1, 2]
 
@@ -2859,6 +2881,7 @@ def patch_overworld_bosses(world):
                         south_499 = [1, 4]
                         south_501 = [0]
                         south_440 = [0]
+                        south_447 = [1, 2]
 
                         if not sesw_only:
                             if len(total_shift) > 1:
@@ -2890,6 +2913,10 @@ def patch_overworld_bosses(world):
                                     npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
                                     new_preloader_event(440, npc_queue, 3740, 0x20FA73)
+                                for npc in south_447:
+                                    npc_queue = [0x14 + npc, len(total_shift)]
+                                    npc_queue.extend(total_shift)
+                                    new_preloader_event(447, npc_queue, 3756, 0x20FACF)
                                 if overworld_is_skinny:
                                     for npc in south_119:
                                         npc_queue = [0x14 + npc, len(total_shift)]
@@ -2947,6 +2974,10 @@ def patch_overworld_bosses(world):
                                     npc_queue = [0x14 + npc, len(total_opposite_shift)]
                                     npc_queue.extend(total_opposite_shift)
                                     new_preloader_event(497, npc_queue, 15, 0x20FD96)
+                                for npc in northwest_447:
+                                    npc_queue = [0x14 + npc, len(total_opposite_shift)]
+                                    npc_queue.extend(total_opposite_shift)
+                                    new_preloader_event(447, npc_queue, 3756, 0x20FACF)
                                 if overworld_is_skinny:
                                     for npc in northwest_119:
                                         npc_queue = [0x14 + npc, len(total_opposite_shift)]
@@ -2986,6 +3017,10 @@ def patch_overworld_bosses(world):
                                     npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
                                     new_preloader_event(440, npc_queue, 3740, 0x20FA73)
+                                for npc in south_447:
+                                    npc_queue = [0x14 + npc, len(total_shift)]
+                                    npc_queue.extend(total_shift)
+                                    new_preloader_event(447, npc_queue, 3756, 0x20FACF)
                                 for npc in northwest_109:
                                     npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
@@ -3033,6 +3068,10 @@ def patch_overworld_bosses(world):
                                     npc_queue = [0x14 + npc, len(total_shift)]
                                     npc_queue.extend(total_shift)
                                     new_preloader_event(497, npc_queue, 15, 0x20FD96)
+                                for npc in northwest_447:
+                                    npc_queue = [0x14 + npc, len(total_shift)]
+                                    npc_queue.extend(total_shift)
+                                    new_preloader_event(447, npc_queue, 3756, 0x20FACF)
                                 if overworld_is_skinny or shuffled_boss.name in ["DodoSolo", "Culex"]:
                                     for npc in northwest_119:
                                         npc_queue = [0x14 + npc, len(total_shift)]
@@ -3143,6 +3182,9 @@ def patch_overworld_bosses(world):
                         ##room 497
                         # change partition to 9
                         patch.add_data(0x14ED40, 0x09)
+                        ##room 447
+                        # change partition to 64
+                        patch.add_data(0x14E2EE, 0x40)
                     else:
                         #remove statue in room 113, partitions are too screwy in here due to the statue swap
                         new_preloader_event(113, [0xF2, 0x71, 0x2E, 0x17, 0xF9], 15, 0x20EB1F)
@@ -3177,6 +3219,9 @@ def patch_overworld_bosses(world):
                             # use parition 32
                             patch.add_data(0x14ED9E, 0x20)
                             remove_shadows(499, 9, 3762, 0x20FDA2)
+                            ##room 447
+                            # change partition to 10, like room 122
+                            patch.add_data(0x14E2EE, 0x0A)
                         else:
                             # countdown, hammerbro, chest monsters all work with this
                             # change npc properties
@@ -3212,6 +3257,9 @@ def patch_overworld_bosses(world):
                             # use parition 32
                             patch.add_data(0x14ED9E, 0x20)
                             remove_shadows(499, 9, 3762, 0x20FDA2)
+                            ##room 447
+                            # change partition to 32
+                            patch.add_data(0x14E2EE, 0x20)
                             if shuffled_boss.name in ["CountDown", "HammerBro"]:
                                 #remove birds in room 499, graphics engine cant handle all NPCs and size 1 sprites
                                 new_preloader_event(499, [0xF2, 0xF3, 0x39, 0xF2, 0xF3, 0x3B, 0x1C, 0xF9, 0x1D, 0xF9], 3762, 0x20FDA2)
@@ -3251,6 +3299,10 @@ def patch_overworld_bosses(world):
                         patch.add_data(0x14CD80, 0x99)
                         patch.add_data(0x14CD84, 0x98)
                         patch.add_data(0x14CD88, 0x97)
+                        patch.add_data(0x14E305, 0xF2)
+                        patch.add_data(0x14E309, 0xEE)
+                        patch.add_data(0x14E30D, 0xF2)
+                        patch.add_data(0x14E311, 0xF6)
 
 
                 else: #shift vanilla statues
@@ -3858,8 +3910,6 @@ def patch_overworld_bosses(world):
             if location.name == "Clerk":
                 #print(location.name + ": " + shuffled_boss.name)
                 # fix cannon action scripts
-                patch.add_data(0x219565, [0x08, 0x40, 0x01])
-                patch.add_data(0x2195B9, [0x08, 0x40, 0x02])
                 if shuffled_boss.name is not "Clerk":
                     if fat_sidekicks and shuffled_boss.name in ["Booster", "Bundt", "Clerk", "Manager", "Director",
                                                                 "Croco1", "Croco2", "Mack", "Bowyer", "Punchinello",
@@ -3873,9 +3923,6 @@ def patch_overworld_bosses(world):
                         # use partition 32
                         patch.add_data(0x14E798, 0x20)
                     # change sequence 01 of Clerk, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
-                    patch.add_data(0x265f53, 0x02)
-                    patch.add_data(0x265F56, 0x01)
-                    patch.add_data(0x265f82, 0x43)
                     if freeze or sequence > 0 or mold > 0:
                         sub_sequence = True
                     if sequence == 0 and mold > 0:
@@ -3899,10 +3946,6 @@ def patch_overworld_bosses(world):
             if location.name == "Manager":
                 #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Manager":
-                    # change sequence 01 of Manager, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
-                    patch.add_data(0x36923e, 0x02)
-                    patch.add_data(0x369241, 0x01)
-                    patch.add_data(0x36926d, 0x43)
                     if freeze or sequence > 0 or mold > 0:  # never change directions
                         sub_sequence = True
                     if sequence == 0 and mold > 0:
@@ -3924,10 +3967,6 @@ def patch_overworld_bosses(world):
                     patch.add_data(0x1fe69c, [0x9b, 0x9b, 0x9b])
 
             if location.name == "Director":
-                # chance sequence 01 of Director, wherever he is, if not vanilla, to be his NW facing sprite, to make animations work
-                patch.add_data(0x369296, 0x02)
-                patch.add_data(0x369299, 0x01)
-                patch.add_data(0x3692C5, 0x43)
                 #print(location.name + ": " + shuffled_boss.name)
                 if shuffled_boss.name is not "Director":
                     if shuffled_boss.name is "Mack":
