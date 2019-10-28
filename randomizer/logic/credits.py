@@ -125,6 +125,7 @@ END_TITLES_DELAY = 40
 DEV_MESSAGES = [
     ('DONT TRY IT...ALANIM.', 'I ALREADY DID IT.', 'PAST ALANIM'),
     ('NOW TRY IT', 'BLINDFOLDED', 'PATCDR'),
+    ('ILL FIX IT', 'ONE OF THESE DAYS.', 'PIDGE'),
 ]
 
 # Takes world because everything does.
@@ -369,7 +370,7 @@ def update_credits(world):
     credits.end_titles(END_TITLES_DELAY)
 
     credits.begin_credits()
-    credits.add_credit(0x80, 0x80, 0xc0, 'DEVILING  EANCASS  SMBAI')
+    credits.add_credit(0x80, 0x80, 0xc0, 'DEVILING  SEANCASS  SMBAI')
     credits.add_credit(0x80, 0x40, 0x81, 'MYOHMYKE      AARONDOBBE')
     credits.add_credit(0x80, 0x00, 0xc2, 'EGGTALK        HERRSHAUN')
     credits.end_credits(END_CREDITS_DELAY_1, END_CREDITS_DELAY_2)
@@ -411,7 +412,7 @@ def update_credits(world):
     credits.begin_credits()
     credits.add_credit(0x80, 0x80, 0xc0, 'DARKKEFKA       DOOMSDAY')
     credits.add_credit(0x80, 0x40, 0x81, 'GIANGURGOLO        OMEGA')
-    credits.add_credit(0x80, 0x00, 0xc2, 'FF FOUR FREE ENTERPRISE')
+    credits.add_credit(0x80, 0x00, 0xc2, 'FFIV FREE ENTERPRISE')
     credits.end_credits(END_CREDITS_DELAY_1, END_CREDITS_DELAY_2)
 
     credits.begin_credits()
