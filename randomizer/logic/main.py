@@ -515,18 +515,18 @@ class GameWorld:
                             if character.name is "Geno":
                                 # crying
                                 patch.add_data(0x20d464, [0x10, 0x80])
-                                patch.add_data(0x20d466, [0x08, 0x43, 0x03])
+                                patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
                                 # surprised
-                                patch.add_data(0x20d48c, [0x08, 0x43, 0x00])
+                                patch.add_data(0x20d48c, [0x08, 0x42, 0x00])
                                 # looking down
                                 patch.add_data(0x20d4d4, [0x08, 0x48, 0x06])
                                 # crying
                                 patch.add_data(0x20d4d9, [0x10, 0x80])
-                                patch.add_data(0x20d4db, [0x08, 0x43, 0x03])
+                                patch.add_data(0x20d4db, [0x08, 0x40, 0x0B])
                                 # surprised reversed
-                                patch.add_data(0x20d5d8, [0x08, 0x43, 0x80])
+                                patch.add_data(0x20d5d8, [0x08, 0x42, 0x80])
                                 # crying in other direction
-                                patch.add_data(0x20d5e3, [0x08, 0x43, 0x84])
+                                patch.add_data(0x20d5e3, [0x08, 0x40, 0x8C])
                             else:
                                 # surprised
                                 patch.add_data(0x20d338, [0x08, 0x42, 0x00])
@@ -535,12 +535,6 @@ class GameWorld:
                                 patch.add_data(0x20d5d8, [0x08, 0x42, 0x80])
                                 # sitting
                                 patch.add_data(0x20d43b, [0x08, 0x49, 0x1f])
-                                if character.name is "Geno":
-                                    # crying
-                                    patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
-                                    patch.add_data(0x20d4db, [0x08, 0x40, 0x0B])
-                                    # crying in other direction
-                                    patch.add_data(0x20d5e3, [0x08, 0x40, 0x8C])
 
         else:
             # For standard mode, Mario is the first character.  Update the other four only.
