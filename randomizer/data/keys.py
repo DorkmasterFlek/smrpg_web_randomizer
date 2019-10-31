@@ -2,6 +2,7 @@
 
 from . import items
 from . import locations
+from randomizer.logic import utils
 
 
 class KeyItemLocation(locations.ItemLocation):
@@ -108,11 +109,17 @@ class BoosterTowerCheckerboard(KeyItemLocation):
     item = items.RoomKey
     access = 2
 
+
 class KnifeGuy(KeyItemLocation):
     area = locations.Area.BoosterTower
     addresses = [0x1ffb57]
     item = items.BrightCard
     access = 2
+
+    def item_allowed(self, item):
+        """TODO: Progressive juice bar card does not work with Knife Guy's location.  Remove this when it does."""
+        return not utils.isclass_or_instance(item, items.AltoCard) and super().item_allowed(item)
+
 
 class SeasideTownKey(KeyItemLocation):
     area = locations.Area.SeasideTown

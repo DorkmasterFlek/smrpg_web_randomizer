@@ -2143,6 +2143,7 @@ class SopranoCard(Item):
     order = 149
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class AltoCard(Item):
@@ -2150,6 +2151,7 @@ class AltoCard(Item):
     order = 129
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class TenorCard(Item):
@@ -2157,6 +2159,7 @@ class TenorCard(Item):
     order = 151
     item_type = 3
     rare = True
+    shuffle_type = ItemShuffleType.Required
 
 
 class Crystalline(Item):
