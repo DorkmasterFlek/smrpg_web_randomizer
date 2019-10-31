@@ -19,7 +19,6 @@ LARGE_SHADOW = 3
 BLOCK_SHADOW = 4
 
 
-
 class Enemy:
     """Class representing an enemy in the game."""
     FLOWER_BONUS_BASE_ADDRESS = 0x39bb44
@@ -4289,6 +4288,7 @@ class MachineMadeShyster(Enemy):
 class MachineMadeDrillBit(Enemy):
     index = 146
     address = 0x390b36
+    boss = True
     hp = 180
     speed = 24
     attack = 130
