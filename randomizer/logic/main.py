@@ -703,8 +703,9 @@ class GameWorld:
                                       0x29, 0x01, 0x08, 0x07, 0x20, 0x28, 0x59, 0x65, 0x73, 0x29, 0x00])
 
         # Fix Chainsaw to not take forever before casting.
-        patch.add_data(0x351483, [0x0A, 0x0A, 0x0A])
-        patch.add_data(0x351493, [0x0A])
+        if self.settings.is_flag_enabled(flags.EnemySpells):
+            patch.add_data(0x351483, [0x0A, 0x0A, 0x0A])
+            patch.add_data(0x351493, [0x0A])
 
         #Overworld boss sprites
         patch += bosses_overworld.patch_overworld_bosses(self)
