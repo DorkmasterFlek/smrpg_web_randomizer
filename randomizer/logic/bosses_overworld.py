@@ -2272,7 +2272,7 @@ def patch_overworld_bosses(world):
             if location.name == "MegaSmilax":
                 # maybe bring shy away back for added comedy
                 #print(location.name + ": " + shuffled_boss.name)
-                if shuffled_boss.name is not "MegaSmilax":
+                if shuffled_boss.name is not "Megasmilax":
                     # use npc 154, set properties to match smilax's
                     # fix scripts
                     patch.add_data(0x14be2c,
@@ -2280,7 +2280,7 @@ def patch_overworld_bosses(world):
                                     0xC0, 0xFC, 0x09, 0x00, 0x1B])
                     #patch.add_data(0x1dbc36, calcpointer(sprite, [0x00, 0x08]))
                     patch.add_data(location.sprite_offset, rewrite_npc(calcpointer(sprite, [0x00, 0x08]), shadow, solidity, y_shift, location))
-                    patch.add_data(0x1dbc38, [0x80, 0x81, 0x44, 0x07])
+                    patch.add_data(0x1dbc38, [0x80, 0x01, 0x44, 0x07])
                     patch.add_data(0x1fdb24, [0x15, 0xF9])
                     patch.add_data(0x1fdb26, [0x16, 0xF9])
                     patch.add_data(0x1fdb3b, [0x9b, 0x9b, 0x9b])
@@ -2299,8 +2299,10 @@ def patch_overworld_bosses(world):
                                                         0x20f299).export_sprite_load())
                     else:
                         patch.add_data(0x1fdb28, [0x9b, 0x9b, 0x9b, 0x9b, 0x9b])
-                    if shuffled_boss.name in ["Pandorite", "Hidon", "HammerBro", "Culex", "BoxBoy", "DodoSolo"]: # shift up a little bit
+                    if shuffled_boss.name in ["Pandorite", "Hidon", "HammerBro", "BoxBoy", "DodoSolo"]: # shift up a little bit
                         patch.add_data(0x14BE33, 0xC6)
+                    #partition
+                    patch.add_data(0x14bE28, 0x72)
 
             if location.name == "Dodo":
                 # always replace npc sprite here, it's normally just the feather
