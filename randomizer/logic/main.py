@@ -569,6 +569,17 @@ class GameWorld:
         for spell in self.spells:
             patch += spell.get_patch()
 
+        #These spells are ignored when returning world.spells, so i'm applying the patch here to fix animation lag when randomized spells is turned on
+        if self.settings.is_flag_enabled(flags.EnemySpells):
+            patch.add_data(0x351415, [0x0a, 0x0a, 0x0a])
+            patch.add_data(0x35142d, 0x0a)
+            patch.add_data(0x35142f, [0x0a, 0x0a, 0x0a])
+            patch.add_data(0x351449, 0x0a)
+            patch.add_data(0x35144b, [0x0a, 0x0a, 0x0a])
+            patch.add_data(0x351465, 0x0a)
+            patch.add_data(0x351467, [0x0a, 0x0a, 0x0a])
+            patch.add_data(0x351481, 0x0a)
+
         # Starting FP (twice for starting/max FP)
         patch.add_data(0x3a00dd, utils.ByteField(self.starting_fp).as_bytes() * 2)
 
