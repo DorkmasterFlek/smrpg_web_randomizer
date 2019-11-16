@@ -726,7 +726,8 @@ class GameWorld:
                                       0x29, 0x01, 0x08, 0x07, 0x20, 0x28, 0x59, 0x65, 0x73, 0x29, 0x00])
 
         # Overworld boss sprites
-        patch += bosses_overworld.patch_overworld_bosses(self)
+        if self.open_mode:
+            patch += bosses_overworld.patch_overworld_bosses(self)
 
         # This needs to happen after all battle script randomization.
         patch += assemble_battle_scripts(self)
