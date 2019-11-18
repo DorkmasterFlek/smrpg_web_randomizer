@@ -27,7 +27,7 @@ from .patch import Patch
 from .battleassembler import assemble_battle_scripts
 
 # Current version number
-VERSION = '8.2.0'
+VERSION = '8.2.1'
 
 
 class Settings:

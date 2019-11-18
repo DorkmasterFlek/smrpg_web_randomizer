@@ -7,7 +7,10 @@ from randomizer.logic import utils
 
 class KeyItemLocation(locations.ItemLocation):
     """Class for randomizing which key item is gotten in different locations."""
-    pass
+
+    def item_allowed(self, item):
+        # Exclude "You Missed!" item from key item locations when mixing with chest shuffle, it makes a dummy item.
+        return super().item_allowed(item) and not utils.isclass_or_instance(item, items.YouMissed)
 
 
 # ********************************** Actual location classes.
