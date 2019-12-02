@@ -742,7 +742,7 @@ def randomize_all(world):
                                 # if too cheap. Will affect better items more than bad ones
                                 price = math.ceil(item.rank_value *
                                                   (2 + (item.rank_order_reverse / len(ranks_reverse))))
-                                price = min(item.max_price, max(1, price))
+                                price = min(item.max_price, max(2, price))
                                 price = utils.mutate_normal(price, minimum=price*0.9, maximum=price*1.1)
                                 item.price = price
                         else:
