@@ -142,6 +142,14 @@ class Item:
         return True
 
     @property
+    def max_price(self):
+        """
+        Returns:
+            int: Max allowed price for this item based on whether it's a frog coin item or not.
+        """
+        return 99 if self.is_frog_coin_item else 9999
+
+    @property
     def primary_stats(self):
         """Primary stats of this item, depending on the type.
 

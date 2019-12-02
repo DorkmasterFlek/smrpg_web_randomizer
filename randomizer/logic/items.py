@@ -709,11 +709,12 @@ def randomize_all(world):
                                     assignments[shop.index].append(item)
 
             # Loop through shops to find any that are empty, and just add Pick Me Up
+            pmu = world.get_item_instance(items.PickMeUp)
             for shop in world.shops:
                 if not (isinstance(shop, items.PartialJuiceBarShop) or
                         shop.index in [disciple_shop, frog_coin_emporium]):
                     if not assignments[shop.index]:
-                        assignments[shop.index].append(items.PickMeUp)
+                        assignments[shop.index].append(pmu)
 
             # ******************************* Phase 3: Repricing
 
@@ -735,23 +736,24 @@ def randomize_all(world):
                         if item.is_equipment:
                             if shop.frog_coin_shop:
                                 item.frog_coin_item = True
-                                item.price = max(math.ceil(item.rank_value / 5), 1)
+                                item.price = min(item.max_price, max(math.ceil(item.rank_value / 5), 1))
                             else:
                                 # Change constant to a lower value if items seem generally too expensive, or increase it
                                 # if too cheap. Will affect better items more than bad ones
                                 price = math.ceil(item.rank_value *
                                                   (2 + (item.rank_order_reverse / len(ranks_reverse))))
+                                price = min(item.max_price, max(1, price))
                                 price = utils.mutate_normal(price, minimum=price*0.9, maximum=price*1.1)
                                 item.price = price
                         else:
                             if shop.frog_coin_shop:
                                 item.frog_coin_item = True
                                 price = utils.mutate_normal(item.price, minimum=item.price*0.9, maximum=item.price*1.1)
-                                item.price = max(math.ceil(price / 25), 1)
+                                item.price = min(item.max_price, max(math.ceil(price / 25), 1))
                             else:
                                 # muku cooki price should never change
                                 if item.index != 120:
-                                    price = min(9999, max(2, item.price))
+                                    price = min(item.max_price, max(2, item.price))
                                     price = utils.mutate_normal(price, minimum=item.price*0.9, maximum=item.price*1.1)
                                     item.price = price
 
@@ -759,10 +761,10 @@ def randomize_all(world):
             for shop in world.shops:
                 shop.items = sorted(assignments[shop.index], key=lambda i: i.order)
 
-    # Check for free shops, and make sure item prices don't go above 9999.
+    # Check for free shops, and make sure item prices don't go above 9999 or below 1 as a general rule.
     for shop in world.shops:
         for item in shop.items:
-            item.price = min(9999, item.price)
+            item.price = max(1, min(item.max_price, item.price))
             if free_shops:
                 if shop.frog_coin_shop:
                     item.frog_coin_item = True
