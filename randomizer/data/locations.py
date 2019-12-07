@@ -47,6 +47,7 @@ class ItemLocation:
     item = None
     missable = False
     access = 0
+    not_depletable = False
 
     def __init__(self, world):
         """
@@ -112,6 +113,11 @@ class ItemLocation:
         """
         # If this is a missable location, it cannot contain a key item.
         if self.missable and not utils.isclass_or_instance(item, items.ChestReward) and item.is_key:
+            return False
+
+        # If this is a non-depletable chest, it can only contain coins or a recovery mushroom.
+        if self.not_depletable and not utils.isclass_or_instance(
+                item, (items.Coins, items.FrogCoin, items.RecoveryMushroom)):
             return False
 
         # Normal locations can be anything except an invincibility star.

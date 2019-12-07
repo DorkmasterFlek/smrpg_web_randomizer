@@ -485,7 +485,7 @@ class PipeVaultNippers2(Chest):
 
 class GoombaThumping1(Reward):
     area = locations.Area.PipeVault
-    addresses = [0x1e2f9c]
+    addresses = [0x1e3f9c]
     item = items.FlowerTab
     access = 3
 
@@ -1072,6 +1072,7 @@ class BeanValleyBoxBoyRoom2(NonCoinChest):
     addresses = [0x14cc64]
     item = items.FrogCoin
     access = 2
+    not_depletable = True
 
 
 class BeanValleySlotRoom(NonCoinChest):
@@ -1312,6 +1313,7 @@ class BowsersKeepCrocoShop2(Chest):
     addresses = [0x14e38b]
     item = items.RecoveryMushroom
     access = 1
+    not_depletable = True
 
 
 class BowsersKeepInvisibleBridge1(Chest):
