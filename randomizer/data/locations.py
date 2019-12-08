@@ -115,9 +115,8 @@ class ItemLocation:
         if self.missable and not utils.isclass_or_instance(item, items.ChestReward) and item.is_key:
             return False
 
-        # If this is a non-depletable chest, it can only contain coins or a recovery mushroom.
-        if self.not_depletable and not utils.isclass_or_instance(
-                item, (items.Coins, items.FrogCoin, items.RecoveryMushroom)):
+        # If this is a non-depletable chest, it can only contain a frog coin or recovery mushroom.
+        if self.not_depletable and not utils.isclass_or_instance(item, (items.FrogCoin, items.RecoveryMushroom)):
             return False
 
         # Normal locations can be anything except an invincibility star.

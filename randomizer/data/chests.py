@@ -1060,19 +1060,11 @@ class BeanValley2(Chest):
     access = 1
 
 
-class BeanValleyBoxBoyRoom1(NonCoinChest):
+class BeanValleyBoxBoyRoom(NonCoinChest):
     area = locations.Area.BeanValley
     addresses = [0x14cc58]
     item = items.RedEssence
     access = 2
-
-
-class BeanValleyBoxBoyRoom2(NonCoinChest):
-    area = locations.Area.BeanValley
-    addresses = [0x14cc64]
-    item = items.FrogCoin
-    access = 2
-    not_depletable = True
 
 
 class BeanValleySlotRoom(NonCoinChest):
@@ -1132,11 +1124,17 @@ class NimbusLandShop(NonCoinChest):
     item = items.FrogCoin
     access = 1
 
+
 class NimbusLandInn(Reward):
     area = locations.Area.NimbusLand
     addresses = [0x1e122c]
     item = items.RedEssence
     access = 3
+
+    def item_allowed(self, item):
+        """FIXME: This spot grants the same item twice, it must be one-time consumables only until item code fixed."""
+        return super().item_allowed(item) and item.consumable and not item.reuseable
+
 
 class NimbusCastleBeforeBirdo1(Chest):
     area = locations.Area.NimbusLand
@@ -1664,8 +1662,7 @@ def get_default_chests(world):
         MonstroTownEntrance(world),
         BeanValley1(world),
         BeanValley2(world),
-        BeanValleyBoxBoyRoom1(world),
-        BeanValleyBoxBoyRoom2(world),
+        BeanValleyBoxBoyRoom(world),
         BeanValleySlotRoom(world),
         BeanValleyPiranhaPlants(world),
         BeanValleyBeanstalk(world),

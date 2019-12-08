@@ -60,6 +60,10 @@ def randomize_all(world):
     stars = [items.BanditsWayStar, items.KeroSewersStar, items.MolevilleMinesStar, items.SeaStar,
              items.LandsEndVolcanoStar, items.NimbusLandStar, items.LandsEndStar2, items.LandsEndStar3]
 
+    # Items allowed for leftover chests where there is no valid item remaining for them (coins or mushroom).
+    leftovers = coins[:]
+    leftovers += [items.FrogCoin, items.RecoveryMushroom]
+
     forceCoinsInBanditsWay = False
     # special case: coins only if countdown in BW5 -- pre-set it in case B is set but T is not
     for location in world.boss_locations:
@@ -441,7 +445,7 @@ def randomize_all(world):
                             # If no possible items are allowed in this chest, make it coins instead.
                             possible_items = [i for i in items_for_chest if i.hard_tier == selected_tier]
                             if not possible_items:
-                                possible_items = coins
+                                possible_items = [i for i in leftovers if chest.item_allowed(i)]
                             check_item = random.choice(possible_items)
                             if check_item.is_equipment:
                                 fifty = random.choice([0, 1])
@@ -495,7 +499,7 @@ def randomize_all(world):
 
                             # If no possible items are allowed in this chest, make it coins instead.
                             if not possible_items:
-                                possible_items = coins
+                                possible_items = [i for i in leftovers if chest.item_allowed(i)]
                             check_item = random.choice(possible_items)
 
                             # 50% chance of rerolling if item is an equip
@@ -559,7 +563,7 @@ def randomize_all(world):
 
                             # If no possible items are allowed in this chest, make it coins instead.
                             if not possible_items:
-                                possible_items = coins
+                                possible_items = [i for i in leftovers if chest.item_allowed(i)]
                             check_item = random.choice(possible_items)
 
                             if check_item not in items_already_in_chests or not check_item.is_equipment:
