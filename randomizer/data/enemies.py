@@ -304,8 +304,9 @@ class Enemy:
         script = self.script
         hps = self.hp_counter_ratios
         for i in range(len(script)):
-            (name, _) = script[i]
-            if name == 'if_hp':
+            (name, val) = script[i]
+            # Skip any HP checks for 0 because these are death checks that end the fight.
+            if name == 'if_hp' and val[0] > 0:
                 hp = self.round_for_battle_script(self.hp * hps[dex])
                 script[i] = ('if_hp', [hp])
                 dex += 1
