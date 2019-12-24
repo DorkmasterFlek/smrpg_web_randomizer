@@ -1,5 +1,5 @@
-Django==3.0
-jsonfield2==3.0.3
+Django==3.0.1
+jsonfield2==3.1.0
 Markdown==3.1.1
 nlzss==0.1.2
 Wii.py==0.1
