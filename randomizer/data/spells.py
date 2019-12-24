@@ -666,7 +666,7 @@ def get_default_spells(world):
 # BigBang is not in any of these tables. It's just a bad idea.
 SingleTargets = [Drain, LightningOrb, Flame, Bolt, Crystal, FlameStone, MegaDrain, WillyWisp, DiamondSaw, Electroshock, Blast, Storm, IceRock, DarkStar]
 Heals = [Recover, MegaRecover, WeirdMushroom]
-MultiTargets = [FlameWall, StaticE, SandStorm, Blizzard, DrainBeam, MeteorBlast, LightBeam, WaterBlast, Solidify, PetalBlast, AuroraFlash, Boulder, Corona, MeteorSwarm, KnockOut, BreakerBeam, Shredder, Sledge, SwordRain, SpearRain, ArrowRain, ChestScrow, ChestFear, ChestMute, ChestPoison, ChainSaw]
+MultiTargets = [FlameWall, StaticE, SandStorm, Blizzard, DrainBeam, MeteorBlast, LightBeam, WaterBlast, Solidify, PetalBlast, AuroraFlash, Boulder, Corona, MeteorSwarm, KnockOut, Shredder, Sledge, SwordRain, SpearRain, ArrowRain, ChestScrow, ChestFear, ChestMute, ChestPoison, ChainSaw]
 DoNothing = [Nothing]
 Run = [Escape]
 
@@ -705,18 +705,20 @@ SpellsToTargets = {
     Corona.index: MultiTargets,
     MeteorSwarm.index: MultiTargets,
     KnockOut.index: MultiTargets,
-    BreakerBeam.index: MultiTargets,
     Shredder.index: MultiTargets,
     Sledge.index: MultiTargets,
     SwordRain.index: MultiTargets,
     SpearRain.index: MultiTargets,
     ArrowRain.index: MultiTargets,
-    BigBang.index: MultiTargets,
     ChestScrow.index: MultiTargets,
     ChestFear.index: MultiTargets,
     ChestMute.index: MultiTargets,
     ChestPoison.index: MultiTargets,
     ChainSaw.index: MultiTargets,
+
+    # These can really only be done by their specific casters
+    BreakerBeam.index: [BreakerBeam] + MultiTargets,
+    BigBang.index: [BigBang] + MultiTargets,
 
     Nothing.index: DoNothing,
     Escape.index: Run,
