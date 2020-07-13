@@ -356,11 +356,12 @@ class BowserZeccet(BowserPalette):
     poison_colours = ["A8F8F8", "A8E0F8", "98B0B0", "382038", "201018", "883868", "603088", "302868", "201848", "708870", "505850", "000000", "5890A8", "305848", "000000"]
     underwater_colours = ["7c7cad", "7c6c89", "705875", "38184e", "241042", "64245e", "502065", "341c5e", "241452", "584462", "443056", "100836", "484871", "303052", "0c0c3e"]
     name = "Zeccet"
-class BowserDJN(BowserPalette):
+class BowserBlue(BowserPalette):
     colours = ["F8F8F8", "CACEA5", "BCBB6F", "C76714", "21451C", "4E4EE8", "3D3DB8", "1818A5", "103008", "699C69", "387131", "201008", "909080", "606040", "181818"]
     poison_colours = ["F8E088", "E0B050", "D0A028", "E05000", "102800", "483080", "302860", "080050", "001800", "688828", "285808", "100000", "987040", "584810", "080000"]
     underwater_colours = ["7c7cad", "646885", "605c69", "64343a", "102442", "2828a5", "20208d", "0c0c85", "081836", "345065", "1c384a", "100836", "484871", "303052", "0c0c3e"]
-    name = "DJNintendo"
+    name = "Blue"
+    rename_character = False
 #toadstool palettes
 class ToadstoolDaisy(ToadstoolPalette):
     colours = ["F8F8F8", "E09870", "A86048", "402800", "502818", "F8C810", "F8A018", "D08800", "700000", "A85000", "903800", "0898A0", "C8C8D0", "786860", "181818"]
