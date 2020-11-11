@@ -79,6 +79,10 @@ wish_strings = list(map(compress, [
     '\n\n    Tenth enemy has the wish!',
     '\n\n    I wish I could grant\n    meta-wishes...',
     '\n\n    I see the stars pieces,\n    but I have to find an\n    octagon!',
+    '\n\n    I wish my computer could\n    play this.',
+    '\n\n    I wish you\'d come to my house.\n    Do some stuff at my house.\n    Play some Kaizo at my house.',
+    '\n\n    I wish Ridley I weren\'t\n    too big to fit in this game',
+    '\n\n    Yo Mario, I\'m really happy\n    for you, Imma let you finish,\n    but Sonic had one of the best\n    video games of all time...\n    one of the best video games\n    of all time!',
 ]))
 
 wish_dialogs = [

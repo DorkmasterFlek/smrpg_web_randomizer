@@ -3,6 +3,8 @@
 import random
 import math
 
+from inspect import isclass
+
 from randomizer.data import items
 from randomizer.data.characters import Mario, Mallow, Geno, Bowser, Peach
 from . import flags, utils
@@ -774,3 +776,31 @@ def randomize_all(world):
         for item in world.items:
             if item.index == 175:
                 item.status_immunities = [random.randint(0, 7)]
+
+
+def get_spoiler(world):
+    acc = {}
+    for location in world.key_locations:
+        if location.item.shuffle_type != items.ItemShuffleType.Required:
+            continue
+        if isinstance(location.item, items.Item):
+            item_str = location.item.name
+        elif isclass(location.item):
+            item_str = location.item.__name__
+        else:
+            item_str = str(location.item)
+
+        acc[location.name] = item_str
+
+    for location in world.chest_locations:
+        if location.item.shuffle_type != items.ItemShuffleType.Required:
+            continue
+        if isinstance(location.item, items.Item):
+            item_str = location.item.name
+        elif isclass(location.item):
+            item_str = location.item.__name__
+        else:
+            item_str = str(location.item)
+
+        acc[location.name] = item_str
+    return acc

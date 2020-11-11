@@ -44,6 +44,7 @@ class BattleMusic(IntEnum):
     Boss2 = 0x08
     Smithy = 0x0c
     Culex = 0x1c
+    Corn = 0x10
 
 
 class StarLocation:

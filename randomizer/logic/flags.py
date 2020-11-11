@@ -814,6 +814,14 @@ class ExperienceNoRegular(Flag):
     value = '-noexp'
     hard = True
 
+class ExperienceNoBosses(Flag):
+    name = 'No XP from bosses'
+    description = 'Bosses don\'t reward XP.'
+    inverse_description = "(You will receive EXP from boss fights.)"
+    value = '-nobossexp'
+    hard = True
+
+
 
 # ******** Star exp progression challenge
 
@@ -841,6 +849,12 @@ class StarExp2(Flag):
     value = 'P2'
     hard = True
 
+class StarExp3(Flag):
+    name = 'None'
+    description = ("All stars give 0 XP")
+    value = 'PZ'
+    hard = True
+
 
 class StarExpChallenge(Flag):
     name = 'Star EXP progression challenge'
@@ -851,6 +865,7 @@ class StarExpChallenge(Flag):
     choices = [
         StarExp1,
         StarExp2,
+        StarExp3,
     ]
 
 
@@ -1091,6 +1106,7 @@ class BattlesCategory(FlagCategory):
     flags = [
         ExperienceBoost,
         ExperienceNoRegular,
+        ExperienceNoBosses,
     ]
 
 
