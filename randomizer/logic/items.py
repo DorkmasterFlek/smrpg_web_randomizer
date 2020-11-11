@@ -780,7 +780,7 @@ def randomize_all(world):
 
 def get_spoiler(world):
     acc = {}
-    for location in world.key_locations:
+    for location in world.key_locations + world.chest_locations:
         if location.item.shuffle_type != items.ItemShuffleType.Required:
             continue
         if isinstance(location.item, items.Item):
@@ -792,15 +792,4 @@ def get_spoiler(world):
 
         acc[location.name] = item_str
 
-    for location in world.chest_locations:
-        if location.item.shuffle_type != items.ItemShuffleType.Required:
-            continue
-        if isinstance(location.item, items.Item):
-            item_str = location.item.name
-        elif isclass(location.item):
-            item_str = location.item.__name__
-        else:
-            item_str = str(location.item)
-
-        acc[location.name] = item_str
     return acc
