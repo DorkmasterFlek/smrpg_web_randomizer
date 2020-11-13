@@ -5,6 +5,10 @@ Console or Emulator:
 
  If emulator state which emulator and version.  If console, state which flash cart firmware.
 
+Were you using Crowd Control:
+
+ NOTE: Crowd Control is NOT officially supported for the randomizer currently.  Please ONLY report issues if they are happening WITHOUT Crowd Control!  See https://forum.warp.world/t/super-mario-rpg-legend-of-the-seven-stars-snes/14219 for details.
+
 Flags (paste flag string if available): 
 
 Seed number or hash (seed number or hash string from filename or download page): 
