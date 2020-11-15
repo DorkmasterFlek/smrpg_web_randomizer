@@ -648,6 +648,8 @@ class GameWorld:
                     exps = (2, 4, 5, 6, 8, 9, 11)
                 elif choice is flags.StarExp2:
                     exps = (1, 2, 3, 5, 6, 7, 11)
+                elif choice is flags.StarExp3:
+                    exps = (0, 0, 0, 0, 0, 0, 0)
                 else:
                     raise ValueError("Got unrecognized value for star exp challenge: {!r}".format(choice))
 
@@ -811,5 +813,6 @@ class GameWorld:
         # TODO: Open mode only spoilers.
         if self.open_mode:
             spoiler['Boss Locations'] = bosses.get_spoiler(self)
+            spoiler['Item Locations'] = items.get_spoiler(self)
 
         return spoiler
