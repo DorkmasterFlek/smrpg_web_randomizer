@@ -193,7 +193,11 @@ class Enemy:
         elif m == 255:
             ret += 1
 
-        return ret
+        # If starting value was positive, final value must be at least 1 since zero is a death trigger that ends battle.
+        if val > 0:
+            return max(1, ret)
+        else:
+            return ret
 
     @classmethod
     def get_world_instance(cls, world):
