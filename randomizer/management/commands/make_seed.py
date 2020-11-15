@@ -1,12 +1,15 @@
 import json
+import random
 
 from django.core.management.base import BaseCommand
 from .generatesample import ALL_FLAGS
 
-from randomizer.logic.main import GameWorld, Settings, VERSION
+from randomizer.logic.main import GameWorld, Settings
 
-help = 'Generate a statistical sampling of seeds to compare randomization spreads.'
+
 class Command(BaseCommand):
+    help = 'Generate a statistical sampling of seeds to compare randomization spreads.'
+
     def add_arguments(self, parser):
         """Add optional arguments.
 
@@ -15,7 +18,7 @@ class Command(BaseCommand):
 
         """
 
-        parser.add_argument('-r', '--rom', dest='rom',
+        parser.add_argument('-r', '--rom', dest='rom', required=True,
                             help='Path to a Mario RPG rom')
 
         parser.add_argument('-s', '--seed', dest='seed', type=int, default=0,
@@ -30,10 +33,17 @@ class Command(BaseCommand):
         parser.add_argument('-f', '--flags', dest='flags', default=ALL_FLAGS,
                             help='Flags string (from website). If not provided, all flags will be used.')
 
-
     def handle(self, *args, **options):
         settings = Settings(options['mode'], flag_string=options['flags'])
         seed = options['seed']
+
+        # If seed is not provided, generate a 32 bit seed integer using the CSPRNG.
+        if not seed:
+            r = random.SystemRandom()
+            seed = r.getrandbits(32)
+            del r
+
+        self.stdout.write("Generating seed: {}".format(seed))
         world = GameWorld(seed, settings)
 
         world.randomize()
@@ -63,4 +73,7 @@ class Command(BaseCommand):
         rom[0x7FDF] = checksum >> 8
 
         open(options['output_file'], 'wb').write(rom)
-        json.dump(world.spoiler, open(options['output_file'] + '.spoiler', 'w'))
+        self.stdout.write("Wrote output file: {}".format(options['output_file']))
+        spoiler_fname = options['output_file'] + '.spoiler'
+        json.dump(world.spoiler, open(spoiler_fname, 'w'))
+        self.stdout.write("Wrote spoiler file: {}".format(spoiler_fname))
