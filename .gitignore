@@ -105,4 +105,4 @@ ENV/
 db.sqlite*
 /static
 dump*.py
-sample*.csv
+sample*
