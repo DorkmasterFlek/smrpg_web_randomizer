@@ -44,7 +44,7 @@ class ItemLocation:
     """Base class for an item location, either a key item or quest reward or chest."""
     area = Area.MariosPad
     addresses = []
-    item = None
+    _item = None
     missable = False
     access = 0
     not_depletable = False
@@ -125,6 +125,26 @@ class ItemLocation:
     @property
     def has_item(self):
         return self.item is not None
+
+    @property
+    def item(self):
+        """
+        Returns:
+            randomizer.data.items.Item|type: Item in this spot.
+        """
+        return self._item
+
+    @item.setter
+    def item(self, value):
+        """
+        Args:
+            value(randomizer.data.items.Item|type): Item to place in this location, if allowed.
+        """
+        if not utils.isclass_or_instance(value, items.Item):
+            raise ValueError("Location {} - Trying to assign value {} that isn't an item class".format(self, value))
+        if not self.item_allowed(value):
+            raise ValueError("Location {} - Item {} not allowed".format(self, value))
+        self._item = value
 
 
 class BowserRoom:
