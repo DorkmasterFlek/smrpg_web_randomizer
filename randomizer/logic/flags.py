@@ -1042,6 +1042,12 @@ class PaletteSwaps(Flag):
     inverse_description = '(Sprite colours are not modified.)'
     value = '-palette'
 
+class ShowEquips(Flag):
+    name = 'Show Equips'
+    description = 'Always show who can equip what in stores.'
+    inverse_description = '(Only current party members know what they can wear.)'
+    value = '-showequips'
+
 
 # ************************************** Category classes
 
@@ -1125,6 +1131,7 @@ class TweaksCategory(FlagCategory):
         PoisonMushroom,
         RandomizeBowsersKeep,
         CasinoWarp,
+        ShowEquips,
     ]
 
 
