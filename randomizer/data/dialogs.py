@@ -83,6 +83,11 @@ wish_strings = list(map(compress, [
     '\n\n    I wish you\'d come to my house.\n    Do some stuff at my house.\n    Play some Kaizo at my house.',
     '\n\n    I wish Ridley I weren\'t\n    too big to fit in this game',
     '\n\n    Yo Mario, I\'m really happy\n    for you, Imma let you finish,\n    but Sonic had one of the best\n    video games of all time...\n    one of the best video games\n    of all time!',
+    '\n\n    I wish Bowsette were canon.',
+    '\n\n    I wish SMW Twitch streamers\n    would play more than just\n    kaizo hacks.',
+    '\n\n    I understand why they do it,\n    but I wish they\'d give\n    an option to remove the beeping.',
+    '\n\n    I wish the Bowser warp\n    was still a thing.',
+    '\n\n    I wish Mario would stop\n    dropping me down pits.',
 ]))
 
 wish_dialogs = [

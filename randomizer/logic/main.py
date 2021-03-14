@@ -731,6 +731,11 @@ class GameWorld:
         if self.open_mode:
             patch += bosses_overworld.patch_overworld_bosses(self)
 
+        # Patch removes ANDing by current party from shop menu code.
+        # Replaces it with ANDing by #$1F, which is all party members.
+        if self.settings.is_flag_enabled(flags.ShowEquips):
+            patch.add_data(0x033B6D, bytes([0x29, 0x1F, 0xEA]))
+
         # This needs to happen after all battle script randomization.
         patch += assemble_battle_scripts(self)
 
