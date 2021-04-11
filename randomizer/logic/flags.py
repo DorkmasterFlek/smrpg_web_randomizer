@@ -1146,13 +1146,13 @@ class Preset:
 class CasualPreset(Preset):
     name = 'Casual'
     description = 'Basic flags for a casual playthrough of the game.'
-    flags = 'K R Csj Tc4y $ M1 Sc4 Edf B Qa X2 P1 Nbmq D1s W'
+    flags = 'K R Csj Tc4y $ M1 Sc4 Edf B Qa X2 P1 Nbmq D1s W -showequips'
 
 
 class IntermediatePreset(Preset):
     name = 'Intermediate'
     description = 'A mild increase in difficulty compared to casual.'
-    flags = 'Ks R7 Cspjl Tc3y $ M1 Sb4 Edf B Qsa X2 Nbmq D2s W'
+    flags = 'Ks R7 Cspjl Tc3y $ M1 Sb4 Edf B Qsa X2 Nbmq D2s W -showequips'
 
 
 class AdvancedPreset(Preset):
@@ -1170,7 +1170,12 @@ class ExpertPreset(Preset):
 class QuickPreset(Preset):
     name = 'Quick'
     description = 'A faster playthrough with free shops and XP acceleration for faster progression'
-    flags = 'K Rk Csjl Tc4yzm $ M2 Sc4 -freeshops Ed Bm Qsba X3 D1 W'
+    flags = 'K Rk Csjl Tc4yzm $ M2 Sc4 -freeshops Ed Bm Qsba X3 D1 W -showequips'
+
+class AsyncTourneyPreset(Preset):
+    name = 'Async Tourney'
+    description = 'Flagset for the 2021 Async Tourney'
+    flags = 'Kb Rk Cspjl -nfc Tc4 M2 Sc4 Edfsa Bmc Qsba X3 -fakeout D2s W -showequips'
 
 
 # ************************************** Default lists for the site.
@@ -1195,4 +1200,5 @@ PRESETS = (
     AdvancedPreset,
     ExpertPreset,
     QuickPreset,
+    AsyncTourneyPreset,
 )
