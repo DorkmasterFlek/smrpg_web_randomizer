@@ -3,7 +3,7 @@
 from randomizer.logic import utils
 from randomizer.logic.patch import Patch
 from . import enemies
-from .bosses import Battlefields
+from .bosses import Battlefields, BattleMusic
 
 
 class FormationMember:
@@ -85,13 +85,14 @@ class EnemyFormation:
     # LOWER_Y = min(c[1] for c in VALID_COORDINATES)
     # UPPER_Y = max(c[1] for c in VALID_COORDINATES)
 
-    def __init__(self, index, event_at_start, music_run_flags, members, required_battlefield=None,
+    def __init__(self, index, event_at_start, music_group, can_run_away, members, required_battlefield=None,
                  stat_total_enemies=None, stat_scaling_enemies=None):
         """
         Args:
             index (int):
             event_at_start (int|None):
-            music_run_flags (int):
+            music_group (int):
+            can_run_away (bool):
             members (list[FormationMember]):
             required_battlefield (int):
             stat_total_enemies (list[randomizer.data.enemies.Enemy|type]): List of enemies needed for stat totals during
@@ -103,6 +104,8 @@ class EnemyFormation:
         """
         self.index = index
         self.event_at_start = event_at_start
+        self.music = music_group
+        self.can_run_away = can_run_away
         self.members = members
         self.leaders = set()
         self.required_battlefield = required_battlefield
@@ -122,10 +125,6 @@ class EnemyFormation:
             for member in self.members:
                 if member.enemy not in self.stat_scaling_enemies:
                     self.stat_scaling_enemies.append(member.enemy)
-
-        # Parse out can't run and music flags.
-        self.can_run_away = not bool(music_run_flags & 0x02)
-        self.music = music_run_flags & 0xfd
 
     @property
     def enemies(self):
@@ -192,9 +191,9 @@ class EnemyFormation:
         # Add formation metadata.
         data = bytearray()
         data += utils.ByteField(self.event_at_start if self.event_at_start is not None else 0xff).as_bytes()
-        music_run_flags = self.music
-        if not self.can_run_away:
-            music_run_flags |= 0x03
+        music_run_flags = (self.music << 2) + (0x03 if not self.can_run_away else 0x00)
+        if music_run_flags is 0x00:
+            music_run_flags = 0x01
         data += utils.ByteField(music_run_flags).as_bytes()
 
         base_addr = self.BASE_META_ADDRESS + self.index * 3 + 1
@@ -273,315 +272,315 @@ def get_default_enemy_formations(world):
     """
     # Vanilla enemy formation data.
     formations = [
-        EnemyFormation(4, None, 1, [
+        EnemyFormation(4, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikey), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spikey), 199, 143),
         ]),
-        EnemyFormation(5, None, 1, [
+        EnemyFormation(5, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikey), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Skytroopa), 199, 151),
         ]),
-        EnemyFormation(6, None, 1, [
+        EnemyFormation(6, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikey), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spikey), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Frogog), 199, 119),
         ]),
-        EnemyFormation(7, None, 1, [
+        EnemyFormation(7, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikey), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spikey), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Spikey), 199, 151),
         ]),
-        EnemyFormation(8, None, 1, [
+        EnemyFormation(8, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Skytroopa), 167, 135),
         ]),
-        EnemyFormation(9, None, 1, [
+        EnemyFormation(9, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Skytroopa), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Skytroopa), 199, 151),
         ]),
-        EnemyFormation(10, None, 1, [
+        EnemyFormation(10, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Skytroopa), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Skytroopa), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Frogog), 183, 127),
         ]),
-        EnemyFormation(11, None, 1, [
+        EnemyFormation(11, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Skytroopa), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Skytroopa), 231, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Goomba), 167, 135),
         ]),
-        EnemyFormation(12, None, 1, [
+        EnemyFormation(12, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Goomba), 215, 135),
         ]),
-        EnemyFormation(13, None, 1, [
+        EnemyFormation(13, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 167, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Goomba), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Goomba), 215, 135),
         ]),
-        EnemyFormation(14, None, 1, [
+        EnemyFormation(14, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 167, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Goomba), 215, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Spikey), 167, 135),
         ]),
-        EnemyFormation(15, None, 1, [
+        EnemyFormation(15, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Frogog), 167, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Spikey), 215, 135),
         ]),
-        EnemyFormation(16, None, 1, [
+        EnemyFormation(16, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.K9), 167, 135),
         ]),
-        EnemyFormation(17, None, 1, [
+        EnemyFormation(17, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.K9), 199, 159),
             FormationMember(1, False, world.get_enemy_instance(enemies.K9), 151, 119),
         ]),
-        EnemyFormation(18, None, 1, [
+        EnemyFormation(18, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.K9), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.K9), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Spikey), 199, 119),
         ]),
-        EnemyFormation(19, None, 1, [
+        EnemyFormation(19, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.K9), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Frogog), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Frogog), 151, 111),
         ]),
-        EnemyFormation(20, None, 3, [
+        EnemyFormation(20, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shyster), 183, 127),
         ]),
-        EnemyFormation(21, None, 3, [
+        EnemyFormation(21, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shyster), 167, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shyster), 199, 135),
         ]),
-        EnemyFormation(22, None, 3, [
+        EnemyFormation(22, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shyster), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shyster), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shyster), 167, 135),
         ]),
-        EnemyFormation(23, None, 3, [
+        EnemyFormation(23, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shyster), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shyster), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shyster), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Shyster), 215, 127),
         ]),
-        EnemyFormation(24, None, 1, [
+        EnemyFormation(24, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 199, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ratfunk), 151, 111),
         ]),
-        EnemyFormation(25, None, 1, [
+        EnemyFormation(25, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ratfunk), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shadow), 199, 119),
         ]),
-        EnemyFormation(26, None, 1, [
+        EnemyFormation(26, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ratfunk), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Hobgoblin), 199, 119),
         ]),
-        EnemyFormation(27, None, 1, [
+        EnemyFormation(27, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Hobgoblin), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Hobgoblin), 231, 135),
         ]),
-        EnemyFormation(28, None, 1, [
+        EnemyFormation(28, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.TheBigBoo), 167, 135),
         ]),
-        EnemyFormation(29, None, 1, [
+        EnemyFormation(29, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.TheBigBoo), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shadow), 199, 143),
         ]),
-        EnemyFormation(30, None, 1, [
+        EnemyFormation(30, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.TheBigBoo), 119, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shadow), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Hobgoblin), 215, 143),
         ]),
-        EnemyFormation(31, None, 1, [
+        EnemyFormation(31, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.TheBigBoo), 231, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.TheBigBoo), 151, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.TheBigBoo), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Shadow), 183, 127),
         ]),
-        EnemyFormation(32, None, 1, [
+        EnemyFormation(32, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goby), 167, 135),
         ]),
-        EnemyFormation(33, None, 1, [
+        EnemyFormation(33, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goby), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Goby), 199, 151),
         ]),
-        EnemyFormation(34, None, 1, [
+        EnemyFormation(34, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goby), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Goby), 215, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Goby), 183, 151),
         ]),
-        EnemyFormation(35, None, 1, [
+        EnemyFormation(35, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goby), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Goby), 215, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Goby), 167, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Goby), 183, 111),
             FormationMember(4, False, world.get_enemy_instance(enemies.Goby), 199, 151),
         ]),
-        EnemyFormation(36, None, 1, [
+        EnemyFormation(36, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Crook), 167, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Crook), 199, 151),
         ]),
-        EnemyFormation(37, None, 1, [
+        EnemyFormation(37, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Crook), 199, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Crook), 151, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.ShyGuy), 199, 119),
         ]),
-        EnemyFormation(38, None, 1, [
+        EnemyFormation(38, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Crook), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Snapdragon), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Snapdragon), 215, 143),
         ]),
-        EnemyFormation(39, None, 1, [
+        EnemyFormation(39, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Crook), 199, 159),
             FormationMember(3, False, world.get_enemy_instance(enemies.Starslap), 215, 127),
             FormationMember(4, False, world.get_enemy_instance(enemies.Arachne), 167, 103),
         ]),
-        EnemyFormation(40, None, 1, [
+        EnemyFormation(40, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.ShyGuy), 167, 135),
         ]),
-        EnemyFormation(41, None, 1, [
+        EnemyFormation(41, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.ShyGuy), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Starslap), 199, 151),
         ]),
-        EnemyFormation(42, None, 1, [
+        EnemyFormation(42, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.ShyGuy), 135, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.ShyGuy), 215, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Snapdragon), 183, 127),
         ]),
-        EnemyFormation(43, None, 1, [
+        EnemyFormation(43, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.ShyGuy), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Crook), 199, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Arachne), 151, 111),
         ]),
-        EnemyFormation(44, None, 1, [
+        EnemyFormation(44, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Starslap), 199, 159),
             FormationMember(1, False, world.get_enemy_instance(enemies.ShyGuy), 151, 111),
         ]),
-        EnemyFormation(45, None, 1, [
+        EnemyFormation(45, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Starslap), 215, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Arachne), 151, 111),
         ]),
-        EnemyFormation(46, None, 1, [
+        EnemyFormation(46, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Starslap), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Snapdragon), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Snapdragon), 215, 143),
         ]),
-        EnemyFormation(47, None, 1, [
+        EnemyFormation(47, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Starslap), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Starslap), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Starslap), 231, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Starslap), 135, 119),
         ]),
-        EnemyFormation(48, None, 1, [
+        EnemyFormation(48, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Wiggler), 183, 127),
         ]),
-        EnemyFormation(49, None, 1, [
+        EnemyFormation(49, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Wiggler), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Amanita), 199, 151),
         ]),
-        EnemyFormation(50, None, 1, [
+        EnemyFormation(50, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Wiggler), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Wiggler), 215, 143),
         ]),
-        EnemyFormation(51, None, 1, [
+        EnemyFormation(51, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Wiggler), 151, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Guerrilla), 215, 143),
         ]),
-        EnemyFormation(52, None, 1, [
+        EnemyFormation(52, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Amanita), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Amanita), 199, 143),
         ]),
-        EnemyFormation(53, None, 1, [
+        EnemyFormation(53, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Amanita), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Amanita), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Buzzer), 199, 119),
         ]),
-        EnemyFormation(54, None, 1, [
+        EnemyFormation(54, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Amanita), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Amanita), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Octolot), 183, 127),
         ]),
-        EnemyFormation(55, None, 1, [
+        EnemyFormation(55, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Amanita), 151, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Guerrilla), 215, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Buzzer), 183, 111),
         ]),
-        EnemyFormation(56, None, 1, [
+        EnemyFormation(56, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Buzzer), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Octolot), 199, 143),
         ]),
-        EnemyFormation(57, None, 1, [
+        EnemyFormation(57, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Buzzer), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Buzzer), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Amanita), 167, 135),
         ]),
-        EnemyFormation(58, None, 1, [
+        EnemyFormation(58, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Buzzer), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Guerrilla), 151, 119),
         ]),
-        EnemyFormation(59, None, 1, [
+        EnemyFormation(59, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Buzzer), 199, 159),
             FormationMember(2, False, world.get_enemy_instance(enemies.Guerrilla), 135, 119),
         ]),
-        EnemyFormation(60, None, 1, [
+        EnemyFormation(60, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 183, 127),
         ]),
-        EnemyFormation(61, None, 1, [
+        EnemyFormation(61, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 167, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sparky), 215, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.ShyRanger), 167, 135),
         ]),
-        EnemyFormation(62, None, 1, [
+        EnemyFormation(62, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sparky), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Sparky), 215, 143),
         ]),
-        EnemyFormation(63, None, 1, [
+        EnemyFormation(63, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sparky), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Sparky), 231, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Sparky), 167, 103),
         ]),
-        EnemyFormation(64, None, 1, [
+        EnemyFormation(64, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.ShyRanger), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.ShyRanger), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.ShyRanger), 199, 151),
             FormationMember(4, False, world.get_enemy_instance(enemies.ShyRanger), 231, 135),
         ]),
-        EnemyFormation(65, None, 1, [
+        EnemyFormation(65, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Goomba), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.ShyRanger), 183, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.ShyRanger), 215, 127),
         ]),
-        EnemyFormation(66, None, 1, [
+        EnemyFormation(66, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Goomba), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.PiranhaPlant), 199, 119),
             FormationMember(3, False, world.get_enemy_instance(enemies.PiranhaPlant), 167, 135),
         ]),
-        EnemyFormation(67, None, 1, [
+        EnemyFormation(67, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Goomba), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.PiranhaPlant), 231, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.PiranhaPlant), 135, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.Sparky), 199, 119),
         ]),
-        EnemyFormation(68, None, 1, [
+        EnemyFormation(68, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.PiranhaPlant), 167, 135),
         ]),
-        EnemyFormation(69, None, 1, [
+        EnemyFormation(69, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.PiranhaPlant), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.PiranhaPlant), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.ShyRanger), 183, 127),
         ]),
-        EnemyFormation(70, None, 1, [
+        EnemyFormation(70, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.PiranhaPlant), 167, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.PiranhaPlant), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.PiranhaPlant), 215, 135),
         ]),
-        EnemyFormation(71, None, 1, [
+        EnemyFormation(71, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.PiranhaPlant), 151, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.PiranhaPlant), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.PiranhaPlant), 199, 119),
@@ -589,248 +588,248 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.PiranhaPlant), 199, 159),
         ]),
         # Change Bobomb enemies in the normal formations to Robombs so we can boss shuffle Punchinello.
-        EnemyFormation(72, None, 1, [
+        EnemyFormation(72, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 183, 127),
         ]),
-        EnemyFormation(73, None, 1, [
+        EnemyFormation(73, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Cluster), 199, 119),
         ]),
-        EnemyFormation(74, None, 1, [
+        EnemyFormation(74, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 199, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.Robomb), 215, 127),
         ]),
-        EnemyFormation(75, None, 1, [
+        EnemyFormation(75, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Enigma), 183, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.Cluster), 215, 127),
         ]),
-        EnemyFormation(76, None, 1, [
+        EnemyFormation(76, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Enigma), 167, 111),
         ]),
-        EnemyFormation(77, None, 1, [
+        EnemyFormation(77, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 167, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sparky), 215, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 167, 135),
         ]),
-        EnemyFormation(78, None, 1, [
+        EnemyFormation(78, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Cluster), 231, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Cluster), 151, 103),
         ]),
-        EnemyFormation(79, None, 1, [
+        EnemyFormation(79, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sparky), 183, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sparky), 151, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Enigma), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Enigma), 231, 135),
         ]),
-        EnemyFormation(80, None, 1, [
+        EnemyFormation(80, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmite), 167, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmite), 199, 151),
         ]),
-        EnemyFormation(81, None, 1, [
+        EnemyFormation(81, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmite), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 183, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Sparky), 215, 143),
         ]),
-        EnemyFormation(82, None, 1, [
+        EnemyFormation(82, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmite), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmite), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Cluster), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Cluster), 231, 135),
         ]),
-        EnemyFormation(83, None, 1, [
+        EnemyFormation(83, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmite), 135, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmite), 231, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 167, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.Cluster), 199, 119),
         ]),
-        EnemyFormation(84, None, 1, [
+        EnemyFormation(84, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Lakitu), 183, 127),
         ]),
-        EnemyFormation(85, None, 1, [
+        EnemyFormation(85, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Lakitu), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spikester), 199, 159),
             FormationMember(2, False, world.get_enemy_instance(enemies.Artichoker), 183, 119),
         ]),
-        EnemyFormation(86, None, 1, [
+        EnemyFormation(86, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Lakitu), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Lakitu), 183, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Lakitu), 215, 143),
         ]),
-        EnemyFormation(87, None, 1, [
+        EnemyFormation(87, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Lakitu), 231, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Lakitu), 135, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Artichoker), 183, 127),
         ]),
-        EnemyFormation(88, None, 1, [
+        EnemyFormation(88, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikester), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Carriboscis), 135, 119),
         ]),
-        EnemyFormation(89, None, 1, [
+        EnemyFormation(89, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikester), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spikester), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Artichoker), 199, 119),
         ]),
-        EnemyFormation(90, None, 1, [
+        EnemyFormation(90, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikester), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Carriboscis), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Carriboscis), 199, 151),
         ]),
-        EnemyFormation(91, None, 1, [
+        EnemyFormation(91, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spikester), 119, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spikester), 215, 159),
             FormationMember(2, False, world.get_enemy_instance(enemies.Spikester), 215, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Spikester), 167, 111),
             FormationMember(4, False, world.get_enemy_instance(enemies.Carriboscis), 151, 143),
         ]),
-        EnemyFormation(92, None, 3, [
+        EnemyFormation(92, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spookum), 199, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Orbuser), 135, 119),
         ]),
-        EnemyFormation(93, None, 3, [
+        EnemyFormation(93, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spookum), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spookum), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Jester), 199, 119),
         ]),
-        EnemyFormation(94, None, 3, [
+        EnemyFormation(94, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spookum), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Remocon), 167, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Orbuser), 215, 127),
         ]),
-        EnemyFormation(95, None, 3, [
+        EnemyFormation(95, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Spookum), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spookum), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Remocon), 199, 119),
         ]),
-        EnemyFormation(96, None, 1, [
+        EnemyFormation(96, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 183, 127),
         ]),
-        EnemyFormation(97, None, 1, [
+        EnemyFormation(97, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 167, 135),
         ]),
-        EnemyFormation(98, None, 1, [
+        EnemyFormation(98, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Remocon), 183, 127),
         ]),
-        EnemyFormation(99, None, 1, [
+        EnemyFormation(99, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 231, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 183, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Robomb), 183, 151),
             FormationMember(4, False, world.get_enemy_instance(enemies.Orbuser), 183, 127),
         ]),
-        EnemyFormation(100, None, 1, [
+        EnemyFormation(100, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chomp), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Jester), 167, 111),
         ]),
-        EnemyFormation(101, None, 1, [
+        EnemyFormation(101, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chomp), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 151, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Remocon), 167, 103),
         ]),
-        EnemyFormation(102, None, 1, [
+        EnemyFormation(102, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chomp), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Chomp), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Orbuser), 183, 127),
         ]),
-        EnemyFormation(103, None, 1, [
+        EnemyFormation(103, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chomp), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Jester), 135, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Jester), 231, 151),
         ]),
-        EnemyFormation(104, None, 1, [
+        EnemyFormation(104, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Blaster), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spookum), 199, 119),
         ]),
-        EnemyFormation(105, None, 1, [
+        EnemyFormation(105, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Blaster), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spookum), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Remocon), 215, 143),
         ]),
-        EnemyFormation(106, None, 1, [
+        EnemyFormation(106, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Blaster), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Blaster), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Spookum), 199, 119),
         ]),
-        EnemyFormation(107, None, 1, [
+        EnemyFormation(107, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Blaster), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Robomb), 135, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Robomb), 231, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.Spookum), 151, 127),
             FormationMember(4, False, world.get_enemy_instance(enemies.Spookum), 183, 143),
         ]),
-        EnemyFormation(108, None, 1, [
+        EnemyFormation(108, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Torte), 183, 127),
         ]),
-        EnemyFormation(109, None, 1, [
+        EnemyFormation(109, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Torte), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Torte), 151, 111),
         ]),
-        EnemyFormation(110, None, 1, [
+        EnemyFormation(110, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Torte), 183, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Torte), 151, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Torte), 215, 135),
         ]),
-        EnemyFormation(111, None, 1, [
+        EnemyFormation(111, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Torte), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Torte), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Torte), 151, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.Torte), 215, 143),
         ]),
-        EnemyFormation(112, None, 1, [
+        EnemyFormation(112, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Mukumuku), 183, 127),
         ]),
-        EnemyFormation(113, None, 1, [
+        EnemyFormation(113, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Mukumuku), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Mukumuku), 215, 135),
         ]),
-        EnemyFormation(114, None, 1, [
+        EnemyFormation(114, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Mukumuku), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Mukumuku), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pulsar), 167, 135),
         ]),
-        EnemyFormation(115, None, 1, [
+        EnemyFormation(115, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Mukumuku), 183, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pulsar), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Gecko), 231, 143),
         ]),
-        EnemyFormation(116, None, 1, [
+        EnemyFormation(116, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sackit), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sackit), 167, 111),
         ]),
-        EnemyFormation(117, None, 1, [
+        EnemyFormation(117, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sackit), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sackit), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Mukumuku), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Gecko), 231, 135),
         ]),
-        EnemyFormation(118, None, 1, [
+        EnemyFormation(118, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sackit), 167, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Pulsar), 167, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.Pulsar), 231, 135),
         ]),
-        EnemyFormation(119, None, 1, [
+        EnemyFormation(119, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sackit), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Mastadoom), 167, 103),
         ]),
-        EnemyFormation(120, None, 1, [
+        EnemyFormation(120, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Gecko), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Sackit), 199, 143),
         ]),
-        EnemyFormation(121, None, 1, [
+        EnemyFormation(121, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Gecko), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Mastadoom), 215, 135),
         ]),
-        EnemyFormation(122, None, 1, [
+        EnemyFormation(122, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Gecko), 183, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Gecko), 151, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Mukumuku), 135, 103),
@@ -838,556 +837,556 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.Sackit), 183, 111),
             FormationMember(5, False, world.get_enemy_instance(enemies.Sackit), 215, 127),
         ]),
-        EnemyFormation(123, None, 1, [
+        EnemyFormation(123, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Gecko), 135, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Gecko), 231, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Mastadoom), 199, 119),
         ]),
-        EnemyFormation(124, None, 1, [
+        EnemyFormation(124, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Zeostar), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Zeostar), 215, 135),
         ]),
-        EnemyFormation(125, None, 1, [
+        EnemyFormation(125, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Zeostar), 151, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Zeostar), 183, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Bloober), 215, 135),
         ]),
-        EnemyFormation(126, None, 1, [
+        EnemyFormation(126, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Zeostar), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Zeostar), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Leuko), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Leuko), 231, 135),
         ]),
-        EnemyFormation(127, None, 1, [
+        EnemyFormation(127, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Zeostar), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Leuko), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Crusty), 151, 111),
         ]),
-        EnemyFormation(128, None, 1, [
+        EnemyFormation(128, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bloober), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.MrKipper), 215, 143),
         ]),
-        EnemyFormation(129, None, 1, [
+        EnemyFormation(129, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bloober), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bloober), 231, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Bloober), 135, 111),
         ]),
-        EnemyFormation(130, None, 1, [
+        EnemyFormation(130, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bloober), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bloober), 231, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.MrKipper), 151, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Crusty), 199, 119),
         ]),
-        EnemyFormation(131, None, 1, [
+        EnemyFormation(131, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bloober), 231, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bloober), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Zeostar), 135, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.Zeostar), 183, 151),
             FormationMember(4, False, world.get_enemy_instance(enemies.Leuko), 183, 127),
         ]),
-        EnemyFormation(132, None, 1, [
+        EnemyFormation(132, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MrKipper), 151, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.MrKipper), 215, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.MrKipper), 183, 127),
         ]),
-        EnemyFormation(133, None, 1, [
+        EnemyFormation(133, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MrKipper), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.MrKipper), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Crusty), 199, 119),
         ]),
-        EnemyFormation(134, None, 1, [
+        EnemyFormation(134, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MrKipper), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.MrKipper), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Crusty), 183, 127),
         ]),
-        EnemyFormation(135, None, 1, [
+        EnemyFormation(135, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MrKipper), 215, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.MrKipper), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.MrKipper), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.MrKipper), 151, 127),
         ]),
-        EnemyFormation(136, None, 1, [
+        EnemyFormation(136, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BandanaRed), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaRed), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.BandanaRed), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.BandanaRed), 231, 135),
         ]),
-        EnemyFormation(137, None, 1, [
+        EnemyFormation(137, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BandanaRed), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaRed), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.BandanaRed), 215, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.BandanaRed), 167, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.BandanaRed), 183, 111),
         ]),
-        EnemyFormation(138, None, 1, [
+        EnemyFormation(138, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BandanaRed), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaRed), 183, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.BandanaRed), 167, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.BandanaRed), 215, 135),
         ]),
-        EnemyFormation(139, None, 1, [
+        EnemyFormation(139, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BandanaRed), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaRed), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.DryBones), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.DryBones), 231, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.Strawhead), 183, 127),
         ]),
-        EnemyFormation(140, None, 1, [
+        EnemyFormation(140, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BandanaBlue), 183, 127),
         ]),
-        EnemyFormation(141, None, 1, [
+        EnemyFormation(141, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BandanaBlue), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaBlue), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Greaper), 183, 127),
         ]),
-        EnemyFormation(142, None, 1, [
+        EnemyFormation(142, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BandanaBlue), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaBlue), 167, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.BandanaBlue), 183, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.BandanaBlue), 215, 135),
         ]),
-        EnemyFormation(143, None, 1, [
+        EnemyFormation(143, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BandanaBlue), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaBlue), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Greaper), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Greaper), 231, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.Strawhead), 183, 127),
         ]),
-        EnemyFormation(144, None, 1, [
+        EnemyFormation(144, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DryBones), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.DryBones), 151, 111),
         ]),
-        EnemyFormation(145, None, 1, [
+        EnemyFormation(145, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DryBones), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.DryBones), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Greaper), 199, 119),
         ]),
-        EnemyFormation(146, None, 1, [
+        EnemyFormation(146, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DryBones), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Greaper), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Reacher), 199, 119),
         ]),
-        EnemyFormation(147, None, 1, [
+        EnemyFormation(147, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DryBones), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.DryBones), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Greaper), 151, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.Greaper), 183, 143),
             FormationMember(4, False, world.get_enemy_instance(enemies.Reacher), 199, 119),
         ]),
-        EnemyFormation(148, None, 1, [
+        EnemyFormation(148, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AlleyRat), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Gorgon), 151, 111),
         ]),
-        EnemyFormation(149, None, 1, [
+        EnemyFormation(149, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AlleyRat), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.AlleyRat), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Greaper), 215, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.Greaper), 183, 111),
         ]),
-        EnemyFormation(150, None, 1, [
+        EnemyFormation(150, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AlleyRat), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.AlleyRat), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Gorgon), 183, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.Gorgon), 231, 135),
         ]),
-        EnemyFormation(151, None, 1, [
+        EnemyFormation(151, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AlleyRat), 231, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Reacher), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Gorgon), 167, 103),
         ]),
-        EnemyFormation(152, None, 1, [
+        EnemyFormation(152, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Greaper), 183, 127),
         ]),
-        EnemyFormation(153, None, 1, [
+        EnemyFormation(153, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Greaper), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Greaper), 199, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Reacher), 199, 119),
         ]),
-        EnemyFormation(154, None, 1, [
+        EnemyFormation(154, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Greaper), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Strawhead), 215, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Reacher), 167, 111),
         ]),
-        EnemyFormation(155, None, 1, [
+        EnemyFormation(155, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Greaper), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Gorgon), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Strawhead), 215, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Strawhead), 151, 111),
         ]),
-        EnemyFormation(156, None, 1, [
+        EnemyFormation(156, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DrillBit), 183, 127),
         ]),
-        EnemyFormation(157, None, 1, [
+        EnemyFormation(157, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DrillBit), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.DrillBit), 199, 119),
         ]),
-        EnemyFormation(158, None, 1, [
+        EnemyFormation(158, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DrillBit), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.DrillBit), 183, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.DrillBit), 215, 119),
         ]),
-        EnemyFormation(159, None, 1, [
+        EnemyFormation(159, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DrillBit), 167, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.DrillBit), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.DrillBit), 135, 119),
             FormationMember(3, False, world.get_enemy_instance(enemies.DrillBit), 199, 119),
             FormationMember(4, False, world.get_enemy_instance(enemies.DrillBit), 199, 135),
         ]),
-        EnemyFormation(160, None, 1, [
+        EnemyFormation(160, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Stinger), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.FinkFlower), 199, 143),
         ]),
-        EnemyFormation(161, None, 1, [
+        EnemyFormation(161, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Stinger), 135, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Stinger), 215, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Octovader), 199, 119),
         ]),
-        EnemyFormation(162, None, 1, [
+        EnemyFormation(162, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Stinger), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.FinkFlower), 215, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.FinkFlower), 151, 111),
         ]),
-        EnemyFormation(163, None, 1, [
+        EnemyFormation(163, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Stinger), 183, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Stinger), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Stinger), 215, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.Stinger), 135, 119),
         ]),
-        EnemyFormation(164, None, 1, [
+        EnemyFormation(164, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chow), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Octovader), 199, 151),
         ]),
-        EnemyFormation(165, None, 1, [
+        EnemyFormation(165, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chow), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shogun), 215, 143),
         ]),
-        EnemyFormation(166, None, 1, [
+        EnemyFormation(166, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chow), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shogun), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Octovader), 199, 119),
         ]),
-        EnemyFormation(167, None, 1, [
+        EnemyFormation(167, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chow), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.FinkFlower), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shogun), 135, 119),
             FormationMember(3, False, world.get_enemy_instance(enemies.Shogun), 199, 151),
         ]),
-        EnemyFormation(168, None, 1, [
+        EnemyFormation(168, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.ChompChomp), 183, 127),
         ]),
-        EnemyFormation(169, None, 1, [
+        EnemyFormation(169, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.ChompChomp), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.ChompChomp), 215, 143),
         ]),
-        EnemyFormation(170, None, 1, [
+        EnemyFormation(170, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.ChompChomp), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.ChompChomp), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.ChompChomp), 215, 143),
         ]),
-        EnemyFormation(171, None, 1, [
+        EnemyFormation(171, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.ChompChomp), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.ChompChomp), 183, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.ChompChomp), 215, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.ChompChomp), 199, 151),
         ]),
-        EnemyFormation(172, None, 1, [
+        EnemyFormation(172, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shyaway), 183, 127),
         ]),
-        EnemyFormation(173, None, 1, [
+        EnemyFormation(173, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shyaway), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shyaway), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Kriffid), 183, 127),
         ]),
-        EnemyFormation(174, None, 1, [
+        EnemyFormation(174, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shyaway), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shyaway), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Ribbite), 183, 127),
         ]),
-        EnemyFormation(175, None, 1, [
+        EnemyFormation(175, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shyaway), 215, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Geckit), 167, 143),
             FormationMember(4, False, world.get_enemy_instance(enemies.Ribbite), 167, 111),
         ]),
-        EnemyFormation(176, None, 1, [
+        EnemyFormation(176, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chewy), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Chewy), 183, 151),
         ]),
-        EnemyFormation(177, None, 1, [
+        EnemyFormation(177, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chewy), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Chewy), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shyaway), 199, 119),
         ]),
-        EnemyFormation(178, None, 1, [
+        EnemyFormation(178, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chewy), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spinthra), 215, 143),
         ]),
-        EnemyFormation(179, None, 1, [
+        EnemyFormation(179, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chewy), 183, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Chewy), 135, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Geckit), 231, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Geckit), 151, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.Kriffid), 199, 119),
         ]),
-        EnemyFormation(180, None, 1, [
+        EnemyFormation(180, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Geckit), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Spinthra), 151, 111),
         ]),
-        EnemyFormation(181, None, 1, [
+        EnemyFormation(181, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Geckit), 183, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Geckit), 215, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Spinthra), 151, 111),
         ]),
-        EnemyFormation(182, None, 1, [
+        EnemyFormation(182, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Geckit), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Geckit), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Chewy), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Chewy), 231, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.Shyaway), 199, 119),
         ]),
-        EnemyFormation(183, None, 1, [
+        EnemyFormation(183, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Geckit), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Geckit), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Spinthra), 151, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Kriffid), 231, 143),
         ]),
-        EnemyFormation(184, None, 1, [
+        EnemyFormation(184, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Birdy), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.HeavyTroopa), 215, 135),
         ]),
-        EnemyFormation(185, None, 1, [
+        EnemyFormation(185, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Birdy), 215, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Birdy), 151, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Birdy), 183, 151),
         ]),
-        EnemyFormation(186, None, 1, [
+        EnemyFormation(186, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Birdy), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Birdy), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.HeavyTroopa), 199, 119),
         ]),
-        EnemyFormation(187, None, 1, [
+        EnemyFormation(187, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Birdy), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Birdy), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Birdy), 151, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Birdy), 215, 111),
             FormationMember(4, False, world.get_enemy_instance(enemies.Birdy), 183, 127),
         ]),
-        EnemyFormation(188, None, 1, [
+        EnemyFormation(188, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bluebird), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bluebird), 151, 111),
         ]),
-        EnemyFormation(189, None, 1, [
+        EnemyFormation(189, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bluebird), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bluebird), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.HeavyTroopa), 167, 135),
         ]),
-        EnemyFormation(190, None, 1, [
+        EnemyFormation(190, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bluebird), 183, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bluebird), 183, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Bluebird), 231, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Bluebird), 135, 119),
         ]),
-        EnemyFormation(191, None, 1, [
+        EnemyFormation(191, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bluebird), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bluebird), 215, 143),
             FormationMember(4, False, world.get_enemy_instance(enemies.HeavyTroopa), 183, 127),
         ]),
-        EnemyFormation(192, None, 1, [
+        EnemyFormation(192, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pinwheel), 183, 127),
         ]),
-        EnemyFormation(193, None, 1, [
+        EnemyFormation(193, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pinwheel), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Muckle), 215, 143),
         ]),
-        EnemyFormation(194, None, 1, [
+        EnemyFormation(194, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pinwheel), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pinwheel), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Muckle), 151, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Muckle), 231, 143),
         ]),
-        EnemyFormation(195, None, 1, [
+        EnemyFormation(195, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pinwheel), 151, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pinwheel), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pinwheel), 199, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.SlingShy), 167, 111),
             FormationMember(4, False, world.get_enemy_instance(enemies.SlingShy), 215, 135),
         ]),
-        EnemyFormation(196, None, 1, [
+        EnemyFormation(196, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shaman), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shaman), 199, 151),
         ]),
-        EnemyFormation(197, None, 1, [
+        EnemyFormation(197, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shaman), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Orbison), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Jawful), 199, 119),
         ]),
-        EnemyFormation(198, None, 1, [
+        EnemyFormation(198, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shaman), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shaman), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Jawful), 167, 135),
         ]),
-        EnemyFormation(199, None, 1, [
+        EnemyFormation(199, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shaman), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shaman), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.SlingShy), 135, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.SlingShy), 183, 151),
             FormationMember(4, False, world.get_enemy_instance(enemies.Jawful), 183, 127),
         ]),
-        EnemyFormation(200, None, 1, [
+        EnemyFormation(200, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.SlingShy), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Orbison), 215, 135),
         ]),
-        EnemyFormation(201, None, 1, [
+        EnemyFormation(201, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.SlingShy), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Orbison), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Orbison), 215, 143),
         ]),
-        EnemyFormation(202, None, 1, [
+        EnemyFormation(202, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.SlingShy), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Orbison), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Orbison), 215, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Jawful), 199, 119),
         ]),
-        EnemyFormation(203, None, 1, [
+        EnemyFormation(203, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.SlingShy), 183, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.SlingShy), 151, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pinwheel), 151, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.Pinwheel), 215, 143),
             FormationMember(4, False, world.get_enemy_instance(enemies.Muckle), 199, 119),
         ]),
-        EnemyFormation(204, None, 1, [
+        EnemyFormation(204, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmus), 183, 127),
         ]),
-        EnemyFormation(205, None, 1, [
+        EnemyFormation(205, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmus), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmus), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.ArmoredAnt), 183, 127),
         ]),
-        EnemyFormation(206, None, 1, [
+        EnemyFormation(206, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmus), 151, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmus), 231, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Magmus), 199, 119),
             FormationMember(3, False, world.get_enemy_instance(enemies.Oerlikon), 151, 127),
             FormationMember(4, False, world.get_enemy_instance(enemies.Oerlikon), 183, 143),
         ]),
-        EnemyFormation(207, None, 1, [
+        EnemyFormation(207, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmus), 119, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmus), 167, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.ArmoredAnt), 167, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.ArmoredAnt), 215, 135),
         ]),
-        EnemyFormation(208, None, 1, [
+        EnemyFormation(208, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Oerlikon), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Vomer), 215, 135),
         ]),
-        EnemyFormation(209, None, 1, [
+        EnemyFormation(209, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Oerlikon), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Oerlikon), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Oerlikon), 231, 135),
         ]),
-        EnemyFormation(210, None, 1, [
+        EnemyFormation(210, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Oerlikon), 215, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.ChainedKong), 183, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.ArmoredAnt), 135, 111),
         ]),
-        EnemyFormation(211, None, 1, [
+        EnemyFormation(211, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Oerlikon), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Oerlikon), 183, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.ChainedKong), 199, 119),
         ]),
-        EnemyFormation(212, None, 1, [
+        EnemyFormation(212, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pyrosphere), 151, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pyrosphere), 215, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pyrosphere), 183, 103),
         ]),
-        EnemyFormation(213, None, 1, [
+        EnemyFormation(213, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pyrosphere), 199, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pyrosphere), 151, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.ChainedKong), 199, 119),
         ]),
-        EnemyFormation(214, None, 1, [
+        EnemyFormation(214, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Corkpedite), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.CorkpediteBody), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pyrosphere), 215, 143),
         ]),
-        EnemyFormation(215, None, 1, [
+        EnemyFormation(215, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pyrosphere), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pyrosphere), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Stumpet), 151, 111),
         ]),
-        EnemyFormation(216, None, 1, [
+        EnemyFormation(216, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Vomer), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.ChainedKong), 215, 143),
         ]),
-        EnemyFormation(217, None, 1, [
+        EnemyFormation(217, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Vomer), 151, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Vomer), 183, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Vomer), 215, 151),
         ]),
-        EnemyFormation(218, None, 1, [
+        EnemyFormation(218, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Corkpedite), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.CorkpediteBody), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Vomer), 135, 119),
         ]),
-        EnemyFormation(219, None, 1, [
+        EnemyFormation(219, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Vomer), 151, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Vomer), 151, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Stumpet), 215, 143),
         ]),
-        EnemyFormation(220, None, 1, [
+        EnemyFormation(220, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Terracotta), 183, 127),
         ]),
-        EnemyFormation(221, None, 1, [
+        EnemyFormation(221, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Terracotta), 183, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Terracotta), 151, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Terracotta), 215, 119),
         ]),
-        EnemyFormation(222, None, 1, [
+        EnemyFormation(222, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Terracotta), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Forkies), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Forkies), 215, 143),
         ]),
-        EnemyFormation(223, None, 1, [
+        EnemyFormation(223, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Terracotta), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Terracotta), 183, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.GuGoomba), 231, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.GuGoomba), 167, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.Forkies), 183, 127),
         ]),
-        EnemyFormation(224, None, 1, [
+        EnemyFormation(224, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Malakoopa), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.TuboTroopa), 215, 143),
         ]),
-        EnemyFormation(225, None, 1, [
+        EnemyFormation(225, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Malakoopa), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Malakoopa), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.TuboTroopa), 199, 119),
         ]),
-        EnemyFormation(226, None, 1, [
+        EnemyFormation(226, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Malakoopa), 135, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Malakoopa), 231, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Terracotta), 167, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.TuboTroopa), 199, 119),
         ]),
-        EnemyFormation(227, None, 1, [
+        EnemyFormation(227, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Malakoopa), 183, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.TuboTroopa), 135, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.TuboTroopa), 231, 151),
         ]),
-        EnemyFormation(228, None, 1, [
+        EnemyFormation(228, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GuGoomba), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.GuGoomba), 199, 151),
         ]),
-        EnemyFormation(229, None, 1, [
+        EnemyFormation(229, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GuGoomba), 231, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.GuGoomba), 135, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Starcruster), 167, 135),
         ]),
-        EnemyFormation(230, None, 1, [
+        EnemyFormation(230, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GuGoomba), 231, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Forkies), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Starcruster), 151, 103),
         ]),
-        EnemyFormation(231, None, 1, [
+        EnemyFormation(231, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GuGoomba), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.GuGoomba), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Malakoopa), 167, 135),
@@ -1395,102 +1394,102 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.Terracotta), 167, 103),
             FormationMember(5, False, world.get_enemy_instance(enemies.Terracotta), 231, 135),
         ]),
-        EnemyFormation(232, None, 1, [
+        EnemyFormation(232, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BigBertha), 183, 127),
         ]),
-        EnemyFormation(233, None, 1, [
+        EnemyFormation(233, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BigBertha), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.BigBertha), 215, 143),
         ]),
-        EnemyFormation(234, None, 1, [
+        EnemyFormation(234, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BigBertha), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Forkies), 151, 111),
         ]),
-        EnemyFormation(235, None, 1, [
+        EnemyFormation(235, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BigBertha), 135, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.BigBertha), 215, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Terracotta), 183, 127),
         ]),
-        EnemyFormation(236, None, 1, [
+        EnemyFormation(236, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magikoopa), 199, 119),
             FormationMember(1, True, world.get_enemy_instance(enemies.Terracotta), 135, 103),
             FormationMember(2, True, world.get_enemy_instance(enemies.Terracotta), 231, 151),
             FormationMember(3, True, world.get_enemy_instance(enemies.Terracotta), 135, 127),
             FormationMember(4, True, world.get_enemy_instance(enemies.Terracotta), 183, 151),
         ]),
-        EnemyFormation(237, None, 1, [
+        EnemyFormation(237, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magikoopa), 199, 119),
             FormationMember(1, True, world.get_enemy_instance(enemies.Malakoopa), 215, 143),
             FormationMember(2, True, world.get_enemy_instance(enemies.Malakoopa), 151, 111),
             FormationMember(3, True, world.get_enemy_instance(enemies.TuboTroopa), 167, 135),
         ]),
-        EnemyFormation(238, None, 1, [
+        EnemyFormation(238, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magikoopa), 199, 119),
             FormationMember(1, True, world.get_enemy_instance(enemies.GuGoomba), 119, 119),
             FormationMember(2, True, world.get_enemy_instance(enemies.GuGoomba), 199, 159),
             FormationMember(3, True, world.get_enemy_instance(enemies.Starcruster), 167, 135),
         ]),
-        EnemyFormation(239, None, 1, [
+        EnemyFormation(239, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magikoopa), 199, 119),
             FormationMember(1, True, world.get_enemy_instance(enemies.Forkies), 135, 111),
             FormationMember(2, True, world.get_enemy_instance(enemies.Starcruster), 215, 151),
         ]),
-        EnemyFormation(240, None, 1, [
+        EnemyFormation(240, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ninja), 183, 127),
         ]),
-        EnemyFormation(241, None, 1, [
+        EnemyFormation(241, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ninja), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Doppel), 199, 159),
         ]),
-        EnemyFormation(242, None, 1, [
+        EnemyFormation(242, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ninja), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ninja), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Hippopo), 199, 119),
         ]),
-        EnemyFormation(243, None, 1, [
+        EnemyFormation(243, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ninja), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ninja), 183, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Ninja), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Ninja), 231, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.Ninja), 199, 151),
         ]),
-        EnemyFormation(244, None, 1, [
+        EnemyFormation(244, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Springer), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.GlumReaper), 135, 119),
         ]),
-        EnemyFormation(245, None, 1, [
+        EnemyFormation(245, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Springer), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ninja), 215, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Ameboid), 167, 151),
         ]),
-        EnemyFormation(246, None, 1, [
+        EnemyFormation(246, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Springer), 231, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Springer), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Puppox), 167, 135),
         ]),
-        EnemyFormation(247, None, 1, [
+        EnemyFormation(247, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Springer), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Puppox), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Puppox), 151, 111),
         ]),
-        EnemyFormation(248, None, 1, [
+        EnemyFormation(248, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ameboid), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.Ameboid), 167, 103),
             FormationMember(2, True, world.get_enemy_instance(enemies.Ameboid), 135, 119),
             FormationMember(3, True, world.get_enemy_instance(enemies.Ameboid), 231, 135),
             FormationMember(4, True, world.get_enemy_instance(enemies.Ameboid), 199, 151),
         ]),
-        EnemyFormation(249, None, 1, [
+        EnemyFormation(249, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ameboid), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ameboid), 215, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Gunyolk), 167, 135),
         ]),
-        EnemyFormation(250, None, 1, [
+        EnemyFormation(250, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ameboid), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Gunyolk), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Boomer), 135, 119),
         ]),
-        EnemyFormation(251, None, 1, [
+        EnemyFormation(251, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ameboid), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ameboid), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Ameboid), 215, 143),
@@ -1498,96 +1497,96 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.Ameboid), 183, 159),
             FormationMember(5, False, world.get_enemy_instance(enemies.Ameboid), 119, 127),
         ]),
-        EnemyFormation(252, None, 1, [
+        EnemyFormation(252, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GlumReaper), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.GlumReaper), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.GlumReaper), 231, 135),
         ]),
-        EnemyFormation(253, None, 1, [
+        EnemyFormation(253, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GlumReaper), 215, 159),
             FormationMember(1, False, world.get_enemy_instance(enemies.Hippopo), 151, 111),
         ]),
-        EnemyFormation(254, None, 1, [
+        EnemyFormation(254, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GlumReaper), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.GlumReaper), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Doppel), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Doppel), 231, 135),
         ]),
-        EnemyFormation(255, None, 1, [
+        EnemyFormation(255, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GlumReaper), 135, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.GlumReaper), 215, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.LilBoo), 167, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.LilBoo), 199, 119),
         ]),
-        EnemyFormation(256, None, 1, [
+        EnemyFormation(256, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.LilBoo), 183, 127),
         ]),
-        EnemyFormation(257, None, 1, [
+        EnemyFormation(257, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.LilBoo), 183, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.LilBoo), 215, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Hippopo), 151, 111),
         ]),
-        EnemyFormation(258, None, 1, [
+        EnemyFormation(258, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.LilBoo), 167, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.LilBoo), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Puppox), 151, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Doppel), 215, 159),
         ]),
-        EnemyFormation(259, None, 1, [
+        EnemyFormation(259, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.LilBoo), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.LilBoo), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.LilBoo), 215, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.LilBoo), 199, 119),
         ]),
-        EnemyFormation(260, None, 1, [
+        EnemyFormation(260, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MadMallet), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.MadMallet), 215, 143),
         ]),
-        EnemyFormation(261, None, 1, [
+        EnemyFormation(261, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MadMallet), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.MadMallet), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.MadMallet), 199, 119),
         ]),
-        EnemyFormation(262, None, 1, [
+        EnemyFormation(262, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MadMallet), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.MadMallet), 135, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.MadMallet), 231, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.MadMallet), 167, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.MadMallet), 183, 151),
         ]),
-        EnemyFormation(263, None, 1, [
+        EnemyFormation(263, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MadMallet), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.MadMallet), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.MadMallet), 199, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.MadMallet), 231, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.Clerk), 183, 127),
         ]),
-        EnemyFormation(264, None, 1, [
+        EnemyFormation(264, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pounder), 183, 127),
         ]),
-        EnemyFormation(265, None, 1, [
+        EnemyFormation(265, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pounder), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pounder), 231, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pounder), 167, 103),
         ]),
-        EnemyFormation(266, None, 1, [
+        EnemyFormation(266, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pounder), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pounder), 199, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pounder), 151, 119),
             FormationMember(3, False, world.get_enemy_instance(enemies.Pounder), 167, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.Pounder), 231, 135),
         ]),
-        EnemyFormation(267, None, 1, [
+        EnemyFormation(267, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pounder), 119, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pounder), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pounder), 151, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Pounder), 199, 119),
             FormationMember(4, False, world.get_enemy_instance(enemies.Clerk), 215, 151),
         ]),
-        EnemyFormation(268, None, 3, [
+        EnemyFormation(268, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pandorite), 183, 127),
         ]),
-        EnemyFormation(269, None, 3, [
+        EnemyFormation(269, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Hidon), 167, 119),
             FormationMember(1, True, world.get_enemy_instance(enemies.Goombette), 135, 111),
             FormationMember(2, True, world.get_enemy_instance(enemies.Goombette), 135, 135),
@@ -1597,39 +1596,39 @@ def get_default_enemy_formations(world):
             # Only include Hidon for boss shuffle logic.
             world.get_enemy_instance(enemies.Hidon),
         ]),
-        EnemyFormation(270, None, 3, [
+        EnemyFormation(270, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.BoxBoy), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.Fautso), 151, 111),
         ], stat_total_enemies=[
             # Only count Box Boy for boss shuffle logic.
             world.get_enemy_instance(enemies.BoxBoy),
         ]),
-        EnemyFormation(271, None, 3, [
+        EnemyFormation(271, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chester), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.Bahamutt), 135, 119),
         ]),
-        EnemyFormation(273, None, 3, [
+        EnemyFormation(273, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AxemRangers), 183, 127),
         ]),
-        EnemyFormation(274, 12, 7, [
+        EnemyFormation(274, 12, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Booster), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Snifit), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Snifit), 151, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Snifit), 199, 151),
         ]),
-        EnemyFormation(275, None, 7, [
+        EnemyFormation(275, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Booster2), 183, 127),
         ]),
-        EnemyFormation(276, None, 7, [
+        EnemyFormation(276, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Snifit), 183, 127),
         ]),
-        EnemyFormation(277, None, 7, [
+        EnemyFormation(277, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Croco1), 183, 127),
         ]),
-        EnemyFormation(278, None, 7, [
+        EnemyFormation(278, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Croco2), 183, 127),
         ]),
-        EnemyFormation(280, None, 7, [
+        EnemyFormation(280, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Johnny), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaBlue), 135, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.BandanaBlue), 135, 135),
@@ -1644,26 +1643,26 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.BandanaBlue),
             world.get_enemy_instance(enemies.JohnnySolo),
         ]),
-        EnemyFormation(281, None, 7, [
+        EnemyFormation(281, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.JohnnySolo), 183, 127),
         ]),
-        EnemyFormation(282, None, 7, [
+        EnemyFormation(282, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.RightEye), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaRed), 167, 135),
         ]),
-        EnemyFormation(283, None, 7, [
+        EnemyFormation(283, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.RightEye), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaRed), 151, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.BandanaRed), 183, 143),
         ]),
-        EnemyFormation(284, None, 7, [
+        EnemyFormation(284, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.RightEye), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.BandanaRed), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.BandanaRed), 215, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.BandanaRed), 135, 127),
             FormationMember(4, False, world.get_enemy_instance(enemies.BandanaRed), 183, 151),
         ]),
-        EnemyFormation(285, 26, 7, [
+        EnemyFormation(285, 26, BattleMusic.Boss1, False, [
             FormationMember(0, True, world.get_enemy_instance(enemies.KingCalamari), 222, 94),
             FormationMember(1, True, world.get_enemy_instance(enemies.TentaclesLeft), 136, 115),
             FormationMember(2, True, world.get_enemy_instance(enemies.TentaclesLeft), 112, 127),
@@ -1682,10 +1681,10 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.TentaclesRight),
             world.get_enemy_instance(enemies.KingCalamari),
         ]),
-        EnemyFormation(286, None, 7, [
+        EnemyFormation(286, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Belome1), 183, 127),
         ]),
-        EnemyFormation(287, None, 7, [
+        EnemyFormation(287, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Belome2), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.MarioClone), 135, 119),
             FormationMember(2, True, world.get_enemy_instance(enemies.PeachClone), 215, 159),
@@ -1700,17 +1699,17 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.BowserClone),
             world.get_enemy_instance(enemies.PeachClone),
         ]),
-        EnemyFormation(289, None, 7, [
+        EnemyFormation(289, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Valentina), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.Dodo), 199, 151),
         ]),
-        EnemyFormation(290, None, 7, [
+        EnemyFormation(290, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Cloaker2), 183, 127),
         ]),
-        EnemyFormation(291, None, 7, [
+        EnemyFormation(291, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Microbomb), 183, 127),
         ]),
-        EnemyFormation(293, None, 7, [
+        EnemyFormation(293, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.CzarDragon), 183, 143),
             FormationMember(1, True, world.get_enemy_instance(enemies.Zombone), 183, 143),
             FormationMember(2, True, world.get_enemy_instance(enemies.Helio), 167, 119),
@@ -1722,7 +1721,7 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.CzarDragon),
             world.get_enemy_instance(enemies.Zombone),
         ]),
-        EnemyFormation(294, 58, 7, [
+        EnemyFormation(294, 58, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Smilax), 180, 157),
             FormationMember(1, True, world.get_enemy_instance(enemies.Smilax), 164, 175),
             FormationMember(2, True, world.get_enemy_instance(enemies.Smilax), 143, 119),
@@ -1745,15 +1744,15 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.Megasmilax),
             world.get_enemy_instance(enemies.Smilax),
         ]),
-        EnemyFormation(295, None, 7, [
+        EnemyFormation(295, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.CountDown), 150, 93),
             FormationMember(1, False, world.get_enemy_instance(enemies.DingALing), 158, 52),
             FormationMember(2, False, world.get_enemy_instance(enemies.DingALing), 194, 67),
         ], required_battlefield=Battlefields.Countdown),
-        EnemyFormation(296, None, 7, [
+        EnemyFormation(296, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AxemYellow), 183, 127),
         ]),
-        EnemyFormation(297, None, 7, [
+        EnemyFormation(297, None, BattleMusic.Boss1, False, [
             FormationMember(0, True, world.get_enemy_instance(enemies.Birdo), 167, 118),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shelly), 171, 103),
             FormationMember(2, True, world.get_enemy_instance(enemies.Eggbert), 135, 119),
@@ -1764,7 +1763,7 @@ def get_default_enemy_formations(world):
             # Only include Birdo for boss shuffle logic.
             world.get_enemy_instance(enemies.Birdo),
         ]),
-        EnemyFormation(298, None, 7, [
+        EnemyFormation(298, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bundt), 199, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Raspberry), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Torte), 199, 151),
@@ -1774,34 +1773,34 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.Bundt),
             world.get_enemy_instance(enemies.Raspberry),
         ]),
-        EnemyFormation(299, 17, 7, [
+        EnemyFormation(299, 17, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.KnifeGuy), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.GrateGuy), 199, 143),
         ]),
-        EnemyFormation(300, None, 7, [
+        EnemyFormation(300, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.KingBomb), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.MezzoBomb), 199, 143),
         ]),
         # This formation actually has Jinx 3 in the vanilla data, but it's for the Jinx 1 battle!
         # There's a weird battle event that swaps in the Jinx 1 enemy, but we want Jinx 1 data for boss shuffle.
-        EnemyFormation(301, 71, 4, [
+        EnemyFormation(301, 71, BattleMusic.Boss1, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jinx1), 183, 127),
         ]),
-        EnemyFormation(302, None, 11, [
+        EnemyFormation(302, None, BattleMusic.Boss2, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Mack), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bodyguard), 135, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Bodyguard), 151, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.Bodyguard), 183, 143),
             FormationMember(4, False, world.get_enemy_instance(enemies.Bodyguard), 215, 151),
         ]),
-        EnemyFormation(303, None, 11, [
+        EnemyFormation(303, None, BattleMusic.Boss2, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Yaridovich), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.YaridovichMirage), 183, 127),
         ], stat_total_enemies=[
             # Only include Yarid himself for the boss shuffle logic.
             world.get_enemy_instance(enemies.Yaridovich),
         ]),
-        EnemyFormation(304, 61, 11, [
+        EnemyFormation(304, 61, BattleMusic.Boss2, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AxemRangers), 201, 79),
             FormationMember(1, True, world.get_enemy_instance(enemies.AxemRed), 135, 111),
             FormationMember(2, True, world.get_enemy_instance(enemies.AxemBlack), 135, 127),
@@ -1809,25 +1808,25 @@ def get_default_enemy_formations(world):
             FormationMember(4, True, world.get_enemy_instance(enemies.AxemGreen), 183, 151),
             FormationMember(5, True, world.get_enemy_instance(enemies.AxemYellow), 215, 151),
         ]),
-        EnemyFormation(305, 3, 11, [
+        EnemyFormation(305, 3, BattleMusic.Boss2, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bowyer), 183, 127),
         ]),
-        EnemyFormation(306, None, 7, [
+        EnemyFormation(306, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Culex), 183, 127),
         ]),
-        EnemyFormation(307, 80, 11, [
+        EnemyFormation(307, 80, BattleMusic.Boss2, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Exor), 193, 64),
             FormationMember(1, False, world.get_enemy_instance(enemies.Neosquid), 187, 136),
             FormationMember(2, True, world.get_enemy_instance(enemies.RightEye), 174, 145),
             FormationMember(3, True, world.get_enemy_instance(enemies.LeftEye), 203, 157),
         ], required_battlefield=Battlefields.Exor),
-        EnemyFormation(308, None, 15, [
+        EnemyFormation(308, None, BattleMusic.Smithy, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Smithy1), 199, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Smelter), 87, 87),
             FormationMember(2, True, world.get_enemy_instance(enemies.MachineMadeShyster), 135, 127),
             FormationMember(3, True, world.get_enemy_instance(enemies.MachineMadeShyster), 199, 159),
         ]),
-        EnemyFormation(309, 52, 7, [
+        EnemyFormation(309, 52, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Cloaker), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Domino), 215, 159),
             FormationMember(2, True, world.get_enemy_instance(enemies.MadAdder), 167, 135),
@@ -1845,26 +1844,26 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.Cloaker2),
             world.get_enemy_instance(enemies.Domino2),
         ]),
-        EnemyFormation(310, None, 1, [
+        EnemyFormation(310, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ratfunk), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Ratfunk), 199, 119),
         ]),
-        EnemyFormation(311, None, 1, [
+        EnemyFormation(311, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Ratfunk), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Ratfunk), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Ratfunk), 183, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.Ratfunk), 231, 135),
             FormationMember(4, False, world.get_enemy_instance(enemies.Ratfunk), 183, 127),
         ]),
-        EnemyFormation(312, None, 3, [
+        EnemyFormation(312, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Artichoker), 183, 127),
         ]),
-        EnemyFormation(313, None, 3, [
+        EnemyFormation(313, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Artichoker), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Artichoker), 215, 143),
         ]),
-        EnemyFormation(314, 14, 7, [
+        EnemyFormation(314, 14, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Punchinello), 199, 119),
             FormationMember(1, True, world.get_enemy_instance(enemies.Microbomb), 135, 119),
             FormationMember(2, True, world.get_enemy_instance(enemies.Microbomb), 151, 135),
@@ -1879,39 +1878,39 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.Bobomb),
             world.get_enemy_instance(enemies.MezzoBomb),
         ]),
-        EnemyFormation(315, None, 7, [
+        EnemyFormation(315, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.HammerBro), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.HammerBro), 199, 143),
         ]),
-        EnemyFormation(316, None, 1, [
+        EnemyFormation(316, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Crook), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Crook), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Crook), 199, 151),
         ]),
-        EnemyFormation(317, None, 1, [
+        EnemyFormation(317, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Crook), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Crook), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Crook), 183, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.Crook), 199, 151),
             FormationMember(4, False, world.get_enemy_instance(enemies.Crook), 231, 135),
         ]),
-        EnemyFormation(318, None, 3, [
+        EnemyFormation(318, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Snifit), 167, 135),
         ]),
-        EnemyFormation(319, None, 3, [
+        EnemyFormation(319, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Stumpet), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmus), 119, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Magmus), 183, 159),
         ]),
-        EnemyFormation(320, None, 1, [
+        EnemyFormation(320, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Poundette), 183, 127),
         ]),
-        EnemyFormation(321, None, 1, [
+        EnemyFormation(321, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Poundette), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Poundette), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Poundette), 215, 143),
         ]),
-        EnemyFormation(322, None, 1, [
+        EnemyFormation(322, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Poundette), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Poundette), 199, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Poundette), 135, 119),
@@ -1919,7 +1918,7 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.Poundette), 199, 151),
             FormationMember(5, False, world.get_enemy_instance(enemies.Poundette), 231, 135),
         ]),
-        EnemyFormation(323, None, 1, [
+        EnemyFormation(323, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Poundette), 199, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Poundette), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Poundette), 199, 135),
@@ -1927,16 +1926,16 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.Clerk), 199, 119),
         ]),
         # Remove Mad Mallet, Pounder, and Poundette so we can use them in boss shuffle.
-        EnemyFormation(324, None, 1, [
+        EnemyFormation(324, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jabit), 215, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Jabit), 151, 119),
         ]),
-        EnemyFormation(325, None, 1, [
+        EnemyFormation(325, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jabit), 151, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Jabit), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Jabit), 215, 143),
         ]),
-        EnemyFormation(326, None, 1, [
+        EnemyFormation(326, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jabit), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Jabit), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.Jabit), 231, 135),
@@ -1944,7 +1943,7 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.Jabit), 199, 119),
             FormationMember(5, False, world.get_enemy_instance(enemies.Jabit), 199, 151),
         ]),
-        EnemyFormation(327, None, 1, [
+        EnemyFormation(327, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jabit), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Jabit), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Jabit), 135, 103),
@@ -1952,42 +1951,42 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.Jabit), 215, 127),
             FormationMember(5, False, world.get_enemy_instance(enemies.Jabit), 231, 151),
         ]),
-        EnemyFormation(328, None, 3, [
+        EnemyFormation(328, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Fireball), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Fireball), 199, 151),
         ]),
-        EnemyFormation(329, None, 3, [
+        EnemyFormation(329, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Fireball), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Fireball), 167, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Fireball), 215, 135),
         ]),
-        EnemyFormation(330, None, 1, [
+        EnemyFormation(330, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Stumpet), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmus), 183, 159),
             FormationMember(2, False, world.get_enemy_instance(enemies.Magmus), 199, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Magmus), 231, 159),
         ]),
-        EnemyFormation(331, None, 1, [
+        EnemyFormation(331, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Corkpedite), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.CorkpediteBody), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Oerlikon), 199, 151),
         ]),
-        EnemyFormation(332, None, 1, [
+        EnemyFormation(332, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Corkpedite), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.CorkpediteBody), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Oerlikon), 183, 159),
             FormationMember(3, False, world.get_enemy_instance(enemies.Oerlikon), 215, 143),
         ]),
-        EnemyFormation(333, 72, 4, [
+        EnemyFormation(333, 72, BattleMusic.Boss1, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jinx2), 183, 127),
         ]),
-        EnemyFormation(334, 73, 4, [
+        EnemyFormation(334, 73, BattleMusic.Boss1, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jinx3), 183, 127),
         ]),
-        EnemyFormation(335, None, 1, [
+        EnemyFormation(335, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Jagger), 183, 127),
         ]),
-        EnemyFormation(350, None, 31, [
+        EnemyFormation(350, None, BattleMusic.Culex, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Culex), 183, 103),
             FormationMember(1, True, world.get_enemy_instance(enemies.FireCrystal), 135, 103),
             FormationMember(2, True, world.get_enemy_instance(enemies.FireCrystal), 151, 119),
@@ -2003,35 +2002,35 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.WindCrystal),
             world.get_enemy_instance(enemies.WaterCrystal),
         ]),
-        EnemyFormation(351, None, 7, [
+        EnemyFormation(351, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Formless), 167, 135),
             FormationMember(1, True, world.get_enemy_instance(enemies.Mokura), 167, 135),
         ]),
-        EnemyFormation(352, None, 1, [
+        EnemyFormation(352, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Superspike), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Superspike), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Superspike), 215, 143),
         ]),
-        EnemyFormation(353, None, 1, [
+        EnemyFormation(353, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Superspike), 167, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.Superspike), 151, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Superspike), 215, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.Superspike), 199, 151),
         ]),
-        EnemyFormation(354, None, 1, [
+        EnemyFormation(354, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shogun), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shogun), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shogun), 215, 143),
         ]),
-        EnemyFormation(355, None, 1, [
+        EnemyFormation(355, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.HeavyTroopa), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.HeavyTroopa), 151, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.HeavyTroopa), 231, 143),
         ]),
-        EnemyFormation(356, None, 7, [
+        EnemyFormation(356, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.DodoSolo), 183, 127),
         ]),
-        EnemyFormation(357, 101, 7, [
+        EnemyFormation(357, 101, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magikoopa), 215, 111),
             FormationMember(1, True, world.get_enemy_instance(enemies.Terrapin), 167, 135),
         ], stat_total_enemies=[
@@ -2043,7 +2042,7 @@ def get_default_enemy_formations(world):
             world.get_enemy_instance(enemies.KingBomb),
             world.get_enemy_instance(enemies.Bahamutt),
         ]),
-        EnemyFormation(358, None, 7, [
+        EnemyFormation(358, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Boomer), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.HanginShy), 66, 115),
             FormationMember(2, False, world.get_enemy_instance(enemies.HanginShy), 186, 74),
@@ -2053,191 +2052,191 @@ def get_default_enemy_formations(world):
         ], stat_scaling_enemies=[
             world.get_enemy_instance(enemies.Boomer),
         ]),
-        EnemyFormation(359, None, 9, [
+        EnemyFormation(359, None, BattleMusic.Boss2, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeMack), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.MachineMadeShyster), 135, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.MachineMadeShyster), 151, 127),
             FormationMember(3, False, world.get_enemy_instance(enemies.MachineMadeShyster), 183, 143),
             FormationMember(4, False, world.get_enemy_instance(enemies.MachineMadeShyster), 215, 151),
         ]),
-        EnemyFormation(360, None, 9, [
+        EnemyFormation(360, None, BattleMusic.Boss2, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeBowyer), 183, 127),
         ]),
-        EnemyFormation(361, None, 9, [
+        EnemyFormation(361, None, BattleMusic.Boss2, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeYaridovich), 183, 127),
             FormationMember(1, True, world.get_enemy_instance(enemies.MachineMadeDrillBit), 135, 119),
             FormationMember(2, True, world.get_enemy_instance(enemies.MachineMadeDrillBit), 167, 103),
             FormationMember(3, True, world.get_enemy_instance(enemies.MachineMadeDrillBit), 199, 151),
             FormationMember(4, True, world.get_enemy_instance(enemies.MachineMadeDrillBit), 231, 135),
         ]),
-        EnemyFormation(362, None, 9, [
+        EnemyFormation(362, None, BattleMusic.Boss2, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeAxemPink), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.MachineMadeAxemRed), 151, 143),
             FormationMember(4, False, world.get_enemy_instance(enemies.MachineMadeAxemGreen), 215, 143),
         ]),
-        EnemyFormation(363, None, 1, [
+        EnemyFormation(363, None, BattleMusic.Normal, True, [
             FormationMember(0, True, world.get_enemy_instance(enemies.Smithy2Body), 183, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Smithy2Head), 183, 175),
         ]),
-        EnemyFormation(364, None, 3, [
+        EnemyFormation(364, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Clerk), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.MadMallet), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.MadMallet), 199, 151),
         ]),
-        EnemyFormation(365, None, 3, [
+        EnemyFormation(365, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Manager), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pounder), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pounder), 167, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.Pounder), 215, 143),
         ]),
-        EnemyFormation(366, None, 3, [
+        EnemyFormation(366, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Director), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Poundette), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.Poundette), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Poundette), 199, 151),
             FormationMember(4, False, world.get_enemy_instance(enemies.Poundette), 231, 135),
         ]),
-        EnemyFormation(367, None, 7, [
+        EnemyFormation(367, None, BattleMusic.Boss1, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Gunyolk), 199, 103),
             FormationMember(1, False, world.get_enemy_instance(enemies.FactoryChief), 231, 151),
         ]),
-        EnemyFormation(368, None, 3, [
+        EnemyFormation(368, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MadMallet), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.MadMallet), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.MadMallet), 215, 143),
         ]),
-        EnemyFormation(369, None, 3, [
+        EnemyFormation(369, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Apprentice), 183, 127),
         ]),
-        EnemyFormation(370, None, 9, [
+        EnemyFormation(370, None, BattleMusic.Boss2, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeAxemBlack), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.MachineMadeAxemBlack), 231, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.MachineMadeAxemYellow), 199, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.MachineMadeAxemYellow), 183, 103),
         ]),
-        EnemyFormation(371, None, 3, [
+        EnemyFormation(371, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Terracotta), 135, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Terracotta), 183, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Terracotta), 183, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.Terracotta), 231, 135),
         ]),
-        EnemyFormation(372, None, 3, [
+        EnemyFormation(372, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Oerlikon), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Oerlikon), 199, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Starcruster), 199, 119),
         ]),
-        EnemyFormation(373, None, 3, [
+        EnemyFormation(373, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Sackit), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.BigBertha), 151, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.BigBertha), 231, 143),
         ]),
-        EnemyFormation(374, None, 3, [
+        EnemyFormation(374, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chow), 135, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Chow), 215, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Forkies), 199, 119),
         ]),
-        EnemyFormation(375, None, 3, [
+        EnemyFormation(375, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.AlleyRat), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.ArmoredAnt), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.ArmoredAnt), 199, 151),
         ]),
-        EnemyFormation(376, None, 3, [
+        EnemyFormation(376, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Bloober), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Bloober), 183, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.Bloober), 231, 151),
             FormationMember(3, False, world.get_enemy_instance(enemies.Starcruster), 135, 103),
         ]),
-        EnemyFormation(377, None, 3, [
+        EnemyFormation(377, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Stinger), 151, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Stinger), 167, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Stinger), 199, 143),
             FormationMember(3, False, world.get_enemy_instance(enemies.Stinger), 231, 151),
         ]),
-        EnemyFormation(378, None, 3, [
+        EnemyFormation(378, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Geckit), 215, 151),
             FormationMember(1, False, world.get_enemy_instance(enemies.Geckit), 135, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.ChainedKong), 199, 119),
         ]),
-        EnemyFormation(379, None, 3, [
+        EnemyFormation(379, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Robomb), 167, 135),
             FormationMember(2, False, world.get_enemy_instance(enemies.BigBertha), 167, 111),
             FormationMember(3, False, world.get_enemy_instance(enemies.BigBertha), 215, 135),
         ]),
-        EnemyFormation(380, None, 3, [
+        EnemyFormation(380, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Vomer), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Vomer), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Vomer), 151, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Vomer), 231, 143),
         ]),
-        EnemyFormation(381, None, 3, [
+        EnemyFormation(381, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Magmus), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Magmus), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pulsar), 151, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Pulsar), 231, 143),
         ]),
-        EnemyFormation(382, None, 3, [
+        EnemyFormation(382, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.GuGoomba), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.GuGoomba), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.GuGoomba), 199, 119),
             FormationMember(3, False, world.get_enemy_instance(enemies.GuGoomba), 167, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.GuGoomba), 231, 135),
         ]),
-        EnemyFormation(383, None, 3, [
+        EnemyFormation(383, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Malakoopa), 135, 111),
             FormationMember(1, False, world.get_enemy_instance(enemies.Malakoopa), 215, 151),
             FormationMember(2, False, world.get_enemy_instance(enemies.TuboTroopa), 199, 119),
         ]),
-        EnemyFormation(384, None, 3, [
+        EnemyFormation(384, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.TheBigBoo), 183, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.TheBigBoo), 151, 127),
             FormationMember(2, False, world.get_enemy_instance(enemies.Orbison), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Orbison), 231, 135),
         ]),
-        EnemyFormation(385, None, 3, [
+        EnemyFormation(385, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.SlingShy), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.SlingShy), 167, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.SlingShy), 199, 135),
             FormationMember(3, False, world.get_enemy_instance(enemies.SlingShy), 167, 103),
             FormationMember(4, False, world.get_enemy_instance(enemies.SlingShy), 231, 135),
         ]),
-        EnemyFormation(386, None, 3, [
+        EnemyFormation(386, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Chewy), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Chewy), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shyaway), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Shyaway), 231, 135),
         ]),
-        EnemyFormation(387, None, 3, [
+        EnemyFormation(387, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MrKipper), 167, 135),
             FormationMember(1, False, world.get_enemy_instance(enemies.Muckle), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Muckle), 231, 135),
         ]),
-        EnemyFormation(388, None, 3, [
+        EnemyFormation(388, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Amanita), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Amanita), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Orbison), 183, 127),
         ]),
-        EnemyFormation(389, None, 3, [
+        EnemyFormation(389, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Greaper), 215, 143),
             FormationMember(1, False, world.get_enemy_instance(enemies.Greaper), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.GlumReaper), 183, 127),
         ]),
-        EnemyFormation(390, None, 3, [
+        EnemyFormation(390, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Pyrosphere), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Pyrosphere), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Pyrosphere), 215, 143),
         ]),
-        EnemyFormation(391, None, 3, [
+        EnemyFormation(391, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Lakitu), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Lakitu), 151, 111),
             FormationMember(2, False, world.get_enemy_instance(enemies.Lakitu), 215, 143),
         ]),
-        EnemyFormation(392, None, 3, [
+        EnemyFormation(392, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Zeostar), 151, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.Zeostar), 183, 143),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shaman), 167, 103),
             FormationMember(3, False, world.get_enemy_instance(enemies.Shaman), 231, 135),
         ]),
-        EnemyFormation(393, None, 3, [
+        EnemyFormation(393, None, BattleMusic.Normal, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Shaman), 135, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Shaman), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.Shaman), 167, 135),
@@ -2245,32 +2244,32 @@ def get_default_enemy_formations(world):
             FormationMember(4, False, world.get_enemy_instance(enemies.Shaman), 199, 151),
             FormationMember(5, False, world.get_enemy_instance(enemies.Shaman), 231, 135),
         ]),
-        EnemyFormation(394, None, 1, [
+        EnemyFormation(394, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeShyster), 199, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.MachineMadeShyster), 135, 119),
             FormationMember(2, False, world.get_enemy_instance(enemies.MachineMadeShyster), 199, 151),
         ]),
-        EnemyFormation(395, None, 1, [
+        EnemyFormation(395, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeDrillBit), 183, 127),
             FormationMember(1, False, world.get_enemy_instance(enemies.MachineMadeDrillBit), 167, 103),
             FormationMember(2, False, world.get_enemy_instance(enemies.MachineMadeDrillBit), 231, 135),
         ]),
-        EnemyFormation(400, None, 1, [
+        EnemyFormation(400, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Smithy2Body), 183, 127),
         ]),
-        EnemyFormation(480, None, 1, [
+        EnemyFormation(480, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.Cloaker2), 167, 135),
         ]),
-        EnemyFormation(496, None, 1, [
+        EnemyFormation(496, None, BattleMusic.Normal, True, [
             FormationMember(0, False, world.get_enemy_instance(enemies.JinxClone), 167, 135),
         ]),
-        EnemyFormation(509, None, 1, [
+        EnemyFormation(509, None, BattleMusic.Normal, True, [
             FormationMember(0, True, world.get_enemy_instance(enemies.Candle), 151, 119),
             FormationMember(1, False, world.get_enemy_instance(enemies.Raspberry), 199, 119),
             FormationMember(2, True, world.get_enemy_instance(enemies.Terrapin), 135, 143),
             FormationMember(3, True, world.get_enemy_instance(enemies.Terrapin), 151, 159),
         ]),
-        EnemyFormation(511, None, 11, [
+        EnemyFormation(511, None, BattleMusic.Boss2, False, [
             FormationMember(0, False, world.get_enemy_instance(enemies.MachineMadeShyster), 183, 127),
         ]),
     ]

@@ -112,8 +112,9 @@ def randomize_all(world):
 
             # Randomize boss music for locations if enabled.
             if world.settings.is_flag_enabled(flags.BossShuffleMusic):
-                # noinspection PyTypeChecker
                 music_choices = list(bosses.BattleMusic)
+                if world.settings.is_flag_enabled(flags.DisableCulexMusic):
+                    music_choices.remove(bosses.BattleMusic.Culex)
                 for location in locations:
                     location.music = random.choice(music_choices)
 
@@ -319,6 +320,13 @@ def randomize_all(world):
             for member in formation.members:
                 choices = [e for e in factory_enemies if not e.one_per_battle or e not in formation.enemies]
                 member.enemy = random.choice(choices)
+
+            # If Culex isn't randomized, but his music is disabled, replace it.
+            formation = world.get_enemy_formation_by_index(350)
+            if not world.settings.is_flag_enabled(flags.BossShuffleCulex) and world.settings.is_flag_enabled(flags.DisableCulexMusic):
+                music_choices = list(bosses.BattleMusic)
+                music_choices.remove(bosses.BattleMusic.Culex)
+                formation.music = random.choice(music_choices)
 
 
     # *** Make sure certain enemies always have max speed for required battle scripts!

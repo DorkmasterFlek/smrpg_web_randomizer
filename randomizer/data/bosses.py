@@ -38,13 +38,19 @@ class Battlefields(IntEnum):
 
 
 class BattleMusic(IntEnum):
-    """Enumeration for ID values for battle music."""
-    Normal = 0x01
-    Boss1 = 0x04
-    Boss2 = 0x08
-    Smithy = 0x0c
-    Culex = 0x1c
-    Corn = 0x10
+    """Enumeration for ID values for battle music groups."""
+
+    # These are offsets into 0x029f51 which is an 8 byte table pointing to the actual Song IDs
+    #   (see giangurgolo's docs for Song IDs: https://www.romhacking.net/documents/352)
+    Normal = 0x00
+    Boss1 = 0x01
+    Boss2 = 0x02
+    Smithy = 0x03
+    MolevilleMountains = 0x04   # Unused in Vanilla
+    BoosterHill = 0x05          # Unused in Vanilla
+    BarrelVolcano = 0x06        # Unused in Vanilla
+    Culex = 0x07
+    CURRENT = 0x30 # Doesn't change songs away from the over-world
 
 
 class StarLocation:

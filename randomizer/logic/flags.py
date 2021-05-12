@@ -330,6 +330,12 @@ class EnemyShuffle(Flag):
     ]
 
 
+class DisableCulexMusic(Flag):
+    name = 'Disable Culex\'s music'
+    description = 'Battle music won\'t include Culex\'s theme. (YouTube likes to Copyright strike the song)'
+    value = '-noculexmusic'
+
+
 class BossShuffleCulex(Flag):
     name = 'Include Culex'
     inverse_description = "(Culex will remain in his door in Monstro Town.)"
@@ -350,6 +356,9 @@ class BossShuffleMusic(Flag):
     description = 'Battle music will be randomized for each boss fight.'
     inverse_description = "(Battle music for each location will remain unchanged from the original game.)"
     value = 'Bm'
+    options = [
+        DisableCulexMusic,
+    ]
 
 
 class BossShuffle(Flag):
