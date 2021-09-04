@@ -1172,10 +1172,11 @@ class QuickPreset(Preset):
     description = 'A faster playthrough with free shops and XP acceleration for faster progression'
     flags = 'K Rk Csjl Tc4yzm $ M2 Sc4 -freeshops Ed Bm Qsba X3 D1 W -showequips'
 
+
 class AsyncTourneyPreset(Preset):
-    name = 'Async Tourney'
-    description = 'Flagset for the 2021 Async Tourney'
-    flags = 'Kb Rk Cspjl -nfc Tc4 M2 Sc4 Edfsa Bmc Qsba X3 -fakeout D2s W -showequips'
+    name = '2021 Fall Async Tournament'
+    description = 'Flagset for the 2021 Fall Async Tournament'
+    flags = 'Ksb R7k Cspjl -nfc Tc4m $ M2 Sc4 Edfsa Bmc Qsba X2 Nm -fakeout D2s W -showequips'
 
 
 # ************************************** Default lists for the site.
