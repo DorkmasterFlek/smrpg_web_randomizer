@@ -5,6 +5,7 @@
     <div>Version: <span id="info-version"></span></div>
     <div>Flags: <span id="info-flags"></span></div>
     <div>Seed: <span id="info-seed"></span></div>
+    <div>Race Mode: <span id="info-race-mode"></span></div>
     <div class="text-info">File Select Character: <span id="file-select-character"></span></div>
     <div class="text-info">File Select Hash: <span id="file-select-hash"></span></div>
     {% if show_permalink %}
@@ -42,6 +43,14 @@
         // If seed is not provided in the response, just show the hash instead (i.e. on the patch-from-hash screen).
         if (!patch.seed && patch.hash) {
             seed.html(patch.hash);
+        }
+
+        // Show race mode enabled/disabled.
+        let race_mode = $("#info-race-mode");
+        if (patch.race_mode) {
+            race_mode.text("Enabled").addClass("text-danger");
+        } else {
+            race_mode.text("Disabled").removeClass("text-danger");
         }
 
         $("#info-mode").html(patch.mode.charAt(0).toUpperCase() + patch.mode.substr(1));

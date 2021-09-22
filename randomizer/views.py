@@ -248,7 +248,7 @@ class GenerateFromHashView(View):
             'file_select_hash': s.file_select_hash,
             'patch': json.loads(p.patch),
             'race_mode': s.race_mode,
-            'spoiler': s.spoiler,
+            'spoiler': s.spoiler if not s.race_mode else {},
         }
         return JsonResponse(result)
 
