@@ -1178,6 +1178,11 @@ class AsyncTourneyPreset(Preset):
     description = 'Flagset for the 2021 Fall Async Tournament'
     flags = 'Ksb R7k Cspjl -nfc Tc4m $ M2 Sc4 Edfsa Bmc Qsba X2 Nm -fakeout D2s W -showequips'
 
+class BingoPreset(Preset):
+    name = 'Standard Bingo Flags'
+    description = 'Flagset for SMRPG Rando Bingo'
+    flags = 'Ksb R7k Cspjl -nfc Tc4m M2 Sc4 Edfsa Bmc Qsba X3 Nm -fakeout D2s W -showequips'
+
 
 # ************************************** Default lists for the site.
 
@@ -1202,4 +1207,5 @@ PRESETS = (
     ExpertPreset,
     QuickPreset,
     AsyncTourneyPreset,
+    BingoPreset,
 )
