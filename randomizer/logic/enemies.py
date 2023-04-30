@@ -132,12 +132,12 @@ def _randomize_enemy(enemy):
         enemy.resistances = random.sample(range(4, 8), new_resistances)
         potential_weaknesses = set(range(4, 8)) - set(enemy.resistances)
         potential_weaknesses.add(7)
-        enemy.weaknesses = random.sample(potential_weaknesses, min(len(enemy.weaknesses), len(potential_weaknesses)))
+        enemy.weaknesses = random.sample(sorted(potential_weaknesses), min(len(enemy.weaknesses), len(potential_weaknesses)))
     else:
         enemy.weaknesses = random.sample(range(4, 8), len(enemy.weaknesses))
         potential_resistances = set(range(4, 8)) - set(enemy.weaknesses)
         potential_resistances.add(7)
-        enemy.resistances = random.sample(potential_resistances, min(new_resistances, len(potential_resistances)))
+        enemy.resistances = random.sample(sorted(potential_resistances), min(new_resistances, len(potential_resistances)))
 
     # Randomize flower bonus type and chance for this enemy.
     enemy.flower_bonus_type = random.randint(1, 5)
