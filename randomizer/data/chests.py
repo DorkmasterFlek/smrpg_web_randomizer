@@ -707,6 +707,7 @@ class BoosterTowerCurtainGame(Reward):
     addresses = [0x1ef49b]
     item = items.Amulet
     access = 3
+    missable = True  # Curtain minigame is not repeatable if failed.
 
 
 # *** Marrymore

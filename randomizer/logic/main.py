@@ -27,7 +27,7 @@ from .patch import Patch
 from .battleassembler import assemble_battle_scripts
 
 # Current version number
-VERSION = '8.2.9'
+VERSION = '8.2.10'
 
 
 class Settings:
@@ -415,13 +415,13 @@ class GameWorld:
                     patch.add_data(0x14b411, character.mway_2_npc_id)
                     patch.add_data(0x14b452, character.mway_3_npc_id)
                     # change partition to accommodate mallow's sprite in mway
-                    if character.name is "Mallow":
+                    if character.name == "Mallow":
                         patch.add_data(0x1ddf67, 0x80)
                 if ((dialogue_iterator == 4 and not self.settings.is_flag_enabled(flags.NoFreeCharacters)) or
                         (self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 3)):
                     # forest maze
                     patch.add_data(0x14b8eb, character.forest_maze_sprite_id)
-                    if character.name is "Mario":
+                    if character.name == "Mario":
                         patch.add_data(0x215e4f, 0x42)
                         patch.add_data(0x215e56, 0x12)
                 if self.settings.is_flag_enabled(flags.NoFreeCharacters) and dialogue_iterator == 4:
@@ -430,16 +430,16 @@ class GameWorld:
                     if character.name in ["Mario", "Peach", "Geno"]:
                         # patch moleville minecart room partition
                         patch.add_data(0x1DDF45, 0x81)
-                        if character.name is "Mario":
+                        if character.name == "Mario":
                             patch.add_data(0x1DB801, 0x00)
                     # make cutscene look less weird
-                    if character.name is not "Bowser":
+                    if character.name != "Bowser":
                         patch.add_data(0x201F04, [0x3D, 0x02, 0x63])
-                        if character.name is "Mario":
+                        if character.name == "Mario":
                             patch.add_data(0x201F07, 0x09)
-                        elif character.name is "Peach":
+                        elif character.name == "Peach":
                             patch.add_data(0x201F07, 0x0F)
-                        elif character.name is "Mallow":
+                        elif character.name == "Mallow":
                             patch.add_data(0x201F07, 0x0E)
                         else:
                             patch.add_data(0x201F07, 0x0C)
@@ -449,17 +449,17 @@ class GameWorld:
                     patch.add_data(0x14a94d, character.forest_maze_sprite_id)
                     patch.add_data(0x148f91, character.forest_maze_sprite_id)
                     # fix booster hill solidity
-                    if character.name is "Mallow":
+                    if character.name == "Mallow":
                         patch.add_data(0x1DB819, [0x56, 0x2C])
-                    elif character.name is "Geno":
+                    elif character.name == "Geno":
                         patch.add_data(0x1DB820, 0x56)
-                    elif character.name is "Mario":
+                    elif character.name == "Mario":
                         patch.add_data(0x1DB804, 0x56)
-                    elif character.name is "Peach":
+                    elif character.name == "Peach":
                         patch.add_data(0x1DB80B, 0x56)
-                    if character.name is not "Peach":
+                    if character.name != "Peach":
                         # marrymore sequence
-                        if character.name is "Mario":
+                        if character.name == "Mario":
                             # surprised
                             patch.add_data(0x20d338, [0x08, 0x43, 0x00])
                             # on ground
@@ -512,7 +512,7 @@ class GameWorld:
                             patch.add_data(0x206d34, [0x08, 0x42, 0x09])
                             patch.add_data(0x206d39, [0x08, 0x42, 0x88])
                             patch.add_data(0x206F40, [0x08, 0x42, 0x09])
-                            if character.name is "Geno":
+                            if character.name == "Geno":
                                 # crying
                                 patch.add_data(0x20d464, [0x10, 0x80])
                                 patch.add_data(0x20d466, [0x08, 0x40, 0x0B])
