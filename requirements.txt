@@ -1,5 +1,5 @@
 Django==3.2.25
 jsonfield2==4.0.0.post0
-Markdown==3.2.2
+Markdown==3.6
 nlzss==0.1.2
 Wii.py==0.1
