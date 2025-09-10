@@ -1,5 +1,7 @@
 Django==5.2.6
+gunicorn==23.0.0
 jsonfield2==4.0.0.post0
-Markdown==3.7
+Markdown==3.8.2
 nlzss==0.1.2
+psycopg2-binary==2.9.10
 Wii.py==0.1
