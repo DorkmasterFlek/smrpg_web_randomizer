@@ -2,36 +2,40 @@
 
 New web-based randomizer for Super Mario RPG based on the original command line [Gentle Beauty and Raw Power](https://github.com/abyssonym/smrpg_gbarp) randomizer by abyssonym.
 
-This web version is a Django-powered site.  It is assumed you know how to deploy Django to use this.
+This web version is a Django-powered site in a Docker container.  It is assumed you know how to deploy Django and Docker to use this.
 
 If you came here just looking to use the randomizer to generate games, head to [the official community website](http://randomizer.smrpgspeedruns.com) where we host this for everyone.  This repository is only needed if you want to contribute to the development of the randomizer.
 
-## Install Python
+## Install Docker
 
-This app is written in Python 3, which is sort of implied by the requirements since Django 2.0 and beyond doesn't support Python 2 any longer.  You should install the latest version of Python 3 on your system, [instructions available on the official site](https://www.python.org).
+You will need to install Docker on your system.  Instructions for this are available on the [official Docker site](https://docs.docker.com/get-docker/).
 
-## Installing required packages
+## Developing locally
 
-I would recommend making a virtual environment using something like virtualenv, or Pipenv.  Then install the required packages:
+Once you've installed Docker (either the desktop client or command line interface), run the main `docker-compose.yml` file to build and run the development container:
 
-```> pip install -r requirements.txt```
+```> docker compose up --build```
 
-## Setting up
+The development environment files are `.env.dev` and `.env.dev.db`.  These are set up to use testing values and run the Django development server on localhost port 8000.  You can change these as needed.
 
-1. Make a copy of `example_local.py` and call it `local_settings.py`. This is where you will enter any deployment-specific settings for your instance of the website.
+## Deploying to production
 
-   ```> cp example_local.py local_settings.py```
+1. Make a copy of the example production environment files:
 
-1. Change `local_settings.py` as needed.  Generally the only thing that would be different in your deployment is the database settings.  The default is a local SQLite file.  This is fine for local development, but I recommend something more robust for production, ex. PostgreSQL.
+   ```> cp example.env.prod .env.prod```
 
-1. Run all migrations for your database:
+   ```> cp example.env.prod.db .env.prod.db```
 
-   ```> python manage.py migrate```
+   ```> cp example.env.prod.nginx .env.prod.nginx```
 
-1. Collect all the static files as per standard Django deployment:
+1. Change the production environment settings as needed.  You should generate a proper Django secret value and more secure database password at the very least.
 
-   ```> python manage.py collectstatic```
+1. Run the `docker-compose.prod.yml` file to build and run the production container:
 
-1. Set up your Django web server however you prefer.  There are plenty of resources out there on this topic for production, but for a local development environment you can just run the local test server as normal:
+   ```> docker compose -f docker-compose.prod.yml up --build -d```
 
-   ```> python manage.py runserver```
+This will run the production server in detached mode.  You can check the logs with:
+
+```> docker compose -f docker-compose.prod.yml logs -f```
+
+This will run a production Nginx web server on port 80 which forwards to the Django app using gunicorn, and also serves the static files through the web server.  You can change this in the `.env.prod.nginx` file if needed.

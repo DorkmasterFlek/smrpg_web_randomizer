@@ -1,0 +1,52 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    command: gunicorn smrpg_web_randomizer.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    networks:
+      - internal
+    expose:
+      - 8000
+    env_file:
+      - ./.env.prod
+    depends_on:
+      db:
+        condition: service_healthy
+  db:
+    image: postgres:17
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    networks:
+      - internal
+    env_file:
+      - ./.env.prod.db
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgresql://$$POSTGRES_USER:$$POSTGRES_PASSWORD@localhost/$$POSTGRES_DB" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+    networks:
+      - default
+      - internal
+    expose:
+      - 80
+    env_file:
+      - ./.env.prod.nginx
+    depends_on:
+      - web
+
+networks:
+  default:
+  internal:
+    internal: true
+
+volumes:
+  postgres_data:
+  static_volume:
