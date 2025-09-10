@@ -104,5 +104,9 @@ ENV/
 .idea
 db.sqlite*
 /static
+/staticfiles
 dump*.py
 sample*
+
+# Production environment details.
+.env.prod*
