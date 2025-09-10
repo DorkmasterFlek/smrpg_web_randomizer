@@ -1,4 +1,4 @@
-Django==5.2.5
+Django==5.2.6
 jsonfield2==4.0.0.post0
 Markdown==3.7
 nlzss==0.1.2
