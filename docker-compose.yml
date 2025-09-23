@@ -4,7 +4,6 @@ services:
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - ./:/usr/src/app/
-      - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     ports:
       - 8000:8000
@@ -17,7 +16,6 @@ services:
     image: postgres:17
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-      - /etc/timezone:/etc/timezone:ro
       - /etc/localtime:/etc/localtime:ro
     env_file:
       - ./.env.dev.db
