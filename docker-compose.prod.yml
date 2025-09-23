@@ -3,6 +3,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.prod
+    restart: always
     command: gunicorn smrpg_web_randomizer.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static_volume:/home/app/web/staticfiles
@@ -17,6 +18,7 @@ services:
         condition: service_healthy
   db:
     image: postgres:17
+    restart: always
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     networks:
@@ -30,6 +32,7 @@ services:
       retries: 5
   nginx:
     build: ./nginx
+    restart: always
     volumes:
       - static_volume:/home/app/web/staticfiles
     networks:
