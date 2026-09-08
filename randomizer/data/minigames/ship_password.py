@@ -785,6 +785,23 @@ pool = [
         submitter_credits="KATSTASAPH",
         submitter_hint_prefix="[center]Memo left by katstasaph:",
     ),
+    Password(
+        "fungus",
+        "%RANDOM_WRITER%\n\n Like Toad, but not like Mario.[await]",
+        "%RANDOM_WRITER%\n\n Like Nimbus, but not like Valley.[await]",
+        "%RANDOM_WRITER%\n\n Like Amanita, but not like Buzzer.[await]",
+        "%RANDOM_WRITER%\n\n Like yeast, but not like be.[await]",
+        "%RANDOM_WRITER%\n\n Like Frogog, but not like Spikey.[await]",
+        "%RANDOM_WRITER%\n\n Like Muku, but not like Yoshi.[await]",
+        " Did you know that technically\n speaking, the Mushroom Kingdom is\n a lichen?[await]",
+        " Lichens aren't plants. They're\n colonies where species coexist.\n Like towns![await]",
+        " And part of a lichen is algae, like\n that green stuff all over the\n ground, and then the Toads are--[await]",
+        " Captain's log: Keelhauled a\n crewmate so we can stop hearing\n lichen theories.[await]",
+        " This is just like Among Us.[await]",
+        submitter="katstasaph",
+        submitter_credits="KATSTASAPH",
+        submitter_hint_prefix="[center]Memo left by katstasaph:",
+    ),
 ]
 
 all_symbols = list("""0123456789♥♪•~©:;#×+%↑→←*&()-/?!.,\'""")

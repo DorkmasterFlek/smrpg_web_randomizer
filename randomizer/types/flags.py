@@ -1761,7 +1761,7 @@ class KeepMinigameSpritesIntact(BooleanFlag):
 <li>The snifits on Booster Hill will not be replaced by any henchmen belonging to the first tower boss.</li>
 <li>The shy guys in the Mushroom Kingdom throne room will not be swapped out for other sprites.</li>
 <li>All Mushroom Kingdom shy guys, Moleville crooks and bob-ombs, Booster Pass apprentice, Booster Tower snifits, Bandana Reds, and inner factory Mad Mallets battles will not be replaced.</li>
-</ul>."""
+</ul>"""
     _id = "allsprites"
     _requires_all = [(BossShuffle(), True)]
 
