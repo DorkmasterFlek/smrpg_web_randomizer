@@ -39,11 +39,12 @@ script = EventScript([
 	ActionQueueAsync(target=NPC_0, subscript=[
 		A_WalkNorthwestPixels(12)
 	]),
-	JmpIfBitClear(ABYSS_ENTRANCE_DIRECTIONAL_BIT, ["EVENT_2399_fade_in_music_7"]),
+	JmpIfBitSet(ABYSS_ENTRANCE_DIRECTIONAL_BIT, ["EVENT_2399_fade_in_music_7"]),
 	ClearBit(ABYSS_ENTRANCE_DIRECTIONAL_BIT),
 	FadeInFromBlack(sync=False),
 	Return(),
 	FadeInMusic(M0067_WEAPONSFACTORY, identifier="EVENT_2399_fade_in_music_7"),
+	ClearBit(ABYSS_ENTRANCE_DIRECTIONAL_BIT),
 	FreezeCamera(),
 	PlaySound(sound=SO019_LONG_FALL, channel=6),
 	ActionQueueSync(target=SCREEN_FOCUS, subscript=[

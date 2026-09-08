@@ -152,6 +152,7 @@ from smrpgpatchbuilder.datatypes.overworld_scripts.event_scripts.commands import
     PaletteSet,
     PaletteSetMorphs,
 )
+from smrpgpatchbuilder.datatypes.scripts_common.classes import (IdentifierException)
 from typing import (cast)
 
 if TYPE_CHECKING:
@@ -525,44 +526,33 @@ def apply_recruitment_palette_adjustments(world: GameWorld) -> None:
         world.event_scripts.get_command_by_identifier("mallow_statue_palette_set", PaletteSet).set_from_row(NPC_PALETTE_ROW_4)
         world.event_scripts.get_command_by_identifier("mallow_statue_palette_set", PaletteSet).set_to_row(NPC_PALETTE_ROW_4)
         world.event_scripts.get_subscript_command_by_identifier("keep_heal_arms_raised_aq", "keep_heal_arms_raised", A_SetSpriteSequence).set_mirror_sprite(False)
-        try:
-            world.event_scripts.get_command_by_identifier("kamek_palette", PaletteSetMorphs).set_row(NPC_PALETTE_ROW_3)
-            world.event_scripts.get_command_by_identifier("infinite_coin_chest_palette", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_2", PaletteSet).set_from_row(NPC_PALETTE_ROW_3)
-            world.event_scripts.get_command_by_identifier("infinite_coin_chest_palette_2", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_1", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_2", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_3", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_4", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_5", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_6", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("ending_mallow_palette", PaletteSet).set_from_row(NPC_PALETTE_ROW_3)
-            world.event_scripts.get_command_by_identifier("ending_geno_palette", PaletteSet).set_from_row(NPC_PALETTE_ROW_4)
-            world.event_scripts.get_command_by_identifier("ending_toadstool_palette", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("ending_bowser_palette", PaletteSet).set_from_row(NPC_PALETTE_ROW_6)
-            world.event_scripts.get_command_by_identifier("ending_mallow_palette_dark", PaletteSet).set_from_row(NPC_PALETTE_ROW_3)
-            world.event_scripts.get_command_by_identifier("ending_geno_palette_dark", PaletteSet).set_from_row(NPC_PALETTE_ROW_4)
-            world.event_scripts.get_command_by_identifier("ending_toadstool_palette_dark", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("ending_bowser_palette_dark", PaletteSet).set_from_row(NPC_PALETTE_ROW_6)
-            world.event_scripts.get_command_by_identifier("infinite_coin_chest_palette", PaletteSet).set_from_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_2", PaletteSet).set_to_row(NPC_PALETTE_ROW_3)
-            world.event_scripts.get_command_by_identifier("infinite_coin_chest_palette_2", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_1", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_2", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_3", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_4", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_5", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("kamek_palette_br_6", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("ending_mallow_palette", PaletteSet).set_to_row(NPC_PALETTE_ROW_3)
-            world.event_scripts.get_command_by_identifier("ending_geno_palette", PaletteSet).set_to_row(NPC_PALETTE_ROW_4)
-            world.event_scripts.get_command_by_identifier("ending_toadstool_palette", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("ending_bowser_palette", PaletteSet).set_to_row(NPC_PALETTE_ROW_6)
-            world.event_scripts.get_command_by_identifier("ending_mallow_palette_dark", PaletteSet).set_to_row(NPC_PALETTE_ROW_3)
-            world.event_scripts.get_command_by_identifier("ending_geno_palette_dark", PaletteSet).set_to_row(NPC_PALETTE_ROW_4)
-            world.event_scripts.get_command_by_identifier("ending_toadstool_palette_dark", PaletteSet).set_to_row(NPC_PALETTE_ROW_2)
-            world.event_scripts.get_command_by_identifier("ending_bowser_palette_dark", PaletteSet).set_to_row(NPC_PALETTE_ROW_6)
-        except:
-            pass
+        bowser_palette_rows: list[tuple[str, int]] = [
+            ("kamek_palette", NPC_PALETTE_ROW_3),
+            ("infinite_coin_chest_palette", NPC_PALETTE_ROW_2),
+            ("kamek_palette_2", NPC_PALETTE_ROW_3),
+            ("infinite_coin_chest_palette_2", NPC_PALETTE_ROW_2),
+            ("kamek_palette_br_1", NPC_PALETTE_ROW_2),
+            ("kamek_palette_br_2", NPC_PALETTE_ROW_2),
+            ("kamek_palette_br_3", NPC_PALETTE_ROW_2),
+            ("kamek_palette_br_4", NPC_PALETTE_ROW_2),
+            ("kamek_palette_br_5", NPC_PALETTE_ROW_2),
+            ("kamek_palette_br_6", NPC_PALETTE_ROW_2),
+            ("kamek_palette_3", NPC_PALETTE_ROW_3),
+        ]
+        for identifier, row in bowser_palette_rows:
+            try:
+                command = world.event_scripts.get_command_by_identifier(identifier)
+            except IdentifierException:
+                continue
+            if isinstance(command, PaletteSetMorphs):
+                command.set_row(row)
+            elif isinstance(command, PaletteSet):
+                command.set_from_row(row)
+                command.set_to_row(row)
+            else:
+                raise TypeError(
+                    f"{identifier} is {type(command).__name__}, expected a palette command"
+                )
     # statue minigame
     if ally.index in [1, 3]:
         world.event_scripts.get_command_by_identifier("protagonist_becomes_gold", PaletteSet).set_palette_set_starts_at(EPAL0109_GENO_PEACH_STATUE)

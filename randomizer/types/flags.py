@@ -427,7 +427,7 @@ class StartingCharacters(CategorizationFlagWithOrdinance[StartingCharacterEnum])
         o: (0 if i == 0 else None)
         for i, o in enumerate(StartingCharacterEnum.__members__.values())
     }
-    _description = "The allies who will be in your party at the start of the game. Your first pick is your <b>starter ally.</b>"
+    _description = "The allies who will be in your party at the start of the game. Your first pick is your <b>starter ally.</b><br><br>Choose any of Random_1 to Random_5 if you want that party slot to be pre-filled but don't care which character it is.<br><br>For example, if you want to start with just one ally and don't care who it is, just select one of the five Random boxes and don't select any other boxes. Or if you want your starter ally to be Mallow and also want to start with a second party member but don't care who it is, choose the Mallow box first and then one of the five Random boxes second."
     _id = "starters"
     _requires_all = [(ShuffleCharacters(), True)]
     _requires_selection = True
@@ -1526,7 +1526,11 @@ class MagicButtonShuffle(BooleanFlag):
 
 class QuizShuffle(BooleanFlag):
     _name = "Randomize Dr. Topper Quiz"
-    _description = "The question pool for the Dr. Topper quiz will include new questions submitted by players."
+    _description = """
+The question pool for the Dr. Topper quiz will include new questions submitted by players.
+<br>
+<br>
+If disabled, the questions will keep their original text and original answers, which means questions like "Where was the third Star Piece found?" will still have a correct answer of "Moleville", even if that's not where you found your third star piece in your randomizer seed."""
     _id = "quiz"
 
 
