@@ -51,5 +51,8 @@ script = EventScript([
 	FadeInFromBlack(sync=False),
 	Return(),
 	RunEventAsSubroutine(E0081_MARIO_LANDS_SUBROUTINE, identifier="EVENT_3724_run_event_as_subroutine_8"),
-	Return()
+	RunEventAsSubroutine(E3588_SIGNAL_RING_ACTIVATOR),
+	JmpIfBitClear(SIGNAL_RING_BIT, ["EVENT_3724_ret_9"]),
+	RunEventAsSubroutine(E3912_NIMBUS_STAR_PIECE_SIGNAL),
+	Return(identifier="EVENT_3724_ret_9")
 ])

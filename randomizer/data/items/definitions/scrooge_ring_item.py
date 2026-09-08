@@ -23,6 +23,8 @@ class ScroogeRingItem(Accessory):
     _price: int = 50
     _inflict_type = None
 
+    _arbitrary_value: int = 1
+
     _remake_name = "Flower Ring"
 
 

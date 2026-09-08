@@ -15,6 +15,7 @@ from randomizer.logic.post_shuffle.apply_shuffler_results import (
 )
 from randomizer.logic.post_shuffle.steps.debug_max_stats import (apply_debug_max_stats)
 from randomizer.logic.pre_shuffle.prize_locations import (set_locations)
+from randomizer.logic.rom import shuffler_cache
 from randomizer.logic.shufflers.items import (post_shuffle_cleanup, shuffle_prizes)
 from randomizer.logic.solvability import (SettingsRelaxed, assert_solvable, relax_deadlocked_gates)
 import random
@@ -77,7 +78,11 @@ from randomizer.logic.shufflers.equipment import (
     build_item_impact_categories,
     build_item_to_prize_mapping,
 )
-from randomizer.logic.shufflers.shops import (exclude_seeya_from_frog_disciple, shuffle_shops)
+from randomizer.logic.shufflers.shops import (
+    exclude_seeya_from_frog_disciple,
+    reprice_nonvanilla_shop_items,
+    shuffle_shops,
+)
 from randomizer.utils.debug_output import debug_print
 from randomizer.logic.validation import (validate_settings)
 from randomizer.types.flags import (
@@ -102,18 +107,21 @@ if TYPE_CHECKING:
     from randomizer.types.gameworld import GameWorld
 
 
-def _rebuild_hash(world: GameWorld):
-    """Build hash value for choosing file select character and file name hash.
-    Use the same version, seed, mode, and flags used for the database hash.
-    """
+def compute_seed_hash(version: str, seed: int | str, flag_string: str) -> str:
+    """seed hash; flag_string must exclude cosmetics"""
     final_seed = bytearray()
-    final_seed += world.version.encode("utf-8")
-    if isinstance(world.seed, int):
-        final_seed += world.seed.to_bytes(4, "big")
+    final_seed += version.encode("utf-8")
+    if isinstance(seed, int):
+        final_seed += seed.to_bytes(4, "big")
     else:
-        final_seed += str(world.seed).encode("utf-8")
-    final_seed += world.settings.flag_string.encode("utf-8")
-    world.hash = hashlib.md5(final_seed).hexdigest()
+        final_seed += str(seed).encode("utf-8")
+    final_seed += flag_string.encode("utf-8")
+    return hashlib.md5(final_seed).hexdigest()
+
+
+def _rebuild_hash(world: GameWorld):
+    """Build hash value for choosing file select character and file name hash. Use the same version, seed, mode, and flags used for the db hash."""
+    world.hash = compute_seed_hash(world.version, world.seed, world.settings.flag_string)
 
     # Possible names we can use for the hash values on the file select screen.  Needs to be 6 characters or less.
     file_entry_names = {
@@ -151,26 +159,23 @@ def _shuffle_items(world: GameWorld):
     # exclusions would be things like remake checks, surplus invisible item checks, super jump prizes when super jump not usable
     set_locations(world)
 
-    # Offsets override every other placement setting, but the gate flags
-    # still evaluate against the bosses the offset pinned - so a gate can
-    # demand a boss the offset locked inside the region that gate guards.
-    # Open only the gates that actually deadlock, then bail out: the gates
-    # were already turned into ROM state by apply_shuffler_independent_settings,
-    # so the world has to be rebuilt for the change to reach the game and not
-    # just the placer. create() catches this and rebuilds once.
+    # this is here for debug mode only, if gating settings are unsolvable then it will drop one
     changes = relax_deadlocked_gates(world)
     if changes:
         for message in changes:
             world.settings.force_override(message)
         raise SettingsRelaxed(changes)
-
-    # If a gate cycle still seals part of the world, no seed can win. Say so
-    # now instead of burning retries and then blaming "excluded locations".
     assert_solvable(world)
 
-    shuffle_prizes(world)
-
-    # replace bad items with coins, supplant YouMissed, fill empty locations, etc
+    if world.placement_cache:
+        # has this seed + settings string been rolled before? if so, pull the results from cache
+        shuffler_cache.apply(world, world.placement_cache)
+    else:
+        # otherwise, start fresh
+        shuffle_prizes(world)
+    world.placement_result = shuffler_cache.serialize(world)
+    
+    random.seed("post-placement:%s" % world.seed)
 
     if DEBUG_FILE_DUMPS:
         with open("spoiler.json", "w") as f:
@@ -188,7 +193,7 @@ def _apply_shuffle_results(world: GameWorld):
     apply_debug_max_stats(world)
 
 
-__all__ = ['_rebuild_hash', '_shuffle_items', '_apply_shuffle_results']
+__all__ = ['compute_seed_hash', '_rebuild_hash', '_shuffle_items', '_apply_shuffle_results']
 
 
 def build_world(world: GameWorld) -> None:
@@ -222,6 +227,7 @@ def build_world(world: GameWorld) -> None:
     # Save a snapshot of rooms before shuffling so we can restore on retry
     # (shuffle adds invisible items to rooms which would accumulate on retries)
     rooms_snapshot = deepcopy(world.rooms)
+    startup_snapshot = deepcopy(world.event_2496_startup)
 
     success = False
     while not success:
@@ -231,6 +237,7 @@ def build_world(world: GameWorld) -> None:
         except PlacementException as e:
             # Restore rooms to pre-shuffle state before retrying
             world.rooms = deepcopy(rooms_snapshot)
+            world.event_2496_startup = deepcopy(startup_snapshot)
             # Reset dummy indices so _pre_allocate_dummy_npcs reruns with fresh rooms.
             # Also reset _invisible_item_locations so set_locations re-runs the
             # flag-NPC swap loop - otherwise the freshly re-added dummies stay at
@@ -280,6 +287,8 @@ def build_world(world: GameWorld) -> None:
         shuffle_shops(world)
     elif world.settings.isflag_enabled(SeeYa):
         exclude_seeya_from_frog_disciple(world)
+
+    reprice_nonvanilla_shop_items(world)
 
     if world.settings.isflag_enabled(EnemyAttacks):
         randomize_enemy_attacks_and_spells(world)

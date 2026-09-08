@@ -55,7 +55,7 @@ script = MonsterScript([
 	RunObjectSequence(3),
 	RemoveTarget(SELF),
 	Wait1TurnandRestartScript(),
-	IfTargetedBySpell([ThunderboltSpell]),
+	IfTargetedByElement([Element.THUNDER]),
 	SetVarBits(BV7EE001, [0]),
 	Wait1TurnandRestartScript()
 ])

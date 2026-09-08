@@ -49,7 +49,7 @@ class KeroSewersBeforeBelomeUpperAfterFlipLocation(
         JmpIfBitClear(LANDS_END_GROTTO_BARREL_FLIPPED, ["lands_end_grotto_hint_text"]),
         Jmp(["kero_sewers_hint_text"]),
     ]
-    _access_conditions = "This check is the second time you open this chest."
+    _access_conditions = "This check is the second time you open this chest. Requires flipping the barrel in Land's End."
 
     def can_access(self, inventory: Inventory, world: GameWorld) -> bool:
         return can_dodge_lands_end_enemies(world, inventory)

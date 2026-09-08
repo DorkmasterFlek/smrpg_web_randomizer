@@ -2,12 +2,12 @@ from __future__ import annotations
 from randomizer.data.physical_objects.bosses import (SPR0251_BEETLE_PACKET_COPY)
 from randomizer.data.physical_objects.items import (BeetleObject)
 from randomizer.data.variables.event_script_names import (E0161_NPC_QUEST_GRANT_BEETLEMANIA, E0162_CHEST_GRANT_BEETLEMANIA, E0218_HILL_BEETLEMANIA, E3109_FREESTANDING_BEETLEMANIA_GRANT, E3395_MIDAS_CAVE_BEETLEMANIA_GRANTER)
-from randomizer.types.prize import (FortuneEnum, KeyPrize, TreasureHunterNickname)
+from randomizer.types.prize import (FortuneEnum, KeyPrize, TreasureHunterNickname, StandardPrize)
 from smrpgpatchbuilder.datatypes.overworld_scripts.event_scripts.classes import (EventScript)
 from smrpgpatchbuilder.datatypes.overworld_scripts.event_scripts.commands import (JmpToEvent)
 
 
-class BeetlemaniaPrize(KeyPrize):
+class BeetlemaniaPrize(StandardPrize, KeyPrize):
     _nickname = TreasureHunterNickname(
         nickname="Video Game",
         description="It's pretty addictive.",

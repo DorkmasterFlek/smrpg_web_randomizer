@@ -1,0 +1,40 @@
+name: Flag preset suggestion
+description: Suggest a settings preset that other players can quickly select in the UI.
+title: "[Submission - Preset]: "
+labels: [submission]
+
+body:
+  - type: textarea
+    id: flags
+    attributes:
+      label: Flagset
+      description: Paste the flag string for your suggested preset.
+    validations:
+      required: true
+
+  - type: input
+    id: psname
+    attributes:
+      label: Preset name
+      description: |
+        Give us a name to identify your preset with. This is how your preset will be listed in the preset dropdown.
+    validations:
+      required: true
+
+  - type: input
+    id: psdesc
+    attributes:
+      label: Preset description
+      description: |
+        Give us a brief (ideally 1 short sentence) description for your flagset. This is the blurb that will appear in the UI when your preset is selected in the dropdown.
+    validations:
+      required: true
+
+  - type: textarea
+    id: psjustification
+    attributes:
+      label: Why should this flagset be added?
+      description: |
+        Explain what this preset does differently from existing presets and why it would be a good addition. Alternatively, if this is a tournament or bingo preset that would be convenient for participants, you can just say that.
+    validations:
+      required: true

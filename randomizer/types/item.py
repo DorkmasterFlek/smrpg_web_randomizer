@@ -45,6 +45,7 @@ class Item(ItemBase):
     _text_shop_menu: str | None = None
     _remake_text_shop_menu: str | None = None
     _no_sell: bool = False
+    _arbitrary_value: int = 0
 
     @property
     def no_sell(self) -> bool:
@@ -54,6 +55,15 @@ class Item(ItemBase):
     def set_no_sell(self, no_sell: bool) -> None:
         """Set whether this item is barred from being sold or thrown away."""
         self._no_sell = no_sell
+
+    @property
+    def arbitrary_value(self) -> int:
+        """utility score that the stat block can't express"""
+        return self._arbitrary_value
+
+    def set_arbitrary_value(self, arbitrary_value: int) -> None:
+        """Set the utility score"""
+        self._arbitrary_value = arbitrary_value
 
     def render(self) -> dict[int, bytearray]:
         patch = super().render()

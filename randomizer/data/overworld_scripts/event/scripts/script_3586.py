@@ -34,5 +34,14 @@ from ....spells.spells import *
 from ....variables.event_palette_names import *
 
 script = EventScript([
-	JmpToEvent(E0265_OCCUPIED_MK_INN_LOADER)
+	StopSound(),
+	FadeOutMusicToVolume(duration=1, volume=96),
+	JmpIfBitSet(TEMP_7044_7, ["EVENT_3586_run_event_as_subroutine_5"]),
+	FadeInFromBlack(sync=False),
+	Return(),
+	RunEventAsSubroutine(E0081_MARIO_LANDS_SUBROUTINE, identifier="EVENT_3586_run_event_as_subroutine_5"),
+	RunEventAsSubroutine(E3588_SIGNAL_RING_ACTIVATOR),
+	JmpIfBitClear(SIGNAL_RING_BIT, ["EVENT_3586_ret_9"]),
+	RunEventAsSubroutine(E3912_NIMBUS_STAR_PIECE_SIGNAL),
+	Return(identifier="EVENT_3586_ret_9")
 ])

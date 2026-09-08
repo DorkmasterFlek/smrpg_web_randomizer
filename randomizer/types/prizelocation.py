@@ -1140,22 +1140,16 @@ class PrizeLocation(Generic[TOriginallyHeld]):
                 # Dynamic assignment mode: assign a character BEFORE placement
                 # Get all recruited character types from inventory
                 recruited_chars = list(
-                    set(
-                        [
-                            type(item)
-                            for item in inventory
-                            if isinstance(item, CharacterPrize)
-                        ]
+                    dict.fromkeys(
+                        type(item)
+                        for item in inventory
+                        if isinstance(item, CharacterPrize)
                     )
                 )
 
                 # Fallback: if no characters in inventory, check character locations directly
                 # This handles edge cases where inventory might not include characters yet
                 if not recruited_chars:
-                    # Match by BASE class rather than importing the five concrete
-                    # StartingCharacter locations -- that import is what forced a
-                    # deferred import here. Order is irrelevant: recruited_chars is
-                    # passed through set() immediately below.
                     for loc in world.locations.values():
                         if (
                             isinstance(loc, StartingCharacterLocation)
@@ -1171,8 +1165,11 @@ class PrizeLocation(Generic[TOriginallyHeld]):
                         ):
                             if isinstance(loc.prize, CharacterPrize):
                                 recruited_chars.append(type(loc.prize))
-                    # Deduplicate
-                    recruited_chars = list(set(recruited_chars))
+                    # Deduplicate, preserving order. set() of classes iterates by
+                    # id() and so varies between processes; random.choice below
+                    # reads this order, which would make placement itself differ
+                    # from run to run for the same seed.
+                    recruited_chars = list(dict.fromkeys(recruited_chars))
 
                 if not recruited_chars:
                     return False

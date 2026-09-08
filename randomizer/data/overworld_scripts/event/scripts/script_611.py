@@ -60,8 +60,8 @@ script = EventScript([
 		A_TransferToXYZF(x=6, y=62, z=0, direction=EAST),
 		A_FaceNortheast()
 	], identifier="EVENT_611_action_queue_22"),
-	FadeInFromBlack(sync=False),
 	JmpIfBitSet(TEMP_7044_7, ["EVENT_611_run_event_as_subroutine_8"]),
+	FadeInFromBlack(sync=False),
 	Return(),
 	JmpIfBitClear(TEMP_7042_5, ["EVENT_611_jmp_if_bit_clear_28"], identifier="EVENT_611_jmp_if_bit_clear_26"),
 	ActionQueueAsync(target=NPC_1, subscript=[

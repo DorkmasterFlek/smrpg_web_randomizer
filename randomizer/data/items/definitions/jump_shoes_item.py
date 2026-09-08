@@ -21,5 +21,7 @@ class JumpShoesItem(Accessory):
     _price: int = 30
     _inflict_type = None
 
+    _arbitrary_value: int = 1
+
 
 __all__ = ["JumpShoesItem"]

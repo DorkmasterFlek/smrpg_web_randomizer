@@ -13,11 +13,11 @@ body:
       required: true
 
   - type: checkboxes
-    id: difficulty-confirmation
+    id: confirmations
     attributes:
-      label: Confirmation
+      label: Support guidelines
       options:
-        - label: This is not a suggestion to change a specific existing ship password, Melody Bay tune, or invisible item location on the basis of it being too difficult.
+        - label: I have read the [guidelines and design philosophy](https://github.com/Super-Mario-RPG-Randomizer/smrpg_web_randomizer/tree/beta?tab=contributing-ov-file#design-philosophy) that feature suggestions are supposed to follow.
           required: true
-        - label: I acknowledge and accept that SMRPG Randomizer is a volunteer-run, open-source fan project, and that my feature suggestion may not end up being implemented if no developer comes along with the time and interest to implement it. I will not leave additional comments that betray this understanding.
+        - label: I acknowledge that SMRPG Randomizer is 100% a volunteer project. If my suggestion does not get implemented, I will either (1) accept that outcome or (2) implement it myself.
           required: true

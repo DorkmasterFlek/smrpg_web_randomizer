@@ -24,5 +24,7 @@ class SignalRingItem(Accessory):
     _price: int = 600
     _inflict_type = None
 
+    _arbitrary_value: int = 50
+
 
 __all__ = ["SignalRingItem"]

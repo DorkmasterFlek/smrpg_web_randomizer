@@ -39,13 +39,17 @@ script = EventScript([
 	ActionQueueAsync(target=NPC_0, subscript=[
 		A_SetPriority(2)
 	], identifier="EVENT_561_action_queue_2"),
-	JmpIfBitClear(TEMP_7044_7, ["EVENT_561_run_event_as_subroutine_5"]),
-	SetBit(SIGNAL_RING_DIRECTIONAL_BIT),
-	RunEventAsSubroutine(E0265_OCCUPIED_MK_INN_LOADER, identifier="EVENT_561_run_event_as_subroutine_5"),
-	JmpIfBitClear(SIGNAL_RING_DIRECTIONAL_BIT, ["EVENT_561_ret_10"]),
+	JmpIfBitSet(TEMP_7044_7, ["EVENT_561_set_bit_7"]),
+	FadeInFromBlack(sync=False),
+	Return(),
+	SetBit(SIGNAL_RING_DIRECTIONAL_BIT, identifier="EVENT_561_set_bit_7"),
+	StopSound(identifier="EVENT_561_run_event_as_subroutine_8"),
+	FadeOutMusicToVolume(duration=1, volume=96),
+	RunEventAsSubroutine(E0081_MARIO_LANDS_SUBROUTINE),
+	JmpIfBitClear(SIGNAL_RING_DIRECTIONAL_BIT, ["EVENT_561_ret_13"]),
     ClearBit(SIGNAL_RING_DIRECTIONAL_BIT),
 	RunEventAsSubroutine(E3588_SIGNAL_RING_ACTIVATOR),
-	JmpIfBitClear(SIGNAL_RING_BIT, ["EVENT_561_ret_10"]),
+	JmpIfBitClear(SIGNAL_RING_BIT, ["EVENT_561_ret_13"]),
 	RunEventAsSubroutine(E3895_ROSE_TOWN_STAR_PIECE_SIGNAL),
-	Return(identifier="EVENT_561_ret_10")
+	Return(identifier="EVENT_561_ret_13")
 ])

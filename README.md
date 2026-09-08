@@ -136,3 +136,7 @@ python manage.py add_submission --type palette --issue GITHUB_ISSUE_ID
 ```bash
 python manage.py add_submission --type TYPE --issue GITHUB_ISSUE_ID --dry-run
 ```
+
+### Presets
+
+Not supported, just copy paste the text.

@@ -195,7 +195,7 @@ def sealed_locations(
     # pool, and treating it as unobtainable would give false positives.
 
     pinned_classes = tuple(
-        cls for cls in set(pinned.values())
+        cls for cls in dict.fromkeys(pinned.values())
         if issubclass(cls, (BossFightPrize, CharacterPrize))
     )
     inventory = _collect_pinned(

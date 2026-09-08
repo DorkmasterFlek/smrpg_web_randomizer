@@ -825,7 +825,7 @@ def suggest_letter_bank(word, position, decoy_word):
             random.sample(letter_bank, k=min(5 - len(letters), len(letter_bank)))
         )
     # if not enough fillable letters from that, add a random consonant
-    letters = list(set(letters))
+    letters = list(dict.fromkeys(letters))
     if len(letters) < 5:
         letters.extend(
             random.sample(

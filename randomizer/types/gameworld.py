@@ -199,6 +199,11 @@ class GameWorld:
     # Music IDs for boss shuffle (built by apply_cosmetic_settings)
     selected_music_ids: list[int]
 
+    # Cached placement, in. When set, _shuffle_items applies it instead of running place(), which is ~94% of build time
+    placement_cache: bytes | None = None
+    # Cached placement, out. Captured when the search finishes so it also records where the search left the RNG stream
+    placement_result: bytes | None = None
+
     # Progress callback for SSE streaming (set by __init__)
     _progress_callback: Callable[[str, int], None] | None
 
@@ -210,6 +215,10 @@ class GameWorld:
     # Pre-allocated once by _pre_allocate_dummy_npcs, then reused across shuffle retries
     _slot_dummy_indices: dict[int, int] | None = None   # room_id → starting object index of 5 slot dummies
     _flag_dummy_index: dict[int, int] | None = None     # room_id → object index of 1 flag dummy
+
+    _invisible_summoner_base: list | None = None
+
+    _invisible_flag_choice: list[type] | None = None
 
     # Vanilla room NPC states for change detection during partition recalculation
     # Populated by snapshot_vanilla_room_states() before NPC shuffling begins
@@ -494,8 +503,11 @@ class GameWorld:
         sprite_palettes: SpritePaletteCollection,
         progress_callback: Callable[[str, int], None] | None = None,
         debug_bps_patches: bool = False,
+        placement_cache: bytes | None = None,
     ):
         self._progress_callback = progress_callback
+        self.placement_cache = placement_cache
+        self.placement_result = None
         self._report_progress("Parsing settings...", 0)
         self.allies = allies
         self.seed = seed
@@ -523,6 +535,10 @@ class GameWorld:
         self._debug_bps_patches = debug_bps_patches
         self.event_palettes = event_palettes
         self.sprite_palettes = sprite_palettes
+        
+        self.pending_sprite_blob: bytes | None = None
+        self.sprite_writes: list[tuple[int, bytes]] | None = None
+        self.sprite_reclaim_banks: list[tuple[int, int]] | None = None
 
         build_world(self)
 
@@ -531,6 +547,10 @@ class GameWorld:
         """Finalize character starting stats based on starting level and optimal choices."""
         pass
 
+
+    def offer_sprite_blob(self, blob: bytes | None) -> None:
+        """Offer a stored sprite render for the next get_patch() to replay"""
+        self.pending_sprite_blob = blob
 
     def get_patch(self) -> Patch:
         """Assemble the ROM patch. Implementation lives in logic/rom/build_patch.py."""

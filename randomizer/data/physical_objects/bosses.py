@@ -263,7 +263,7 @@ class PandoriteSmallObject(BossNPC):
         0x085A00,
         0x680000,
     ]
-    _eye_height = 1
+    _eye_height = 5
     _crown_height = 1
 
 
@@ -691,7 +691,7 @@ class DodoSmallObject(BossNPC):
     """Small Dodo object."""
 
     _base = DODO_SMALL_NPC
-    _eye_height = 16
+    _eye_height = 14
     _evil_palette = [
         0x181818,
         0xF8F828,
@@ -790,7 +790,8 @@ class CzarDragonSmallObject(BossNPC):
     """Small Czar Dragon object."""
 
     _base = CZAR_DRAGON_SMALL_NPC
-    _eye_height = 20
+    _eye_height = 16
+    _tower_entrance_horizontal_shift = 5
     _evil_palette = [
         0xF0F8F8,
         0x00B0B8,
@@ -1552,6 +1553,7 @@ class MagikoopaSmallObject(BossNPC):
         0x4A1000,
         0x181818,
     ]
+    _eye_height = 14
 
 
 class ClerkSmallObject(BossNPC):
@@ -1690,7 +1692,7 @@ class HidonSmallObject(BossNPC):
     """Small Hidon object."""
 
     _base = HIDON_SMALL_NPC
-    _eye_height = 1
+    _eye_height = 5
     _crown_height = 1
     _evil_palette = [
         0xFFF7DE,
@@ -1715,7 +1717,7 @@ class ChesterSmallObject(BossNPC):
     """Small Chester object."""
 
     _base = CHESTER_SMALL_NPC
-    _eye_height = 1
+    _eye_height = 5
     _crown_height = 1
     _evil_palette = [
         0xFFF7DE,
@@ -1740,7 +1742,7 @@ class BoxBoySmallObject(BossNPC):
     """Small Box Boy object."""
 
     _base = BOX_BOY_SMALL_NPC
-    _eye_height = 1
+    _eye_height = 5
     _crown_height = 1
     _evil_palette = [
         0xFFF7DE,

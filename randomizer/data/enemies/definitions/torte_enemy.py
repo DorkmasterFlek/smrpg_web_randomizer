@@ -18,7 +18,7 @@ class TORTEEnemy(Enemy):
     _hp: int = 100
     _fp: int = 100
     _attack: int = 60
-    _defense: int = 50
+    _defense: int = 20 # changed from vanilla to match raspberry, defense is irrelevant in boss fight but matters in henchmen fights
     _magic_attack: int = 8
     _magic_defense: int = 27
     _speed: int = 99

@@ -40,8 +40,8 @@ script = EventScript([
 		A_TransferXYZFPixels(x=0, y=3, z=0, direction=EAST)
 	]),
 	ApplySolidityModToLevel(permanent=True, room_id=R153_MARRYMORE_CHAPEL_ENTRANCE_TO_SANCTUARY, mod_id=0),
-	FadeInFromBlack(sync=False),
 	JmpIfBitSet(TEMP_7044_7, ["EVENT_641_run_event_as_subroutine_7"]),
+	FadeInFromBlack(sync=False),
 	JmpIfBitSet(MARRYMORE_LIBERATED, ["EVENT_641_fade_in_from_black_async_10"]),
 	SetBit(SANCTUARY_LOCKED),
 	Return(),

@@ -18,7 +18,7 @@ script = MonsterScript([
 	Attack(Attack0, Attack31, ScrowBellAttack),
 	ClearVarBits(BV7EE00F, [0]),
 	Wait1TurnandRestartScript(),
-	CastSpell(SandStormSpell, LightBeamSpell, WaterBlastSpell),
+	CastSpell(SandStormSpell, LightBeamSpell, DrainBeamSpell),
 	Wait1TurnandRestartScript(),
 	StartCounterCommands()
 ])

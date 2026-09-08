@@ -56,7 +56,6 @@ script = EventScript([
 	ActionQueueSync(target=NPC_4, subscript=[
 		A_WalkSouthPixels(4)
 	]),
-	FadeInFromBlack(sync=False),
 	JmpIfBitClear(TEMP_7044_7, ["EVENT_2364_fade_in_from_black_async_10"]),
 	RunEventAsSubroutine(E0081_MARIO_LANDS_SUBROUTINE),
 	RunEventAsSubroutine(E3588_SIGNAL_RING_ACTIVATOR),
@@ -64,7 +63,8 @@ script = EventScript([
 	RunEventAsSubroutine(E3899_BOOSTER_TOWER_STAR_PIECE_SIGNAL),
 	Jmp(["EVENT_2364_ret_11"]),
     
-	JmpIfBitClear(STAR_PIECE_GRANT_DIRECTIONAL_BIT, ["EVENT_2364_ret_11"], identifier="EVENT_2364_fade_in_from_black_async_10"),
+	FadeInFromBlack(sync=False, identifier="EVENT_2364_fade_in_from_black_async_10"),
+	JmpIfBitClear(STAR_PIECE_GRANT_DIRECTIONAL_BIT, ["EVENT_2364_ret_11"]),
     
 	SetVarToConst(PRIMARY_TEMP_7000, 528),
 	RunEventAsSubroutine(E0178_NPC_QUEST_1_CONTAINER),

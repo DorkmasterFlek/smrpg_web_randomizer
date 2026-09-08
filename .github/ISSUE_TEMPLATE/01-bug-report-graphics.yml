@@ -19,29 +19,9 @@ body:
   - type: checkboxes
     id: confirmations
     attributes:
-      label: Check each box to confirm this report is **NOT** about any of the following expected behaviours.
+      label: Do this first
       options:
-        - label: Allies transforming into each other temporarily when using a weapon or spell that doesn't normally belong to them. 
-          required: true
-        - label: Some coins are not animated. 
-          required: true
-        - label: Some boss sprites don't have a walking animation or can't face northwest/northeast.
-          required: true
-        - label: Non-critical dialogs missing in boss fights, cutscenes, etc. Many dialogs are removed intentionally to reduce repetitive player input.
-          required: true
-
-  - type: checkboxes
-    id: confirmations_2
-    attributes:
-      label: Check each box to confirm this report is **NOT** about any of the following known hardware limitations.
-      options:
-        - label: Temporary freezing (~16-30 frames) when activating EXP stars in certain rooms (forest, pipe vault, booster tower, sunken ship, etc). 
-          required: true
-        - label: Sprites partially disappearing or glitching out in battle when there are too many tiles on the same scanline (i.e. Yaridovich attacking Bowser in the middle slot). 
-          required: true
-        - label: Bad sprite palette in a room where at least 6-8 non-protagonist sprites use a different palette from each other
-          required: true
-        - label: Some tickets about sprites overwriting each other (or overwriting shadows) will be closed due to hardware limitations, especially if the player is Bowser or Toadstool and it's a room with a lot of objects in it.
+        - label: I have read the [support guidelines](https://github.com/Super-Mario-RPG-Randomizer/smrpg_web_randomizer/blob/beta/SUPPORT.md) to make sure my issue is legitimate and not already known.
           required: true
 
   # ─────────────────────────────────────────────
@@ -54,7 +34,7 @@ body:
       description: |
         If emulator, state which emulator and version.  
         If console, state which flash cart firmware.
-      placeholder: "e.g. bsnes 115, SNES EverDrive v2.6"
+      placeholder: "e.g. bsnes 115, FXPak Pro 1.11.2"
     validations:
       required: true
 
@@ -65,7 +45,7 @@ body:
     id: flags
     attributes:
       label: Flags
-      description: Paste the flag string, if available
+      description: Paste the flag string, if available. We need this because your cosmetic settings are not included in the seed permalink.
     validations:
       required: false
 

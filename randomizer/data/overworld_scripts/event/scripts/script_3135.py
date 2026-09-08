@@ -37,11 +37,11 @@ script = EventScript([
 	Set7000ToCurrentLevel(),
     
     JmpIfVarNotEqualsConst(PRIMARY_TEMP_7000, R301_KERO_SEWERS_AREA_07_WATER_SWITCH_ROOM_WBOOS, ["EVENT_3135_jmp_if_bit_set_711"]),
-    JmpIfBitClear(LANDS_END_GROTTO_BARREL_FLIPPED, ["EVENT_3135_fade"]),
+    JmpIfBitClear(LANDS_END_GROTTO_BARREL_FLIPPED, ["kero_room_loader_check_save_bit"]),
 	JmpIfObjectTriggerEnabledInSpecificLevel(
 		NPC_1,
 		R301_KERO_SEWERS_AREA_07_WATER_SWITCH_ROOM_WBOOS,
-		["EVENT_3135_fade"],
+		["kero_room_loader_check_save_bit"],
 	),
     RemoveObjectFromCurrentLevel(NPC_1),
 	SummonObjectToCurrentLevel(NPC_8),
@@ -77,23 +77,27 @@ script = EventScript([
 	JmpToSubroutine(["EVENT_3134_summon_to_level_0"]),
 	JmpIfBitClear(SEWER_WATER_LEVEL, ["EVENT_3135_reset_priority_set_14"], identifier="EVENT_3135_jmp_if_bit_clear_9"),
 	Set7000ToCurrentLevel(),
-	JmpIfVarEqualsConst(PRIMARY_TEMP_7000, R062_KERO_SEWERS_AREA_01_WATER_ROOM_WSAVE, ["EVENT_3135_fade"]),
+	JmpIfVarEqualsConst(PRIMARY_TEMP_7000, R062_KERO_SEWERS_AREA_01_WATER_ROOM_WSAVE, ["kero_room_loader_check_save_bit"]),
 	PrioritySet(mainscreen=[LAYER_L1, LAYER_L2, NPC_SPRITES], subscreen=[], colour_math=[]),
-	Jmp(["EVENT_3135_fade"]),
+	Jmp(["kero_room_loader_check_save_bit"]),
 	ResetPrioritySet(identifier="EVENT_3135_reset_priority_set_14"),
     
 
 
 
-	RunEventAsSubroutine(E0015_STANDARD_ROOM_LOADER, identifier="EVENT_3135_fade"),
-	Set7000ToCurrentLevel(),
-    JmpIfVarEqualsConst(PRIMARY_TEMP_7000, R333_KERO_SEWERS_ENTRANCE, ["EVENT_3135_jmp_if_bit_set_71"]),
+	JmpIfBitClear(TEMP_7044_7, ["EVENT_3135_fade"], identifier="kero_room_loader_check_save_bit"),
+    
+    Set7000ToCurrentLevel(),
+	JmpIfVarEqualsConst(PRIMARY_TEMP_7000, R333_KERO_SEWERS_ENTRANCE, ["EVENT_3135_jmp_if_bit_set_71"]),
     JmpIfVarEqualsConst(PRIMARY_TEMP_7000, R301_KERO_SEWERS_AREA_07_WATER_SWITCH_ROOM_WBOOS, ["EVENT_3135_jmp_if_bit_set_71"]),
-	Return(identifier="EVENT_3135_ret_22"),
-	JmpIfBitClear(SIGNAL_RING_DIRECTIONAL_BIT, ["EVENT_3135_ret_22"], identifier="EVENT_3135_jmp_if_bit_set_71"),
+    JmpIfVarEqualsConst(PRIMARY_TEMP_7000, R062_KERO_SEWERS_AREA_01_WATER_ROOM_WSAVE, ["EVENT_3135_jmp_if_bit_set_71"]),
+    Jmp(["EVENT_3135_fade"]),
+    SetBit(SIGNAL_RING_DIRECTIONAL_BIT, identifier="EVENT_3135_jmp_if_bit_set_71"),
+	RunEventAsSubroutine(E0015_STANDARD_ROOM_LOADER, identifier="EVENT_3135_fade"),
+	JmpIfBitClear(SIGNAL_RING_DIRECTIONAL_BIT, ["EVENT_3135_ret_22"], identifier="kero_Sewer_signal_ring_path"),
     ClearBit(SIGNAL_RING_DIRECTIONAL_BIT),
 	RunEventAsSubroutine(E3588_SIGNAL_RING_ACTIVATOR),
 	JmpIfBitClear(SIGNAL_RING_BIT, ["EVENT_3135_ret_22"]),
 	RunEventAsSubroutine(E3891_SEWERS_STAR_PIECE_SIGNAL),
-	Return()
+	Return(identifier="EVENT_3135_ret_22"),
 ])

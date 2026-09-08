@@ -23,5 +23,7 @@ class ExpBoosterItem(Accessory):
     _price: int = 22
     _inflict_type = None
 
+    _arbitrary_value: int = 10
+
 
 __all__ = ["ExpBoosterItem"]

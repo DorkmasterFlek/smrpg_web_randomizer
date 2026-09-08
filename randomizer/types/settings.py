@@ -1,8 +1,8 @@
 from __future__ import annotations
 from typing import Any, cast, TypeVar
 from .flags import *
-from .check_flags import *  # EnabledRegularChecks, EnabledBossChecks, ShuffledBosses
-from .flag_categories import *  # FlagCategory, all *Category classes, CATEGORIES, PRESETS
+from .check_flags import *
+from .flag_categories import *
 import re
 
 
@@ -49,8 +49,7 @@ class Settings:
 
     @property
     def mimic_offset(self) -> int | None:
-        """Independent offset for mimic fight placement (dev-only). None means
-        fall back to prize_offset for mimics."""
+        """Independent offset for mimic fight placement (dev-only). None means fall back to prize_offset for mimics."""
         return self._mimic_offset
 
     @mimic_offset.setter
@@ -172,7 +171,7 @@ class Settings:
             ShuffleShops: ShuffleShops(),
             ShopQuality: ShopQuality(),
             BiasShopShuffle: BiasShopShuffle(),
-            NoPickMeUps: NoPickMeUps(),
+            PickMeUpAvailability: PickMeUpAvailability(),
             ShowEquips: ShowEquips(),
             FreeShops: FreeShops(),
             ProtectSpecialItems: ProtectSpecialItems(),
@@ -212,7 +211,6 @@ class Settings:
             HoldB: HoldB(),
         }
         self._flags_by_id: dict[str, Flag] = {f.id: f for f in self._flags.values()}
-        # todo: get rid of this
 
     @property
     def flags(self) -> dict[type[Flag], Flag]:
@@ -220,11 +218,7 @@ class Settings:
         return self._flags
 
     def force_override(self, message: str) -> None:
-        """Record a setting that generation changed behind the user's back.
-
-        Deduplicated: shuffling retries and the world rebuild both re-run the
-        code that records these, and the seed page should list each change once.
-        """
+        """Record a setting that generation changed behind the user's back."""
         if message not in self.forced_overrides:
             self.forced_overrides.append(message)
 
@@ -233,8 +227,7 @@ class Settings:
         return cast(FlagT, self._flags[flag_type])
 
     def get_flag_by_id(self, flag_id: str) -> Flag:
-        """Get a flag instance by its string id (e.g. "chests", "bosses").
-        """
+        """Get a flag instance by its string id (e.g. "chests", "bosses")."""
         return self._flags_by_id[flag_id]
     
     def is_flag_value(self, flag_class: type[FlagT], value: Any) -> bool:
@@ -264,73 +257,90 @@ class Settings:
         """Check if a boolean flag is on or not."""
         return self.is_flag_value(flag_class, True)
 
-    # ==================== Flag String Encoding ====================
+    def _requirement_met(self, requirement: tuple[Flag, Any]) -> bool:
+        """Evaluate one (flag, expected value) entry from a flag's requirements."""
+        required_flag, expected = requirement
+        flag_class = type(required_flag)
+        if isinstance(required_flag, BooleanFlag):
+            return self.isflag_enabled(flag_class) == expected
+        if isinstance(required_flag, SelectOneFlag):
+            choices = expected if isinstance(expected, list) else [expected]
+            return any(self.is_flag_value(flag_class, choice) for choice in choices)
+        raise RandomizerSettingsException(
+            f"unsupported requirement flag type {flag_class.__name__}"
+        )
+
+    def is_flag_active(self, flag_class: type[Flag]) -> bool:
+        """Whether a flag's dependencies are satisfied, i.e. whether it does anything."""
+        flag = self.get_flag(flag_class)
+        if any(not self._requirement_met(r) for r in flag._requires_all):
+            return False
+        if flag._requires_any and not any(
+            self._requirement_met(r) for r in flag._requires_any
+        ):
+            return False
+        if flag._disabled_if_all and all(
+            self._requirement_met(r) for r in flag._disabled_if_all
+        ):
+            return False
+        return True
+
+    def set_boolean_flag(self, flag_class: type[BooleanFlag], enabled: bool) -> None:
+        """Turn a boolean flag on or off after the settings have been built."""
+        flag = self.get_flag(flag_class)
+        if not isinstance(flag, BooleanFlag):
+            raise RandomizerSettingsException(
+                f"set_boolean_flag on non-boolean flag {flag_class.__name__}"
+            )
+        flag.enabled = enabled
+        self._is_flag_value_cache.clear()
+
 
     @staticmethod
     def _get_sorted_options_list(flag: CategorizationFlag | CategorizationFlagWithOrdinance) -> list:
-        """Get options sorted alphabetically by display text (matching frontend order).
-
-        IMPORTANT: This must exactly match _get_option_text() in flags.py!
-        """
+        """Get options sorted alphabetically by display text; must match _get_option_text() in flags.py."""
         def get_text(opt) -> str:
             if hasattr(opt, 'value'):
                 val = opt.value
             else:
                 val = opt
 
-            # Must match priority order in flags.py _get_option_text():
-            # 1. string check
             if isinstance(val, str):
                 return val
-            # 2. tuple check
             if isinstance(val, tuple):
                 if len(val) >= 2 and isinstance(val[1], str):
                     return val[1]
                 return str(val)
-            # 3. _text (boss fights)
             if hasattr(val, '_text'):
                 return val._text
-            # 4. _name (battle music classes) - must be string
             if hasattr(val, '_name') and isinstance(val._name, str):
                 return val._name
-            # 5. _title (spells)
             if hasattr(val, '_title'):
                 return val._title
-            # 6. _id.value (prize locations with ShuffleLocationSelector enum)
             if hasattr(val, '_id'):
                 id_val = val._id
                 if hasattr(id_val, 'value') and isinstance(id_val.value, str):
                     return id_val.value
-            # 7. value (if string, for simple enums)
             if hasattr(val, 'value') and isinstance(val.value, str):
                 return val.value
-            # 8. name attribute (allies)
             if hasattr(val, 'name') and isinstance(val.name, str):
                 return val.name
-            # 9. __name__ (class types)
             if hasattr(val, '__name__'):
                 return val.__name__
-            # 10. str() fallback
             return str(val)
         return sorted(flag.options.keys(), key=lambda x: get_text(x).lower())
 
     @staticmethod
     def _encode_categorization_hash(flag: CategorizationFlag) -> str:
-        """Encode a CategorizationFlag's enabled options as a compact hash.
-
-        Uses base64-like encoding where each character represents 6 bits of
-        enabled/disabled state for options in order.
-        Options are sorted alphabetically by display text to match frontend order.
-        """
+        """Encode a CategorizationFlag's enabled options as a compact hash."""
         options_list = Settings._get_sorted_options_list(flag)
         bitmask = 0
         for i, opt in enumerate(options_list):
             if flag.options[opt]:
                 bitmask |= (1 << i)
 
-        # Convert to base64-like string
         if bitmask == 0:
-            return "A"  # All disabled
+            return "A"
 
         result = ""
         while bitmask > 0:
@@ -340,10 +350,7 @@ class Settings:
 
     @staticmethod
     def _decode_categorization_hash(hash_str: str, flag: CategorizationFlag) -> dict:
-        """Decode a hash string back to option enabled states.
-
-        Options are sorted alphabetically by display text to match frontend order.
-        """
+        """Decode a hash string back to option enabled states."""
         options_list = Settings._get_sorted_options_list(flag)
         bitmask = 0
         for i, char in enumerate(hash_str):
@@ -357,12 +364,7 @@ class Settings:
 
     @staticmethod
     def _encode_ordinance_hash(flag: CategorizationFlagWithOrdinance) -> str:
-        """Encode a CategorizationFlagWithOrdinance's enabled options and order.
-
-        Format: colon-separated indices in selection order
-        Example: "0:1:2" means options at indices 0, 1, 2 in that order
-        Options are sorted alphabetically by display text to match frontend order.
-        """
+        """Encode a CategorizationFlagWithOrdinance's enabled options and order."""
         options_list = Settings._get_sorted_options_list(flag)
 
         enabled_with_order = [
@@ -379,12 +381,7 @@ class Settings:
     def _decode_ordinance_hash(
         hash_str: str, flag: CategorizationFlagWithOrdinance
     ) -> dict:
-        """Decode a hash string back to option enabled states with ordinance.
-
-        Format: colon-separated indices in selection order
-        Example: "0:1:2" means options at indices 0, 1, 2 in that order
-        Options are sorted alphabetically by display text to match frontend order.
-        """
+        """Decode a hash string back to option enabled states with ordinance."""
         options_list = Settings._get_sorted_options_list(flag)
         result: dict = {opt: None for opt in options_list}
 
@@ -422,7 +419,6 @@ class Settings:
             return None
 
         if isinstance(flag, BooleanFlag):
-            # Only include if enabled (non-default means enabled since default is usually False)
             if flag.enabled:
                 return flag.id
             return None
@@ -450,13 +446,7 @@ class Settings:
 
     @staticmethod
     def default_value_string(flag: Flag) -> str:
-        """Render a flag's DEFAULT value the way it appears in the flag string.
-
-        Mirrors the value portion of _encode_single_flag, but for the default
-        and without the at-default short-circuit. A boolean has no value in the
-        flag string (its presence means enabled), so it renders as "true".
-        Used for the setting tooltips on the randomize page.
-        """
+        """Render a flag's DEFAULT value the way it appears in the flag string."""
         if isinstance(flag, BooleanFlag):
             return "true" if flag.default else "false"
         if isinstance(flag, RangeFlag):
@@ -490,11 +480,7 @@ class Settings:
         return subcategories
 
     def get_flag_string(self) -> str:
-        """Generate a compact string representation of all non-default flags.
-
-        Format: CategoryId(flag_id|flag_id:value|...)
-        Categories with same ID are combined.
-        """
+        """Generate a compact string representation of all non-default flags."""
         id_to_flags: dict[str, list[str]] = {}
 
         for subcat_cls in self._get_all_subcategories():
@@ -521,7 +507,6 @@ class Settings:
 
     def get_flag_string_without_cosmetics(self) -> str:
         """Generate flag string excluding all flags under 'R' category ID."""
-        # Group subcategories by their ID, excluding R
         id_to_flags: dict[str, list[str]] = {}
 
         for subcat_cls in self._get_all_subcategories(exclude_cosmetic=True):
@@ -549,7 +534,6 @@ class Settings:
 
         return " ".join(parts)
 
-    # ==================== Flag String Decoding ====================
 
     def _build_flag_id_map(self) -> dict[str, type[Flag]]:
         """Build a mapping from flag ID to flag class."""
@@ -569,7 +553,6 @@ class Settings:
         flag = self._flags[flag_cls]
 
         if isinstance(flag, BooleanFlag):
-            # For boolean flags, presence means enabled
             flag.enabled = True
             return
 
@@ -611,19 +594,14 @@ class Settings:
             return
 
     def set_from_flag_string(self, flag_string: str) -> None:
-        """Parse a flag string and set flags accordingly.
+        """Parse a flag string and set flags accordingly."""
 
-        Format: CategoryId(flag_id|flag_id:value|...) CategoryId(...)
-        """
-
-        # Reset all flags to defaults first
         for flag in self._flags.values():
             if hasattr(flag, "reset"):
                 flag.reset()  # type: ignore[union-attr]
 
         flag_id_map = self._build_flag_id_map()
 
-        # Parse category blocks: X(...) format
         pattern = r"([A-Z])\(([^)]*)\)"
         matches = re.findall(pattern, flag_string)
 
@@ -631,7 +609,6 @@ class Settings:
             if not flags_content:
                 continue
 
-            # Split by | to get individual flag entries
             flag_entries = flags_content.split("|")
 
             for entry in flag_entries:
@@ -650,11 +627,7 @@ class Settings:
                     self._decode_and_set_flag(flag_cls, value_str)
 
     def print_settings(self, max_width: int = 120) -> str:
-        """Print all settings values in a readable format.
-
-        Returns a formatted string showing all flag values, including defaults.
-        For categorization flags, enabled and disabled options are shown in a compact table format.
-        """
+        """Print all settings values in a readable format."""
         lines = []
         lines.append("=" * max_width)
         lines.append("SETTINGS SUMMARY")
@@ -709,7 +682,6 @@ class Settings:
                     for opt, order in default_items
                 ]
 
-                # Compare by names only (ignoring order for default check)
                 enabled_names = [self._get_option_display_name(opt) for opt, _ in enabled_items]
                 default_names = [self._get_option_display_name(opt) for opt, _ in default_items]
                 marker = "  " if enabled_names == default_names else "* "
@@ -788,7 +760,7 @@ class Settings:
             return ""
 
         max_item_len = max(len(item) for item in items)
-        col_width = max_item_len + 2  # Add padding
+        col_width = max_item_len + 2
 
         available_width = max_width - len(indent)
         num_cols = max(1, available_width // col_width)

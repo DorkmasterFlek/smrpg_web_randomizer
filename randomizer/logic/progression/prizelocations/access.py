@@ -431,6 +431,21 @@ def can_access_outer_nimbus(world: GameWorld, inventory: Inventory) -> bool:
     return True
 
 
+def can_access_juice_bar_alto(world: GameWorld, inventory: Inventory) -> bool:
+    """If true, the player is expected to be able to shop at the Alto Card juice bar."""
+    return inventory.has_item_count(ProgressiveCardPrize, 1)
+
+
+def can_access_juice_bar_tenor(world: GameWorld, inventory: Inventory) -> bool:
+    """If true, the player is expected to be able to shop at the Tenor Card juice bar."""
+    return inventory.has_item_count(ProgressiveCardPrize, 2)
+
+
+def can_access_juice_bar_soprano(world: GameWorld, inventory: Inventory) -> bool:
+    """If true, the player is expected to be able to shop at the Soprano Card juice bar."""
+    return inventory.has_item_count(ProgressiveCardPrize, 3)
+
+
 def can_enter_statue_game(world: GameWorld, inventory: Inventory) -> bool:
     """If true, the player is expected to be able to access Nimbus Castle."""
     outer_access = can_access_outer_nimbus(world, inventory)

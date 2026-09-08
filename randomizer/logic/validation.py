@@ -1,9 +1,4 @@
-"""Settings validation for the randomizer.
-
-This module provides validation functions to check that settings combinations
-are valid before the randomization process begins. Invalid combinations should
-be caught early to provide clear error messages to the user.
-"""
+"""Settings validation for the randomizer."""
 
 from __future__ import annotations
 from typing import TYPE_CHECKING
@@ -38,6 +33,10 @@ from ..types.flags import (
         BossShuffleScaleStats,
         BossScaleOptions
     )
+from ..types.flags import (
+        CategorizationFlag,
+        CategorizationFlagWithOrdinance,
+    )
 
 if TYPE_CHECKING:
     from ..types.settings import Settings
@@ -49,37 +48,46 @@ class SettingsValidationError(Exception):
 
 
 def validate_settings(settings: Settings) -> None:
-    """Validate that settings combinations are valid.
-
-    This should be called before shuffle_items to catch invalid settings early.
-
-    Args:
-        settings: The settings object to validate
-
-    Raises:
-        SettingsValidationError: If settings have an invalid combination
-    """
+    """Validate that settings combinations are valid."""
     _validate_character_requirements(settings)
     _validate_star_piece_requirements(settings)
     _validate_exp_sources(settings)
+    _validate_multiselect_selections(settings)
+
+
+def _validate_multiselect_selections(settings: Settings) -> None:
+    """Reject multi-select settings that are in play with nothing selected."""
+
+    for flag_class, flag in settings._flags.items():
+        if not isinstance(flag, (CategorizationFlag, CategorizationFlagWithOrdinance)):
+            continue
+        if not flag._requires_selection or flag.enabled:
+            continue
+        if not settings.is_flag_active(flag_class):
+            continue
+
+        gates = [
+            required_flag.name
+            for required_flag, _ in (flag._requires_all + flag._requires_any)
+            if required_flag.name
+        ]
+        message = f"'{flag.name}' has no options selected, so there is nothing for it to choose from."
+        if gates:
+            message += (
+                f" Select at least one option, or turn off "
+                f"{' / '.join(repr(g) for g in gates)}."
+            )
+        else:
+            message += " Select at least one option."
+        raise SettingsValidationError(message)
 
 
 def _validate_character_requirements(settings: Settings) -> None:
-    """Validate character-related settings are compatible.
-
-    Checks:
-    - Characters required by gating settings are not disabled
-    - Characters explicitly set as starting characters are not disabled
-    - Total required unique characters does not exceed max characters
-    """
+    """Validate character-related settings are compatible."""
 
     if not settings.isflag_enabled(ShuffleCharacters):
         return
 
-    # There are exactly 5 StartingCharacter slots in the game. The UI already
-    # instructs users not to select more than 5, but validate it here too so a
-    # malformed flag string (e.g., direct URL edit) produces a clear error
-    # instead of a crash during placement.
     starting_chars_flag = settings.get_flag(StartingCharacters)
     num_starters = len(starting_chars_flag.enabled)
     if num_starters > 5:
@@ -88,19 +96,11 @@ def _validate_character_requirements(settings: Settings) -> None:
             f"You can choose at most 5 starting characters."
         )
 
-    # StartingCharacter1 always exists and the protagonist sprite swap reads the
-    # ally it holds, so an empty starter list is not a "solo from nobody" run -
-    # it crashes the build.
     if num_starters < 1:
         raise SettingsValidationError(
             "No starting characters are selected. You must choose at least one."
         )
 
-    # Each starter slot (explicit ally or Random_X) consumes one distinct ally
-    # in the seed, so the number of starter slots cannot exceed the
-    # 'Total playable allies' setting. This catches cases like 5 Random_X
-    # starters with max=3, which would otherwise silently produce more
-    # starters than max allows.
     max_char_count = settings.get_flag(MaxCharacters).value
     if num_starters > max_char_count:
         raise SettingsValidationError(
@@ -130,7 +130,6 @@ def _validate_character_requirements(settings: Settings) -> None:
     explicitly_set_starting_chars: set[str] = set()
     for option in starting_chars_flag.enabled:
         value = option.value
-        # Check if this is a "Random_X" string value - skip, those aren't explicit
         if isinstance(value, str):
             continue
         ally_name = value.name
@@ -160,15 +159,7 @@ def _validate_character_requirements(settings: Settings) -> None:
 
 
 def _validate_star_piece_requirements(settings: Settings) -> None:
-    """Validate star piece-related settings are compatible.
-
-    Checks:
-    - StarPiecesRequired does not exceed TotalStarPieces
-    - StarPiecesRequired is not 0 if WinCondition is STARS
-    - TotalStarPieces is at least 4 if SeaGate is STAR_4
-    - TotalStarPieces is at least 5 if LandsEndGate is STAR_5
-    - TotalStarPieces is at least 6 if BowsersKeepGate or FactoryGate is STAR_6
-    """
+    """Validate star piece-related settings are compatible."""
 
     total_stars = settings.get_flag(TotalStarPieces).value
     required_stars = settings.get_flag(StarPiecesRequired).value
@@ -179,8 +170,6 @@ def _validate_star_piece_requirements(settings: Settings) -> None:
             f"cannot be higher than 'Total Star Pieces available' ({total_stars})."
         )
 
-    # A "collect required Star Pieces" objective with 0 required would be won the
-    # instant the game starts, so reject it regardless of the shuffle setting.
     if required_stars == 0 and settings.is_flag_value(WinCondition, WinConditions.STARS):
         raise SettingsValidationError(
             f"'Condition required to beat the game' is set to "
@@ -189,7 +178,6 @@ def _validate_star_piece_requirements(settings: Settings) -> None:
             f"count or choose a different win condition."
         )
 
-    # Monstro sealed door blocks a remake boss fight, so don't allow remake content if that's a win condition.
     if settings.isflag_enabled(Remake) and settings.is_flag_value(WinCondition, WinConditions.SEALED):
         raise SettingsValidationError(
             f"The Monstro Town sealed door gates too much remake content to make placements solvable. Disable the remake content flag or choose a different win condition."
@@ -229,13 +217,7 @@ def _validate_star_piece_requirements(settings: Settings) -> None:
 
 
 def _validate_exp_sources(settings: Settings) -> None:
-    """Validate that at least one EXP source is available.
-
-    Checks that all of the following are not true simultaneously:
-    - Remove EXP from regular enemy encounters is enabled
-    - Remove EXP from boss encounters is enabled
-    - EXP Star Behaviour is set to NONE
-    """
+    """Validate that at least one EXP source is available."""
 
     no_regular_exp = settings.isflag_enabled(ExperienceNoRegular)
     no_boss_exp = settings.isflag_enabled(ExperienceNoBosses)

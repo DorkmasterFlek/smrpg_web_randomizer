@@ -18,7 +18,7 @@ class FlagType(StrEnum):
     BOOLEAN = "boolean"
     CATEGORIZATION = "categorization"
     CATEGORIZATION_WITH_ORDINANCE = "categorization_with_ordinance"
-    RANGE = "number"  # Frontend expects "number" not "range"
+    RANGE = "number"
     SELECT_ONE = "select_one"
 
 
@@ -31,7 +31,7 @@ class Flag:
     _id = ""
     _requires_all = []
     _requires_any = []
-    _disabled_if_all = []  # Disable this flag if ALL of these conditions are met
+    _disabled_if_all = []
     type: FlagType
     modes = ["open"]
 
@@ -55,7 +55,6 @@ class Flag:
         return self._id
 
 
-# TypeVars for generic flag classes
 from enum import Enum
 
 T = TypeVar("T", bound=Enum)
@@ -67,6 +66,7 @@ class CategorizationFlag(Flag, Generic[T]):
     type = FlagType.CATEGORIZATION
     _options: dict[T, bool] = {}
     _default: dict[T, bool] = {}
+    _requires_selection: bool = False
 
     @property
     def enabled(self) -> list[T]:
@@ -96,47 +96,27 @@ class CategorizationFlag(Flag, Generic[T]):
 
     @staticmethod
     def _get_option_text(value: Any) -> str:  # noqa: C901
-        """Get a JSON-serializable text representation of an enum value.
-
-        Priority order for descriptive names:
-        1. _text (boss fights)
-        2. _name (battle music classes)
-        3. _title (spells)
-        4. Tuple with string second element (e.g., MusicTrack)
-        5. _id.value (prize locations with ShuffleLocationSelector enum)
-        6. value (if string, for simple enums)
-        7. name attribute (allies)
-        8. __name__ (class types)
-        9. str() fallback
-        """
+        """Get a JSON-serializable text representation of an enum value."""
         if isinstance(value, str):
             return value
-        # Tuple values where second element is the display name (e.g., MusicTrack)
         if isinstance(value, tuple):
             if len(value) >= 2 and isinstance(value[1], str):
                 return value[1]
             return str(value)
-        # Boss fights have _text
         if hasattr(value, "_text"):
             return value._text  # type: ignore[union-attr]
-        # Battle music classes have _name
         if hasattr(value, "_name") and isinstance(value._name, str):  # type: ignore[union-attr]
             return value._name  # type: ignore[union-attr]
-        # Spells have _title
         if hasattr(value, "_title"):
             return value._title  # type: ignore[union-attr]
-        # Prize locations have _id which is a ShuffleLocationSelector enum
         if hasattr(value, "_id"):
             id_val = value._id  # type: ignore[union-attr]
             if hasattr(id_val, "value") and isinstance(id_val.value, str):
                 return id_val.value
-        # Simple enum with string value
         if hasattr(value, "value") and isinstance(value.value, str):  # type: ignore[union-attr]
             return value.value  # type: ignore[union-attr]
-        # Allies have name attribute
         if hasattr(value, "name") and isinstance(value.name, str):  # type: ignore[union-attr]
             return value.name  # type: ignore[union-attr]
-        # Class types have __name__
         if hasattr(value, "__name__"):
             return value.__name__  # type: ignore[union-attr]
         return str(value)
@@ -178,6 +158,7 @@ class CategorizationFlagWithOrdinance(Flag, Generic[T]):
     type = FlagType.CATEGORIZATION_WITH_ORDINANCE
     _options: dict[T, int | None] = {}
     _default: dict[T, int | None] = {}
+    _requires_selection: bool = False
 
     @property
     def default(self) -> dict[T, int | None]:
@@ -189,47 +170,27 @@ class CategorizationFlagWithOrdinance(Flag, Generic[T]):
 
     @staticmethod
     def _get_option_text(value: Any) -> str:  # noqa: C901
-        """Get a JSON-serializable text representation of an enum value.
-
-        Priority order for descriptive names:
-        1. _text (boss fights)
-        2. _name (battle music classes)
-        3. _title (spells)
-        4. Tuple with string second element (e.g., MusicTrack)
-        5. _id.value (prize locations with ShuffleLocationSelector enum)
-        6. value (if string, for simple enums)
-        7. name attribute (allies)
-        8. __name__ (class types)
-        9. str() fallback
-        """
+        """Get a JSON-serializable text representation of an enum value."""
         if isinstance(value, str):
             return value
-        # Tuple values where second element is the display name (e.g., MusicTrack)
         if isinstance(value, tuple):
             if len(value) >= 2 and isinstance(value[1], str):
                 return value[1]
             return str(value)
-        # Boss fights have _text
         if hasattr(value, "_text"):
             return value._text  # type: ignore[union-attr]
-        # Battle music classes have _name
         if hasattr(value, "_name") and isinstance(value._name, str):  # type: ignore[union-attr]
             return value._name  # type: ignore[union-attr]
-        # Spells have _title
         if hasattr(value, "_title"):
             return value._title  # type: ignore[union-attr]
-        # Prize locations have _id which is a ShuffleLocationSelector enum
         if hasattr(value, "_id"):
             id_val = value._id  # type: ignore[union-attr]
             if hasattr(id_val, "value") and isinstance(id_val.value, str):
                 return id_val.value
-        # Simple enum with string value
         if hasattr(value, "value") and isinstance(value.value, str):  # type: ignore[union-attr]
             return value.value  # type: ignore[union-attr]
-        # Allies have name attribute
         if hasattr(value, "name") and isinstance(value.name, str):  # type: ignore[union-attr]
             return value.name  # type: ignore[union-attr]
-        # Class types have __name__
         if hasattr(value, "__name__"):
             return value.__name__  # type: ignore[union-attr]
         return str(value)
@@ -404,13 +365,10 @@ class RangeFlag(Flag):
             self.set_value(self.default)
 
 
-# ✅ = implemented
 
 
-# ******** Party
 
 
-# ✅
 class ShuffleCharacters(BooleanFlag):
     _name = "Randomize party recruitment order"
     _description = """If enabled, the order in which each ally joins your party will change.
@@ -419,7 +377,6 @@ class ShuffleCharacters(BooleanFlag):
     _id = "rchars"
 
 
-# ✅
 class MaxCharacters(RangeFlag):
     _name = "Total playable allies"
     _description = "The number of allies that can appear in the seed (including starting characters). Set this to 1 if you are attempting a solo challenge."
@@ -430,15 +387,12 @@ class MaxCharacters(RangeFlag):
     _requires_all = [(ShuffleCharacters(), True)]
 
 
-# ✅
 class AllowAllySwitching(BooleanFlag):
     _name = "Allow switching allies with 2 or more party members"
     _description = """If enabled, you can switch allies as soon as you have two party members instead of four, so that you can always choose which party member will face Dodo 2, Johnny 2, etc."""
     _id = "allyswap"
 
 
-# ✅
-# Build StartingCharacterEnum dynamically - use ally instances as values (not class, to avoid aliases)
 _inclusion_members = {}
 for ally in ally_collection._allies:
     attr_name = ally.name.replace(" ", "_").replace("-", "_")
@@ -453,16 +407,13 @@ class AvailableCharacters(CategorizationFlag[IncludedCharacterEnum]):
     _description = """Highlighted (white text over blue) allies are eligible to be one of your "Total playable allies". Un-highlight any characters you wish to exclude from the game entirely."""
     _default = {o: True for o in IncludedCharacterEnum.__members__.values()}
     _id = "avail_chars"
+    _requires_selection = True
 
 
-# ✅
-# Build StartingCharacterEnum dynamically - use ally instances as values (not class, to avoid aliases)
 _starting_char_members = {}
 for ally in ally_collection._allies:
     attr_name = ally.name.replace(" ", "_").replace("-", "_")
     _starting_char_members[attr_name] = ally
-# Add 5 "Random" options - these are special markers, not actual allies
-# The Settings object will interpret these as "pick a random ally"
 for i in range(1, 6):
     _starting_char_members[f"Random_{i}"] = f"Random_{i}"
 StartingCharacterEnum = ClassCategorizationOption(
@@ -479,30 +430,19 @@ class StartingCharacters(CategorizationFlagWithOrdinance[StartingCharacterEnum])
     _description = "The allies who will be in your party at the start of the game. Your first pick is your <b>starter ally.</b>"
     _id = "starters"
     _requires_all = [(ShuffleCharacters(), True)]
+    _requires_selection = True
 
     def resolve_random_selections(
         self,
         rng: "random.Random | None" = None,
         available: list[Ally] | None = None,
     ) -> list[Ally]:
-        """Resolve enabled selections, replacing Random_X with actual allies.
-
-        Args:
-            rng: Optional random.Random instance for reproducible randomization.
-                 If None, uses the global random module (which should be seeded).
-            available: The allies a Random_X slot may draw from. Defaults to every
-                 ally. Callers that know the seed's roster pass it, so a random
-                 starter is never a character the seed doesn't actually contain.
-
-        Returns a list of Ally instances in the order they should be assigned.
-        """
+        """Resolve enabled selections, replacing Random_X with actual allies."""
 
         available_allies = list(
             available if available is not None else ally_collection._allies
         )
 
-        # Pre-populate used_allies with all explicitly selected allies
-        # so random picks never duplicate a hard-set character
         used_allies: list[Ally] = [
             option.value for option in self.enabled
             if not (isinstance(option.value, str) and option.value.startswith("Random_"))
@@ -511,9 +451,7 @@ class StartingCharacters(CategorizationFlagWithOrdinance[StartingCharacterEnum])
 
         for option in self.enabled:
             value = option.value
-            # Check if this is a "Random_X" string value
             if isinstance(value, str) and value.startswith("Random_"):
-                # Pick a random ally from those not yet used
                 remaining = [a for a in available_allies if a not in used_allies]
                 if not remaining:
                     raise FlagError(
@@ -525,7 +463,6 @@ class StartingCharacters(CategorizationFlagWithOrdinance[StartingCharacterEnum])
                 used_allies.append(chosen)
                 result.append(chosen)
             else:
-                # This is an actual ally instance
                 result.append(value)
 
         return result
@@ -542,10 +479,8 @@ class PlayAsStarter(BooleanFlag):
     _requires_all = [(ShuffleCharacters(), True)]
 
 
-# ******** Equipment
 
 
-# ✅
 class EquipmentCharactersOptions(CategorizationOption):
     """Enumeration for character equipment guidelines"""
 
@@ -556,7 +491,6 @@ class EquipmentCharactersOptions(CategorizationOption):
     EQUIP_ALL = "Anyone can equip anything"
 
 
-# ✅
 class EquipmentCharacters(SelectOneFlag[EquipmentCharactersOptions]):
     _name = "Equipment permissions"
     _description = """<b>Default</b>: The list of allies who are permitted to equip each item remains unchanged from the original game.
@@ -573,14 +507,12 @@ class EquipmentCharacters(SelectOneFlag[EquipmentCharactersOptions]):
     _id = "perms"
 
 
-# ✅
 class EquipmentPropertiesOptions(CategorizationOption):
     VANILLA = "Default"
     SOME = "Some buffs added"
     RANDOM = "Completely random"
 
 
-# ✅
 class EquipmentProperties(SelectOneFlag[EquipmentPropertiesOptions]):
     _name = "Equipment stats & buffs"
     _description = """<b>Default</b>: The stats and buffs on equipment are unchanged from the original game.
@@ -593,7 +525,6 @@ class EquipmentProperties(SelectOneFlag[EquipmentPropertiesOptions]):
     _id = "props"
 
 
-# ✅
 class IgnoreNamesakeProperties(BooleanFlag):
     _name = "No equipment property guarantees"
     _description = "Normally, certain namesake items retain their protections: <b>Fearless Pin</b>, <b>Antidote Pin</b>, <b>Trueform Pin</b>, and <b>Wakeup Pin</b>. In addition, at least four equips will have OHKO protection. This flag removes those guarantees."
@@ -601,7 +532,6 @@ class IgnoreNamesakeProperties(BooleanFlag):
     _requires_all = [(EquipmentProperties(), [EquipmentPropertiesOptions.RANDOM])]
 
 
-# ✅
 class StarPieceHints(BooleanFlag):
     _name = "Signal Ring Star Piece hints"
     _description = """If enabled, the Signal Ring (if equipped to your active party) will play a sound when you enter a world area that contains a Star Piece.  
@@ -612,10 +542,8 @@ class StarPieceHints(BooleanFlag):
     _id = "hints"
 
 
-# ******** Stats & Spells
 
 
-# ✅
 class EXPMultiplierOptions(CategorizationOption):
     """Enumeration for EXP scaling from enemy battles"""
 
@@ -624,7 +552,6 @@ class EXPMultiplierOptions(CategorizationOption):
     TRIPLE = "Triple"
 
 
-# ✅
 class EXPMultiplier(SelectOneFlag[EXPMultiplierOptions]):
     _name = "EXP multiplier"
     _description = (
@@ -635,7 +562,6 @@ class EXPMultiplier(SelectOneFlag[EXPMultiplierOptions]):
     _id = "exp"
 
 
-# ✅
 class CharacterStats(BooleanFlag):
     _name = "Randomize ally stats"
     _description = """If enabled, stats and stat curves for each ally will be randomized, as well as the levels at which they learn their spells. This also randomizes the max FP you start with.
@@ -644,35 +570,30 @@ class CharacterStats(BooleanFlag):
     _id = "stats"
 
 
-# ✅
 class CharacterLearnedSpells(BooleanFlag):
     _name = "Randomize ally learned spells"
     _description = "The pool of spells that each ally can learn will be randomized. This does not include enemy spells."
     _id = "charspells"
 
 
-# ✅
 class CharacterSpellStats(BooleanFlag):
     _name = "Randomize ally spell stats"
     _description = "The power and FP cost of ally magic spells will be randomized."
     _id = "spellstats"
 
 
-# ✅
 class InfuseSpellElements(BooleanFlag):
     _name = "Infuse more spells with elements"
     _description = "Geno Beam becomes an ice spell, Geno Flash and Psych Bomb become fire spells, and Crusher and Bowser Crush become earth (jump) spells."
     _id = "infuse"
 
 
-# ✅
 class CharacterSpellElements(BooleanFlag):
     _name = "Randomize ally spell elements"
     _description = "Ally spells with elements will have their elements randomized. Non-elemental spells will remain non-elemental."
     _id = "spellelements"
 
 
-# ✅
 class UncapSuperJumps(BooleanFlag):
     _name = "Allow more than 100 Super Jumps"
     _description = "If enabled, you can do more than 100 Super Jumps per turn."
@@ -685,8 +606,6 @@ class UncapMaxFP(BooleanFlag):
     _id = "uncapfp"
 
 
-# ✅
-# Build LearnableSpellEnum members dynamically
 _learnable_spell_members = {}
 for spell in ALL_SPELLS.spells:
     if isinstance(spell, CharacterSpell):
@@ -706,12 +625,11 @@ class AvailableSpells(CategorizationFlag[LearnableSpellEnum]):
 <br>Note: You must leave at least one spell that damages enemies available, so that Mokura can be transformed. Any damaging spell works regardless of its element."""
     _default = {o: True for o in LearnableSpellEnum.__members__.values()}
     _id = "avail_spells"
+    _requires_selection = True
 
 
-# ******** Star Pieces and Bosses
 
 
-# ✅
 class ShuffleStarPieces(BooleanFlag):
     _name = "Randomize the locations of Star Pieces"
     _description = """If enabled, the Star Pieces may be found in places other than their original locations.
@@ -720,7 +638,6 @@ class ShuffleStarPieces(BooleanFlag):
     _id = "rstars"
 
 
-# ✅
 class TotalStarPieces(RangeFlag):
     _name = "Total Star Pieces available"
     _description = (
@@ -733,7 +650,6 @@ class TotalStarPieces(RangeFlag):
     _requires_all = [(ShuffleStarPieces(), True)]
 
 
-# ✅
 class ProgressionLogicDifficultyOptions(CategorizationOption):
     """Enumeration for progression logic difficulty levels"""
 
@@ -742,7 +658,6 @@ class ProgressionLogicDifficultyOptions(CategorizationOption):
     HARD = "No Logic"
 
 
-# ✅
 class ProgressionLogicDifficulty(SelectOneFlag[ProgressionLogicDifficultyOptions]):
     _name = "Progression logic difficulty"
     _description = """<b>Easy</b> - You generally won't be expected to fight bosses or dodge enemies that are way above your expected level.
@@ -758,7 +673,6 @@ class ProgressionLogicDifficulty(SelectOneFlag[ProgressionLogicDifficultyOptions
     _requires_all = [(ShuffleStarPieces(), True)]
 
 
-# ✅
 class DisperseStarPieces(BooleanFlag):
     _name = "Disperse Star Pieces evenly across the map"
     _description = """If enabled, each of the seven overworld map areas (Mario's Pad - Bandit's Way, Kero Sewers - Pipe Vault + Yo'ster Isle, Moleville - Marrymore, Star Hill - Sunken Ship, Land's End - Grate Guy's Casino, Nimbus Land - Barrel Volcano, and Bowser's Keep - Factory) may only contain up to one Star Piece each."""
@@ -766,11 +680,8 @@ class DisperseStarPieces(BooleanFlag):
     _requires_all = [(ShuffleStarPieces(), True)]
 
 
-# ******** Item shuffle
 
 
-# ✅
-# if this is disabled, no options in this category can be changed
 class ShuffleItems(BooleanFlag):
     _name = "Randomize item rewards"
     _description = """If enabled, the contents of treasure chests, quest rewards, and freestanding small items (including Midas River cave items) will be shuffled.
@@ -779,7 +690,6 @@ class ShuffleItems(BooleanFlag):
     _id = "ritems"
 
 
-# ✅
 class ItemQualityOptions(CategorizationOption):
     """Enumeration for item quality options"""
 
@@ -789,7 +699,6 @@ class ItemQualityOptions(CategorizationOption):
     COMPLETELY_EMPTY = "Empty except for required items"
 
 
-# ✅
 class ItemQuality(SelectOneFlag[ItemQualityOptions]):
     _name = """Item pool quality"""
     _description = """Determines how non-required items are distributed."""
@@ -799,7 +708,6 @@ class ItemQuality(SelectOneFlag[ItemQualityOptions]):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class BiasItemShuffle(BooleanFlag):
     _name = "Bias better items to gated locations"
     _description = (
@@ -809,7 +717,6 @@ class BiasItemShuffle(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class AnnoyingChests(BooleanFlag):
     _name = 'Empty chests should perform the "You Missed" animation'
     _description = """If disabled, empty chests will simply appear as pre-opened. Only relevant if your Item Pool Quality is set to "Completely empty." """
@@ -817,7 +724,6 @@ class AnnoyingChests(BooleanFlag):
     _requires_all = [(ItemQuality(), ItemQualityOptions.COMPLETELY_EMPTY)]
 
 
-# ✅
 class NoStarEgg(BooleanFlag):
     _name = "No Star Egg"
     _description = """If enabled, no check will grant the Star Egg."""
@@ -825,7 +731,6 @@ class NoStarEgg(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class RestrictSpecialEquips(BooleanFlag):
     _name = 'Shuffle "Special Item" exchange equips & Monstro Town reward equips'
     _description = """If enabled, the FroggieStick, Chomp, Zoom Shoes, Attack Scarf, Super Suit, Quartz Charm, Jinx Belt, Ghost Medal, and both Lazy Shells will be shuffled within each other's original locations, and will not be accessible anywhere else, regardless of your chosen Item Pool Quality setting.
@@ -837,7 +742,6 @@ class RestrictSpecialEquips(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class EXPStarsAnywhere(BooleanFlag):
     _name = "Shuffle EXP stars"
     _description = """If enabled, EXP stars may appear in chests that don't house them in the original game. Only one EXP star can appear per world area.
@@ -847,7 +751,6 @@ class EXPStarsAnywhere(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class ShuffleHillFlowers(BooleanFlag):
     _name = "Shuffle Booster Hill flowers"
     _description = """If enabled, all sixteen Booster Hill flowers will be item checks.
@@ -860,7 +763,6 @@ class ShuffleHillFlowers(BooleanFlag):
     ]
 
 
-# ✅
 class ShuffleCoins(BooleanFlag):
     _name = "Shuffle regular coins"
     _description = """If enabled, all freestanding gold coins will be item checks."""
@@ -868,7 +770,6 @@ class ShuffleCoins(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class MimicsAnywhere(BooleanFlag):
     _name = "Shuffle mimic chests"
     _description = """If enabled, any three chests in the world may be mimics. You will be able to run away from them. The Bean Valley mimic and Sunken Ship mimic will not appear before Land's End and Moleville respectively (except in the Rose Town Lazy Shell chests).
@@ -879,7 +780,6 @@ class MimicsAnywhere(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class SlotsAnywhere(BooleanFlag):
     _name = "Shuffle slot machine chests"
     _description = """If enabled, the three slot machine chests in Bean Valley may be moved elsewhere.
@@ -889,7 +789,6 @@ class SlotsAnywhere(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class ShuffleBeetlemania(BooleanFlag):
     _name = "Shuffle Beetlemania"
     _description = """If enabled, the Mushroom Kingdom inn kid will give you a random item check for 500 coins. Beetlemania will appear in a random location."""
@@ -897,7 +796,6 @@ class ShuffleBeetlemania(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class ShuffleMagikoopaChest(BooleanFlag):
     _name = "Shuffle Magikoopa's coin chest"
     _description = """If enabled, the chest in Magikoopa's room will contain a random item check. A random chest somewhere in the game will contain infinite coins."""
@@ -905,7 +803,6 @@ class ShuffleMagikoopaChest(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class ShuffleWeddingGear(BooleanFlag):
     _name = "Shuffle Marrymore wedding gear"
     _description = """If enabled, the four pieces of wedding gear required to initiate the Marrymore boss fight become "Special Items" and are placed in the item pool. The four NPCs in the chapel become "Special Item" checks.
@@ -933,7 +830,6 @@ class ShuffleCookies(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class FireworksOptions(CategorizationOption):
     """Enumeration for Fireworks flag option"""
 
@@ -942,7 +838,6 @@ class FireworksOptions(CategorizationOption):
     PROGRESSIVE = "Shuffle Progressive Fireworks"
 
 
-# ✅
 class FireworksSetting(SelectOneFlag[FireworksOptions]):
     _name = """Fireworks trade sequence"""
     _description = """<b>Default</b>: Unchanged from the original game. Buy from fireworks guy's house, trade for Shiny Stone, etc.
@@ -956,10 +851,8 @@ class FireworksSetting(SelectOneFlag[FireworksOptions]):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ******** Progression availability
 
 
-# ✅
 class KeyItemsAnywhere(BooleanFlag):
     _name = '"Special Items" can appear in the general item pool'
     _description = """If enabled, items belonging to your "Special Items" pocket can appear in any item location.
@@ -973,7 +866,6 @@ class KeyItemsAnywhere(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class StarPieceAvailability(BooleanFlag):
     _name = "Star Pieces can appear in the general item pool"
     _description = "If enabled, some Star Pieces may be shuffled in with items instead of being only granted by boss fights."
@@ -981,7 +873,6 @@ class StarPieceAvailability(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class SpellsAnywhere(BooleanFlag):
     _name = "Spells can appear in the general item pool"
     _description = "If enabled, characters will learn spells by finding them in prize locations instead of by leveling up. Spells are still pre-assigned to characters, so for example if Mallow is supposed to learn Jump, finding the Jump spell will automatically assign it to Mallow."
@@ -989,7 +880,6 @@ class SpellsAnywhere(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class InvisibleFlagsSetting(BooleanFlag):
     _name = "Move invisible flag checks"
     _description = """Chooses where the invisible items placed by the Three Musty Fears are located. This setting will put your attention to detail and your knowledge of the world of SMRPG to the test!
@@ -1003,7 +893,6 @@ class InvisibleFlagsSetting(BooleanFlag):
     _requires_all = [(ShuffleItems(), True)]
 
 
-# ✅
 class Remake(BooleanFlag):
     _name = "Enable Remake content"
     _description = """If enabled, the seven postgame boss fights from the 2023 Switch remake and their rewards will be available in the game and included in all shuffle settings.
@@ -1017,10 +906,8 @@ class Remake(BooleanFlag):
     _remake = False
 
 
-# ******** Progression Gating
 
 
-# ✅
 class BanditsWayGating(CategorizationOption):
     """Enumeration for Bandit's Way gating flag option"""
 
@@ -1030,7 +917,6 @@ class BanditsWayGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class BanditsWayGate(SelectOneFlag[BanditsWayGating]):
     _name = """Bandit's Way access"""
     _description = """<b>Recruit Mallow</b>: Bandit's Way will become available on the world map when Mallow joins the party.
@@ -1046,7 +932,6 @@ class BanditsWayGate(SelectOneFlag[BanditsWayGating]):
     _id = "bw"
 
 
-# ✅
 class KeroSewersGating(CategorizationOption):
     """Enumeration for Bandit's Way gating flag option"""
 
@@ -1057,7 +942,6 @@ class KeroSewersGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class KeroSewersGate(SelectOneFlag[KeroSewersGating]):
     _name = """Kero Sewers access"""
     _description = """<b>Recruit Mallow</b>: The entrance to Kero Sewers will open when Mallow joins the party.
@@ -1074,10 +958,8 @@ class KeroSewersGate(SelectOneFlag[KeroSewersGating]):
     choices = [o for o in KeroSewersGating]
     _default = KeroSewersGating.OPEN
     _id = "ks"
-    # SEWERS_CLOSED - set when game starts, cleared by condition. or just not set if always open
 
 
-# ✅
 class ForestMazeGating(CategorizationOption):
     """Enumeration for Forest Maze gating flag option"""
 
@@ -1085,7 +967,6 @@ class ForestMazeGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class ForestMazeGate(SelectOneFlag[ForestMazeGating]):
     _name = """Forest Maze access"""
     _description = """<b>Exchange Cricket Pie</b>: Forest Maze will become available on the world map when you turn in the Cricket Pie to Frogfucius.
@@ -1096,7 +977,6 @@ class ForestMazeGate(SelectOneFlag[ForestMazeGating]):
     _id = "fm"
 
 
-# ✅
 class PipeVaultGating(CategorizationOption):
     """Enumeration for Pipe Vault gating flag option"""
 
@@ -1106,7 +986,6 @@ class PipeVaultGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class PipeVaultGate(SelectOneFlag[PipeVaultGating]):
     _name = """Pipe Vault access"""
     _description = """<b>Recruit Geno</b>: Pipe Vault will be unblocked when Geno joins the party.
@@ -1121,7 +1000,6 @@ class PipeVaultGate(SelectOneFlag[PipeVaultGating]):
     _id = "pv"
 
 
-# ✅
 class Moleville1Gating(CategorizationOption):
     """Enumeration for Pipe Vault gating flag option"""
 
@@ -1132,7 +1010,6 @@ class Moleville1Gating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class Moleville1Gate(SelectOneFlag[Moleville1Gating]):
     _name = """Moleville Mines entrance access"""
     _description = """<b>Recruit Geno</b>: The top door inside the Moleville Mines entrance will be accessible when Geno joins the party.
@@ -1149,7 +1026,6 @@ class Moleville1Gate(SelectOneFlag[Moleville1Gating]):
     _id = "me"
 
 
-# ✅
 class BoosterTowerGating(CategorizationOption):
     """Enumeration for Booster Tower gating flag option"""
 
@@ -1163,7 +1039,6 @@ class BoosterTowerGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class BoosterTowerGate(SelectOneFlag[BoosterTowerGating]):
     _name = """Booster Tower access"""
     _description = """<b>Recruit character</b>: Booster Tower's door can be unlocked when you recruit the selected character.
@@ -1178,7 +1053,6 @@ class BoosterTowerGate(SelectOneFlag[BoosterTowerGating]):
     _id = "bt"
 
 
-# ✅
 class BoosterHillGating(CategorizationOption):
     """Enumeration for Booster Hill gating flag option"""
 
@@ -1187,7 +1061,6 @@ class BoosterHillGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class BoosterHillGate(SelectOneFlag[BoosterHillGating]):
     _name = """Booster Hill access"""
     _description = """<b>Finish Booster Tower</b>: The Booster Hill chase sequence will be available when you defeat the balcony boss of Booster Tower.
@@ -1200,7 +1073,6 @@ class BoosterHillGate(SelectOneFlag[BoosterHillGating]):
     _id = "bh"
 
 
-# ✅
 class MarrymoreGating(CategorizationOption):
     """Enumeration for Marrymore gating flag option"""
 
@@ -1210,7 +1082,6 @@ class MarrymoreGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class MarrymoreGate(SelectOneFlag[MarrymoreGating]):
     _name = """Marrymore back door access"""
     _description = """<b>Finish Booster Hill</b>: The chapel back door will open when you complete Booster Hill one time.
@@ -1226,7 +1097,6 @@ class MarrymoreGate(SelectOneFlag[MarrymoreGating]):
     _id = "mm"
 
 
-# ✅
 class YaridovichGating(CategorizationOption):
     """Enumeration for Seaside boss gating flag option"""
 
@@ -1235,7 +1105,6 @@ class YaridovichGating(CategorizationOption):
     OPEN = "Always available"
 
 
-# ✅
 class YaridovichGate(SelectOneFlag[YaridovichGating]):
     _name = """Seaside boss fight access"""
     _description = """<b>Finish Sunken Ship</b>: The Seaside boss fight will become available after you defeat the final boss of Sunken Ship.
@@ -1248,7 +1117,6 @@ class YaridovichGate(SelectOneFlag[YaridovichGating]):
     _id = "seaside"
 
 
-# ✅
 class SeaGating(CategorizationOption):
     """Enumeration for Sea & Sunken Ship gating flag option"""
 
@@ -1259,7 +1127,6 @@ class SeaGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class SeaGate(SelectOneFlag[SeaGating]):
     _name = """Sea & Sunken Ship access"""
     _description = """<b>Recruit Toadstool</b>: The Sea will become available on the world map when Toadstool joins the party.
@@ -1274,7 +1141,6 @@ class SeaGate(SelectOneFlag[SeaGating]):
     _id = "sea"
 
 
-# ✅
 class LandsEndGating(CategorizationOption):
     """Enumeration for Land's End gating flag option"""
 
@@ -1285,7 +1151,6 @@ class LandsEndGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class LandsEndGate(SelectOneFlag[LandsEndGating]):
     _name = """Land's End access"""
     _description = """<b>Collect 5 Star Pieces</b>: The cannon in Land's End will become usable when you collect 5 Star Pieces.
@@ -1298,7 +1163,6 @@ class LandsEndGate(SelectOneFlag[LandsEndGating]):
     _id = "land"
 
 
-# ✅
 class BelomeTempleGating(CategorizationOption):
     """Enumeration for Belome Temple gating flag option"""
 
@@ -1306,8 +1170,6 @@ class BelomeTempleGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
-# no KI shuffle + closed monstro + use key = invalid, causes a softlock
 class BelomeTempleGate(SelectOneFlag[BelomeTempleGating]):
     _name = """Belome Temple boss access"""
     _description = """<b>Use Temple Key</b>: The temple elevator will never lead to the boss fight until you dispel the Belome statue.
@@ -1318,7 +1180,6 @@ class BelomeTempleGate(SelectOneFlag[BelomeTempleGating]):
     _id = "tmpl"
 
 
-# ✅
 class MonstroTownGating(CategorizationOption):
     """Enumeration for Monstro Town gating flag option"""
 
@@ -1327,7 +1188,6 @@ class MonstroTownGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class MonstroTownGate(SelectOneFlag[MonstroTownGating]):
     _name = """Monstro Town access"""
     _description = """<b>Finish Land's End</b>: Monstro Town will become available on the World Map once you take the pipe behind the boss of Belome Temple.
@@ -1340,7 +1200,6 @@ class MonstroTownGate(SelectOneFlag[MonstroTownGating]):
     _id = "mt"
 
 
-# ✅
 class SkipMustyFearsSequence(BooleanFlag):
     _name = "Skip 3 Musty Fears sequence"
     _description = """This flag affects the Musty Fears checks (normally Mario's Pad bed, Rose Town sign, and Yo'ster Isle goalpost; or whichever three locations are added to the seed when "Move invisible flag checks" is set).
@@ -1351,7 +1210,6 @@ class SkipMustyFearsSequence(BooleanFlag):
     _id = "skip_musty"
 
 
-# ✅
 class NimbusGating(CategorizationOption):
     """Enumeration for Nimbus Land gating flag option"""
 
@@ -1361,7 +1219,6 @@ class NimbusGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class NimbusGate(SelectOneFlag[NimbusGating]):
     _name = """Nimbus Land access"""
     _description = """<b>Finish Bean Valley</b>: The trampoline to Nimbus Land will be enabled once you defeat the boss of Bean Valley.
@@ -1376,7 +1233,6 @@ class NimbusGate(SelectOneFlag[NimbusGating]):
     _id = "nl"
 
 
-# ✅
 class BarrelVolcanoGating(CategorizationOption):
     """Enumeration for Barrel Volcano gating flag option"""
 
@@ -1385,7 +1241,6 @@ class BarrelVolcanoGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class BarrelVolcanoGate(SelectOneFlag[BarrelVolcanoGating]):
     _name = """Barrel Volcano access"""
     _description = """<b>Finish Nimbus Land</b>: Barrel Volcano will become available on the World Map once you defeat the final boss of Nimbus Castle.
@@ -1398,7 +1253,6 @@ class BarrelVolcanoGate(SelectOneFlag[BarrelVolcanoGating]):
     _id = "bv"
 
 
-# ✅
 class BowsersKeepGating(CategorizationOption):
     """Enumeration for Bowser's Keep gating flag option"""
 
@@ -1408,7 +1262,6 @@ class BowsersKeepGating(CategorizationOption):
     OPEN = "Always open"
 
 
-# ✅
 class BowsersKeepGate(SelectOneFlag[BowsersKeepGating]):
     _name = """Bowser's Keep access"""
     _description = """<b>Collect 6 Star Pieces</b>: Bowser's Keep will become available on the world map when you collect 6 Star Pieces.
@@ -1423,7 +1276,6 @@ class BowsersKeepGate(SelectOneFlag[BowsersKeepGating]):
     _id = "bk"
 
 
-# ✅
 class FactoryGating(CategorizationOption):
     """Enumeration for Factory gating flag option"""
 
@@ -1433,7 +1285,6 @@ class FactoryGating(CategorizationOption):
     EXOR = "Defeat Exor"
 
 
-# ✅
 class FactoryGate(SelectOneFlag[FactoryGating]):
     _name = """Factory access"""
     _description = """<b>Open when Bowser's Keep is opened</b>: When Bowser's Keep becomes available on the world map, Factory will also be immediately available on the world map.
@@ -1449,14 +1300,12 @@ class FactoryGate(SelectOneFlag[FactoryGating]):
 
 
 
-# ✅
 class ReplaceItems(BooleanFlag):
     _name = "Replace some chest items with coins"
     _description = "If enabled, the worst items (Wilt Shrooms, etc) will sometimes be replaced with coins in chests."
     _id = "replace"
 
 
-# ✅
 class PoisonMushroom(BooleanFlag):
     _name = "Change Fake Mushroom's Effect"
     _description = (
@@ -1466,7 +1315,6 @@ class PoisonMushroom(BooleanFlag):
     _id = "fake"
 
 
-# ✅
 class EXPChallengeOptions(CategorizationOption):
     """Enumeration for exp star quality scaling option"""
 
@@ -1476,7 +1324,6 @@ class EXPChallengeOptions(CategorizationOption):
     NONE = "No EXP"
 
 
-# ✅
 class EXPChallenge(SelectOneFlag[EXPChallengeOptions]):
     _name = "EXP Star Behaviour"
     _description = """<b>Default</b>: EXP stars can give you 1 to 11 EXP per hit as normal.
@@ -1491,7 +1338,6 @@ class EXPChallenge(SelectOneFlag[EXPChallengeOptions]):
     _id = "xpstar"
 
 
-# ✅
 class GrateGuyPrizeThreshold(RangeFlag):
     _name = 'Required "Look The Other Way" wins'
     _description = "The number of times required to win Grate Guy's casino minigame to receive its ultimate prize (normally the Star Egg after 100 wins)."
@@ -1501,7 +1347,6 @@ class GrateGuyPrizeThreshold(RangeFlag):
     _id = "gg"
 
 
-# ✅
 class KnifeGuyPrizeThreshold(RangeFlag):
     _name = "Required Knife Guy wins (normal prize)"
     _description = "The number of wins minus losses required to win Knife Guy's juggling game prize (normally the Bright Card after 12 wins)."
@@ -1511,7 +1356,6 @@ class KnifeGuyPrizeThreshold(RangeFlag):
     _id = "kg"
 
 
-# ✅
 class SuitePrize1Threshold(RangeFlag):
     _name = "Required Suite prize #1 check-ins"
     _description = "The number of times required to stay (paid check-ins, overstays don't count) in the Marrymore Suite to receive the first special gift (normally a Flower Tab after 1 stay)."
@@ -1521,7 +1365,6 @@ class SuitePrize1Threshold(RangeFlag):
     _id = "s1"
 
 
-# ✅
 class SuitePrize2Threshold(RangeFlag):
     _name = "Required Suite prize #2 check-ins"
     _description = "The number of times required to stay (paid check-ins, overstays don't count) in the Marrymore Suite to receive the second special gift (normally a Flower Jar after 3 stays)."
@@ -1531,7 +1374,6 @@ class SuitePrize2Threshold(RangeFlag):
     _id = "s2"
 
 
-# ✅
 class SuitePrize3Threshold(RangeFlag):
     _name = "Required Suite prize #3 check-ins"
     _description = "The number of times required to stay (paid check-ins, overstays don't count) in the Marrymore Suite to receive the third special gift (normally a Frog Coin after 5 stays)."
@@ -1541,7 +1383,6 @@ class SuitePrize3Threshold(RangeFlag):
     _id = "s3"
 
 
-# ✅
 class SuitePrize4Threshold(RangeFlag):
     _name = "Required Suite prize #4 check-ins"
     _description = "The number of times required to stay (paid check-ins, overstays don't count) in the Marrymore Suite to receive the fourth special gift (normally 2 Frog Coins after 10 stays)."
@@ -1551,7 +1392,6 @@ class SuitePrize4Threshold(RangeFlag):
     _id = "s4"
 
 
-# ✅
 class SuitePrize5Threshold(RangeFlag):
     _name = "Required Suite prize #5 check-ins"
     _description = "The number of times required to stay (paid check-ins, overstays don't count) in the Marrymore Suite to receive the fifth special gift (normally 3 Frog Coins after 15 stays)."
@@ -1561,7 +1401,6 @@ class SuitePrize5Threshold(RangeFlag):
     _id = "s5"
 
 
-# ✅
 class SuitePrize6Threshold(RangeFlag):
     _name = "Required Suite prize #6 check-ins"
     _description = "The number of times required to stay (paid check-ins, overstays don't count) in the Marrymore Suite to receive the sixth special gift (normally 20 Frog Coins after 200 stays)."
@@ -1571,7 +1410,6 @@ class SuitePrize6Threshold(RangeFlag):
     _id = "s6"
 
 
-# ✅
 class SuperJump1Threshold(RangeFlag):
     _name = "Required Super Jumps for prize #1"
     _description = "The number of consecutive Super Jumps required for the first prize in Monstro Town (normally an Attack Scarf at 30)."
@@ -1581,7 +1419,6 @@ class SuperJump1Threshold(RangeFlag):
     _id = "sj1"
 
 
-# ✅
 class SuperJump2Threshold(RangeFlag):
     _name = "Required Super Jumps for prize #2"
     _description = """The number of consecutive Super Jumps required for the second prize in Monstro Town (normally a Super Suit at 100).
@@ -1593,14 +1430,12 @@ class SuperJump2Threshold(RangeFlag):
     _id = "sj2"
 
 
-# ✅
 class FixKnifeGuy(BooleanFlag):
     _name = "Fix Knife Guy max prize glitch"
     _description = """In the original game, Knife Guy displays a dialog that says you get a Red Essence at 255 net wins. However, you don't actually get the Red Essence because its grant code has a bug. This flag fixes that and turns it into a check."""
     _id = "fix_kg"
 
 
-# ✅
 class KnifeGuyFixedPrizeThreshold(RangeFlag):
     _name = "Required Knife Guy wins (max prize)"
     _description = "The number of wins minus losses required to win Knife Guy's maxed out game prize (originally intended to be a Red Essence at 255). Must be higher than Knife Guy's other prize check."
@@ -1620,7 +1455,6 @@ class BowserDoorRequirements(RangeFlag):
     _id = "doorcount"
 
 
-# ✅
 class StarPiecesRequired(RangeFlag):
     _name = "Star Pieces required to access the final Factory boss"
     _description = "The total number of Star Pieces (0-7) that are required to access the final boss (enables the green button in Inner Factory). Cannot be higher than Total Star Pieces."
@@ -1630,21 +1464,18 @@ class StarPiecesRequired(RangeFlag):
     _id = "endgame"
 
 
-# ✅
 class CasinoWarp(BooleanFlag):
     _name = "Casino Warp"
     _description = """If enabled, an usher will appear inside Grate Guy's Casino who will escort you to the final boss fight."""
     _id = "cwarp"
 
 
-# ✅
 class BucketWarp(BooleanFlag):
     _name = "Bucket Warp"
     _description = "If enabled, trading a Carbo Cookie to the bucket girl in Moleville will reveal a warp to the final boss fight."
     _id = "bwarp"
 
 
-# ✅
 class FastTravel(BooleanFlag):
     _name = "Fast travel"
     _description = """If enabled, the following features will be enabled:
@@ -1656,7 +1487,6 @@ class FastTravel(BooleanFlag):
     _id = "fasttravel"
 
 
-# ✅
 class WinConditions(CategorizationOption):
     """Enumeration for win condition options"""
 
@@ -1666,7 +1496,6 @@ class WinConditions(CategorizationOption):
     SEALED = "Beat Monstro Town sealed door"
 
 
-# ✅
 class WinCondition(SelectOneFlag[WinConditions]):
     _name = "Condition required to beat the game"
     _description = """<b>Beat the Factory</b> (default): When you collect the number of Star Pieces specified in your 'Star Pieces required to access the final Factory boss' setting, the button in the Inner Factory (as well as any enabled warps) will be enabled to allow you to access the final boss and beat the game.
@@ -1681,31 +1510,26 @@ class WinCondition(SelectOneFlag[WinConditions]):
     _id = "objective"
 
 
-# ******** Puzzles
 
 
-# ✅
 class BallSolitaireShuffle(BooleanFlag):
     _name = "Randomize Ball Solitaire"
     _description = "The layout for the Ball Solitaire minigame will be randomized."
     _id = "ball"
 
 
-# ✅
 class MagicButtonShuffle(BooleanFlag):
     _name = "Randomize Magic Buttons"
     _description = "The layout for the Magic Buttons minigame will be randomized."
     _id = "button"
 
 
-# ✅
 class QuizShuffle(BooleanFlag):
     _name = "Randomize Dr. Topper Quiz"
     _description = "The question pool for the Dr. Topper quiz will include new questions submitted by players."
     _id = "quiz"
 
 
-# ✅
 class QuizIncludeNonSmrpg(BooleanFlag):
     _name = "Include non-SMRPG questions"
     _description = "The question pool will also include questions that are not related to Super Mario RPG."
@@ -1713,14 +1537,12 @@ class QuizIncludeNonSmrpg(BooleanFlag):
     _requires_all = [(QuizShuffle(), True)]
 
 
-# ✅
 class RandomTadpolePondSong(BooleanFlag):
     _name = "Randomize Tadpole Pond songs"
     _description = """If enabled, the songs required for the three Tadpole Pond songs will be selected from a pool (submitted by players). Hints will be available in their normal locations within Tadpole Pond, Moleville Mines, and Monstro Town."""
     _id = "melody"
 
 
-# ✅
 class RandomSunkenShipPassword(BooleanFlag):
     _name = "Randomize Sunken Ship password"
     _description = """If enabled, the password for the Sunken Ship will be selected from a pool (submitted by players). Hints are available in the 6 ship puzzles, and occasionally on posted notes within the Sunken Ship.
@@ -1735,14 +1557,12 @@ class RedBarrels(BooleanFlag):
     _id = "redbarrels"
 
 
-# ✅
 class BowserDoorShuffle(BooleanFlag):
     _name = "Randomize Bowser's Keep room sequences"
     _description = """If enabled, the 18 rooms making up the six Bowser's Keep obstacle course doors will be shuffled into six random sequences of three rooms each."""
     _id = "doorshuffle"
 
 
-# ✅
 class SkipMinecart(BooleanFlag):
     _name = "Skip Minecart minigame"
     _description = """If enabled, boarding the minecart for the first time will teleport you back to Moleville. Subsequent visits to the minecart room will play the minigame as normal."""
@@ -1755,14 +1575,12 @@ class RandomMinecartTrack(BooleanFlag):
     _id = "rcart"
 
 
-# ✅
 class SkipAnts(BooleanFlag):
     _name = "Skip Shoguns"
     _description = """If enabled, you will not have to fight the Shoguns in the Land's End whirlpools."""
     _id = "skipant"
 
 
-# ✅
 class BetterTips(BooleanFlag):
     _name = "Better Event RNG"
     _description = """If enabled, the following changes will take effect:
@@ -1778,20 +1596,16 @@ class BetterTips(BooleanFlag):
     _id = "rng"
 
 
-# ******** Shops
 
 
-# if this is disabled, no options in this category can be changed
 
 
-# ✅
 class ShuffleShops(BooleanFlag):
     _name = "Randomize the contents of shops"
     _description = """If enabled, the contents of all regular shops and Frog Coin shops will be randomized. This includes the Marrymore suite room service menu, the Moleville bomb shop, and the blue toad treasure shop in Moleville."""
     _id = "rshops"
 
 
-# ✅
 class ShopQualities(CategorizationOption):
     """Enumeration for shop shuffle quality option"""
 
@@ -1802,7 +1616,6 @@ class ShopQualities(CategorizationOption):
     EMPTY = "Completely empty"
 
 
-# ✅
 class ShopQuality(SelectOneFlag[ShopQualities]):
     _name = """Shop contents quality"""
     _description = """Controls the item distribution in shops.
@@ -1820,7 +1633,6 @@ class ShopQuality(SelectOneFlag[ShopQualities]):
     _requires_all = [(ShuffleShops(), True)]
 
 
-# ✅
 class BiasShopShuffle(BooleanFlag):
     _name = "Bias better items to gated shops"
     _description = (
@@ -1833,22 +1645,33 @@ class BiasShopShuffle(BooleanFlag):
     ]
 
 
-# ✅
-class NoPickMeUps(BooleanFlag):
-    _name = "Exclude Pick Me Ups"
-    _description = """If enabled, Pick Me Ups will not be sold in any shops."""
-    _id = "nolife"
+class PickMeUpOptions(CategorizationOption):
+    """Enumeration for where Pick Me Ups are allowed to be sold"""
+
+    DEFAULT = "Default"
+    EARLY = "Early"
+    NONE = "None"
+
+
+class PickMeUpAvailability(SelectOneFlag[PickMeUpOptions]):
+    _name = "Pick Me Ups"
+    _description = """<b>Default</b>: Pick Me Ups appear in at least one shop, but they are NOT guaranteed to be in a shop you can access at the start of the seed.
+<br>
+<br><b>Early</b>: Pick Me Ups appear in at least one shop, and they ARE guaranteed to be in a shop you can access at the start of the seed.
+<br>
+<br><b>None</b>: Pick Me Ups are not be sold in any shop."""
+    choices = [o for o in PickMeUpOptions]
+    _default = PickMeUpOptions.DEFAULT
+    _id = "pickmeups"
     _requires_all = [(ShuffleShops(), True)]
 
 
-# ✅
 class ShowEquips(BooleanFlag):
     _name = "Always show all permitted characters on equips"
     _description = "Always show who can equip what in stores."
     _id = "showperms"
 
 
-# ✅
 class FreeShops(BooleanFlag):
     _name = "'Free' Shops"
     _description = """If enabled, all shop items will cost 1 coin. You will start with 9999 coins and 999 frog coins."""
@@ -1866,7 +1689,6 @@ class ProtectedItemEnum(CategorizationOption):
     STAR_EGG = "Star Egg"
 
 
-# ✅
 class ProtectSpecialItems(CategorizationFlag[ProtectedItemEnum]):
     _name = "Prevent accidentally selling special items"
     _description = """Highlighted (white text over blue) items cannot be sold or thrown in the Waste Basket, and appear in dark blue text in the Sell Items menu. They will still take up space in your inventory.
@@ -1876,18 +1698,14 @@ class ProtectSpecialItems(CategorizationFlag[ProtectedItemEnum]):
     _id = "nosell"
 
 
-# ******** Enemies & Bosses
 
 
-# ✅
 class BossShuffle(BooleanFlag):
     _name = "Randomize boss fight locations"
     _description = "If enabled, the positions of bosses (plus Pandorite, Hidon, Box Boy, Chester, and Mokura) are shuffled."
     _id = "rboss"
-    # if false, disable stat scaling and mimics anywhere
 
 
-# ✅
 class BossScaleOptions(CategorizationOption):
     """Enumeration for shuffled boss stat scaling"""
 
@@ -1897,7 +1715,6 @@ class BossScaleOptions(CategorizationOption):
     GODMODE = "Godmode"
 
 
-# ✅
 class BossShuffleScaleStats(SelectOneFlag[BossScaleOptions]):
     _name = "Scale boss stats"
     _description = """<b>Do not scale</b>: Boss fights retain their relative original stats, regardless of where they are placed. For example, Culex would still have around 4000 HP, even if he's in Mushroom Way.
@@ -1913,7 +1730,6 @@ class BossShuffleScaleStats(SelectOneFlag[BossScaleOptions]):
     _requires_all = [(BossShuffle(), True)]
 
 
-# ✅
 class DontAutohealOptions(CategorizationOption):
     """Enumeration for post-fight healing behaviour"""
 
@@ -1935,7 +1751,6 @@ class DontAutoheal(SelectOneFlag[DontAutohealOptions]):
     _requires_all = [(BossShuffle(), True)]
 
 
-# ✅
 class KeepMinigameSpritesIntact(BooleanFlag):
     _name = "Keep some shuffled NPCs intact"
     _description = """If disabled: All sprites related to an area boss and their corresponding battles will be changed to match the shuffled positions of bosses. Note that sprite replacements will not affect gameplay, i.e. hitboxes stay the same for the Booster Hill henchmen, the Mack Skip NPCs, etc.
@@ -1960,7 +1775,6 @@ class DifferentiateRepeatedBosses(BooleanFlag):
 
 
 
-# ✅
 class EnemyStatsShuffleOptions(CategorizationOption):
     """Enumeration for enemy stat randomization option"""
 
@@ -1969,7 +1783,6 @@ class EnemyStatsShuffleOptions(CategorizationOption):
     FULL_RANDOM = "Everything"
 
 
-# ✅
 class EnemyStats(SelectOneFlag[EnemyStatsShuffleOptions]):
     _name = "Randomize enemy stats"
     _description = """Choose what should be randomized about enemy stats (includes normal mobs and bosses).
@@ -1984,49 +1797,42 @@ class EnemyStats(SelectOneFlag[EnemyStatsShuffleOptions]):
     _default = EnemyStatsShuffleOptions.DISABLED
 
 
-# ✅
 class EnemyDrops(BooleanFlag):
     _name = "Randomize enemy drops"
     _description = "If enabled, the EXP and in-battle items received from battles will be randomized."
     _id = "drops"
 
 
-# ✅
 class EnemyFormations(BooleanFlag):
     _name = "Randomize formations"
     _description = """If enabled, enemy encounters may contain random unexpected additional enemies and be laid out erratically. Boss formations are not affected."""
     _id = "formations"
 
 
-# ✅
 class EnemyAttacks(BooleanFlag):
     _name = "Randomize attack stats and effects"
     _description = "If enabled, enemy spells and attacks will have their power randomized. Attacks which cast statuses will have the status effects randomized, and attacks which normally don't inflict statuses may inflict unexpected statuses."
     _id = "attacks"
 
 
-# ✅
 class EnemySpells(BooleanFlag):
     _name = "Randomize enemy spell assignments"
     _description = "If enabled, enemies can cast random spells (excluding remake spells). I.E. Mack could cast Blast instead of Flame."
     _id = "enemyspells"
 
 
-# ✅
 class ExperienceNoRegular(BooleanFlag):
     _name = "Remove EXP from regular enemy encounters"
     _description = "If enabled, regular enemy encounters will not give any EXP when defeated. Boss fights are not affected by this flag."
     _id = "noregexp"
 
 
-# ✅
 class ExperienceNoBosses(BooleanFlag):
     _name = "Remove EXP from boss encounters"
     _description = "If enabled, boss encounters will not give any EXP when defeated. Regular enemy encounters are not affected by this flag."
     _id = "nobossexp"
 
 
-# ✅
 class Punchinello2BobombDifficultyOptions(CategorizationOption):
     """Enumeration for Punchinello 2 Strong Bob-Omb facing-direction likelihood."""
 
@@ -2037,7 +1843,6 @@ class Punchinello2BobombDifficultyOptions(CategorizationOption):
     PERCENT_100 = "100%"
 
 
-# ✅
 class Punchinello2BobombDifficulty(SelectOneFlag[Punchinello2BobombDifficultyOptions]):
     _name = "Punchinello 2 balance"
     _description = "This is the likelihood that the Strong Bob-Ombs will spawn already facing Punchinello. This setting does nothing if remake content is turned off."
@@ -2046,7 +1851,6 @@ class Punchinello2BobombDifficulty(SelectOneFlag[Punchinello2BobombDifficultyOpt
     _id = "p2bobomb"
 
 
-# ✅
 class SkipBossFights(BooleanFlag):
     _name = "Allow alternate boss fight win conditions"
     _description = """The following actions will be valid to skip a boss fight and still achieve its unlocks and/or star pieces: 
@@ -2060,7 +1864,6 @@ class SkipBossFights(BooleanFlag):
     _id = "skips"
 
 
-# ✅
 class NoGenoWhirlExor(BooleanFlag):
     _name = "No Geno Whirl on Exor"
     _description = (
@@ -2069,7 +1872,6 @@ class NoGenoWhirlExor(BooleanFlag):
     _id = "nowhirl"
 
 
-# ✅
 class FixMagikoopa(BooleanFlag):
     _name = "Fix Magikoopa"
     _description = (
@@ -2078,14 +1880,12 @@ class FixMagikoopa(BooleanFlag):
     _id = "nobigbang"
 
 
-# ✅
 class FixInvincibility(BooleanFlag):
     _name = "Fix ally invincibility"
     _description = "If enabled, healing spells like Group Hug and Therapy will no longer prematurely dispel ally invincibility (i.e. from Red Essence)."
     _id = "fixinv"
 
 
-# ✅
 class NoOHKO(BooleanFlag):
     _name = "No instant KOs on boss allies"
     _description = (
@@ -2095,7 +1895,6 @@ class NoOHKO(BooleanFlag):
     _id = "noko"
 
 
-# ✅
 class SeeYa(BooleanFlag):
     _name = "Start with See Ya"
     _description = """You will start the game with See Ya already in your item inventory. This removes it from the item pool but it does not count toward your four random starting items.
@@ -2105,8 +1904,6 @@ class SeeYa(BooleanFlag):
     _id = "seeya"
 
 
-# ******** Cosmetics and Accessibility
-# aka stuff that doesn't affect the seed
 
 
 class MarioPaletteOptions(CategorizationOption):
@@ -2298,28 +2095,24 @@ class ToadstoolPaletteChoice(SelectOneFlag[ToadstoolPaletteOptions]):
     _id = "toadstoolpalette"
 
 
-# ✅
 class ChangeNames(BooleanFlag):
     _name = "Change character names to match palettes"
     _description = """Some palette swaps are references to other media. If this flag is enabled, the character's name will be changed to match the palette if applicable."""
     _id = "names"
 
 
-# ✅
 class RemakeNames(BooleanFlag):
     _name = "Use Remake names"
     _description = "Spells, enemies, items, and attacks will use their names from the 2023 Switch remake (where space limits allow)."
     _id = "remake"
 
 
-# ✅
 class CanonNames(BooleanFlag):
     _name = "Use lore-compliant names"
     _description = "Magikoopa is renamed 'Kamek', Birdo is renamed 'Birdetta', and Czar Dragon is renamed 'Blargg'."
     _id = "canon"
 
 
-# ✅
 class Peach(BooleanFlag):
     _name = "Rename Peach"
     _description = (
@@ -2328,30 +2121,24 @@ class Peach(BooleanFlag):
     _id = "peach"
 
 
-# ✅
 class JapaneseABXY(BooleanFlag):
     _name = "Japanese ABXY buttons"
     _description = "If this flag is enabled, ABXY buttons will have the Super Famicom colours from the Japanese version of the game instead of the SNES purple."
     _id = "abxy"
 
 
-# ✅
 class BossShuffleMusic(BooleanFlag):
     _name = "Randomize battle music"
     _description = "All battle music will be randomized."
     _id = "music"
 
 
-# ✅
 from randomizer.data.variables.music_tracks import MusicTrack
 
 
-# ✅
-# Default music IDs: 0x06, 0x03, 0x19, 0x44, 0x23, 0x26, 0x3E, 0x3B
 _DEFAULT_MUSIC_IDS = {6, 3, 25, 68, 35, 38, 62, 59}
 
 
-# ✅
 class ShuffledMusic(CategorizationFlag[MusicTrack]):
     _name = "Battle music pool"
     _description = """Eight tunes will be chosen at random for boss battles. Deselect any tracks you don't want to include in the pool.
@@ -2359,9 +2146,9 @@ class ShuffledMusic(CategorizationFlag[MusicTrack]):
     _id = "avail_music"
     _default = {o: o.music_id in _DEFAULT_MUSIC_IDS for o in MusicTrack}
     _requires_all = [(BossShuffleMusic(), True)]
+    _requires_selection = True
 
 
-# ✅
 class RemoveFlashes(BooleanFlag):
     _name = "Remove flashes"
     _description = """Removes some flashing animations (from spells, attacks, etc). 
@@ -2370,7 +2157,6 @@ class RemoveFlashes(BooleanFlag):
     _id = "noflash"
 
 
-# ✅
 class HoldB(BooleanFlag):
     _name = "Hold B to auto-advance text"
     _description = "Holding the B button will advance text boxes."

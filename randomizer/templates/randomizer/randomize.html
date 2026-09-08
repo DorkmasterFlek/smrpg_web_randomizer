@@ -231,9 +231,10 @@
             // Helper function to disable/enable all form controls during generation
             function setFormControlsDisabled(disabled) {
                 const form = $('#config');
+                const keepEnabled = '#generate-btn, [type="hidden"], #flag-string, [data-bs-toggle="tab"]';
                 // Disable all inputs, selects, buttons (except generate button and hidden inputs needed for submission)
-                form.find('input, select, textarea').not('#generate-btn, [type="hidden"]').prop('disabled', disabled);
-                form.find('button').not('#generate-btn').prop('disabled', disabled);
+                form.find('input, select, textarea').not(keepEnabled).prop('disabled', disabled);
+                form.find('button').not(keepEnabled).prop('disabled', disabled);
                 // Also disable the preset dropdown and apply button
                 $('#preset').prop('disabled', disabled);
                 $('#apply-flags').prop('disabled', disabled);

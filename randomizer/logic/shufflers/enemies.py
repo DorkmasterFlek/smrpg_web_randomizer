@@ -386,7 +386,7 @@ def _randomize_enemy_elements_and_statuses(enemy) -> None:
         new_res = random.sample(available_elements, min(new_resistances, len(available_elements)))
         enemy.set_resistances(new_res)
         # Only allow weaknesses from elements NOT in resistances
-        potential_weak = list(set(available_elements) - set(new_res))
+        potential_weak = [e for e in available_elements if e not in new_res]
         current_weak_count = len(enemy.weaknesses)
         enemy.set_weaknesses(
             random.sample(potential_weak, min(current_weak_count, len(potential_weak)))
@@ -397,7 +397,7 @@ def _randomize_enemy_elements_and_statuses(enemy) -> None:
         new_weak = random.sample(available_elements, min(current_weak_count, len(available_elements)))
         enemy.set_weaknesses(new_weak)
         # Only allow resistances from elements NOT in weaknesses
-        potential_res = list(set(available_elements) - set(new_weak))
+        potential_res = [e for e in available_elements if e not in new_weak]
         enemy.set_resistances(
             random.sample(potential_res, min(new_resistances, len(potential_res)))
         )
@@ -456,7 +456,9 @@ def randomize_enemy_drops(world: GameWorld) -> None:
     ]
 
     for enemy in world.enemies.enemies:
-        enemy.set_coins(mutate_normal(int(enemy.coins), minimum=0, maximum=255))
+        old_coins = int(enemy.coins)
+        if old_coins > 0:
+            enemy.set_coins(mutate_normal(old_coins, minimum=1, maximum=255))
 
         old_xp = int(enemy.xp)
         new_xp = mutate_normal(old_xp, minimum=1, maximum=0xFFFF)
@@ -978,7 +980,7 @@ def randomize_enemy_formations(world: GameWorld) -> None:
             if any(m.hidden_at_start for m in current_members):
                 continue
 
-            current_enemy_types = list(set(m.enemy for m in current_members))
+            current_enemy_types = list(dict.fromkeys(m.enemy for m in current_members))
 
             # Skip if any current enemy is a boss enemy (shouldn't shuffle boss-adjacent formations)
             if any(e in boss_enemy_types for e in current_enemy_types):
@@ -1053,7 +1055,9 @@ def randomize_enemy_formations(world: GameWorld) -> None:
             for fe in forced_enemies:
                 if fe not in chosen_enemies:
                     chosen_enemies.append(fe)
-            unique_vram: dict[type, int] = {e: get_vram_size(e) for e in set(chosen_enemies)}
+            unique_vram: dict[type, int] = {
+                e: get_vram_size(e) for e in dict.fromkeys(chosen_enemies)
+            }
             current_vram = sum(unique_vram.values())
 
             while len(chosen_enemies) < num_enemies:
@@ -1081,10 +1085,7 @@ def randomize_enemy_formations(world: GameWorld) -> None:
 
             # Shuffle for visual variety, then re-prioritize: forced enemies
             # first, then vanilla originals, then random additions. Coord
-            # placement is greedy and earlier entries get first pick of the
-            # grid, so high-priority enemies must lead - otherwise a
-            # randomly-added sprite can claim the only viable spot and force
-            # a forced/original enemy to be dropped as None.
+            # placement is greedy.
             random.shuffle(chosen_enemies)
             forced_set = set(forced_enemies)
             originals_set = set(current_enemy_types)

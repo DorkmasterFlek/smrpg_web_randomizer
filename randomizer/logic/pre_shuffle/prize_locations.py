@@ -15,7 +15,7 @@ from smrpgpatchbuilder.datatypes.levels.classes import RegularClone, RegularNPC
 from smrpgpatchbuilder.datatypes.overworld_scripts.arguments.directions import SOUTHEAST
 from smrpgpatchbuilder.datatypes.scripts_common.classes import UInt4, UInt8
 from typing import cast, TYPE_CHECKING
-from copy import copy
+from copy import copy, deepcopy
 
 from ...types.prizelocation import (TreasureChestLocation, EventLocation, StandingLocation, RiverLocation, BoosterHillLocation, SpellSlotLocation, BossFightLocation, StarPieceLocation, CharacterRecruitmentLocation, KeyItemLocation, InvisibleFlagLocation)
 from ...types.prize import SlotsPrize
@@ -947,6 +947,13 @@ def set_locations(world: GameWorld) -> None:
     _pre_allocate_dummy_npcs(world, invisible_item_pool)
 
     # reuse across retries: set_locations runs once per attempt and would otherwise duplicate these
+    # reset the invisible flag summoner if a reroll needs to happen
+    summoner = world.event_scripts.get_script_by_id(E0091_INVISIBLE_ITEM_SUMMONER)
+    if world._invisible_summoner_base is None:
+        world._invisible_summoner_base = deepcopy(summoner.contents)
+    else:
+        summoner.set_contents(deepcopy(world._invisible_summoner_base))
+
     if world._invisible_item_locations is not None:
         invisible_flag_locations = world._invisible_item_locations
     else:
@@ -978,8 +985,11 @@ def set_locations(world: GameWorld) -> None:
                             break
 
         used_flag_rooms: set[int] = set()
+        chosen_flag_classes: list[type] = []
         for i in range(0, 3):
-            if debug_invisible_flags is not None:
+            if world._invisible_flag_choice is not None:
+                location_cls = world._invisible_flag_choice[i]
+            elif debug_invisible_flags is not None:
                 location_cls = debug_invisible_flags[i]
             elif not world.settings.isflag_enabled(InvisibleFlagsSetting):
                 location_cls = invisible_item_pool[i]
@@ -998,6 +1008,7 @@ def set_locations(world: GameWorld) -> None:
 
                 location_cls = random.choice(valid_pool)
 
+            chosen_flag_classes.append(location_cls)
             location = cast(InvisibleFlagLocation, location_cls(i))
             used_flag_rooms.update(location._rooms)
             for r in location._rooms:
@@ -1039,6 +1050,7 @@ def set_locations(world: GameWorld) -> None:
 
         # Store the invisible item locations for reuse on retry
         world._invisible_item_locations = invisible_flag_locations
+        world._invisible_flag_choice = chosen_flag_classes
 
     world.locations = {**world.locations, **invisible_flag_locations}
     

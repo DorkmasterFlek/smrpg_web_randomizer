@@ -17,5 +17,7 @@ class CoinTrickItem(Accessory):
     _price: int = 36
     _inflict_type = None
 
+    _arbitrary_value: int = 2
+
 
 __all__ = ["CoinTrickItem"]

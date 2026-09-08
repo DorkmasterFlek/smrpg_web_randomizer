@@ -1,6 +1,7 @@
 """Minigame randomization logic."""
 from __future__ import annotations
 from randomizer.utils.debug_output import debug_print
+from copy import deepcopy
 import random
 from typing import TYPE_CHECKING, Optional, cast
 
@@ -137,7 +138,7 @@ def randomize_tadpole_pond(world: GameWorld) -> None:
     world.song_3 = selection[2].scroll_text
 
     world.song_authors = list(
-        set(
+        dict.fromkeys(
             [selection[0].submitter_credits,
             selection[1].submitter_credits,
             selection[2].submitter_credits]
@@ -151,6 +152,7 @@ def randomize_password(world: GameWorld) -> None:
     password = random.choice(password_pool)
     world.password = password.word
     decoy_word = random.choice([p for p in password_pool if p != password])
+    password = deepcopy(password)
     correct_positions = []
 
     # create password submission logic

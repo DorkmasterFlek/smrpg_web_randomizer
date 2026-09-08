@@ -264,7 +264,7 @@ class ShopsCategory(FlagCategory):
         ShuffleShops,
         ShopQuality,
         BiasShopShuffle,
-        NoPickMeUps,
+        PickMeUpAvailability,
         ShowEquips,
         FreeShops,
         ProtectSpecialItems,
@@ -483,7 +483,7 @@ class ReturningVeteran(Preset):
         "For people who played SMRPG growing up and may do an occasional playthrough nowadays but don't necessarily know all of its obscure secrets inside out."
     )
     _flags: str = (
-        "P(rchars)     Q(perms:random_accessories_all)     C(exp:triple)     X(rstars|bosses:/39b8v//)     T(ritems|itemqual:completely_random)     L(keys_anywhere|postgame|chests://P9/3/B//HAA0/Xt4BgAAA89BZOPKhAwi/N+c///7V+xP0N4+//vP7+/C)     A(bw:mushroom_way|fm:open|bh:tower|mm:tower|sea:open)     O(doorcount:1|fasttravel)     S(rshops|shopqual:completely_random|showperms)     B(rboss|pool:f79v3N/P)     E(drops|formations)     F(skips|seeya)"
+        "P(rchars)     Q(perms:random_accessories_all)     C(exp:triple)     X(rstars|bosses:/39b8v//)     T(ritems|itemqual:completely_random|xpstars)     L(keys_anywhere|chests://P9/3/B//HAA0/Xt4BgAAA89BZOPKhAwi/N+Y///7V+xP0N4+//vP7+/CP)     A(bw:mushroom_way|fm:open|bh:tower|mm:tower|sea:open)     O(doorcount:1|fasttravel)     S(rshops|shopqual:completely_random|showperms|nosell:5)     B(rboss|pool:f79v3N/P)     E(drops|formations)     F(skips|fixinv|seeya)"
     )
 
 
@@ -494,7 +494,7 @@ class VeteranPreset(Preset):
         "For people who know the original game (and its remake) upside down and inside out. Everything is shuffled and no checks are disabled. Your knowledge of equipment properties and monster behaviours will come in handy."
     )
     _flags: str = (
-        "P(rchars)     Q(perms:vanilla_accessories_all|hints)     C(exp:double|uncap)     X(rstars|disperse)     T(ritems|biasitems|restrict_monstro|xpstars|hill|mimics|slots|beetle|kamek|marry|doll|cookies|fireworks:progressive)     L(keys_anywhere|stars_anywhere|moveflags|postgame)     I(fake|xpstar:bosses|fix_kg)     A(fm:open|bh:tower|bk:star_6)     O(doorcount:1|fasttravel|skipcart)     G(rng)     S(rshops|biasshops|showperms)     B(rboss)     E(drops)     F(skips)"
+        "P(rchars|allyswap|starters:4)     Q(perms:vanilla_accessories_all|hints)     C(exp:double|uncap|uncapfp)     X(rstars|disperse)     T(ritems|biasitems|restrict_monstro|xpstars|hill|mimics|slots|beetle|kamek|marry|doll|cookies|fireworks:progressive)     L(keys_anywhere|stars_anywhere|moveflags|postgame)     I(fake|xpstar:bosses|fix_kg)     A(fm:open|bh:tower|bk:star_6)     O(fasttravel|skipcart|skipant)     G(rng)     S(rshops|biasshops|showperms)     B(rboss|pool://9////f)     F(skips|seeya)"
     )
 
 
@@ -505,7 +505,7 @@ class RandomizerPreset(Preset):
         "A highly access-restrictive preset for people who enjoy solving the puzzle of randomized progression."
     )
     _flags: str = (
-        "P(rchars)     Q(perms:random_accessories_all|props:random|hints)     C(exp:double|charspells|infuse|uncap)     X(rstars)     T(ritems|itemqual:completely_random|biasitems|restrict_monstro|xpstars|hill|mimics|slots|beetle|kamek|marry|doll|cookies|fireworks:progressive)     L(keys_anywhere|stars_anywhere|spells_anywhere|moveflags|postgame)     I(replace|fake|xpstar:bosses|fix_kg)     A(ks:rfc|pv:geno|me:bowyer|bh:kggg|land:elder|tmpl:key|mt:belome_2|nl:paint|bv:valentina|bk:axem|wf:exor)     O(seaside:johnny|doorcount:1|cwarp|bwarp|fasttravel|skipcart|skipant)     G(ball|button|quiz|melody|pwd|rng)     S(rshops|shopqual:mostly_random|biasshops|showperms)     B(rboss)     E(drops)     F(skips)"
+        "P(rchars|allyswap|starters:4)     Q(perms:random_accessories_all|props:random|hints)     C(exp:double|stats|charspells|infuse|spellelements|uncap|uncapfp)     X(rstars)     T(ritems|itemqual:completely_random|biasitems|restrict_monstro|xpstars|hill|mimics|slots|beetle|kamek|marry|doll|cookies|fireworks:progressive)     L(keys_anywhere|stars_anywhere|spells_anywhere|moveflags|postgame)     I(replace|fake|xpstar:bosses|fix_kg)     A(ks:rfc|pv:geno|me:bowyer|bh:kggg|land:elder|tmpl:key|mt:belome_2|nl:paint|bv:valentina|bk:axem|wf:exor)     O(seaside:johnny|doorcount:1|cwarp|bwarp|fasttravel|skipcart|skipant)     G(ball|button|quiz|melody|pwd|doorshuffle|rng)     S(rshops|shopqual:mostly_random|biasshops|showperms|nosell:4)     B(rboss)     E(drops|formations)     F(skips|fixinv|seeya)"
     )
 
 
@@ -514,7 +514,7 @@ class GodPreset(Preset):
     _name: str = '"The world\'s my oyster"'
     _description: str = "A preset where your order of operations is wide open."
     _flags: str = (
-        "P(rchars|starters:4:5:6:7:8)     Q(perms:random_accessories_all|props:random|unsafe|hints)     C(stats|charspells)     X(rstars|total_sp:7)     T(ritems|itemqual:completely_random|xpstars|hill|mimics|slots|beetle|kamek|marry|doll|cookies|fireworks:progressive)     L(keys_anywhere|stars_anywhere|spells_anywhere|moveflags|postgame)     I(replace|fake|xpstar:none|fix_kg|sj1:10|sj2:20)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:open|wf:open)     O(seaside:open|objective:stars|endgame:7|doorcount:1|cwarp|bwarp|fasttravel|skipcart|skipant|skip_musty)     G(ball|button|quiz|quizext|melody|pwd|doorshuffle|rng)     S(rshops|shopqual:completely_random|showperms)     B(rboss|bossscale:godmode)     E(enemystats:full_random|drops|formations|attacks|enemyspells|noregexp|nobossexp)     F(skips|nowhirl|nobigbang|noko|seeya)"
+        "P(rchars|allyswap|starters:4:5:6:7:8)     Q(perms:random_accessories_all|props:random|unsafe|hints)     C(stats|charspells|spellelements|uncap|uncapfp)     X(rstars|total_sp:7)     T(ritems|itemqual:completely_random|xpstars|hill|mimics|slots|beetle|kamek|marry|doll|cookies|fireworks:progressive)     L(keys_anywhere|stars_anywhere|moveflags|postgame)     I(replace|fake|xpstar:none|fix_kg|sj1:10|sj2:20)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:open|wf:open)     O(seaside:open|objective:stars|endgame:7|doorcount:1|cwarp|bwarp|fasttravel|skipcart|skipant|skip_musty)     G(ball|button|quiz|quizext|melody|pwd|doorshuffle|rng)     S(rshops|shopqual:completely_random|showperms|nosell:Q)     B(rboss|bossscale:godmode|noheal:all)     E(enemystats:full_random|drops|formations|attacks|enemyspells|noregexp|nobossexp)     F(skips|nowhirl|nobigbang|noko|seeya)"
     )
 
 
@@ -523,7 +523,7 @@ class Speedrunner(Preset):
     _description: str = (
         "For any% speedrunners who don't remember much about casual playthroughs or MOTS speedruns (but might have done Low Level once or twice)."
     )
-    _flags: str = "Q(hints)     C(exp:double|uncap)     X(rstars|bosses:fz9v3t/f)     T(ritems|hill|marry)     L(keys_anywhere|stars_anywhere|chests://P//3/D//XA/9/f9+9/b4/99/5//d9gzi/d+f//n71/9/8P7////v7+vf)     I(replace|fake)     A(bw:mushroom_way|fm:open|bh:tower|mm:tower|sea:open)     O(doorcount:1|fasttravel|skipcart)     G(rng)     S(showperms)     B(rboss|allsprites|pool://9////f)     F(skips|seeya)"
+    _flags: str = "P(allyswap)     Q(hints)     C(exp:double|uncap)     X(rstars|bosses:fz9v3t/f)     T(ritems|hill|marry)     L(keys_anywhere|stars_anywhere|chests://P//3/D//XA/9/f9+9/b4/99/5//d9gzi/d+f//n71/9/8P7////v7+vfP)     I(replace|fake)     A(bw:mushroom_way|fm:open|bh:tower|mm:tower|sea:open)     O(doorcount:1|fasttravel|skipcart|skipant)     G(rng)     S(showperms|nosell:Q)     B(rboss|allsprites|pool://9////f)     F(skips|seeya)"
 
 
 class LegacyQuick(Preset):
@@ -532,7 +532,7 @@ class LegacyQuick(Preset):
         "A preset that approximates the settings of the old 'Quick' preset from 8.x.x."
     )
     _flags: str = (
-        "P(rchars|starters:4:5:6)     Q(perms:random|props:random)     C(exp:triple|stats|charspells)     X(rstars|bosses:fzFu3Nfe)     T(ritems|itemqual:completely_random|restrict_monstro)     I(replace)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:open|wf:star_6)     O(seaside:open|doorcount:1|cwarp|bwarp|fasttravel|skipcart|skipant|skip_musty)     S(rshops|shopqual:all|showperms|free)     B(rboss|pool:fz9v3N/P)     E(drops)"
+        "P(rchars|starters:4:5:6)     Q(perms:random|props:random)     C(exp:triple|stats|charspells)     X(rstars|bosses:fzFu3Bfe)     T(ritems|itemqual:completely_random)     I(replace)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:star_6|wf:star_6)     O(seaside:open|doorcount:1|proglogic:hard|cwarp)     S(rshops|shopqual:all|showperms|free)     B(rboss|allsprites|pool:fz9v3N/P)     E(drops)"
     )
 
 
@@ -542,7 +542,7 @@ class LegacyCasual(Preset):
         "A preset that approximates the settings of the old 'Casual' preset from 8.x.x."
     )
     _flags: str = (
-        "P(rchars|starters:4:5:6)     Q(perms:random)     C(exp:double|stats)     X(rstars|bosses:f7/v3N/f)     T(ritems|itemqual:completely_random|restrict_monstro)     I(replace|xpstar:bosses)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:star_6)     O(doorcount:1|cwarp)     G(ball|button|quiz|doorshuffle)     S(rshops|shopqual:all|showperms)     B(rboss|pool:fz9v3N/P)     E(drops|formations)"
+        "P(rchars|starters:4:5:6)     Q(perms:random)     C(exp:double|stats)     X(rstars|bosses:fDEu3Bfe)     T(ritems|itemqual:completely_random)     I(replace|xpstar:stars)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:star_6)     O(seaside:open|doorcount:1|proglogic:hard|cwarp)     G(ball|button|quiz|doorshuffle)     S(rshops|shopqual:all|showperms)     B(rboss|allsprites|pool:fz9v3N/P)     E(drops|formations)"
     )
 
 
@@ -552,7 +552,7 @@ class LegacyIntermediate(Preset):
         "A preset that approximates the settings of the old 'Intermediate' preset from 8.x.x."
     )
     _flags: str = (
-        "P(rchars|starters:4:6:5)     Q(perms:random|props:random)     C(exp:double|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses:/HE+//f+)     T(ritems|itemqual:completely_random|restrict_monstro)     I(replace)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:open|wf:open)     O(seaside:open|endgame:7|doorcount:2|cwarp)     G(ball|button|quiz|doorshuffle)     S(rshops|shopqual:all|showperms)     B(rboss|pool:fz9v3N/P)     E(drops|formations)"
+        "P(rchars|starters:4:5:6)     Q(perms:random|props:random)     C(exp:double|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses:fDEu3Bfe)     T(ritems|itemqual:mostly_random|restrict_monstro)     I(replace|xpstar:stars)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:star_6)     O(seaside:open|endgame:7|doorcount:2|proglogic:hard|cwarp)     G(ball|button|quiz|doorshuffle)     S(rshops|shopqual:all|biasshops|showperms)     B(rboss|allsprites|pool:fz9v3N/P)     E(drops|formations)"
     )
 
 
@@ -562,7 +562,7 @@ class LegacyAdvanced(Preset):
         "A preset that approximates the settings of the old 'Advanced' preset from 8.x.x."
     )
     _flags: str = (
-        "P(rchars|starters:4)     Q(perms:random|props:random)     C(exp:double|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses://F+//f+)     T(ritems|itemqual:mostly_random|restrict_monstro)     L(keys_anywhere|chests:////////////////////////////////////f8////////////////////)     I(replace|xpstar:stars)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:open)     O(seaside:open|endgame:7)     G(ball|button|quiz|doorshuffle)     S(rshops|shopqual:mostly_random|showperms)     B(rboss|pool:fz9v3t/P)     E(enemystats:full_random|drops|formations|attacks)"
+        "P(rchars|starters:4)     Q(perms:random|props:random)     C(exp:double|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses:fzFu3Bfe)     T(ritems|itemqual:mostly_random|biasitems|restrict_monstro)     L(keys_anywhere|chests:/n8//09BAA///zH+u+///////Bn+/ddgTP/6d4/v65x//HAf/HA8/39uC7I)     I(replace|fake|xpstar:stars)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:star_6|wf:star_6)     O(seaside:open|endgame:7|proglogic:hard)     G(ball|button|quiz|doorshuffle)     S(rshops|shopqual:mostly_random|biasshops)     B(rboss|allsprites|pool:fz9v3t/P)     E(enemystats:full_random|drops|formations|attacks)     F(nobigbang)"
     )
 
 
@@ -572,7 +572,7 @@ class LegacyExpert(Preset):
         "A preset that approximates the settings of the old 'Expert' preset from 8.x.x."
     )
     _flags: str = (
-        "P(rchars|starters:4)     Q(perms:random|props:random|unsafe)     C(exp:double|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses://F+//f+)     T(ritems|itemqual:mostly_random|restrict_monstro)     L(keys_anywhere)     I(replace|fake|xpstar:stars)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:open|wf:open)     O(seaside:open|endgame:7)     G(ball|button|quiz|doorshuffle)     S(rshops|showperms)     B(rboss|bossscale:vanilla|pool:f79v3t/P)     E(enemystats:full_random|drops|formations|attacks|enemyspells)     F(nowhirl|nobigbang|noko)"
+        "P(rchars|starters:4)     Q(perms:random|props:random|unsafe)     C(exp:double|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses:fzFu3hfe)     T(ritems|itemqual:mostly_random|biasitems|restrict_monstro)     L(keys_anywhere|chests:/n8//09BAA///zH+u+///////Bn+/ddgTP/6d//v65x//HAf/HA8/39uC7I)     I(replace|fake|xpstar:stars)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:star_6|wf:star_6)     O(seaside:open|endgame:7|proglogic:hard)     G(ball|button|quiz|doorshuffle)     S(rshops)     B(rboss|bossscale:vanilla|allsprites|pool:fz9v3t/P)     E(enemystats:full_random|drops|formations|attacks|enemyspells)     F(nowhirl|nobigbang|noko)"
     )
 
 
@@ -582,7 +582,7 @@ class LegacyAsyncTournament(Preset):
         "A preset that approximates the settings of the old '2021 Fall Async Tournament' preset from 8.x.x."
     )
     _flags: str = (
-        "P(rchars|starters:4)     Q(perms:random|props:random)     C(exp:double|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses:f7Fu3Nfe)     T(ritems|itemqual:completely_random|restrict_monstro)     I(replace|fake)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:open)     O(endgame:7|doorcount:2|cwarp)     G(button|doorshuffle)     S(rshops|shopqual:all|showperms)     B(rboss|pool:/39////f)     E(enemystats:full_random|drops|formations|attacks)"
+        "P(rchars|starters:4)     Q(perms:random|props:random)     C(exp:double|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses:fzFu3Bfe)     T(ritems|itemqual:completely_random)     I(replace|fake)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:star_6|wf:star_6)     O(seaside:open|endgame:7|doorcount:2|proglogic:hard|cwarp)     G(button|doorshuffle)     S(rshops|shopqual:all|showperms)     B(rboss|allsprites|pool:fz9v3t/P)     E(enemystats:full_random|drops|formations|attacks)"
     )
 
 
@@ -592,17 +592,9 @@ class LegacyBingo(Preset):
         "A preset that approximates the settings of the old 'Standard Bingo Flags' preset from 8.x.x."
     )
     _flags: str = (
-        "P(rchars|starters:4)     Q(perms:random|props:random)     C(exp:triple|stats|charspells|spellstats)     X(rstars|total_sp:7)     T(ritems|itemqual:completely_random|restrict_monstro)     L(keys_anywhere|chests:////////////////////////////////////f8//////////////v/////)     I(fake)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:open)     O(seaside:open|endgame:7|doorcount:2|cwarp)     G(button|doorshuffle)     S(rshops|shopqual:all)     B(rboss|pool:f79v3t/P)     E(enemystats:full_random|drops|formations|attacks)"
+        "P(rchars|starters:4)     Q(perms:random|props:random)     C(exp:triple|stats|charspells|spellstats)     X(rstars|total_sp:7|bosses:fzFu3Bfe)     T(ritems|itemqual:completely_random)     L(keys_anywhere|chests:/n8//09BAA///zH+u+///////Bn+/ddgTP/6d4/v65x//HAf/HA8/39uC7I)     I(fake)     A(bw:open|fm:open|bt:open|mm:open|sea:open|mt:open|bv:open|bk:star_6|wf:star_6)     O(seaside:open|endgame:7|doorcount:2|proglogic:hard|cwarp)     G(button|doorshuffle)     S(rshops|shopqual:all|showperms)     B(rboss|allsprites|pool:fz9v3t/P)     E(enemystats:full_random|drops|formations|attacks)"
     )
 
-
-class Pidge(Preset):
-
-    _name: str = "Pidge loves this preset"
-    _description: str = "She likes testing with this, so it's here for convenience."
-    _flags: str = (
-        "P(rchars|starters:4)     Q(perms:vanilla_accessories_all|props:some|hints)     C(exp:double|charspells|infuse|uncap)     X(rstars)     T(ritems|xpstars|hill|mimics|slots|beetle|kamek|marry|doll|cookies|fireworks:progressive)     L(keys_anywhere|stars_anywhere|spells_anywhere|moveflags|postgame)     I(replace|fake|xpstar:bosses|fix_kg)     A(ks:rfc|pv:geno|me:geno|bh:kggg|mm:tower|land:elder|tmpl:key|nl:paint|bv:valentina|bk:axem|wf:open)     O(doorcount:1|cwarp|bwarp|fasttravel|skipcart|skipant)     G(quiz|melody|pwd|rng)     S(rshops|showperms)     B(rboss|pool://9////f)     E(drops)     F(skips|seeya)"
-    )
 
 
 PRESETS = [
@@ -618,5 +610,4 @@ PRESETS = [
     LegacyExpert,
     LegacyAsyncTournament,
     LegacyBingo,
-    Pidge,
 ]

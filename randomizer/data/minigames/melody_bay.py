@@ -1,4 +1,3 @@
-# Data module for Melody Bay (Tadpole Pond songs) and related song data.
 
 from __future__ import annotations
 from dataclasses import dataclass
@@ -67,7 +66,6 @@ from randomizer.data.variables.overworld_sfx_names import (
 from randomizer.data.variables.music_names import M0017_TADPOLEPOND
 
 
-# Song note classes with their corresponding sound effects
 class SongNote:
     val: int = 0
     name: str = ""
@@ -123,7 +121,6 @@ class Note:
     duration: int
 
 
-# Original Toadofsky confirmation labels (jump targets for correctness checking)
 ORIGINAL_TOADOFSKY_CONFIRMATIONS = [
     "EVENT_1074_pause_59",
     "EVENT_1074_pause_64",
@@ -163,21 +160,11 @@ class Song:
     def generate_starfish_hint(
         self, subscript: list[UsableActionScriptCommand]
     ) -> list[UsableActionScriptCommand]:
-        """Generate modified action script subscript with song notes for starfish hint.
-
-        Replaces play_sound commands in the subscript with the appropriate note sounds.
-
-        Args:
-            subscript: The original action script subscript to modify.
-
-        Returns:
-            Modified subscript with correct note sounds.
-        """
+        """Generate modified action script subscript with song notes for starfish hint."""
         note_index = 0
         output: list[UsableActionScriptCommand] = []
 
         for cmd in subscript:
-            # Replace PlaySound commands with the appropriate note sounds
             if isinstance(cmd, ASPlaySound):
                 if note_index < len(self.notes):
                     output.append(
@@ -203,13 +190,7 @@ class Song:
         return output
 
     def generate_tadpole_hint(self) -> list[UsableEventScriptCommand]:
-        """Generate the event script commands for the tadpole hint playback.
-
-        Plays a portion of the song notes (5/8 of total notes) with appropriate timing.
-
-        Returns:
-            List of event script commands for hint playback.
-        """
+        """Generate the event script commands for the tadpole hint playback."""
         num_notes_to_hint = floor(len(self.notes) * 5 / 8)
         notes_to_hint = self.notes[:num_notes_to_hint]
         delays = [45 for _ in notes_to_hint]
@@ -240,16 +221,7 @@ class Song:
         return output
 
     def generate_input_script(self, song_order: int) -> list[UsableEventScriptCommand]:
-        """Generate the input handling script for the song.
-
-        Creates the script that handles player input when playing notes.
-
-        Args:
-            song_order: The order/index of this song (0-based).
-
-        Returns:
-            List of event script commands for input handling.
-        """
+        """Generate the input handling script for the song."""
         def prefix_command_name(cmd_name: str) -> str:
             return f"EVENT_{song_order + 1082}_{cmd_name}"
 
@@ -261,7 +233,7 @@ class Song:
         output: list[UsableEventScriptCommand] = []
 
         for index, (note, address) in enumerate(note_variable_pairs):
-            p = prefix_command_name  # Short alias
+            p = prefix_command_name
             note_input: list[UsableEventScriptCommand] = [
                 Set7000ToTappedButton(
                     identifier=p(f"set_7000_to_tapped_button_{index}")
@@ -311,7 +283,6 @@ class Song:
             ]
 
             if index < len(self.notes) - 1:
-                # Not the last note
                 note_input.extend([
                     CopyVarToVar(
                         from_var=ShortVar(0x7012),
@@ -326,7 +297,7 @@ class Song:
                     ActionQueueSync(
                         target=SCREEN_FOCUS,
                         subscript=[
-                            ASSetWalkingSpeed(VERY_FAST),  # FAST
+                            ASSetWalkingSpeed(VERY_FAST),
                             ASWalkNortheastSteps(steps=2),
                             ASReturn(),
                         ],
@@ -364,7 +335,6 @@ class Song:
                     ),
                 ])
             else:
-                # Last note
                 note_input.extend([
                     PauseActionScript(
                         target=MARIO,
@@ -397,7 +367,6 @@ class Song:
                     ),
                 ])
 
-                # Choose ending event based on number of notes
                 if len(self.notes) == 8:
                     note_input.append(
                         RunEventAsSubroutine(
@@ -433,16 +402,7 @@ class Song:
         return output
 
     def generate_playback_script(self, song_order: int) -> list[UsableEventScriptCommand]:
-        """Generate the playback validation script for the song.
-
-        Creates the script that plays back the notes and checks correctness.
-
-        Args:
-            song_order: The order/index of this song (0-based).
-
-        Returns:
-            List of event script commands for playback validation.
-        """
+        """Generate the playback validation script for the song."""
         def prefix_command_name(cmd_name: str) -> str:
             return f"EVENT_{song_order + 1079}_{cmd_name}"
 
@@ -451,7 +411,6 @@ class Song:
             [SECONDARY_TEMP_7024, TEMP_7026, TEMP_7028, TEMP_702A, TEMP_702C, TEMP_702E, TEMP_7030, TEMP_7032]
         ))
 
-        # For songs with less than 8 notes, figure out how toadofsky should react
         toadofsky_confirmations = [ORIGINAL_TOADOFSKY_CONFIRMATIONS[0]]
         for i in range(len(self.notes)):
             ratio = (
@@ -460,7 +419,6 @@ class Song:
             )
             toadofsky_confirmations.append(ORIGINAL_TOADOFSKY_CONFIRMATIONS[ratio])
 
-        # Build scripts
         script_note_checks: list[UsableEventScriptCommand] = []
         script_correctness_checks: list[UsableEventScriptCommand] = []
         script_toadofsky_reactions: list[UsableEventScriptCommand] = [
@@ -487,7 +445,7 @@ class Song:
                 )
             )
 
-            p = prefix_command_name  # Short alias
+            p = prefix_command_name
             note_check: list[UsableEventScriptCommand] = [
                 CopyVarToVar(
                     from_var=address,
@@ -573,7 +531,6 @@ class Song:
         return final_script
 
 
-# All available songs for Melody Bay
 all_songs = [
     Song(
         [(Re, 15), (Mi, 100), (Re, 7), (Do, 7), (Ti, 65), (La, 65), (So, 0)],
@@ -965,15 +922,15 @@ all_songs = [
         hint_2=' My favorite song?[await][page]\n ♪“Fa So Ti Re Ti Do”.\n Most animals love that song.\n Especially birds.[await]',
         hint_3=' Don\'t ya wish sometimes that you\n could just fly anywhere ya wanted?[await]',
         scroll='\n[center]Fa So Ti Re Ti Do[await]'),
-    Song(
-        [(So, 20), (Re, 20), (Do, 20), (La, 20), (Ti, 30), (Ti, 30), (Do, 30)],
-        "UNDERTALE - His Theme",
-        submitter="Kim Delicious",
-        submitter_credits="KIM DELICIOUS",
-        hint_1=' Hey, Toby, I forget. Who\'s theme is\n this, again?[await]',
-        hint_2=' I heard that monsters that hear\n this song are filled with\n determination![await]',
-        hint_3=' Oh yeah, the Moleville Blues![await][page]\n Even if it\'s His Theme, those cute\n bells make me cry every time I listen\n to it.[await]',
-        scroll='\n[center]So Re Do La Ti Ti Do[await]'),
+    # Song(
+    #     [(So, 20), (Re, 20), (Do, 20), (La, 20), (Ti, 30), (Ti, 30), (Do, 30)],
+    #     "UNDERTALE - His Theme",
+    #     submitter="Kim Delicious",
+    #     submitter_credits="KIM DELICIOUS",
+    #     hint_1=' Hey, Toby, I forget. Who\'s theme is\n this, again?[await]',
+    #     hint_2=' I heard that monsters that hear\n this song are filled with\n determination![await]',
+    #     hint_3=' Oh yeah, the Moleville Blues![await][page]\n Even if it\'s His Theme, those cute\n bells make me cry every time I listen\n to it.[await]',
+    #     scroll='\n[center]So Re Do La Ti Ti Do[await]'),
     Song(
         [(So, 35), (La, 11), (Re, 100), (La, 11), (Do, 11), (Re, 35), (Mi, 11), (Ti, 0)],
         "Chasing a Dream",
@@ -1061,7 +1018,34 @@ all_songs = [
         submitter="katstasaph",
         submitter_credits="KATSTASAPH",
         hint_1="' Check out my new vocoder!\n♪“So So So Mi Re Re Do Re”[await]\nWhat do you mean,\nhow can a tadpole\nuse a vocoder?'[await]",
-        hint_2="' After some practice, I am now\nthe best tadpole to ever\nuse a vocoder.\n♪“So So So Mi Re Re Do Re”[delay]\nOh barnacles,\nit fell in the pond.'[await]",
+        hint_2="' After some practice, I am now\nthe best tadpole to ever\nuse a vocoder.[await]\n♪“So So So Mi Re Re Do Re”[delay]\nOh barnacles,\nit fell in the pond.'[await]",
         hint_3="'Of course we're gonna dig out\nthe rest of the mines.\nWe just need a karaoke break first.[await]\n♪Do you believe in life after love?'[await]",
         scroll='\n[center]So So So Mi Re Re Do Re[await]'),
+    Song(
+        [(Mi, 22), (Do, 64), (Ti, 22), (Do, 64), (Mi, 22), (Do, 64), (Ti, 22), (Do, 0)],
+        "All the Small Things",
+        submitter="katstasaph",
+        submitter_credits="KATSTASAPH",
+        hint_1="' My favorite song? (blink) You\n know,\nit's the one that goes,\nNa-na, na-na, na-na, na-na, na, na\nna-na, na-na, na-na, na-na, na,\n na.[delay]\nYeah, I don't know how you're\nsupposed to do that either.[await]\nThere aren't enough tadpoles\nfor the chorus.[await]'[await]",
+        hint_2="' Hey, Mario or whoever!\nI'm writing a pop-punk song![await]\n♪“Mi Do Ti Do Mi Do Ti Do\nMi Do Ti Do Mi Do Ti Do”[await]\nMaybe I should change\nup the melody.[await]'[await]",
+        hint_3="' Go mine,\ncome home.[await]\nYou're stuck?\nOh, no![await]'[await]",
+        scroll='\n[center]Mi Do Ti Do Mi Do Ti Do[await]'),
+    Song(
+        [(Ti, 30), (Re, 25), (Re, 5), (Ti, 15), (So, 45), (So, 60), (La, 15), (Ti, 0)],
+        "Flower Garden",
+        submitter="katstasaph",
+        submitter_credits="KATSTASAPH",
+        hint_1="' My favorite song?[await][page]\n It's from, uh, Yo'ster Isle.\n ♪“Ti Re Re Ti So So La Ti”.[await]\nThe next part's too high for me.[await]'[await]",
+        hint_2="' I love Flower Garden![await]\nBut I can never hear it\nover baby Mario's crying.[delay]\nOh! You're...[delay]\nI'm gonna go swim some laps.[await]\n...underwater.[await]'[await]",
+        hint_3="' All together now, y'all!\n ♪“Ti Re Re Ti So So La Ti”[await]\nWish I was sittin'\nin a flower garden.[await]'[await]",
+        scroll='\n[center]Ti Re Re Ti So So La Ti[await]'),
+    Song(
+        [(Do, 55), (Do, 65), (Ti, 15), (Do, 15), (Re, 15), (Do, 15), (La, 15), (Do, 0)],
+        "Memory",
+        submitter="katstasaph",
+        submitter_credits="KATSTASAPH",
+        hint_1=" ' My favorite song?[await][page]\n It's “Memory” from “Cats”.\n ♪“Do Do Ti Do Re Do La Do”.[await]\n I wish cats were real.[await]'[await]",
+        hint_2=" ' My favorite song?[await][page]\n It's “Memory” from “Cats”.\n ♪“Do Do Ti Do Re Do La Do”.[await]\n But not even Frogfucius has\\seen a\n real cat before.[await]'[await]",
+        hint_3=" 'Cats? No memory of 'em.\n I reckon there ain't one\n cat in this entire world.[delay]\n Belome?\n Why, he's a dog!'[await]",
+        scroll='\n[center]Do Do Ti Do Re Do La Do[await]'),
 ]

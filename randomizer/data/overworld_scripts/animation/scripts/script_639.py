@@ -16,9 +16,9 @@ from ....packets import *
 from ....items import *
 
 script = ActionScript([
-	A_CopyVarToVar(from_var=TEMP_70B8, to_var=PRIMARY_TEMP_700C),
+	A_CopyVarToVar(from_var=ROSE_TOWN_FROZEN_TOAD_X, to_var=PRIMARY_TEMP_700C),
 	A_CopyVarToVar(from_var=PRIMARY_TEMP_700C, to_var=X_COORD_2),
-	A_CopyVarToVar(from_var=ROSE_TOWN_ARROW_POSITION, to_var=PRIMARY_TEMP_700C),
+	A_CopyVarToVar(from_var=ROSE_TOWN_FROZEN_TOAD_Y, to_var=PRIMARY_TEMP_700C),
 	A_CopyVarToVar(from_var=PRIMARY_TEMP_700C, to_var=Y_COORD_2),
 	A_SetVarToConst(Z_COORD_2, 32),
 	A_UnknownCommand(bytearray([0x9A])),

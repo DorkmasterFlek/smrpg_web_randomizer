@@ -437,7 +437,7 @@ def _apply_stats_to_prize(
             new_coins = round(coins * (original.coins / total_coins_for_slicing))
         else:
             new_coins = original.coins
-        enemy.set_coins(max(0, new_coins))
+        enemy.set_coins(max(1, new_coins) if original.coins > 0 else 0)
 
 LocationStats = tuple[int, int, int, int, int, int, int, int, int]
 

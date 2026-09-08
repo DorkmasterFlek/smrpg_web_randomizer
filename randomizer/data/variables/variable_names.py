@@ -160,8 +160,8 @@ UNKNOWN_70BA = ByteVar(0x70BA)
 GAME_OVER_COUNTER_MAYBE = ByteVar(0x70BB)
 COIN_CHEST_MULTIPLIER = ByteVar(0x70BC)
 MONSTRO_THWOMP_COUNTER = ByteVar(0x70BD)
-UNKNOWN_70BE = ByteVar(0x70BE)
-UNKNOWN_70BF = ByteVar(0x70BF)
+ROSE_TOWN_FROZEN_TOAD_X = ByteVar(0x70BE)
+ROSE_TOWN_FROZEN_TOAD_Y = ByteVar(0x70BF)
 FACTORY_FALL_1 = ByteVar(0x70C0)
 FACTORY_FALL_2 = ByteVar(0x70C1)
 FACTORY_FALL_3 = ByteVar(0x70C2)
@@ -448,11 +448,6 @@ TEMP_7042_2 = Flag(0x7042, 2)
 TEMP_7042_3 = Flag(0x7042, 3)
 TEMP_7042_4 = Flag(0x7042, 4)
 TEMP_7042_5 = Flag(0x7042, 5)
-# Alias of TEMP_7042_5: set by the 5 auto-terminating Sunken Ship packet grants so the
-# shared freestanding grant variants (E4050-E4091) pick the [end] dialog twin instead of
-# [await]. Cleared at the top of E0241 on every collection (see script_241), so it never
-# outlives a single grant. Chosen because no 7042 bit is touched anywhere in the packet
-# grant call graph and bit 5 is unused by any Sunken Ship room event.
 SHIP_PACKET_AUTOTERM_DIALOG = Flag(0x7042, 5)
 TEMP_7042_6 = Flag(0x7042, 6)
 TEMP_7042_7 = Flag(0x7042, 7)

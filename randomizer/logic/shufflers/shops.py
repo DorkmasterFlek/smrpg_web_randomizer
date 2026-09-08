@@ -3,13 +3,13 @@
 from __future__ import annotations
 from ...types.prize import ItemPrize
 import random
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING, Callable, cast
 
 from ...data.variables.dialog_names import *
-from ...types.item import Item
+from ...types.item import Item, Equipment
 from smrpgpatchbuilder.datatypes.overworld_scripts.event_scripts.commands import SetVarToConst
 from ...data.items.items import SeeYaItem
-from ...data.shops.shops import SH03_FROG_DISCIPLE
+from ...data.shops.shops import SH03_FROG_DISCIPLE, shop_collection
 from smrpgpatchbuilder.datatypes.items.classes import Weapon, Armor, Accessory
 from ...data.items.items import (
         GoodieBagItem,
@@ -43,18 +43,15 @@ from ...data.items.items import (
         SleepyBombItem,
         FrightBombItem,
         BadMushroomItem,
-        # Original Frog Disciple items
         SeeYaItem,
         EarlierTimesItem,
         ExpBoosterItem,
         CoinTrickItem,
         ScroogeRingItem,
-        # Items excluded from FULL_RANDOM guarantee
         FireworksItem,
         ShinyStoneItem,
         CarboCookieItem,
         StarEggItem,
-        # Special non-key items that live outside the impact tiers (ALL mode)
         LuckyJewelItem,
         MysteryEggItem,
         LambsLureItem,
@@ -66,7 +63,8 @@ from ...types.flags import (
         ShopQuality,
         ShopQualities,
         BiasShopShuffle,
-        NoPickMeUps,
+        PickMeUpAvailability,
+        PickMeUpOptions,
         FreeShops,
         SeaGate,
         SeaGating,
@@ -110,18 +108,113 @@ from randomizer.logic.progression.prizelocations import (
         FrogDiscipleLocation3,
         FrogDiscipleLocation4,
         FrogDiscipleLocation5,
+        StartingItem1Location,
+        StartingItem2Location,
+        StartingItem3Location,
+        StartingItem4Location,
+    )
+from randomizer.logic.progression.prizelocations.access import (
+        can_access_factory,
+        can_access_juice_bar_alto,
+        can_access_juice_bar_soprano,
+        can_access_juice_bar_tenor,
+        can_access_keep,
+        can_access_monstro_town,
+        can_access_outer_nimbus,
+        can_access_sea,
+        can_access_volcano,
+    )
+from randomizer.types.logic import (Inventory)
+from .equipment import (
+        calc_equip_price,
+        frog_coins_per_coin,
     )
 
 if TYPE_CHECKING:
     from ...types.gameworld import GameWorld
     from smrpgpatchbuilder.datatypes.items.classes import Item as BaseItem
 
+SHOP_ACCESS: dict[int, Callable[["GameWorld", Inventory], bool]] = {
+    SH03_FROG_DISCIPLE: can_access_sea,
+    SH07_SEA_AND_SHIP_SHAMAN: can_access_sea,
+    SH08_SEASIDE_TOWN_MINION: can_access_sea,
+    SH10_JUICE_BAR_ALTO: can_access_juice_bar_alto,
+    SH11_JUICE_BAR_TENOR: can_access_juice_bar_tenor,
+    SH12_JUICE_BAR_SOPRANO: can_access_juice_bar_soprano,
+    SH13_SEASIDE_WEAPON: can_access_sea,
+    SH14_SEASIDE_ARMOR: can_access_sea,
+    SH15_SEASIDE_ACCESSORY: can_access_sea,
+    SH16_SEASIDE_HEALTH_FOOD: can_access_sea,
+    SH17_MONSTRO: can_access_monstro_town,
+    SH18_VOLCANO_ITEM: can_access_volcano,
+    SH19_VOLCANO_ARMOR: can_access_volcano,
+    SH20_GOOMBETTE: can_access_monstro_town,
+    SH21_NIMBUS_LAND: can_access_outer_nimbus,
+    SH22_KEEP_1: can_access_keep,
+    SH23_KEEP_2: can_access_keep,
+    SH24_FACTORY_TOAD: can_access_factory,
+}
+
+STARTING_ITEM_LOCATIONS = (
+    StartingItem1Location,
+    StartingItem2Location,
+    StartingItem3Location,
+    StartingItem4Location,
+)
+
+
+def starting_inventory(world: GameWorld) -> Inventory:
+    """Prizes the player holds before gaining control, from the starting item slots."""
+
+    prizes = []
+    for loc_type in STARTING_ITEM_LOCATIONS:
+        location = world.locations.get(loc_type)
+        if location is not None and location.prize is not None:
+            prizes.append(location.prize)
+    return Inventory(prizes)
+
+
+def is_earlygame(shop_index: int, world: GameWorld, inventory: Inventory | None = None) -> bool:
+    """Whether a shop can be reached at the start of the game."""
+
+    gate = SHOP_ACCESS.get(shop_index)
+    if gate is None:
+        return True
+    if inventory is None:
+        inventory = starting_inventory(world)
+    return gate(world, inventory)
+
+
+VANILLA_SHOP_ITEMS: frozenset[type[BaseItem]] = frozenset(
+    item
+    for shop in shop_collection.shops
+    if shop is not None
+    for item in (shop.items or [])
+    if item is not None
+)
+
+
+def reprice_nonvanilla_shop_items(world: GameWorld) -> None:
+    """Reprice items that weren't shop items in the original game."""
+
+    if world.settings.isflag_enabled(FreeShops):
+        return
+
+    for shop in world.shops.shops:
+        if shop is None:
+            continue
+        frog_coin_shop = shop.buy_frog_coin_one or shop.buy_frog_coin
+        for item_type in (shop.items or []):
+            if item_type is None or item_type in VANILLA_SHOP_ITEMS:
+                continue
+            item = world.items.get_by_type(item_type)
+            if not isinstance(item, Equipment):
+                continue
+            item.set_price(calc_equip_price(item, frog_coin_shop))
+
 
 def exclude_seeya_from_frog_disciple(world: GameWorld) -> None:
-    """Remove SeeYaItem from the Frog Disciple shop when SeeYa flag is enabled and shops aren't shuffled.
-
-    The player already receives the item at game start, so it shouldn't also appear in the shop.
-    """
+    """Remove SeeYaItem from the Frog Disciple shop when SeeYa flag is enabled and shops aren't shuffled."""
 
     shop = world.shops.shops[SH03_FROG_DISCIPLE]
     current_items = [item for item in (shop.items or []) if item is not None and item != SeeYaItem]
@@ -133,7 +226,8 @@ def shuffle_shops(world: GameWorld) -> None:
 
     quality = world.settings.get_flag(ShopQuality).selected
     bias_enabled = world.settings.isflag_enabled(BiasShopShuffle)
-    no_pickmeups = world.settings.isflag_enabled(NoPickMeUps)
+    pickmeups = world.settings.get_flag(PickMeUpAvailability).selected
+    no_pickmeups = pickmeups == PickMeUpOptions.NONE
     free_shops = world.settings.isflag_enabled(FreeShops)
 
     FROG_DISCIPLE_SHOP = SH03_FROG_DISCIPLE
@@ -143,16 +237,16 @@ def shuffle_shops(world: GameWorld) -> None:
     JUICE_BAR_TENOR = SH11_JUICE_BAR_TENOR
     JUICE_BAR_SOPRANO = SH12_JUICE_BAR_SOPRANO
     DUMMY_SHOPS = frozenset(range(25, 33))
+    JUICE_BAR_SHOPS = frozenset(
+        {JUICE_BAR_BASE, JUICE_BAR_ALTO, JUICE_BAR_TENOR, JUICE_BAR_SOPRANO}
+    )
 
-    # Used for price adjustment logic
     ORIGINAL_FROG_COIN_ITEMS: set[type[BaseItem]] = {
-        # Frog Disciple (buy_frog_coin_one=True)
         SeeYaItem,
         EarlierTimesItem,
         ExpBoosterItem,
         CoinTrickItem,
         ScroogeRingItem,
-        # Frog Coin Emporium (buy_frog_coin=True)
         SleepyBombItem,
         BracerItem,
         EnergizerItem,
@@ -201,7 +295,16 @@ def shuffle_shops(world: GameWorld) -> None:
     if not world.settings.is_flag_value(BowsersKeepGate, BowsersKeepGating.OPEN):
         should_get_better_items.extend([SH22_KEEP_1])
 
-    # Use class-level item impact categories (built by build_item_impact_categories)
+    start_inventory = starting_inventory(world)
+    early_shops = frozenset(
+        shop.index
+        for shop in world.shops.shops
+        if shop is not None
+        and shop.index not in DUMMY_SHOPS
+        and not (shop.buy_frog_coin or shop.buy_frog_coin_one)
+        and is_earlygame(shop.index, world, start_inventory)
+    )
+
     low_impact_items = world.low_impact_items
     high_impact_items = world.high_impact_items
     highest_impact_items = world.highest_impact_items
@@ -260,7 +363,7 @@ def shuffle_shops(world: GameWorld) -> None:
                 )
             elif quality == ShopQualities.MOSTLY_RANDOM:
                 return (low_impact_equip, high_impact_equip, [])
-            else:  # COMPLETELY_RANDOM_NORMAL or FULL_RANDOM
+            else:
                 return (low_impact_equip, high_impact_equip, highest_impact_equip)
         else:
             if quality == ShopQualities.ORIGINAL:
@@ -278,7 +381,7 @@ def shuffle_shops(world: GameWorld) -> None:
                 )
             elif quality == ShopQualities.MOSTLY_RANDOM:
                 return (low_impact_items, high_impact_items, [])
-            else:  # COMPLETELY_RANDOM_NORMAL or FULL_RANDOM
+            else:
                 return (low_impact_items, high_impact_items, highest_impact_items)
 
     low_consumables, high_consumables, highest_consumables = get_item_pool(
@@ -291,9 +394,7 @@ def shuffle_shops(world: GameWorld) -> None:
         high_consumables = [i for i in high_consumables if i != PickMeUpItem]
         highest_consumables = [i for i in highest_consumables if i != PickMeUpItem]
 
-    # Track items placed in Frog Coin Emporium (cannot appear elsewhere)
     frog_emporium_items: set = set()
-    # Track items placed in Frog Disciple (can only also appear in Frog Coin Emporium)
     frog_disciple_set = set(frog_disciple_items)
 
     def can_place_item(
@@ -306,18 +407,18 @@ def shuffle_shops(world: GameWorld) -> None:
             return False
         if item_type in frog_emporium_items and shop_idx != FROG_COIN_EMPORIUM:
             return False
+        if item_type is PickMeUpItem and shop_idx == FROG_COIN_EMPORIUM:
+            return False
         if item_type in frog_disciple_set and shop_idx not in [
             FROG_DISCIPLE_SHOP,
             FROG_COIN_EMPORIUM,
         ]:
             return False
-        # In ORIGINAL mode, items can't appear in more shops than they originally did
         if quality == ShopQualities.ORIGINAL:
             max_shops = original_item_shop_count.get(item_type, 0)
             current_shops = current_item_shop_count.get(item_type, 0)
             if current_shops >= max_shops:
                 return False
-        # In COMPLETELY_RANDOM_NORMAL/FULL_RANDOM, Frog Coin Emporium can have any item type
         if shop_idx == FROG_COIN_EMPORIUM and quality in (
             ShopQualities.COMPLETELY_RANDOM, ShopQualities.ALL
         ):
@@ -392,7 +493,6 @@ def shuffle_shops(world: GameWorld) -> None:
         s for s in world.shops.shops if s is not None and s.index != FROG_DISCIPLE_SHOP
     ]
 
-    # Process Frog Coin Emporium first (its items are exclusive)
     frog_emporium_shop = world.shops.shops[FROG_COIN_EMPORIUM]
     if frog_emporium_shop:
         shop_data = original_shop_data.get(FROG_COIN_EMPORIUM, {})
@@ -408,8 +508,6 @@ def shuffle_shops(world: GameWorld) -> None:
 
         frog_emporium_shop.set_items(emporium_new_items)
 
-    # Handle Juice Bar hierarchy (BASE < ALTO < TENOR < SOPRANO)
-    # Items cascade upward: BASE items appear in all, ALTO items appear in ALTO+TENOR+SOPRANO, etc.
     juice_bars = [
         JUICE_BAR_BASE,
         JUICE_BAR_ALTO,
@@ -427,9 +525,7 @@ def shuffle_shops(world: GameWorld) -> None:
     }
 
     def add_to_juice_bar_cascade(item: type[BaseItem], starting_tier: int) -> bool:
-        """Add item to starting_tier and all higher tiers (if they have room).
-        Returns True if item was added to at least the starting tier."""
-        # In ORIGINAL mode, check if adding to cascade would exceed the limit
+        """Add item to starting_tier and all higher tiers (if they have room). Returns True if item was added to at least the starting tier."""
         if quality == ShopQualities.ORIGINAL:
             shops_to_add = 0
             for i in range(starting_tier, len(juice_bars)):
@@ -483,7 +579,6 @@ def shuffle_shops(world: GameWorld) -> None:
         if shop is not None:
             shop.set_items(juice_bar_items[bar_idx])
 
-    # Process remaining shops - guarantee at least 1 item per shop before filling to capacity
     processed = {FROG_DISCIPLE_SHOP, FROG_COIN_EMPORIUM} | set(juice_bars)
     remaining_shops = [
         s for s in shops_to_process
@@ -502,12 +597,6 @@ def shuffle_shops(world: GameWorld) -> None:
             + low_equip + high_equip + highest_equip
         )
 
-        # ALL mode promises "every non-key item in the game will appear in at
-        # least one shop". The impact-tier pools were only ever built for the
-        # random-quality modes and omit the special/reusable non-key items, so
-        # add them explicitly. Debug Candy (debug-only, statically no_sell) and
-        # the Waste Basket (junk, 65535 price) stay out; the fireworks trio and
-        # Star Egg are handled by all_excluded below.
         ALL_MODE_SPECIAL_ITEMS = [
             StarEggItem, SeeYaItem, EarlierTimesItem, GoodieBagItem,
             LuckyJewelItem, MysteryEggItem, LambsLureItem, SheepAttackItem,
@@ -525,7 +614,7 @@ def shuffle_shops(world: GameWorld) -> None:
                         items_already_placed.add(item)
 
         guarantee_items = []
-        for item_type in all_pool_items:
+        for item_type in sorted(all_pool_items, key=lambda cls: cls.__name__):
             if item_type in items_already_placed:
                 continue
             if item_type in all_excluded:
@@ -537,9 +626,6 @@ def shuffle_shops(world: GameWorld) -> None:
             item_inst = world.items.get_by_type(item_type)
             if item_inst and item_inst.price == 0:
                 continue
-            # Protected items carry the no_sell bit (ProtectSpecialItems /
-            # statically, like Debug Candy). Selling is how you shed duplicates,
-            # so a buyable-but-unsellable item is a trap - bar them from shops.
             if item_inst and item_inst.no_sell:
                 continue
             guarantee_items.append(item_type)
@@ -550,7 +636,6 @@ def shuffle_shops(world: GameWorld) -> None:
             s.index: [] for s in remaining_shops
         }
 
-        # Distribute guaranteed items across remaining shops, prioritizing emptiest
         for item_type in guarantee_items:
             eligible = []
             for shop in remaining_shops:
@@ -576,7 +661,6 @@ def shuffle_shops(world: GameWorld) -> None:
             target_count = min(15, max(1, shop_data_entry.get("original_count", 5)))
             current_items = shop_contents[shop.index]
 
-            # Ensure target is at least as large as guaranteed items already placed
             target_count = max(target_count, len(current_items))
 
             attempts = 0
@@ -590,9 +674,7 @@ def shuffle_shops(world: GameWorld) -> None:
             shop.set_items(current_items)
 
     else:
-        # Non-ALL modes: original logic
 
-        # First pass: ensure every non-dummy shop gets at least 1 item
         for shop in remaining_shops:
             item = select_item(shop.index, [])
             if item:
@@ -601,7 +683,6 @@ def shuffle_shops(world: GameWorld) -> None:
             else:
                 shop.set_items([])
 
-        # Second pass: fill each shop to its target count
         for shop in remaining_shops:
             shop_data_entry = original_shop_data.get(shop.index, {})
             target_count = min(15, max(1, shop_data_entry.get("original_count", 5)))
@@ -617,7 +698,6 @@ def shuffle_shops(world: GameWorld) -> None:
 
             shop.set_items(current_items)
 
-    # Validate: no regular shop should end up empty
     for shop in world.shops.shops:
         if shop is None or shop.index == FROG_DISCIPLE_SHOP or shop.index in DUMMY_SHOPS:
             continue
@@ -627,56 +707,129 @@ def shuffle_shops(world: GameWorld) -> None:
                 f"Shop index {shop.index} ended up with zero items after shuffling"
             )
 
-    # Guarantee Pick Me Ups appear in at least one shop if not disabled
-    # In ORIGINAL mode, only guarantee if Pick Me Up was originally in at least one shop
-    # and we haven't exceeded the original shop count
-    can_guarantee_pickmeup = not no_pickmeups
-    if can_guarantee_pickmeup and quality == ShopQualities.ORIGINAL:
-        original_pickmeup_shops = original_item_shop_count.get(PickMeUpItem, 0)
-        current_pickmeup_shops = current_item_shop_count.get(PickMeUpItem, 0)
-        if (
-            original_pickmeup_shops == 0
-            or current_pickmeup_shops >= original_pickmeup_shops
-        ):
-            can_guarantee_pickmeup = False
+    if pickmeups == PickMeUpOptions.EARLY:
+        early_has_pickmeup = any(
+            shop is not None
+            and shop.index in early_shops
+            and PickMeUpItem in (shop.items or [])
+            for shop in world.shops.shops
+        )
 
-    if can_guarantee_pickmeup:
-        # Check if any shop contains Pick Me Up
-        has_pickmeup = False
-        for shop in world.shops.shops:
-            if shop is not None and PickMeUpItem in (shop.items or []):
-                has_pickmeup = True
-                break
+        if not early_has_pickmeup:
+            candidates = [
+                shop
+                for shop in world.shops.shops
+                if shop is not None
+                and shop.index in early_shops
+                and shop.index not in JUICE_BAR_SHOPS
+                and PickMeUpItem not in (shop.items or [])
+            ]
+            with_room = [s for s in candidates if len(s.items or []) < 15]
+            sold_consumables = [
+                s
+                for s in with_room
+                if original_shop_data.get(s.index, {}).get("has_consumable", False)
+            ]
 
-        if not has_pickmeup:
-            # Find shops that can have consumables and have room
-            eligible_shops = []
-            for shop in world.shops.shops:
-                if shop is None or shop.index == FROG_DISCIPLE_SHOP:
-                    continue
-                shop_data = original_shop_data.get(shop.index, {})
-                if shop_data.get("has_consumable", False):
-                    current_items = shop.items or []
-                    if len(current_items) < 15 and PickMeUpItem not in current_items:
-                        eligible_shops.append(shop)
+            donors = [
+                shop
+                for shop in world.shops.shops
+                if shop is not None
+                and shop.index not in early_shops
+                and shop.index != FROG_DISCIPLE_SHOP
+                and shop.index not in DUMMY_SHOPS
+                and shop.index not in JUICE_BAR_SHOPS
+                and PickMeUpItem in (shop.items or [])
+                and len([i for i in (shop.items or []) if i is not None]) > 1
+            ]
+
+            may_add = True
+            if not donors and quality == ShopQualities.ORIGINAL:
+                original_pickmeup_shops = original_item_shop_count.get(PickMeUpItem, 0)
+                current_pickmeup_shops = current_item_shop_count.get(PickMeUpItem, 0)
+                may_add = (
+                    original_pickmeup_shops > 0
+                    and current_pickmeup_shops < original_pickmeup_shops
+                )
+
+            target = None
+            if sold_consumables:
+                target = random.choice(sold_consumables)
+            elif with_room:
+                target = random.choice(with_room)
+            elif candidates:
+                target = random.choice(candidates)
+
+            if target is not None and (donors or may_add):
+                if donors:
+                    donor = random.choice(donors)
+                    donor.set_items(
+                        [i for i in (donor.items or []) if i != PickMeUpItem]
+                    )
+                    current_item_shop_count[PickMeUpItem] = max(
+                        0, current_item_shop_count.get(PickMeUpItem, 0) - 1
+                    )
+
+                target_items: list[type[BaseItem] | None] = [
+                    i for i in (target.items or []) if i is not None
+                ]
+                if len(target_items) >= 15:
+                    duplicated = [
+                        i
+                        for i in target_items
+                        if current_item_shop_count.get(i, 0) > 1
+                    ]
+                    dropped = random.choice(duplicated or target_items)
+                    target_items.remove(dropped)
+                    current_item_shop_count[dropped] = max(
+                        0, current_item_shop_count.get(dropped, 0) - 1
+                    )
+                target_items.append(PickMeUpItem)
+                target.set_items(target_items)
+                current_item_shop_count[PickMeUpItem] = (
+                    current_item_shop_count.get(PickMeUpItem, 0) + 1
+                )
+
+    elif pickmeups == PickMeUpOptions.DEFAULT:
+        may_guarantee = True
+        if quality == ShopQualities.ORIGINAL:
+            original_pickmeup_shops = original_item_shop_count.get(PickMeUpItem, 0)
+            current_pickmeup_shops = current_item_shop_count.get(PickMeUpItem, 0)
+            may_guarantee = (
+                original_pickmeup_shops > 0
+                and current_pickmeup_shops < original_pickmeup_shops
+            )
+
+        has_pickmeup = any(
+            shop is not None and PickMeUpItem in (shop.items or [])
+            for shop in world.shops.shops
+        )
+
+        if may_guarantee and not has_pickmeup:
+            eligible_shops = [
+                shop
+                for shop in world.shops.shops
+                if shop is not None
+                and shop.index != FROG_DISCIPLE_SHOP
+                and original_shop_data.get(shop.index, {}).get("has_consumable", False)
+                and len(shop.items or []) < 15
+                and PickMeUpItem not in (shop.items or [])
+            ]
 
             if eligible_shops:
-                target_shop = random.choice(eligible_shops)
-                current_items: list[type[BaseItem] | None] = list(
-                    target_shop.items or []
+                target = random.choice(eligible_shops)
+                target_items = [i for i in (target.items or []) if i is not None]
+                target_items.append(PickMeUpItem)
+                target.set_items(target_items)
+                current_item_shop_count[PickMeUpItem] = (
+                    current_item_shop_count.get(PickMeUpItem, 0) + 1
                 )
-                current_items.append(PickMeUpItem)
-                target_shop.set_items(current_items)
 
-    # Apply FreeShops: set all non-zero prices to 1
     if free_shops:
         for item in world.items.items:
             if item.price > 0:
                 item.set_price(1)
 
-    # Room service menu
-    # NOTE: This must run BEFORE frog coin price adjustments so that
-    # room_service_price reads the original (unmodified) item prices.
     lower_tier_items = [
         MushroomItem,
         MidMushroomItem,
@@ -711,14 +864,12 @@ def shuffle_shops(world: GameWorld) -> None:
     low_item = cast(Item, world.get_item(random.choice(lower_tier_items)))
     high_item = cast(Item, world.get_item(random.choice(higher_tier_items)))
 
-    # Store for spoiler log and cosmetic dialog updates
     world.room_service_items = [type(low_item), type(high_item)]
 
     low_price = low_item.room_service_price
     high_price = high_item.room_service_price
     world.room_service_prices = [low_price, high_price]
 
-    # Update event script variables for room service prices and item IDs
     updates = zip(
         ["room_service_price_1_a", "room_service_price_1_b", "room_service_item_id_1",
          "room_service_price_2_a", "room_service_price_2_b", "room_service_item_id_2"],
@@ -731,49 +882,35 @@ def shuffle_shops(world: GameWorld) -> None:
         var = cmd.address
         cmd.set_value_and_address(var, val)
 
-    # Apply Frog Coin shop price adjustments (skip if FreeShops is enabled)
     if not free_shops:
-        # Items that end up in frog coin shops (after shuffling)
         frog_coin_items = frog_disciple_set | frog_emporium_items
 
-        # Case 1 & 2: Handle items currently in frog coin shops
         for item_type in frog_coin_items:
             if item_type is None:
                 continue
-            # If item was originally a frog coin item, don't reduce price (it's already frog-coin-priced)
             if item_type in ORIGINAL_FROG_COIN_ITEMS:
                 continue
-            # Non-original item going to frog coin shop: divide by 10
             item = world.items.get_by_type(item_type)
             if item and item.price > 0:
-                item.set_price(max(1, item.price // 10))
+                item.set_price(max(1, item.price // frog_coins_per_coin(item)))
 
-        # Case 3: Handle original frog coin items that are NOT in frog coin shops anymore
-        # These need their price multiplied (inverse operation) since they now cost coins
         for item_type in ORIGINAL_FROG_COIN_ITEMS:
             if item_type in frog_coin_items:
-                # Still in a frog coin shop, no change needed
                 continue
-            # Original frog coin item moved to a regular shop: multiply by 10
             item = world.items.get_by_type(item_type)
             if item and item.price > 0:
-                item.set_price(min(9999, item.price * 10))
+                item.set_price(min(9999, item.price * frog_coins_per_coin(item)))
 
-    # Sort items in all shops: non-equippables (ID >= 96) first, then equippables, each group sorted by ID
     for shop in world.shops.shops:
         if shop is None:
             continue
-        # Get current items, filter out None values
         current_items = [item for item in (shop.items or []) if item is not None]
-        # Sort by: (0 if non-equippable else 1, item_id) - puts consumables/specials at top
         sorted_items = sorted(
             current_items,
             key=lambda item_type: (0 if item_type().item_id >= 96 else 1, item_type().item_id)  # type: ignore
         )
-        # Set the sorted items back to the shop
         shop.set_items(sorted_items)
 
-    # Bomb trade shop
     bomb_pool = [
         IceBombItem,
         FireBombItem,
@@ -785,10 +922,8 @@ def shuffle_shops(world: GameWorld) -> None:
 
     bi = [cast(Item, world.get_item(b)) for b in random.sample(bomb_pool, 3)]
 
-    # Store for spoiler log and cosmetic dialog updates
     world.bomb_shop_items = [type(b) for b in bi]
 
-    # Update event script variables for bomb shop item IDs
     bomb_updates = zip(
         ["bomb_shop_item_1", "bomb_shop_item_2", "bomb_shop_item_3"],
         [type(b) for b in bi]
