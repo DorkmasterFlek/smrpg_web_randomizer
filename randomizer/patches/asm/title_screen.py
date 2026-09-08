@@ -21,7 +21,9 @@ diff_open_mode + smrpg-patch-audit; HiROM file offsets):
 * 0x3F1948 / 0x3F197C / 0x3F1983 (~2 KB) - title-card / opening
   GFX (LazyShell "Intro" editor writes the title card at 0x3F1913).
 * 0x3F21D4 (31,209 B) - main title GFX (LazyShell writes main title at
-  0x3F216E; the open-mode diff starts at 0x3F21D4).
+  0x3F216E; the open-mode diff starts at 0x3F21D4). The LC_LZ3 stream itself
+  starts at 0x3F216F and now ends at 0x3F96F1; the record's trailing bytes are
+  past the terminator and unread.
 
 To regenerate title_screen.bin from a fresh open-mode ROM, re-extract those
 open_mode.json entries (see the generator in the deconstruction notes).
