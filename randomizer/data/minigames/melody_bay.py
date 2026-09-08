@@ -1055,4 +1055,13 @@ all_songs = [
         hint_2=" My favourite song?[await][page]\n It's the Hyrule Field theme.\n ♪“Ti Fa Ti Mi Re...”\n ♪“Ti Fa Ti Mi Re...”[await]",
         hint_3="It's good, honest work, but\n sometimes I wish I got a bit more\n sunshine.[await][page]\n Somewhere like a big, open field,\n y'know what I mean?[await][page]\n ♪“Ti Fa Ti Mi Re...”\n ♪“Ti Fa Ti Mi Re...”[await]",
         scroll='\n[center]Ti Fa Ti Mi Re[await]'),
+    Song(
+        [(So, 15), (So, 15), (So, 30), (Mi, 45), (Re, 15), (Re, 45), (Do, 15), (Re, 0)],
+        "Believe",
+        submitter="katstasaph",
+        submitter_credits="KATSTASAPH",
+        hint_1="' Check out my new vocoder!\n♪“So So So Mi Re Re Do Re”[await]\nWhat do you mean,\nhow can a tadpole\nuse a vocoder?'[await]",
+        hint_2="' After some practice, I am now\nthe best tadpole to ever\nuse a vocoder.\n♪“So So So Mi Re Re Do Re”[delay]\nOh barnacles,\nit fell in the pond.'[await]",
+        hint_3="'Of course we're gonna dig out\nthe rest of the mines.\nWe just need a karaoke break first.[await]\n♪Do you believe in life after love?'[await]",
+        scroll='\n[center]So So So Mi Re Re Do Re[await]'),
 ]

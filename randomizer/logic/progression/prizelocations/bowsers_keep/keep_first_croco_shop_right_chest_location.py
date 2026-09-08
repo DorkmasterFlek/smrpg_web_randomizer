@@ -43,8 +43,7 @@ class KeepFirstCrocoShopRightChestLocation(TreasureChestLocationRow2):
     def can_access(self, inventory: Inventory, world: GameWorld) -> bool:
         return (
             can_access_keep(world, inventory)
-            and can_exit_keep(world, inventory)
-            and can_clear_keep(world, inventory)
+            and expect_good_movement(world, inventory)
         )
 
 
