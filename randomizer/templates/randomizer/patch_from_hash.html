@@ -638,6 +638,7 @@
                     buildCosmeticsString();
 
                     $("#seed-details").hide();
+                    $("#generate-error-box").hide();
                     const formData = new FormData(document.getElementById('config'));
                     $(event.target).html("Generating... (this may take a few minutes)").prop("disabled", true);
                     resetRom().then((rom) => {
