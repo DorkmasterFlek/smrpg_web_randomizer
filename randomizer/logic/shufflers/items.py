@@ -795,15 +795,6 @@ def shuffle_rules(world: GameWorld) -> dict[int, list[type[Prize]]]:
                 progression_required_chars.add(prize_cls)
                 break
 
-    # When spells are vanilla and not shuffled into the world, Mario must be in
-    # the seed (he always has Jump for combat). Other vanilla spell-progression
-    # requirements are satisfied implicitly by deriving the spell pool from the
-    # roster below, so no other characters are force-added for spell reasons.
-    if not world.settings.isflag_enabled(
-        CharacterLearnedSpells
-    ) and not world.settings.isflag_enabled(SpellsAnywhere):
-        progression_required_chars.add(MarioRecruitmentPrize)
-
     progression_required_chars |= explicit_starter_prizes
 
     prize_to_name: dict[type[CharacterPrize], str] = {
@@ -825,25 +816,28 @@ def shuffle_rules(world: GameWorld) -> dict[int, list[type[Prize]]]:
         disabled_spells: set[type] = {
             m.value for m in world.settings.get_flag(AvailableSpells).disabled
         }
-        # Mirrors the vanilla branch of can_damage_enemies_with_spells(): every
-        # character who learns at least one still-available damage spell.
+        damaging_spells = {prize._spell for prize in damaging_spell_prizes()}
+        # Restricted to allies holding an available damage spell from recruitment
+        # (starting_magic), since can_pass_obstacle_courses() does not model levels.
+        # Mario/Mallow/Geno/Bowser start with one; Toadstool's is Psych Bomb at 18.
         # Sorted so the random pick below is reproducible for a given seed.
         qualified: list[type[CharacterPrize]] = sorted(
-            {
-                owner
-                for spell_prize in damaging_spell_prizes()
-                if spell_prize._spell not in disabled_spells
-                for owner in [vanilla_spell_owner(spell_prize)]
-                if owner is not None
-                and prize_to_name[owner] not in excluded_char_names
-            },
+            (
+                prize_cls
+                for name, prize_cls in all_character_prizes.items()
+                if name not in excluded_char_names
+                and any(
+                    spell in damaging_spells and spell not in disabled_spells
+                    for spell in (prize_cls._ally.starting_magic or [])
+                )
+            ),
             key=lambda cls: cls.__name__,
         )
         if not qualified:
             raise ValueError(
-                "No character available in this seed can damage enemies with a "
-                "spell, so Bowser's Keep would be unreachable. Include a character "
-                "and leave at least one of their damaging spells available."
+                "No available ally starts with a damaging spell, so Bowser's Keep "
+                "would be unreachable. Include Mario, Mallow, Geno or Bowser and "
+                "leave the damaging spell they start with available."
             )
         if not progression_required_chars & set(qualified):
             # Cached for the duration of this shuffle attempt for the same reason as

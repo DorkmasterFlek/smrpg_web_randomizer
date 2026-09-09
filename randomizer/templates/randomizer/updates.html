@@ -10,13 +10,18 @@
       changes from 8.2.8 is too drastic to enumerate.</p>
     <p>Notable gameplay changes (universal, regardless of settings):</p>
     <ul>
-      <li>There are no more missable checks. Checks that were missable in Version 8.x.x and prior will remain active
+      <li>There are no more missable checks. Checks that were missable in Version 8.x.x and prior are now permanent
         (i.e. Mushroom Kingdom villager invasion prizes can still be accessed even if the castle has been liberated).
       </li>
       <ul>
-        <li>To prevent locking the player out from vault checks during invasion, the Mushroom Kingdom vault can only be
-          cleared once. The chests are no longer filled separately during
-          invasion.</li>
+        <li>Chests whose contents change (Mushroom Kingdom vault chests, sewer cricket jam chest, Nimbus Castle 5-door
+          room chest, Nimbus Castle exit star chest, and the first two mimic chests) need to be opened twice, and the
+          chest's contents will refresh when you reload the room. Using the sewer chest as an example: if you open it
+          before accessing Land's End in the original game, it would grant a FP flower. After kicking the Land's End
+          barrel, the chest refills with the Cricket Jam, which means you miss the FP flower if you didn't get it first.
+          Randomizer changes this so that you have to open it to get the flower first before you can open it to get the
+          Cricket Jam, so if you kick the land's end barrel before getting the flower, the chest will still give you the
+          FP flower first, then you need to reload the room, and then it will give you the Cricket Jam.</li>
       </ul>
       <li>Some "proxy items" (items that only existed to be exchanged for another item and could be turned in at any
         point) have been given additional conditions for use in order to make their placements strategic and not
@@ -42,33 +47,37 @@
           shuffle.</li>
       </ul>
       <li>Frogfucius will tell you about checks you haven't done yet. He will not tell you if those checks unlock
-        progress or not. Boss fight locations, Star Hill, and locations that originally held key items are prioritized.
+        progress or not.
+        <ul>
+          <li>The first available check in order of world area will be suggested to you. Spheres are ignored.</li>
+          <li>Postgame boss fights and checks that require spending a lot of money are deprioritized and will
+            only be suggested to you if there is nothing else for you to check.</li>
+          <li>If your settings do not shuffle key items nor star pieces into the general pool, he will only tell you
+            about boss fights and key item checks.</li>
+        </ul>
       </li>
-      <li>Some NPCs will offer reminders or hints relating to your seed's settings or the placement of certain boss
-        fights.</li>
-      <li>There is no longer a rule in place that forces every item in the game to appear in at least one shop. This is
-        both to reduce the noise when browsing shops by items that make little sense to be there as well as to reduce
-        the "samey-ness" of gameplay strategy.</li>
-
-      <ul>
-        <li>Some items can no longer be purchased in regular shops (for example Star Egg, Sheep
-          Attack, See Ya, Goodie Bag, Lucky Jewel, etc) and are instead guaranteed to appear once in the item shuffle.
-          Some of these items may be sold by the Frog Disciple.</li>
-        <li>Mystery Eggs cannot be purchased in regular shops or the Frog Disciple shop. There are three progressive
-          Mystery Eggs shuffled into
-          the item pool which fast-forward the item to its next upgrade.</li>
-        <li>Fireworks, Shiny Stone, and Carbo Cookie can no longer be purchased in regular shops or the Frog Disciple
-          shop.</li>
-        <li>The blue toad in Moleville's treasure shop can still sell anything.</li>
-      </ul>
-      <ul>
+      <li>Most NPC dialog is changed. Some NPCs will offer reminders or hints relating to your seed's settings or the
+        placement of certain boss fights.</li>
+      <li>
         The Marrymore suite's room service menu and the Moleville bomb shop menu's items are randomized when shops are
         shuffled.
-      </ul>
+      </li>
 
       <li>The only way to enter Nimbus Castle for the first time is through Garro. The front door is not unblocked until
         the statue game is finished.</li>
       <li>The Sunken Ship boss room periscope will show you who the fourth boss of the Inner Factory is.</li>
+    </ul>
+    <p>Deprecated settings:</p>
+    <ul>
+      <li>Linear Mode is no longer supported. You can continue to use V8 for Linear Mode, which will be hosted
+        separately after 9.x.x is promoted to stable.</li>
+      <li>Wholly excluding coins, FP flowers, frog coins, EXP stars, and/or mushrooms from the prize pool is no longer
+        supported.</li>
+      <li>The Monstro Town Shuffle options have been consolidated into a single setting, which is the equivalent of
+        M2+Mx.</li>
+      <li>Prize locations and shops no longer use a four-tier system for placement quality, instead using a more
+        simplified model.</li>
+      <li>The Star EXP Progression Challenge no longer has separate difficulty settings.</li>
     </ul>
     <p>Also, spoiler logs can now be downloaded as a JSON file.</p>
   </div>

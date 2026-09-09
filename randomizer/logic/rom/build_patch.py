@@ -307,6 +307,11 @@ def get_patch(world: GameWorld) -> Patch:
             or world.settings.is_flag_value(BossShuffleScaleStats, BossScaleOptions.GODMODE)
             or world.settings.debug_mode):
         patch.add_dict(asm.no_exp.get_patch(), source="no_exp")
+    elif (world.settings.is_flag_value(EXPChallenge, EXPChallengeOptions.STARS)
+            or world.settings.is_flag_value(EXPChallenge, EXPChallengeOptions.BOSSES)):
+        patch.add_dict(
+            asm.star_exp_progression.get_patch(), source="star_exp_progression"
+        )
 
     if world.settings.isflag_enabled(ShowEquips):
         patch.add_dict(asm.show_equips.get_patch(), source="show_equips")

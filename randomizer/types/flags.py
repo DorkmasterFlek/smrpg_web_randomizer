@@ -860,7 +860,7 @@ class KeyItemsAnywhere(BooleanFlag):
 <br>If disabled, the "Special Items" will only be shuffled within each other's locations.
 <br>
 <br>The items targeted by this setting are the <b>Rare Frog Coin</b>, <b>Wallet</b>, <b>Cricket Pie</b>, <b>Bambino Bomb</b>, <b>Castle Key 1</b>, <b>Castle Key 2</b>, <b>Alto Card</b>, <b>Tenor Card</b>, <b>Soprano Card</b>, <b>Greaper Flag</b>, <b>Dry Bones Flag</b>, <b>Big Boo Flag</b>, <b>Shed Key</b>, <b>Elder Key</b>, <b>Cricket Jam</b>, <b>Temple Key</b>, <b>Room Key</b>, <b>Seed</b>, <b>Fertilizer</b>, and <b>Bright Card</b>.
-<br><br>Certain settings can also add the <b>Extra Shiny Stone</b>, <b>Crystal Shard</b>, <b>Ring</b>, <b>Brooch</b>, <b>Shoes</b>, <b>Crown</b>, <b>Fireworks</b>, <b>Shiny Stone</b>, <b>Carbo Cookie</b>, <b>Mario Doll</b>, <b>Beetlemania</b>, and <b>Gold Paint</b>.
+<br><br>Certain settings can also add the <b>Stay Voucher</b>, <b>Extra Shiny Stone</b>, <b>Crystal Shard</b>, <b>Ring</b>, <b>Brooch</b>, <b>Shoes</b>, <b>Crown</b>, <b>Fireworks</b>, <b>Shiny Stone</b>, <b>Carbo Cookie</b>, <b>Mario Doll</b>, <b>Cookies</b>, <b>Beetlemania</b>, and <b>Gold Paint</b>.
 """
     _id = "keys_anywhere"
     _requires_all = [(ShuffleItems(), True)]
@@ -1328,9 +1328,9 @@ class EXPChallenge(SelectOneFlag[EXPChallengeOptions]):
     _name = "EXP Star Behaviour"
     _description = """<b>Default</b>: EXP stars can give you 1 to 11 EXP per hit as normal.
 <br>
-<br><b>Star Pieces</b>: EXP per star increases with the number of Star Pieces collected.
+<br><b>Star Pieces</b>: EXP per star increases with the number of Star Pieces collected. 2, 4, 5, 6, 8, 9, 11 EXP for 0, 1, 2, 3, 4, 5, 6 Star Pieces respectively.
 <br>
-<br><b>Bosses</b>: EXP per star increases with the number of bosses you have defeated.
+<br><b>Bosses</b>: EXP per star increases with the number of bosses you have defeated. 2, 4, 5, 6, 8, 9, 11 for 0, 1, 3, 6, 10, 15, 21 bosses respectively.
 <br>
 <br><b>No EXP</b>: EXP stars give you 0 EXP."""
     choices = [o for o in EXPChallengeOptions]

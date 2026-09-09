@@ -65,6 +65,9 @@ Always-on byte patches:
 
 Flag-gated byte patches:
     * :mod:no_exp - Zero EXP table.
+    * :mod:star_exp_progression - Balanced EXP-per-hit curve for the
+      "Star Pieces" / "Bosses" EXP star challenge; mutually exclusive
+      with no_exp.
     * :mod:show_equips - Show equipped item bitmasks in menu.
     * :mod:uncap_max_fp - Uncap max FP from 99 to 255.
     * :mod:unsellable_items - Bar no_sell items from being sold or discarded.
@@ -114,6 +117,7 @@ from . import (
     show_equips,
     special_items_menu_sort,
     sprite_group_whitelist,
+    star_exp_progression,
     star_piece_sprite_fix,
     static_data,
     title_loop,
@@ -158,6 +162,7 @@ __all__ = [
     "show_equips",
     "special_items_menu_sort",
     "sprite_group_whitelist",
+    "star_exp_progression",
     "star_piece_sprite_fix",
     "static_data",
     "title_screen",

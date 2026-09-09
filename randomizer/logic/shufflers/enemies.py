@@ -198,6 +198,7 @@ def randomize_enemy_stats(world: GameWorld) -> None:
         STRONGBOBOMB1Enemy, STRONGBOBOMB2Enemy,
         STRONGBOBOMB3Enemy, STRONGBOBOMB4Enemy,
     )
+    undead_types = (DRYBONESEnemy, VOMEREnemy)
 
     all_enemies = list(world.enemies.enemies)
 
@@ -358,6 +359,10 @@ def randomize_enemy_stats(world: GameWorld) -> None:
     for enemy in all_enemies:
         if original_stats[id(enemy)]["hp"] == 0:
             enemy.set_hp(0)
+
+    for enemy in all_enemies:
+        if isinstance(enemy, undead_types):
+            enemy.set_resistances([])
 
     for enemy in all_enemies:
         custom_enemy = cast(CustomEnemy, enemy)

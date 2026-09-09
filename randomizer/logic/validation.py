@@ -37,6 +37,15 @@ from ..types.flags import (
         CategorizationFlag,
         CategorizationFlagWithOrdinance,
     )
+from ..types.flags import (
+        AvailableSpells,
+        CharacterLearnedSpells,
+        SpellsAnywhere,
+    )
+from ..types.prize import damaging_spell_prizes
+from ..types.prizelocation import vanilla_spell_owner
+from ..data.allies.allies import ally_collection
+from .progression import prizes as _prizes  # noqa: F401
 
 if TYPE_CHECKING:
     from ..types.settings import Settings
@@ -50,6 +59,8 @@ class SettingsValidationError(Exception):
 def validate_settings(settings: Settings) -> None:
     """Validate that settings combinations are valid."""
     _validate_character_requirements(settings)
+    _validate_available_character_count(settings)
+    _validate_damaging_spell_availability(settings)
     _validate_star_piece_requirements(settings)
     _validate_exp_sources(settings)
     _validate_multiselect_selections(settings)
@@ -156,6 +167,99 @@ def _validate_character_requirements(settings: Settings) -> None:
             f"but 'Total playable allies' is set to {max_char_count}. "
             f"Either reduce character requirements or increase 'Total playable allies'."
         )
+
+
+def _is_vanilla_spell_mode(settings: Settings) -> bool:
+    """Whether spells are learned by their vanilla owners on recruitment. Ties the spell pool to the character roster.
+    """
+
+    return not settings.isflag_enabled(
+        CharacterLearnedSpells
+    ) and not settings.isflag_enabled(SpellsAnywhere)
+
+
+def _validate_damaging_spell_availability(settings: Settings) -> None:
+    """Validate that a usable damaging spell survives the spell/ally exclusions."""
+
+    disabled_spells = {
+        member.value for member in settings.get_flag(AvailableSpells).disabled
+    }
+    available_damaging = [
+        prize
+        for prize in damaging_spell_prizes()
+        if prize._spell not in disabled_spells
+    ]
+
+    if not available_damaging:
+        raise SettingsValidationError(
+            "No damaging spells are enabled in 'Available Ally Spells'. At least one "
+            "spell that damages enemies must be available, otherwise Mokura cannot be "
+            "transformed and Bowser's Keep battle doors are not completable. Any damaging spell "
+            "works, regardless of its element."
+        )
+
+    # Learned spells are randomized, so any recruited ally can end up with one.
+    if settings.isflag_enabled(CharacterLearnedSpells):
+        return
+
+    excluded_char_names = {
+        member.value.name for member in settings.get_flag(AvailableCharacters).disabled
+    }
+    available_damaging_spells = {prize._spell for prize in available_damaging}
+
+    if not _is_vanilla_spell_mode(settings):
+        if any(
+            owner is not None and owner._ally.name not in excluded_char_names
+            for prize in available_damaging
+            for owner in [vanilla_spell_owner(prize)]
+        ):
+            return
+        raise SettingsValidationError(
+            "No ally in this seed can be given a damaging spell. Enable an ally with damage spells, re-enable your selected allies' damaging spells, or turn on 'Randomize which spells "
+            "each ally learns'."
+        )
+
+    qualified = sorted(
+        ally.name
+        for ally in ally_collection._allies
+        if ally.name not in excluded_char_names
+        and any(
+            spell in available_damaging_spells
+            for spell in (ally.starting_magic or [])
+        )
+    )
+    if qualified:
+        return
+
+    raise SettingsValidationError(
+        "At least one damage spell must be included. If spells are not randomized, "
+        "then at least one ally who starts with a damage spell must be included: "
+        "Mario, Mallow, Geno or Bowser. Toadstool does not learn one until level 18, "
+        "so she cannot be the only ally in the seed."
+    )
+
+
+def _validate_available_character_count(settings: Settings) -> None:
+    """Validate that enough allies are enabled to fill 'Total playable allies'."""
+
+    available_names = sorted(
+        member.value.name for member in settings.get_flag(AvailableCharacters).enabled
+    )
+
+    if not available_names:
+        return
+
+    max_char_count = settings.get_flag(MaxCharacters).value
+    if max_char_count <= len(available_names):
+        return
+
+    count = len(available_names)
+    raise SettingsValidationError(
+        f"'Total playable allies' is set to {max_char_count}, but only {count} "
+        f"{'ally is' if count == 1 else 'allies are'} enabled in 'Available Allies' "
+        f"({', '.join(available_names)}). "
+        f"Either lower 'Total playable allies' to {count} or enable more allies."
+    )
 
 
 def _validate_star_piece_requirements(settings: Settings) -> None:
