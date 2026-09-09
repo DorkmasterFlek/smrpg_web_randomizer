@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django_tasks_db",
     'randomizer.apps.RandomizerConfig',
 ]
 
@@ -59,6 +60,13 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+TASKS = {
+    "default": {
+        "BACKEND": "django_tasks_db.DatabaseBackend",
+        "QUEUES": ["seeds"],
+    }
+}
 
 ROOT_URLCONF = 'smrpg_web_randomizer.urls'
 
@@ -106,6 +114,14 @@ else:
         }
     }
 
+# Cache configuration - using DB cache for task progress.
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.memcached.PyMemcacheCache",
+        "LOCATION": "cache:11211",
+    }
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/2.0/ref/settings/#auth-password-validators
 
@@ -129,35 +145,16 @@ AUTH_PASSWORD_VALIDATORS = [
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse',
-        },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
     'handlers': {
         'console': {
             'class': 'logging.StreamHandler',
-            'filters': ['require_debug_false'],
-        },
-        'console_debug': {
-            'class': 'logging.StreamHandler',
-            'filters': ['require_debug_true'],
         },
     },
     'loggers': {
-        # Log anything warning or higher in production to stdout/stderr for capture.
+        # Log to stdout/stderr for capture.
         '': {
-            'level': 'WARNING',
-            'handlers': ['console', 'console_debug'],
-        },
-        # Log randomizer errors at ERROR level in development
-        'randomizer': {
-            'level': 'ERROR',
-            'handlers': ['console_debug'],
-            'propagate': False,
+            'level': 'DEBUG' if DEBUG else 'INFO',
+            'handlers': ['console'],
         },
     },
 }

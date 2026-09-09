@@ -1,29 +1,10 @@
 import pickle
-from typing import Callable
+from typing import TYPE_CHECKING, Callable
+import logging
 
-from .types.gameworld import GameWorld, Settings
-from .data.allies.allies import ally_collection
-from .data.battle_animation._02.export import bank as bank02
-from .data.battle_animation._35.export import bank as bank35
-from .data.battle_animation._3A.export import bank as bank3A
-from .data.battle_dialogs.battle_dialogs import collection as battle_dialog_collection
-from .data.dialogs.dialogs import data as dialog_collection
-from .data.enemies.enemies import ENEMIES
-from .data.enemy_attacks.attacks import collection as enemy_attack_collection
-from .data.items.items import ITEMS
-from .data.monster_ai.monster_scripts import monster_scripts
-from .data.overworld_scripts.event.events import events
-from .data.overworld_scripts.animation.actionqueues import actions
-from .data.packets.packets import ALL_PACKETS
-from .data.packs.pack_collection import pack_collection
-from .data.rooms.rooms import room_collection
-from .data.shops.shops import shop_collection
-from .data.spells.spells import ALL_SPELLS
-from .data.sprites.sprites import sprites
-from .data.world_map_locations.world_map_locations import world_map_location_collection
-from .data.palettes.event_palettes import ALL_EVENT_PALETTES
-from .data.palettes.sprite_palettes import ALL_SPRITE_PALETTES
-from .logic.solvability import SettingsRelaxed
+if TYPE_CHECKING:
+    from randomizer.types.gameworld import GameWorld
+    from randomizer.types.settings import Settings
 
 
 # Each seed needs its own copy of every collection, because randomizing mutates
@@ -53,6 +34,9 @@ def _fresh(name: str, obj: object):
 # Current version number
 VERSION = '9.0.0'
 
+logger = logging.getLogger(__name__)
+
+
 def create(
     seed: int | str,
     settings: Settings,
@@ -77,6 +61,29 @@ def create(
             replayed from the blob instead. The finished world always carries a
             freshly captured blob on placement_result
     """
+    from .data.allies.allies import ally_collection
+    from .data.battle_animation._02.export import bank as bank02
+    from .data.battle_animation._35.export import bank as bank35
+    from .data.battle_animation._3A.export import bank as bank3A
+    from .data.battle_dialogs.battle_dialogs import collection as battle_dialog_collection
+    from .data.dialogs.dialogs import data as dialog_collection
+    from .data.enemies.enemies import ENEMIES
+    from .data.enemy_attacks.attacks import collection as enemy_attack_collection
+    from .data.items.items import ITEMS
+    from .data.monster_ai.monster_scripts import monster_scripts
+    from .data.overworld_scripts.event.events import events
+    from .data.overworld_scripts.animation.actionqueues import actions
+    from .data.packets.packets import ALL_PACKETS
+    from .data.packs.pack_collection import pack_collection
+    from .data.rooms.rooms import room_collection
+    from .data.shops.shops import shop_collection
+    from .data.spells.spells import ALL_SPELLS
+    from .data.sprites.sprites import sprites
+    from .data.world_map_locations.world_map_locations import world_map_location_collection
+    from .data.palettes.event_palettes import ALL_EVENT_PALETTES
+    from .data.palettes.sprite_palettes import ALL_SPRITE_PALETTES
+    from .logic.solvability import SettingsRelaxed
+    from .types.gameworld import GameWorld
 
     def build() -> GameWorld:
         return GameWorld(
@@ -125,4 +132,3 @@ def create(
         except SettingsRelaxed:
             continue
     return build()
-

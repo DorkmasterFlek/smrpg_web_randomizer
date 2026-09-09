@@ -4,7 +4,7 @@ services:
       context: .
       dockerfile: Dockerfile.prod
     restart: always
-    command: gunicorn smrpg_web_randomizer.wsgi:application --bind 0.0.0.0:8000 --timeout 3600 -w 4
+    command: sh -c "(python manage.py db_worker --queue-name seeds &) && (python manage.py db_worker --queue-name seeds &) && gunicorn smrpg_web_randomizer.wsgi:application --bind 0.0.0.0:8000 --timeout 3600 -w 4"
     volumes:
       - static_volume:/home/app/web/staticfiles
       - /etc/localtime:/etc/localtime:ro
@@ -17,6 +17,8 @@ services:
     depends_on:
       db:
         condition: service_healthy
+      cache:
+        condition: service_started
   db:
     image: postgres:18
     restart: always
@@ -32,6 +34,12 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  cache:
+    image: memcached:1.6
+    networks:
+      - internal
+    expose:
+      - 11211
   nginx:
     build: ./nginx
     restart: always
@@ -45,7 +53,7 @@ services:
       - 80
     # Uncomment for testing production setup on local system.
 #    ports:
-#      - 8000:80
+#      - "8000:80"
     env_file:
       - ./.env.prod.nginx
     depends_on:

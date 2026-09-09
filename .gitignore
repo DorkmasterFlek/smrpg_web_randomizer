@@ -151,6 +151,7 @@ fix_lazyshell_lists.py
 generate_lazyshell_updates.py
 update_lazyshell_lists.py
 lazyshell/Lunar Compress.dll
+createsuperuser.sh
 
 **/open_mode.sfc
 **/open_mode.smc

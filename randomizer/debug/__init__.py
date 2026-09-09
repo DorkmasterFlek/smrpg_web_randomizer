@@ -1,15 +1,10 @@
 """Debug configuration loader and utilities."""
 from django.conf import settings
-from django.utils import autoreload
 from django.utils.autoreload import autoreload_started
 
 import yaml
 from pathlib import Path
 from typing import Any
-from randomizer.data import items
-from randomizer.logic.progression import prizes
-from randomizer.types import prize as prize_types
-from randomizer.logic.progression import prizelocations
 
 # Register config.yml with Django's autoreloader so changes trigger a reload
 _config_path = Path(__file__).parent / "config.yml"
@@ -45,6 +40,8 @@ def get_item_class(name: str):
     Returns:
         The item class, or None if not found.
     """
+    from randomizer.data import items
+
     cls = getattr(items, name, None)
     if cls is None:
         print(f"Warning: Item class '{name}' not found")
@@ -60,6 +57,9 @@ def get_prize_class(name: str):
     Returns:
         The prize class, or None if not found.
     """
+    from randomizer.logic.progression import prizes
+    from randomizer.types import prize as prize_types
+
     cls = getattr(prizes, name, None)
     if cls is None:
         # Also check types.prize for classes like FPFlowerPrize
@@ -78,6 +78,8 @@ def get_location_class(name: str):
     Returns:
         The location class, or None if not found.
     """
+    from randomizer.logic.progression import prizelocations
+
     cls = getattr(prizelocations, name, None)
     if cls is None:
         print(f"Warning: Location class '{name}' not found")
