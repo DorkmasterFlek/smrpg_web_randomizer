@@ -1,17 +1,19 @@
 services:
   web:
     build: .
-    command: python manage.py runserver 0.0.0.0:8000
+    command: sh -c "(python manage.py db_worker --queue-name seeds &) && python manage.py runserver 0.0.0.0:8000"
     volumes:
       - ./:/usr/src/app/
       - /etc/localtime:/etc/localtime:ro
     ports:
-      - 8000:8000
+      - "8000:8000"
     env_file:
       - ./.env.dev
     depends_on:
       db:
         condition: service_healthy
+      cache:
+        condition: service_started
   db:
     image: postgres:18
     volumes:
@@ -24,6 +26,10 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  cache:
+    image: memcached:1.6
+    ports:
+      - "11211:11211"
 
 volumes:
   postgres_data:

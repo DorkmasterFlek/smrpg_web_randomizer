@@ -7,62 +7,64 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 import logging
-import random
-from concurrent.futures import (ThreadPoolExecutor)
-from randomizer.data.credits.credits import (update_credits)
-from randomizer.data.items.items import (RoyalSyrupItem)
-from randomizer.data.packets.packets import (Packet)
-from randomizer.data.variables.pack_names import (
-    PACK055_MONSTRO_DOOR_POSTGAME,
-    PACK216_MONSTRO_DOOR_BOSS,
-)
-from randomizer.data.variables.sprite_palette_names import (
-    SPAL293_ABXY_ACTION_BUTTON_SELECTION_IN_BATTLE,
-    SPAL379_ABXY_BUTTONS_FROM_BOWYER_S_BUTTON_LOCK,
-)
-from randomizer.logic.green_switch_glow import (get_patch as _green_switch_glow_patch)
-from randomizer.logic.rom.sprite_cache import (
-    SpriteCacheError,
-    deserialize as deserialize_sprites,
-)
-from randomizer.logic.rom.sprite_reclaim import (dialog_reclaim_ranges)
-from randomizer.logic.shufflers.minigames import (get_minecart_track_patch)
-from randomizer.patches import (asm)
-from randomizer.logic.progression.prizelocations.marios_house.starting_character1 import (
-    StartingCharacter1,
-)
-from randomizer.types.flags import (
-    BossScaleOptions,
-    BossShuffleScaleStats,
-    BowserPaletteChoice,
-    EXPChallenge,
-    EXPChallengeOptions,
-    FixInvincibility,
-    GenoPaletteChoice,
-    HoldB,
-    InfuseSpellElements,
-    JapaneseABXY,
-    MallowPaletteChoice,
-    MarioPaletteChoice,
-    RandomMinecartTrack,
-    RemoveFlashes,
-    ShowEquips,
-    ToadstoolPaletteChoice,
-    UncapMaxFP,
-)
-from randomizer.types.patch import (Patch)
-from randomizer.types.prize import (CharacterPrize)
-from randomizer.types.spell import (CharacterSpell)
-from smrpgpatchbuilder.datatypes.graphics.classes import (AnimationBank)
-from typing import (cast)
 
 if TYPE_CHECKING:
     from randomizer.types.gameworld import GameWorld
+    from randomizer.types.patch import Patch
 
 logger = logging.getLogger(__name__)
 
 
 def get_patch(world: GameWorld) -> Patch:
+    import random
+    from concurrent.futures import (ThreadPoolExecutor)
+    from randomizer.data.credits.credits import (update_credits)
+    from randomizer.data.items.items import (RoyalSyrupItem)
+    from randomizer.data.packets.packets import (Packet)
+    from randomizer.data.variables.pack_names import (
+        PACK055_MONSTRO_DOOR_POSTGAME,
+        PACK216_MONSTRO_DOOR_BOSS,
+    )
+    from randomizer.data.variables.sprite_palette_names import (
+        SPAL293_ABXY_ACTION_BUTTON_SELECTION_IN_BATTLE,
+        SPAL379_ABXY_BUTTONS_FROM_BOWYER_S_BUTTON_LOCK,
+    )
+    from randomizer.logic.green_switch_glow import (get_patch as _green_switch_glow_patch)
+    from randomizer.logic.rom.sprite_cache import (
+        SpriteCacheError,
+        deserialize as deserialize_sprites,
+    )
+    from randomizer.logic.rom.sprite_reclaim import (dialog_reclaim_ranges)
+    from randomizer.logic.shufflers.minigames import (get_minecart_track_patch)
+    from randomizer.patches import (asm)
+    from randomizer.logic.progression.prizelocations.marios_house.starting_character1 import (
+        StartingCharacter1,
+    )
+    from randomizer.types.flags import (
+        BossScaleOptions,
+        BossShuffleScaleStats,
+        BowserPaletteChoice,
+        EXPChallenge,
+        EXPChallengeOptions,
+        FixInvincibility,
+        GenoPaletteChoice,
+        HoldB,
+        InfuseSpellElements,
+        JapaneseABXY,
+        MallowPaletteChoice,
+        MarioPaletteChoice,
+        RandomMinecartTrack,
+        RemoveFlashes,
+        ShowEquips,
+        ToadstoolPaletteChoice,
+        UncapMaxFP,
+    )
+    from randomizer.types.patch import (Patch)
+    from randomizer.types.prize import (CharacterPrize)
+    from randomizer.types.spell import (CharacterSpell)
+    from smrpgpatchbuilder.datatypes.graphics.classes import (AnimationBank)
+    from typing import (cast)
+
     # Return cached patch if already generated
     if world._cached_patch is not None:
         return world._cached_patch

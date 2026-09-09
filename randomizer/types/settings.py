@@ -63,8 +63,13 @@ class Settings:
 
     @property
     def flag_string(self) -> str:
-        """Computed flag string for these settings."""
+        """Computed flag string for these settings without cosmetics."""
         return self.get_flag_string_without_cosmetics()
+
+    @property
+    def cosmetics_flag_string(self) -> str:
+        """Computed cosmetic flag string for these settings."""
+        return self.get_cosmetics_flag_string()
 
     def __init__(self) -> None:
         self._is_flag_value_cache = {}
@@ -479,13 +484,18 @@ class Settings:
                 subcategories.append(category)
         return subcategories
 
-    def get_flag_string(self) -> str:
+    def get_flag_string(self, exclude_cat: list|None = None, restrict_cat: list|None = None) -> str:
         """Generate a compact string representation of all non-default flags."""
         id_to_flags: dict[str, list[str]] = {}
 
         for subcat_cls in self._get_all_subcategories():
             subcat = subcat_cls()
             cat_id = subcat.id
+
+            if exclude_cat and cat_id in exclude_cat:
+                continue
+            if restrict_cat and cat_id not in restrict_cat:
+                continue
 
             for flag_cls in subcat.flags:
                 if flag_cls not in self._flags:
@@ -507,32 +517,13 @@ class Settings:
 
     def get_flag_string_without_cosmetics(self) -> str:
         """Generate flag string excluding all flags under 'R' category ID."""
-        id_to_flags: dict[str, list[str]] = {}
 
-        for subcat_cls in self._get_all_subcategories(exclude_cosmetic=True):
-            subcat = subcat_cls()
-            cat_id = subcat.id
+        return self.get_flag_string(exclude_cat=["R"])
 
-            if cat_id == "R":
-                continue
+    def get_cosmetics_flag_string(self) -> str:
+        """Generate flag string with only flags under 'R' category ID."""
 
-            for flag_cls in subcat.flags:
-                if flag_cls not in self._flags:
-                    continue
-                flag = self._flags[flag_cls]
-                encoded = self._encode_single_flag(flag)
-                if encoded:
-                    if cat_id not in id_to_flags:
-                        id_to_flags[cat_id] = []
-                    id_to_flags[cat_id].append(encoded)
-
-        parts: list[str] = []
-        for cat_id in sorted(id_to_flags.keys()):
-            flag_parts = id_to_flags[cat_id]
-            if flag_parts:
-                parts.append(f"{cat_id}({"|".join(flag_parts)})")
-
-        return " ".join(parts)
+        return self.get_flag_string(restrict_cat=["R"])
 
 
     def _build_flag_id_map(self) -> dict[str, type[Flag]]:

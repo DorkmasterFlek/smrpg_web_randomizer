@@ -132,14 +132,14 @@ def _rebuild_hash(world: GameWorld):
         "PEACH",
     }
     # Also use enemy names, if they're 6 characters or less.
-    e_choices = set(
+    file_entry_names |= set(
         [
             re.sub(r"[^A-Za-z9]", "", e.name.upper())
             for e in world.enemies.enemies
             if len(re.sub(r"[^A-Za-z9]", "", e.name.upper())) <= 6
         ]
     )
-    file_entry_names = sorted(e_choices)
+    file_entry_names = sorted(file_entry_names)
 
     # Replace file select names with "hash" values for seed verification.
     world.file_select_names = [
@@ -174,7 +174,7 @@ def _shuffle_items(world: GameWorld):
         # otherwise, start fresh
         shuffle_prizes(world)
     world.placement_result = shuffler_cache.serialize(world)
-    
+
     random.seed("post-placement:%s" % world.seed)
 
     if DEBUG_FILE_DUMPS:

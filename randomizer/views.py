@@ -1,48 +1,46 @@
+import pickle
+
+from django.tasks import TaskResultStatus
+from django.urls import reverse
+
 from randomizer.logic.check_list import CHECK_ROWS
 from randomizer.logic.offset_preview import get_ordered_lists
-import base64
 import binascii
-import hashlib
 import json
 import logging
 import os
-import queue
 import random
 import string
 import tempfile
 import shutil
-import threading
-from collections.abc import Iterator
 
 import Wii
 import nlzss
 
 from django.conf import settings
-from django.db import transaction
+from django.core.cache import cache
 from django.http import (
     JsonResponse,
     HttpResponseBadRequest,
     HttpResponse,
     HttpResponseNotFound,
     QueryDict,
-    StreamingHttpResponse,
 )
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import TemplateView, FormView
+from django.views.generic import TemplateView, FormView, DetailView
 from django.contrib.auth.mixins import LoginRequiredMixin
 
 from randomizer.types.flags import FlagError
-from randomizer.logic.validation import SettingsValidationError
+from randomizer.logic.validation import validate_settings, SettingsValidationError
 from randomizer.types.flag_categories import CATEGORIES, PRESETS
 from randomizer.types.patch import PatchJSONEncoder
 
 from .models import Seed, Patch
 from .forms import GenerateForm
-from .main import create, VERSION
-from .logic.generate import build_world_for, ensure_sprite_render_variants, save_seed
+from .main import VERSION
+from .tasks import generate_seed_task
 from .types.settings import Settings
 from .types.flags import Flag, CategorizationFlag, CategorizationFlagWithOrdinance, BooleanFlag, RangeFlag, SelectOneFlag
 
@@ -248,7 +246,6 @@ class HashView(RandomizerView):
 
 class GenerateView(MixinClass, FormView):
     form_class = GenerateForm
-    return_patch_data = True
 
     def form_valid(self, form):
         data = form.cleaned_data
@@ -294,11 +291,22 @@ class GenerateView(MixinClass, FormView):
             s.offset_coins = offset_coins
             s.offset_star_pieces = offset_star_pieces
             s.offset_invisible_flags = offset_invisible_flags
+            validate_settings(s)
 
-            world = build_world_for(
-                seed, s, debug_mode=debug_mode, debug_bps_patches=debug_bps_patches
-            )
-            patches = {"US": world.get_patch()}
+            debug_flags = {}
+            if debug_mode:
+                debug_flags = {
+                    'debug_bps_patches': debug_bps_patches,
+                    'prize_offset': prize_offset,
+                    'mimic_offset': mimic_offset,
+                    'offset_slots': offset_slots,
+                    'offset_mimics': offset_mimics,
+                    'offset_coins': offset_coins,
+                    'offset_star_pieces': offset_star_pieces,
+                    'offset_invisible_flags': offset_invisible_flags,
+                }
+
+            task_result = generate_seed_task.enqueue(seed, full_flag_string, debug_flags)
         except (FlagError, SettingsValidationError) as e:
             result = {
                 "error": e.args[0],
@@ -313,37 +321,12 @@ class GenerateView(MixinClass, FormView):
         result = {
             "logic": VERSION,
             "seed": seed,
-            "hash": world.hash,
             "mode": "open",
             "debug_mode": debug_mode,
-            "flag_string": world.settings.flag_string,
-            "file_select_character": world.file_select_character,
-            "file_select_hash": world.file_select_hash,
-            "permalink": reverse(
-                "randomizer:patch-from-hash", kwargs={"hash": world.hash}
-            ),
+            "flag_string": s.flag_string,
             "race_mode": race_mode,
-            "spoiler": world.spoiler if not race_mode else {},
-            "forced_overrides": world.settings.forced_overrides,
+            "seed_id": str(task_result.id),
         }
-
-        with transaction.atomic():
-            s = save_seed(world, seed, debug_mode=debug_mode, race_mode=race_mode)
-
-            for region in patches:
-                patch_dump = json.dumps({}, cls=PatchJSONEncoder)
-                h = hashlib.sha1()
-                h.update(patch_dump.encode())
-                Patch.objects.update_or_create(
-                    seed=s,
-                    region=region,
-                    defaults={"sha1": h.hexdigest(), "patch": patch_dump},
-                )
-
-        ensure_sprite_render_variants(s, seed, world, debug_mode=debug_mode)
-
-        if self.return_patch_data:
-            result["patch"] = patches["US"]
 
         return JsonResponse(result, encoder=PatchJSONEncoder)
 
@@ -359,190 +342,74 @@ class GenerateView(MixinClass, FormView):
         return HttpResponseBadRequest(msg.encode())
 
 
-class GenerateStreamView(MixinClass, View):
-    """Generate a seed with real-time progress updates via Server-Sent Events (SSE)."""
+class GenerateStatusView(MixinClass, View):
+    @staticmethod
+    def get(request, seed_id):
+        result = {}
 
-    def post(self, request):
-        form = GenerateForm(request.POST)
-        if not form.is_valid():
-            error_msg = "; ".join(
-                f"{k}: {', '.join(str(e) for e in v)}"
-                for k, v in form.errors.items()
-            ) if form.errors else "Validation failed"
-            return JsonResponse({"error": error_msg}, status=400)
+        # Check task status.
+        task_result = generate_seed_task.get_result(seed_id)
 
-        data = form.cleaned_data
+        # Finished, get patch.
+        if task_result.status == TaskResultStatus.SUCCESSFUL:
+            patch = Patch.objects.select_related('seed').get(pk=task_result.return_value)
+            result['complete'] = True
+            result['data'] = {
+                "logic": VERSION,
+                "seed": patch.seed.seed,
+                "hash": patch.seed.hash,
+                "mode": "race" if patch.seed.race_mode else "open",
+                "debug_mode": patch.seed.debug_mode,
+                "flag_string": patch.seed.flags,
+                "file_select_character": patch.seed.file_select_char,
+                "file_select_hash": patch.seed.file_select_hash,
+                "permalink": reverse("randomizer:patch-from-hash", kwargs={"hash": patch.seed.hash}),
+                "race_mode": patch.seed.race_mode,
+                "spoiler": patch.seed.spoiler if not patch.seed.race_mode else {},
+                "patch": pickle.loads(patch.patch),
+            }
 
-        if not settings.DEBUG:
-            data["debug_mode"] = False
+        # Failed
+        elif task_result.status == TaskResultStatus.FAILED:
+            result['error'] = 'Seed generation failed'
 
-        seed = data["seed"]
-        if seed:
-            if seed.isdigit():
-                seed = int(seed)
-                if seed < 1 or seed > 0xFFFFFFFF:
-                    seed = None
+        # In progress, check cache for status update.
+        # If it's waiting for processing, it might not be in there yet.
+        else:
+            key = f'task-status-{task_result.id}'
+            data = cache.get(key)
+            if isinstance(data, dict):
+                result['stage'] = data.get('message', '')
+                result['percent'] = data.get('percent', 0)
             else:
-                seed = binascii.crc32(seed.encode())
+                result['stage'] = 'Starting generation...'
+                result['percent'] = 0
 
-        if not seed:
-            r = random.SystemRandom()
-            seed = r.getrandbits(32)
-            del r
-
-        debug_mode = bool(data["debug_mode"])
-        race_mode = bool(data["race_mode"])
-        debug_bps_patches = bool(data.get("debug_bps_patches", False)) and settings.DEBUG
-        prize_offset = data.get("prize_offset") if settings.DEBUG else None
-        mimic_offset = data.get("mimic_offset") if settings.DEBUG else None
-        offset_slots = bool(data.get("offset_slots"))
-        offset_mimics = bool(data.get("offset_mimics"))
-        offset_coins = bool(data.get("offset_coins"))
-        offset_star_pieces = bool(data.get("offset_star_pieces"))
-        offset_invisible_flags = bool(data.get("offset_invisible_flags"))
-
-        def generate_events() -> Iterator[bytes]:
-            progress_queue: queue.Queue = queue.Queue()
-            result_holder: dict = {}
-
-            def on_progress(message: str, percent: int):
-                progress_queue.put({"stage": message, "percent": percent})
-
-            def run_generation():
-                full_flag_string = (data["flags"] or "") + "     " + (data["cosmetics"] or "")
-                try:
-                    s = Settings()
-                    s.set_from_flag_string(full_flag_string.strip())
-                    s.debug_mode = debug_mode
-                    s.prize_offset = prize_offset
-                    s.mimic_offset = mimic_offset
-                    s.offset_slots = offset_slots
-                    s.offset_mimics = offset_mimics
-                    s.offset_coins = offset_coins
-                    s.offset_star_pieces = offset_star_pieces
-                    s.offset_invisible_flags = offset_invisible_flags
-
-                    world = build_world_for(
-                        seed, s, debug_mode=debug_mode,
-                        debug_bps_patches=debug_bps_patches,
-                        progress_callback=on_progress,
-                    )
-
-                    patch = world.get_patch()
-
-                    result_holder["success"] = True
-                    result_holder["data"] = {
-                        "logic": VERSION,
-                        "seed": seed,
-                        "hash": world.hash,
-                        "mode": "open",
-                        "debug_mode": debug_mode,
-                        "flag_string": world.settings.flag_string,
-                        "file_select_character": world.file_select_character,
-                        "file_select_hash": world.file_select_hash,
-                        "permalink": reverse(
-                            "randomizer:patch-from-hash", kwargs={"hash": world.hash}
-                        ),
-                        "race_mode": race_mode,
-                        "spoiler": world.spoiler if not race_mode else {},
-                        "patch": patch,
-                    }
-
-                    with transaction.atomic():
-                        seed_obj = save_seed(
-                            world, seed, debug_mode=debug_mode, race_mode=race_mode
-                        )
-
-                        patch_dump = json.dumps({}, cls=PatchJSONEncoder)
-                        h = hashlib.sha1()
-                        h.update(patch_dump.encode())
-                        Patch.objects.update_or_create(
-                            seed=seed_obj,
-                            region="US",
-                            defaults={"sha1": h.hexdigest(), "patch": patch_dump},
-                        )
-
-                    ensure_sprite_render_variants(
-                        seed_obj, seed, world, debug_mode=debug_mode
-                    )
-
-                except (FlagError, SettingsValidationError) as e:
-                    logger.error("Settings error during generation: %s", e.args[0])
-                    result_holder["error"] = e.args[0]
-                except Exception as e:
-                    logger.exception(
-                        "Error during generation - seed: %r, flags: %r",
-                        seed,
-                        full_flag_string.strip(),
-                    )
-                    result_holder["error"] = str(e)
-                finally:
-                    progress_queue.put({"done": True})
-
-            thread = threading.Thread(target=run_generation)
-            thread.start()
-
-            while True:
-                try:
-                    event = progress_queue.get(timeout=30)
-                    if event.get("done"):
-                        break
-                    yield f"data: {json.dumps(event)}\n\n".encode()
-                except queue.Empty:
-                    yield b": keepalive\n\n"
-
-            if result_holder.get("error"):
-                yield f"data: {json.dumps({'error': result_holder['error']})}\n\n".encode()
-            else:
-                result_data = result_holder.get("data", {})
-                yield f"data: {json.dumps({'complete': True, 'data': result_data}, cls=PatchJSONEncoder)}\n\n".encode()
-
-        response = StreamingHttpResponse(
-            generate_events(),
-            content_type="text/event-stream",
-        )
-        response["Cache-Control"] = "no-cache"
-        response["X-Accel-Buffering"] = "no"
-        return response
-
-    def get(self, request, *args, **kwargs):
-        """Handle GET requests: return 400 error."""
-        msg = "GenerateStreamView GET method not allowed"
-        logger.error(msg)
-        return HttpResponseBadRequest(msg.encode())
+        return JsonResponse(result)
 
 
 class GenerateFromHashView(MixinClass, View):
     @staticmethod
-    def get(request, hash, region):
+    def get(request, hash):
         """Get a previously generated patch via hash value."""
-        if region == "EU":
-            region = "US"
 
         try:
             s = Seed.objects.get(hash=hash)
         except Seed.DoesNotExist:
             return HttpResponseNotFound("No record for hash {0!r}".format(hash))
 
-        try:
-            p = Patch.objects.get(seed=s, region=region)
-        except Patch.DoesNotExist:
-            return HttpResponseNotFound(
-                "No patch found for hash {0!r}, region {1!r}".format(hash, region)
-            )
-
         result = {
             "logic": s.version,
             "seed": s.seed,
-            "hash": s.hash,
-            "mode": s.mode,
+            "hash": s.id,
+            "mode": "race" if s.race_mode else "open",
             "debug_mode": s.debug_mode,
             "flag_string": s.flags,
             "file_select_character": s.file_select_char,
             "file_select_hash": s.file_select_hash,
-            "patch": json.loads(p.patch),
+            "patch": [],
             "race_mode": s.race_mode,
-            "spoiler": s.spoiler,
+            "spoiler": s.spoiler if not s.race_mode else {},
         }
         return JsonResponse(result)
 
@@ -670,8 +537,6 @@ class PackingView(MixinClass, View):
 @method_decorator(csrf_exempt, name="dispatch")
 class APIGenerateView(GenerateView):
     """Use same fields and response as the generate view, but don't include the patch data."""
-
-    return_patch_data = False
 
     def get_form_kwargs(self):
         """Parse JSON body in post request and fake form fields to reuse the form view."""

@@ -66,7 +66,7 @@ def load_placement_cache(
     )
     if row is None or not row.placement:
         return None
-    return base64.b64decode(row.placement)
+    return row.placement
 
 
 def encode_placement(world: GameWorld) -> str:
@@ -90,7 +90,7 @@ def load_sprite_render(
     )
     if row is None or not row.blob:
         return None
-    return base64.b64decode(row.blob)
+    return row.blob
 
 
 def save_sprite_render(row: Seed, world: GameWorld) -> None:
@@ -101,7 +101,7 @@ def save_sprite_render(row: Seed, world: GameWorld) -> None:
     SpriteRender.objects.update_or_create(
         seed=row,
         play_as_starter=world.settings.isflag_enabled(PlayAsStarter),
-        defaults={"blob": base64.b64encode(blob).decode()},
+        defaults={"blob": blob},
     )
 
 
@@ -201,14 +201,13 @@ def save_seed(world: GameWorld, seed: int | str, *, debug_mode: bool, race_mode:
             defaults={
                 "seed": seed,
                 "version": VERSION,
-                "mode": "open",  # Deprecated but required by model
                 "debug_mode": debug_mode,
                 "flags": world.settings.flag_string,
                 "file_select_char": world.file_select_character,
                 "file_select_hash": world.file_select_hash,
                 "race_mode": race_mode,
                 "spoiler": world.spoiler,
-                "placement": encode_placement(world),
+                "placement": world.placement_result,
             },
         )
         save_sprite_render(row, world)
@@ -287,7 +286,6 @@ def generate_seed(
 
 __all__ = [
     "build_world_for",
-    "encode_placement",
     "ensure_sprite_render_variants",
     "generate_seed",
     "load_placement_cache",
