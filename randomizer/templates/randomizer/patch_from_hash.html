@@ -490,6 +490,11 @@
                     })
                     .then((response) => response.json())
                     .then((result) => {
+                        if (result.error || !result.seed_id) {
+                            $("#progress-box").hide();
+                            reject(result);
+                        }
+
                         async function checkStatus() {
                             let data = await $.get(`/seed/status/${result.seed_id}`);
 
