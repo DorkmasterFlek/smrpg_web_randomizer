@@ -53,6 +53,18 @@ _BOOMER_FORM_STATS: tuple[tuple[str, str], ...] = (
     ("red_boomer_m_defense", "blue_boomer_m_defense"),
 )
 
+def _boomer_form_commands(
+    world: GameWorld, red_name: str, blue_name: str
+) -> tuple[SetAMEM16BitToConst, SetAMEM16BitToConst]:
+    return (
+        cast(
+            SetAMEM16BitToConst, world.get_battle_animation_command_by_name(red_name)
+        ),
+        cast(
+            SetAMEM16BitToConst, world.get_battle_animation_command_by_name(blue_name)
+        ),
+    )
+
 def _apply_boomer_form_stats(
     world: GameWorld,
     location_stats: tuple[int, int, int, int],
@@ -67,18 +79,22 @@ def _apply_boomer_form_stats(
     for (red_name, blue_name), setter, loc_stat in zip(
         _BOOMER_FORM_STATS, setters, location_stats
     ):
-        red_cmd = cast(
-            SetAMEM16BitToConst, world.get_battle_animation_command_by_name(red_name)
-        )
-        blue_cmd = cast(
-            SetAMEM16BitToConst, world.get_battle_animation_command_by_name(blue_name)
-        )
+        red_cmd, blue_cmd = _boomer_form_commands(world, red_name, blue_name)
         peak = max(red_cmd.value, blue_cmd.value)
-        red_new = min(255, round(loc_stat * red_cmd.value / peak))
-        blue_new = min(255, round(loc_stat * blue_cmd.value / peak))
-        red_cmd.set_value(red_new)
-        blue_cmd.set_value(blue_new)
-        setter(red_new)
+        setter(min(255, round(loc_stat * red_cmd.value / peak)))
+
+def sync_boomer_form_stats(world: GameWorld) -> None:
+    boomer = world.get_enemy(BOOMEREnemy)
+    finals: tuple[int, ...] = (
+        int(boomer.attack),
+        int(boomer.defense),
+        int(boomer.magic_attack),
+        int(boomer.magic_defense),
+    )
+    for (red_name, blue_name), final in zip(_BOOMER_FORM_STATS, finals):
+        red_cmd, blue_cmd = _boomer_form_commands(world, red_name, blue_name)
+        blue_cmd.set_value(min(255, round(final * blue_cmd.value / red_cmd.value)))
+        red_cmd.set_value(final)
 
 def _anchor_classes_for_stat(
     prize: BossFightPrize,
@@ -582,4 +598,4 @@ def apply_boss_stat_scaling(world: GameWorld) -> None:
             _apply_stats_to_prize(location.prize, godmode_stats, world)
 
 
-__all__ = ["apply_boss_stat_scaling"]
+__all__ = ["apply_boss_stat_scaling", "sync_boomer_form_stats"]

@@ -18,6 +18,7 @@ from randomizer.data.enemies.enemies import (
     JINX3Enemy,
     JOHNNYEnemy,
     JOHNNYEnemy2,
+    LEFTEYEEnemy,
     PUNCHINELLOEnemy,
     RIGHTEYEEnemy,
     SHELLYEnemy,
@@ -28,6 +29,7 @@ from randomizer.data.enemies.enemies import (
     SMITHYTankEnemy,
     VALENTINAEnemy,
 )
+from randomizer.logic.post_shuffle.steps.calculate_boss_stats import (sync_boomer_form_stats)
 from smrpgpatchbuilder.datatypes.battle_animation_scripts.commands import (SetAMEM16BitToConst)
 from smrpgpatchbuilder.datatypes.monster_scripts.commands import (IfHPBelow)
 from typing import (cast)
@@ -78,6 +80,14 @@ def _update_enemy_hp_thresholds(world: GameWorld) -> None:
     cast(SetAMEM16BitToConst, right_eye_revival_cmd).set_value(
         round(right_eye.hp * 1.2)
     )
+
+    left_eye = world.get_enemy(LEFTEYEEnemy)
+    left_eye_revival_cmd = world.get_battle_animation_command_by_name(
+        "left_eye_revival_hp"
+    )
+    cast(SetAMEM16BitToConst, left_eye_revival_cmd).set_value(int(left_eye.hp))
+
+    sync_boomer_form_stats(world)
 
     # Update Punchinello's bomb-summoning thresholds
     punchinello = world.get_enemy(PUNCHINELLOEnemy)
