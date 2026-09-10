@@ -2271,8 +2271,7 @@ class BossFightLocation(PrizeLocation):
             run_away = True
 
         if self.prize.formation is not None:
-            # Use the prize's formation directly (preserves formation_id for AI scripts)
-            formation = self.prize.formation
+            formation = deepcopy(self.prize.formation)
             pack.set_formations(formation)
 
             # Apply location-specific overrides to the formation
