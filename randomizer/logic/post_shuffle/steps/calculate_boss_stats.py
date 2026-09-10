@@ -8,9 +8,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 import random
 import statistics
-from randomizer.data.enemies.enemies import (CULEX3DEnemy)
+from randomizer.data.enemies.enemies import (BOOMEREnemy, CULEX3DEnemy)
 from randomizer.logic.progression.prizes import (
     Belome3Fight,
+    BoomerBossFight,
     Booster2BossFight,
     Bundt2BossFight,
     Culex3DBossFight,
@@ -23,6 +24,7 @@ from randomizer.types.enemy import (Enemy)
 from randomizer.types.flags import (BossScaleOptions, BossShuffleScaleStats)
 from randomizer.types.prize import (BossFightPrize, StatAnchorName)
 from randomizer.types.prizelocation import (BossFightLocation)
+from smrpgpatchbuilder.datatypes.battle_animation_scripts.commands import (SetAMEM16BitToConst)
 from typing import (Callable, cast)
 
 if TYPE_CHECKING:
@@ -43,6 +45,40 @@ _GODMODE_EXCLUDED_FIGHTS: tuple[type, ...] = (
     Jinx4BossFight,
     Culex3DBossFight,
 )
+
+_BOOMER_FORM_STATS: tuple[tuple[str, str], ...] = (
+    ("red_boomer_attack", "blue_boomer_attack"),
+    ("red_boomer_defense", "blue_boomer_defense"),
+    ("red_boomer_m_attack", "blue_boomer_m_attack"),
+    ("red_boomer_m_defense", "blue_boomer_m_defense"),
+)
+
+def _apply_boomer_form_stats(
+    world: GameWorld,
+    location_stats: tuple[int, int, int, int],
+) -> None:
+    boomer = world.get_enemy(BOOMEREnemy)
+    setters: tuple[Callable[[int], None], ...] = (
+        boomer.set_attack,
+        boomer.set_defense,
+        boomer.set_magic_attack,
+        boomer.set_magic_defense,
+    )
+    for (red_name, blue_name), setter, loc_stat in zip(
+        _BOOMER_FORM_STATS, setters, location_stats
+    ):
+        red_cmd = cast(
+            SetAMEM16BitToConst, world.get_battle_animation_command_by_name(red_name)
+        )
+        blue_cmd = cast(
+            SetAMEM16BitToConst, world.get_battle_animation_command_by_name(blue_name)
+        )
+        peak = max(red_cmd.value, blue_cmd.value)
+        red_new = min(255, round(loc_stat * red_cmd.value / peak))
+        blue_new = min(255, round(loc_stat * blue_cmd.value / peak))
+        red_cmd.set_value(red_new)
+        blue_cmd.set_value(blue_new)
+        setter(red_new)
 
 def _anchor_classes_for_stat(
     prize: BossFightPrize,
@@ -438,6 +474,9 @@ def _apply_stats_to_prize(
         else:
             new_coins = original.coins
         enemy.set_coins(max(1, new_coins) if original.coins > 0 else 0)
+
+    if isinstance(prize, BoomerBossFight):
+        _apply_boomer_form_stats(world, (attack, defense, magic_attack, magic_defense))
 
 LocationStats = tuple[int, int, int, int, int, int, int, int, int]
 
