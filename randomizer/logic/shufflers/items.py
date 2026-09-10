@@ -948,6 +948,35 @@ def shuffle_rules(world: GameWorld) -> dict[int, list[type[Prize]]]:
     random.shuffle(preferred_spells)
     random.shuffle(other_spells)
     ordered_damaging = preferred_spells + other_spells
+    # With SpellsAnywhere on and learned spells vanilla, can_accept() only takes a
+    # spell once its vanilla owner is recruited, and the progression pass recruits
+    # exactly two groups: the starters, which are pre-filled into their locations
+    # (and pulled from the pool) before any place() call, and the
+    # progression-required characters, which place() seats first. Everyone else is a
+    # MANDATORY_INCLUSIONS fill handled by a *later* place(), so a progression-tier
+    # spell owned by one of them has zero legal locations anywhere in the world and
+    # strands the pass on every retry. Toadstool owns exactly one damaging spell
+    # (Psych Bomb), so a lone-Toadstool roster always stranded the second pick.
+    # Filtering before the slice keeps 2 wherever 2 are placeable and drops to 1
+    # where only one is. Applied after both shuffles, so the random stream is
+    # untouched and seeds that already worked are unaffected.
+    if world.settings.isflag_enabled(
+        SpellsAnywhere
+    ) and not world.settings.isflag_enabled(CharacterLearnedSpells):
+        recruited_during_progression: set[type[CharacterPrize]] = set(
+            progression_required_chars
+        )
+        # Explicit starters are already progression-required; a Random_X starter is
+        # not, but is still pre-filled and so recruited from the first sphere.
+        for ally in world._cached_starting_chars or []:
+            starter_prize = all_character_prizes.get(ally.name)
+            if starter_prize is not None:
+                recruited_during_progression.add(starter_prize)
+        ordered_damaging = [
+            s
+            for s in ordered_damaging
+            if vanilla_spell_owner(s) in recruited_during_progression
+        ]
     progression_damaging_spells = ordered_damaging[: min(2, len(ordered_damaging))]
 
     # Assign selected spells to tiers. Super Jump is intentionally NOT forced
