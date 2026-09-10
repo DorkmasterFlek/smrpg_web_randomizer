@@ -1820,6 +1820,13 @@ class BossFightLocation(PrizeLocation):
     # Set to True for dojo fights, mimic fights with mimics anywhere, etc.
     _allow_run_away: bool = False
 
+    # Whether losing a battle at this location should soft-reset the game.
+    # The engine sets the GAME_OVER flag on a party wipe; the script that
+    # launches the fight decides what to do about it. Dojo fights treat
+    # GAME_OVER like RUN_AWAY -- skip the victory handling and carry on --
+    # so they must never emit ResetAndChooseGame().
+    _resets_on_game_over: bool = True
+
     # Whether the player can run away from henchmen fights at this location
     # Defaults to True (can escape). Set to False for Mushroom Kingdom, Booster Tower, etc.
     _henchman_can_run_away: bool = True
@@ -1882,6 +1889,11 @@ class BossFightLocation(PrizeLocation):
     def allow_run_away(self) -> bool:
         """Whether the player can run away from battles at this location."""
         return self._allow_run_away
+
+    @property
+    def resets_on_game_over(self) -> bool:
+        """Whether losing a battle at this location should soft-reset the game."""
+        return self._resets_on_game_over
 
     def post_unlocks(self, world: GameWorld) -> EventScript:
         """Script commands that should run when this boss location is cleared. Depends on settings."""

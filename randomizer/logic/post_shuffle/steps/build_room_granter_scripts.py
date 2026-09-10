@@ -77,6 +77,7 @@ from randomizer.data.variables.sprite_names import (
 from randomizer.data.variables.variable_names import (
     BOSS_VICTORY_COUNTER,
     GAME_OVER,
+    RUN_AWAY,
     PRIMARY_TEMP_7000,
     SHIP_PACKET_AUTOTERM_DIALOG,
     SMITHY_BOSS_HUNT_WIN_CONDITION,
@@ -281,11 +282,17 @@ def build_room_granter_scripts(world: GameWorld) -> None:
                         disabled_label_ra = f"smithy_boss_hunt_disabled_{uuid4()}_ra"
                         patched.extend([
                             JmpIfBitSet(GAME_OVER, [disabled_label_ra]),
+                            JmpIfBitSet(RUN_AWAY, [disabled_label]),
                             JmpIfBitClear(SMITHY_BOSS_HUNT_WIN_CONDITION, [disabled_label]),
                             EnterArea(room_id=R496_FACTORY_GROUNDS_FIGHT_WITH_SMITHY_USES_SLEDGE, face_direction=NORTHWEST, x=4, y=48, z=0, run_entrance_event=False),
                             JmpToEvent(E3885_END_GAME),
                             Return(identifier=disabled_label),
-                            ResetAndChooseGame(identifier=disabled_label_ra),
+                            # Locations whose launching script handles GAME_OVER itself
+                            # (the dojo fights) must not reset here -- just return and let
+                            # the caller decide, the way every non-Smithy prize does.
+                            ResetAndChooseGame(identifier=disabled_label_ra)
+                            if place.resets_on_game_over
+                            else Return(identifier=disabled_label_ra),
                         ])
                     elif isinstance(cmd, Return) and i > 0 and isinstance(execution[i - 1], StartBattleAtBattlefield):
                         continue  # Skip the Return that follows StartBattle

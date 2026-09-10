@@ -30,6 +30,7 @@ class DojoFifthFight(BossFightLocation):
     _pack_id = PACK119_DOJO_POSTGAME
     _post_unlocks_event_id = E1217_DOJO_5_BOSS_UNLOCKS
     _allow_run_away = True
+    _resets_on_game_over = False
     _npc_slots = [
         BossFightLocationNPC(
             R255_MONSTRO_TOWN_JINXS_DOJO,

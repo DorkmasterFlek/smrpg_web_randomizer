@@ -78,6 +78,7 @@ class DojoFirstFight(BossFightLocation):
     _pack_id = PACK189_DOJO_PREFIGHT
     _post_unlocks_event_id = E1213_DOJO_1_BOSS_UNLOCKS
     _allow_run_away = True
+    _resets_on_game_over = False
 
     _npc_slots = [
         BossFightLocationNPC(

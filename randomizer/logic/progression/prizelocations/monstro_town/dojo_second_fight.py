@@ -29,6 +29,7 @@ class DojoSecondFight(BossFightLocation):
     _pack_id = PACK178_DOJO_FIGHT_1
     _post_unlocks_event_id = E1214_DOJO_2_BOSS_UNLOCKS
     _allow_run_away = True
+    _resets_on_game_over = False
     _npc_slots = [
         BossFightLocationNPC(
             R255_MONSTRO_TOWN_JINXS_DOJO,
