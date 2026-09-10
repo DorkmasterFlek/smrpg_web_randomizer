@@ -194,6 +194,17 @@ VANILLA_SHOP_ITEMS: frozenset[type[BaseItem]] = frozenset(
 )
 
 
+def apply_free_shop_prices(world: GameWorld) -> None:
+    """Drop every purchasable item to 1 coin when Free Shops is enabled."""
+
+    if not world.settings.isflag_enabled(FreeShops):
+        return
+
+    for item in world.items.items:
+        if item.price > 0:
+            item.set_price(1)
+
+
 def reprice_nonvanilla_shop_items(world: GameWorld) -> None:
     """Reprice items that weren't shop items in the original game."""
 
@@ -824,11 +835,6 @@ def shuffle_shops(world: GameWorld) -> None:
                 current_item_shop_count[PickMeUpItem] = (
                     current_item_shop_count.get(PickMeUpItem, 0) + 1
                 )
-
-    if free_shops:
-        for item in world.items.items:
-            if item.price > 0:
-                item.set_price(1)
 
     lower_tier_items = [
         MushroomItem,

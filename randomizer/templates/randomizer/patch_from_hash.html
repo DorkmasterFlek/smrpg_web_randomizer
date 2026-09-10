@@ -97,6 +97,20 @@
 
     <script>
         const table = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'
+        const ORDINANCE_MAX_SELECTIONS = 5
+        const clampOrdinanceIndices = (indices, optionCount) => {
+            const seen = new Set()
+            const out = []
+            for (const raw of indices) {
+                const idx = parseInt(raw)
+                if (isNaN(idx) || idx < 0 || idx >= optionCount) continue
+                if (seen.has(idx)) continue
+                seen.add(idx)
+                out.push(idx)
+                if (out.length >= ORDINANCE_MAX_SELECTIONS) break
+            }
+            return out
+        }
         const getBase64StringFromBoolean = (values) => {
             bytes = []
             ctr = 0
@@ -400,7 +414,8 @@
                         });
                         if (flag.default) {
                             let defaultsWithOrder = flag.default.filter(d => d.order !== null)
-                                .sort((a, b) => a.order - b.order);
+                                .sort((a, b) => a.order - b.order)
+                                .slice(0, ORDINANCE_MAX_SELECTIONS);
                             defaultsWithOrder.forEach((d, index) => {
                                 let checkbox = container.find(`.ordinance-checkbox[data-option-id="${d.id}"]`);
                                 checkbox.prop("checked", true);
@@ -430,21 +445,18 @@
                             let type = obj[0].type;
 
                             if (obj.hasClass('ordinance-option-container')) {
-                                let orderedIndices = flag_parsed.slice(1);
                                 let allCheckboxes = obj.find('.ordinance-checkbox').toArray();
+                                let orderedIndices = clampOrdinanceIndices(flag_parsed.slice(1), allCheckboxes.length);
                                 obj.find('.ordinance-checkbox').each(function() {
                                     $(this).prop("checked", false);
                                     $(this).removeAttr('data-ordinance-order');
                                     $(this).siblings('label').find('.ordinance-order').text('');
                                 });
-                                orderedIndices.forEach((indexStr, order) => {
-                                    let optIndex = parseInt(indexStr);
-                                    if (optIndex >= 0 && optIndex < allCheckboxes.length) {
-                                        let checkbox = $(allCheckboxes[optIndex]);
-                                        checkbox.prop("checked", true);
-                                        checkbox.attr('data-ordinance-order', order + 1);
-                                        checkbox.siblings('label').find('.ordinance-order').text((order + 1) + '.');
-                                    }
+                                orderedIndices.forEach((optIndex, order) => {
+                                    let checkbox = $(allCheckboxes[optIndex]);
+                                    checkbox.prop("checked", true);
+                                    checkbox.attr('data-ordinance-order', order + 1);
+                                    checkbox.siblings('label').find('.ordinance-order').text((order + 1) + '.');
                                 });
                             }
                             else if (type == "number") {
@@ -694,7 +706,7 @@
                 // Handle ordinance checkbox clicks
                 $('body').on('change', '.ordinance-checkbox', function() {
                     let container = $(this).closest('.ordinance-option-container');
-                    let maxSelections = 5;
+                    let maxSelections = ORDINANCE_MAX_SELECTIONS;
 
                     if ($(this).is(':checked')) {
                         let checkedCount = container.find('.ordinance-checkbox:checked').length;

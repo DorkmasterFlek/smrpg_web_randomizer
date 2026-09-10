@@ -150,7 +150,7 @@ from ...data.variables.event_script_names import (
         E1329_HILL_UNLOCKS,
         E1169_OPEN_LANDS_END_IF_GATED_BY_ELDER,
     )
-from .debug import apply_debug_start_items
+from .debug import apply_starting_items_and_coins
 
 if TYPE_CHECKING:
     from ...types.gameworld import GameWorld
@@ -688,4 +688,4 @@ def apply_shuffler_independent_settings(world: GameWorld) -> None:
     for h in to_delete:
         world.event_scripts.delete_command_by_identifier(h)
 
-    apply_debug_start_items(world)
+    apply_starting_items_and_coins(world)

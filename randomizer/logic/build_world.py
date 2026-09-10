@@ -79,6 +79,7 @@ from randomizer.logic.shufflers.equipment import (
     build_item_to_prize_mapping,
 )
 from randomizer.logic.shufflers.shops import (
+    apply_free_shop_prices,
     exclude_seeya_from_frog_disciple,
     reprice_nonvanilla_shop_items,
     shuffle_shops,
@@ -283,6 +284,8 @@ def build_world(world: GameWorld) -> None:
             raise
 
     # Do shop shuffling next. Placement can depend on how item/equip impact was judged
+    apply_free_shop_prices(world)
+
     if world.settings.isflag_enabled(ShuffleShops):
         shuffle_shops(world)
     elif world.settings.isflag_enabled(SeeYa):
