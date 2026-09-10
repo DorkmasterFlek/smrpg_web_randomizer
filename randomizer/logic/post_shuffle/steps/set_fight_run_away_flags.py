@@ -39,6 +39,8 @@ def set_fight_run_away_flags(world: GameWorld) -> None:
             pack = world.battle_packs._packs[location._pack_id]
             for formation in pack.formations:
                 formation.set_can_run_away(location.allow_run_away)
+                if not location.allow_run_away:
+                    formation.set_unknown_bit(True)
 
     # Allow running away from the three mimic-reserved packs when MimicsAnywhere
     # is enabled, and from the slots-specific mimic 3 pack when SlotsAnywhere is

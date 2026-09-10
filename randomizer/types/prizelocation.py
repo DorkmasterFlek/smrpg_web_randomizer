@@ -2278,6 +2278,8 @@ class BossFightLocation(PrizeLocation):
             # Apply location-specific overrides to the formation
             # Always set run away based on location, not the prize's original setting
             formation.set_can_run_away(run_away)
+            if not run_away:
+                formation.set_unknown_bit(True)
             if self.prize.force_battlefield is not None:
                 formation.set_battlefield(self.prize.force_battlefield)
             if self.prize.force_start_event is not None:
@@ -2291,6 +2293,8 @@ class BossFightLocation(PrizeLocation):
                 )
                 # Always set run away based on location, not the prize's original setting
                 f.set_can_run_away(run_away)
+                if not run_away:
+                    f.set_unknown_bit(True)
                 if self.prize.force_battlefield is not None:
                     f.set_battlefield(self.prize.force_battlefield)
                 if self.prize.force_start_event is not None:
@@ -2311,6 +2315,8 @@ class BossFightLocation(PrizeLocation):
                         self.prize._members  # pyright: ignore[reportArgumentType]
                     )
                 f.set_can_run_away(slots_run_away)
+                if not slots_run_away:
+                    f.set_unknown_bit(True)
                 if self.prize.force_battlefield is not None:
                     f.set_battlefield(self.prize.force_battlefield)
                 if self.prize.force_start_event is not None:
