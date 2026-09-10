@@ -922,6 +922,45 @@ def shuffle_rules(world: GameWorld) -> dict[int, list[type[Prize]]]:
             available=roster_allies
         )
 
+    if world.settings.isflag_enabled(
+        SpellsAnywhere
+    ) and not world.settings.isflag_enabled(CharacterLearnedSpells):
+        sa_disabled_spells: set[type] = {
+            m.value for m in world.settings.get_flag(AvailableSpells).disabled
+        }
+
+        def _owns_available_damage_spell(prize_cls: type[CharacterPrize]) -> bool:
+            return any(
+                spell_prize._spell not in sa_disabled_spells
+                and vanilla_spell_owner(spell_prize) is prize_cls
+                for spell_prize in damaging_spell_prizes()
+            )
+
+        recruited_during_progression: set[type[CharacterPrize]] = set(
+            progression_required_chars
+        )
+        for ally in world._cached_starting_chars or []:
+            starter_prize = all_character_prizes.get(ally.name)
+            if starter_prize is not None:
+                recruited_during_progression.add(starter_prize)
+
+        if not any(_owns_available_damage_spell(c) for c in recruited_during_progression):
+            candidates = sorted(
+                (c for c in selected_roster if _owns_available_damage_spell(c)),
+                key=lambda cls: cls.__name__,
+            )
+            if not candidates:
+                raise ValueError(
+                    "No ally in this seed owns an available damaging spell. Enable an ally who owns one, "
+                    "or re-enable a damaging spell belonging to an ally in the seed."
+                )
+            if world._cached_spell_damage_char is None:
+                world._cached_spell_damage_char = random.choice(candidates)
+            promoted = world._cached_spell_damage_char
+            if promoted not in progression_required_chars:
+                progression_required_chars.add(promoted)
+                progress_rules.append(promoted)
+
     selected_spells = select_spells(world, selected_roster)
 
     selected_damaging_spells: list[type[SpellPrize]] = [
@@ -948,26 +987,12 @@ def shuffle_rules(world: GameWorld) -> dict[int, list[type[Prize]]]:
     random.shuffle(preferred_spells)
     random.shuffle(other_spells)
     ordered_damaging = preferred_spells + other_spells
-    # With SpellsAnywhere on and learned spells vanilla, can_accept() only takes a
-    # spell once its vanilla owner is recruited, and the progression pass recruits
-    # exactly two groups: the starters, which are pre-filled into their locations
-    # (and pulled from the pool) before any place() call, and the
-    # progression-required characters, which place() seats first. Everyone else is a
-    # MANDATORY_INCLUSIONS fill handled by a *later* place(), so a progression-tier
-    # spell owned by one of them has zero legal locations anywhere in the world and
-    # strands the pass on every retry. Toadstool owns exactly one damaging spell
-    # (Psych Bomb), so a lone-Toadstool roster always stranded the second pick.
-    # Filtering before the slice keeps 2 wherever 2 are placeable and drops to 1
-    # where only one is. Applied after both shuffles, so the random stream is
-    # untouched and seeds that already worked are unaffected.
     if world.settings.isflag_enabled(
         SpellsAnywhere
     ) and not world.settings.isflag_enabled(CharacterLearnedSpells):
         recruited_during_progression: set[type[CharacterPrize]] = set(
             progression_required_chars
         )
-        # Explicit starters are already progression-required; a Random_X starter is
-        # not, but is still pre-filled and so recruited from the first sphere.
         for ally in world._cached_starting_chars or []:
             starter_prize = all_character_prizes.get(ally.name)
             if starter_prize is not None:
@@ -1053,7 +1078,9 @@ def shuffle_rules(world: GameWorld) -> dict[int, list[type[Prize]]]:
     if not world.settings.isflag_enabled(NoStarEgg):
         should_otherwise_include_rules.extend([StarEggPrize])
 
-    should_otherwise_include_rules.extend(chars_to_include)
+    should_otherwise_include_rules.extend(
+        c for c in chars_to_include if c not in progression_required_chars
+    )
     if world.settings.isflag_enabled(ShuffleBeetlemania):
         should_otherwise_include_rules.append(BeetlemaniaPrize)
     should_otherwise_include_rules.extend(
