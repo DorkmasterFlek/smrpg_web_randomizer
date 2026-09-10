@@ -244,6 +244,8 @@ class GameWorld:
     # damage spell gate. Cached and reset alongside _cached_char_fill.
     _cached_spell_damage_char: type[CharacterPrize] | None = None
 
+    _supersuit_stays_put: bool | None = None
+
     # The StartingCharacters flag's Random_X slots resolved to concrete allies,
     # drawn from the roster so a random starter is always a character the seed
     # contains. Resolving it more than once per attempt would hand the starter

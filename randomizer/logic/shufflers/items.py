@@ -1228,8 +1228,9 @@ def should_shuffle(location: PrizeLocation, world: GameWorld) -> bool:
     if location.originally_held == SuperSuitPrize and world.settings.is_flag_value(
         SuperJump2Threshold, 100
     ):
-        roll = random.randint(0, 1)
-        if roll == 1:
+        if world._supersuit_stays_put is None:
+            world._supersuit_stays_put = random.randint(0, 1) == 1
+        if world._supersuit_stays_put:
             return False
     return True
 
@@ -1526,6 +1527,7 @@ def shuffle_prizes(world: GameWorld) -> None:
     world._cached_spell_damage_char = None
     world._cached_spells = None
     world._cached_starting_chars = None
+    world._supersuit_stays_put = None
     # Fresh least-used ledger per attempt, so a retry re-deals the substitute
     # fill instead of inheriting the previous attempt's usage counts.
     world.substitute_draw_counts = {}
